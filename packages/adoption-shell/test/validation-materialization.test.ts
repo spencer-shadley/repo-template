@@ -21,6 +21,7 @@ import {
   portablePathFailure,
   resolvePayloadLink,
 } from "../../../artifacts/adoption-shell-v2/path-policy.js";
+import { constructReleasePayloadAt, WORKTREE_REF } from "../../../tools/release-payload.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -139,6 +140,28 @@ void test("object key order cannot influence output bytes or receipts", () => {
   assert.equal(receipt.result, "verified");
   assert.equal("createdAt" in receipt, false);
   assert.equal("updatedAt" in receipt, false);
+});
+
+void test("normal adoption preserves the repository validation profile and canonical protocol reference", () => {
+  const output = materializeAdoptionShellV2({
+    ...readMaterializerInput("contracts/adoption-shell-v2/fixtures/minimal-input.json"),
+    release: constructReleasePayloadAt(WORKTREE_REF).payload,
+    capabilities: readJson("contracts/adoption-shell-v2/capability-bundle-registry.json"),
+    requestedBundles: [],
+  });
+  const profile = output.entries.find((entry) => entry.path === "local-ci.json");
+  assert.ok(profile, "normal adoption includes the repository-owned profile");
+  assert.equal(
+    Buffer.from(profile.contentBase64, "base64").toString("utf8"),
+    fs.readFileSync(path.join(root, "local-ci.json"), "utf8"),
+    "commands, selectors, required legs and receipt declarations survive adoption unchanged",
+  );
+  const enrollment = output.entries.find((entry) => entry.path === "docs/QUEUE-ENROLLMENT.md");
+  assert.ok(enrollment, "normal adoption includes canonical-protocol enrollment guidance");
+  assert.match(
+    Buffer.from(enrollment.contentBase64, "base64").toString("utf8"),
+    /spencer-shadley\/code:skills\/validation-protocol\/SKILL\.md/,
+  );
 });
 
 void test("all committed negative fixtures fail with sorted targeted diagnostics", () => {

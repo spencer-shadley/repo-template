@@ -14,6 +14,7 @@ audit, the autonomous loop) rely on these paths.
 | `docs/QUALITY-LINT.md` | required repo-quality bootstrap, including install/check of the versioned default-branch commit guard |
 | `packages/repo-quality/default-branch-guard/` | portable guard implementation used by the package export; adoption installs it into Git hooks |
 | `docs/QUEUE-ENROLLMENT.md` | how this repo joins the autonomous flywheel — enrollment is the default, opt-out needs an ADR |
+| `local-ci.json` | repository-owned PR/full validation commands, selectors, legs and environment; [profile inventory and adoption setup](docs/QUEUE-ENROLLMENT.md#repository-owned-validation-profile) |
 | `docs/INCIDENTS.md` | curated post-mortems (majors only) |
 | `docs/RUNBOOK.md` | recovery recipes specific to this repo |
 | `docs/OBSERVABILITY.md` | what we log/measure and where to look |

@@ -17,6 +17,42 @@ pin that protocol into the repository. An unavailable canonical protocol is unre
 not permission to invent semantics or bypass identity/integrity requirements. Preserve the actual
 consumed protocol identity, reproducibility, availability and rollback evidence required by Code.
 
+## Repository-owned validation profile
+
+`local-ci.json` supplies this template's executable profile. Its
+`commands.authoritative-gate` resolves to `pnpm verify` in the template's `package.json`.
+The `merge` PR profile has an explicit broader fallback to that gate; the exhaustive profile
+declares the single `default` leg for the same gate. The `simpleDiff.quality-lint` selector
+declares `pnpm lint` for its listed quality-configuration paths. Selection and receipt semantics
+come from the canonical Code protocol named above.
+
+The current exhaustive inventory is:
+
+| Surface | Checks reached by `pnpm verify` |
+|---|---|
+| Source and package quality | `knip`, `dup`, `secret:dir`, `lint`, directory-breadth checks, required quality-lint configuration |
+| Types and published artifacts | `typecheck`, `build:check`, `verify:artifact`, repo-quality emitted-export and npm-artifact checks |
+| Runtime and regression suites | `test`: adoption-shell tests in `packages/adoption-shell/test/` and `plan/`, env-access lint tests, TODO-link, hermetic-preload and default-branch-guard selfchecks |
+| Template and portable contracts | `verify:self`: manifest/materialization, validation-profile conservation, issue inheritance, changelog/semver, supply chain, fleet-law/label, runtime-artifact, package-store, mutable-version, local-SLI, detection-proof, LocalCi release and release-payload checks |
+
+`package.json` is the executable inventory; this table is navigation. Runtime and package-manager
+versions, supported platforms, environment inputs and effects are declared in `local-ci.json`.
+Its PR receipt flags declare candidate/base/integration bindings; no additional repository-specific
+receipt fields are declared. These configuration facts alone are not a validation run receipt.
+
+<!-- TODO(setup!): replace local-ci.json's repository identity, commands, selectors, required legs,
+     runtime/package manager, environment and effects with destination facts; update this inventory
+     to match the destination package scripts. -->
+
+The coverage GAP reported in [repo-template#523](https://github.com/spencer-shadley/repo-template/issues/523)
+is a collector alignment residual when its only reasons are `missing-pr-validation-skill` and
+`missing-full-validation-skill`: [#459](https://github.com/spencer-shadley/repo-template/issues/459)
+retired those generic copies. Keep the observed GAP visible under the existing Code audit owners
+[code#5480](https://github.com/spencer-shadley/code/issues/5480) and
+[code#5954](https://github.com/spencer-shadley/code/issues/5954), alongside the inspected SHA and
+repository-profile evidence. Local checks establish profile validity and portability; terminal
+fleet PASS is established by the canonical coverage audit.
+
 ## What enrollment means
 
 All source changes flow **issue → triage → plan → loop (implement/verify/review) → PR → merge**.
