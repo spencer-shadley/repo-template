@@ -1,6 +1,0 @@
-{"ts":"2026-07-28T22:15:29.156Z","project":"repo-template","nnn":"034","concurrency":"exclusive","write":[],"read":[],"resource":[],"serviceClass":null,"valid":false,"reason":"missing-block","stream":"concurrency-capture"}
-{"ts":"2026-07-28T22:19:42.595Z","project":"repo-template","nnn":"034","concurrency":"exclusive","write":[],"read":[],"resource":[],"serviceClass":null,"valid":false,"reason":"missing-block","stream":"concurrency-capture"}
-{"ts":"2026-07-28T22:31:59.163Z","project":"repo-template","nnn":"034","concurrency":"exclusive","write":[],"read":[],"resource":[],"serviceClass":null,"valid":false,"reason":"missing-block","stream":"concurrency-capture"}
-{"ts":"2026-07-30T04:15:26.388Z","project":"repo-template","nnn":"035","concurrency":"exclusive","write":[],"read":[],"resource":[],"serviceClass":null,"valid":false,"reason":"missing-block","stream":"concurrency-capture"}
-{"ts":"2026-08-01T21:52:44.585Z","project":"repo-template","nnn":"036","concurrency":"exclusive","write":[],"read":[],"resource":[],"serviceClass":null,"valid":false,"reason":"missing-block","stream":"concurrency-capture"}
-{"ts":"2026-08-08T21:31:51.203Z","project":"repo-template","nnn":"037","concurrency":"exclusive","write":[],"read":[],"resource":[],"serviceClass":null,"valid":false,"reason":"invalid-concurrency","stream":"concurrency-capture"}
