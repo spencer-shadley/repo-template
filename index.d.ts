@@ -1,0 +1,16 @@
+export const STACK_WAIVER_PATTERN: RegExp;
+export const ESLINT_INLINE_CONFIG_PATTERN: RegExp;
+export const ISSUE_TRACKING_PATTERN: RegExp;
+export const JS_FILE_PATTERN: RegExp;
+export const KNIP_CONFIG: Readonly<{ readonly rules: Readonly<{ readonly cycles: "error" }> }>;
+export function knipConfig(): { rules: { cycles: "error" } };
+export const preferTypeScriptRule: import("eslint").Rule.RuleModule;
+export const noEslintInlineConfigRule: import("eslint").Rule.RuleModule;
+export const fleetPlugin: import("eslint").ESLint.Plugin;
+export const DEFAULT_FLEET_IGNORES: readonly string[];
+export const DEFAULT_FLEET_GLOBALS: Readonly<Record<string, boolean>>;
+export function qualityRules(options?: Record<string, unknown>): unknown[];
+export const QUALITY_LINT_GATE_ID: string;
+export const QUALITY_LINT_GATE_VERSION: string;
+export const RuleTester: typeof import("eslint").RuleTester;
+export const typescriptEslint: typeof import("typescript-eslint");
