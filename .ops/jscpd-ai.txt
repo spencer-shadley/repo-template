@@ -1,0 +1,68 @@
+[1mClones[22m:
+artifacts/adoption-shell-v2/ capability-bundles.js:27-44 ~ validate.js:53-70
+artifacts/adoption-shell-v2/contract.d.ts:41-269 ~ packages/adoption-shell/src/contract.ts:62-318
+artifacts/adoption-shell-v2/delivery-measurement-contract.d.ts:8-104 ~ packages/adoption-shell/src/delivery-measurement-contract.ts:52-150
+artifacts/adoption-shell-v2/index.d.ts:1-26 ~ packages/adoption-shell/src/index.ts:1-183
+artifacts/adoption-shell-v2/local-ci-contract-v2.d.ts:4-69 ~ packages/adoption-shell/src/local-ci-contract-v2.ts:9-84
+artifacts/adoption-shell-v2/ local-ci-contract-v2.js:7-33 ~ local-ci-contract-v3.js:8-34
+artifacts/adoption-shell-v2/ local-ci-contract-v2.js:34-57 ~ local-ci-contract-v3.js:68-91
+artifacts/adoption-shell-v2/ local-ci-contract-v2.js:64-86 ~ local-ci-contract-v3.js:98-120
+artifacts/adoption-shell-v2/ local-ci-contract-v2.js:89-104 ~ local-ci-contract-v3.js:124-139
+artifacts/adoption-shell-v2/ local-ci-contract-v2.js:108-137 ~ local-ci-contract-v3.js:143-172
+artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts:46-83 ~ packages/adoption-shell/src/local-ci-contract-v3.ts:51-92
+artifacts/adoption-shell-v2/ validate-manifests.js:45-62 ~ validate.js:36-53
+artifacts/adoption-shell-v2/work-migration-manifest-v1.d.ts:26-51 ~ packages/adoption-shell/src/work-migration-manifest-v1.ts:35-58
+contracts/adoption-shell-v2/ capability-bundle.schema.json:40-85 ~ materializer-output-manifest.schema.json:77-122
+contracts/local-ci/ v2/local-ci-contract-v2.schema.json:20-55 ~ v3/local-ci-contract-v3.schema.json:63-98
+contracts/local-ci/ v2/local-ci-contract-v2.schema.json:78-239 ~ v3/local-ci-contract-v3.schema.json:124-285
+docs/ adoption-status-2026-07-28.md:markdown:66-88 ~ adoption-status-disposition-2026-07-28-8fcf6710.md:markdown:41-63
+packages/adoption-shell/src/ capability-bundles.ts:59-88 ~ validate.ts:111-140
+packages/adoption-shell/src/ local-ci-contract-v2.ts:82-108 ~ local-ci-contract-v3.ts:90-116
+packages/adoption-shell/src/ local-ci-contract-v2.ts:114-137 ~ local-ci-contract-v3.ts:164-187
+packages/adoption-shell/src/ local-ci-contract-v2.ts:148-170 ~ local-ci-contract-v3.ts:198-220
+packages/adoption-shell/src/ local-ci-contract-v2.ts:174-195 ~ local-ci-contract-v3.ts:225-246
+packages/adoption-shell/src/ local-ci-contract-v2.ts:200-229 ~ local-ci-contract-v3.ts:251-280
+packages/adoption-shell/src/ plan-record-v1.ts:104-123 ~ work-migration-manifest-v1.ts:90-109
+packages/adoption-shell/src/ release-candidate.ts:41-56 ~ release-closure.ts:20-38
+packages/adoption-shell/src/ validate-manifests.ts:79-109 ~ validate.ts:80-111
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:1-19 ~ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:1-19
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:1-19 ~ 041-red-master-fix-the-knip-stage-of-pnpm-verify-rt-306.md:markdown:1-19
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:22-52 ~ 041-red-master-fix-the-knip-stage-of-pnpm-verify-rt-306.md:markdown:27-60
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:22-68 ~ archive/040-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:23-71
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:27-40 ~ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:29-42
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:56-68 ~ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:58-70
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:56-70 ~ 041-red-master-fix-the-knip-stage-of-pnpm-verify-rt-306.md:markdown:61-75
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:89-99 ~ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:117-127
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:112-127 ~ archive/037-keep-quality-lint-bundle-in-generated-capability-registry.md:markdown:112-128
+plans/038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown 125-138 ~ 125-138
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:125-141 ~ archive/021-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md:markdown:60-66
+plans/ 038-publish-deterministic-npm-artifact-for-repo-quality-and-veri.md:markdown:136-159 ~ archive/037-keep-quality-lint-bundle-in-generated-capability-registry.md:markdown:125-149
+plans/ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:1-19 ~ archive/040-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:1-19
+plans/ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:96-108 ~ archive/040-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:71-83
+plans/ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:113-141 ~ archive/040-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:96-124
+plans/ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:115-127 ~ 041-red-master-fix-the-knip-stage-of-pnpm-verify-rt-306.md:markdown:97-109
+plans/ 039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:141-170 ~ archive/040-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md:markdown:124-153
+plans/ 039.critic.md:json:14-59 ~ 041.critic.md:json:14-59
+plans/ 039.critic.md:json:14-59 ~ archive/040.critic.md:json:14-59
+plans/ 039.critic.md:json:59-94 ~ archive/040.critic.md:json:59-94
+plans/archive/ 010-harden-verify-gate-conflict-marker-check-to-distinguish-grep.md:markdown:5-24 ~ 011-harden-template-self-verify-gate-conflict-marker-check-to-pa.md:markdown:5-24
+plans/archive/ 014-fill-in-repo-template-in-the-live-queue-md-header.md:markdown:6-25 ~ 016-set-repo-template-s-live-queue-md-header-to-a-real-project-n.md:markdown:6-25
+plans/archive/ 020.pre-refresh.feedback.md:text:10-21 ~ 020.pre-refresh.result.md:text:31-42
+plans/archive/020.pre-refresh.log.md:markdown 13-26 ~ 33-46
+plans/archive/ 020.pre-refresh.log.md:markdown:13-25 ~ 020.pre-refresh.result.md:markdown:49-60
+plans/archive/ 020.pre-refresh.result.md:markdown:29-50 ~ 022.result.md:markdown:10-31
+plans/archive/ 021-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md:markdown:6-26 ~ 022-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md:markdown:7-27
+plans/archive/ 021-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md:markdown:35-45 ~ 022-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md:markdown:43-53
+plans/archive/ 021-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md:markdown:65-80 ~ 022-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md:markdown:77-94
+plans/archive/027.critic.md:json 11-46 ~ 49-84
+plans/archive/028.critic.md:json 11-46 ~ 49-84
+plans/archive/034.critic.md:json 11-54 ~ 57-100
+plans/archive/ 037.log.md:markdown:96-135 ~ 037.result.md:markdown:28-67
+---
+[1m59[22m clones · [1m4.6%[22m duplication
+[90mtime: 95.538ms[39m
+
+[90m💡 Auto-refactor with AI: [1m[39mnpx skills add https://github.com/kucherenko/jscpd --skill dry-refactoring[90m[22m
+[90m🎩 New: Gangsta Agents — discipline your AI coding → gangsta.page[39m
+[90m💖 Support jscpd project → https://opencollective.com/jscpd[39m
+Using config from C:\Users\spenc\AppData\Local\agent-orchestrator\worktrees\repo-template-rt-318-gate-readback\packages\repo-quality\jscpd.json
