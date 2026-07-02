@@ -1,3 +1,24 @@
+<!-- TEMPLATE-SELF — rules for working on repo-template ITSELF. adopt-project STRIPS this block
+     (and resets plans/ + deletes any .ops data) when instantiating a new repo. -->
+# THIS repo: the living template (meta-rules)
+
+This repo IS the workspace standard. Everything below the `/TEMPLATE-SELF` marker is CONTENT copied
+into new repos — `{{PLACEHOLDERS}}` and `TODO(setup):` markers there are INTENTIONAL; never "fix"
+them when working on this repo.
+
+- **Queue project, auto-tier** (docs/config only): changes flow issue → triage → plan → loop →
+  auto-merge. `plans/QUEUE.md` here is this repo's LIVE queue; instantiation resets it.
+- **Verify gate for THIS repo:**
+  ```bash
+  ! grep -rn '<<<<<<<' --include='*.md' --include='*.yml' .
+  for f in README.md AGENTS.md CLAUDE.md TODO.md SECURITY.md .gitignore plans/QUEUE.md docs/ARCHITECTURE.md docs/adr/0001-design-philosophies.md docs/adr/0005-git-conventions.md; do [ -f "$f" ] || { echo "missing $f"; exit 1; }; done
+  ```
+- **Change discipline:** every structural change states WHICH fleet learning/incident motivates it
+  (ADRs cite evidence); user-facing additions get README-table + TODO.md entries.
+- **Sync duty (living-template doctrine):** when structure changes, verify the adopt-project
+  skill's instructions still match; flag drift in the plan/PR.
+<!-- /TEMPLATE-SELF -->
+
 # {{NAME}} — Agent Rules
 
 {{ONE_LINE_DESCRIPTION}}. The root `../AGENTS.md` (Codex handoff protocol) also applies;
