@@ -4,3 +4,4 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
+- 001 P2 workspace-context-section-every-repo-lives-under-the-code-wo
