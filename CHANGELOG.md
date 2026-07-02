@@ -16,6 +16,11 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
      namespaces, DB identities, vendored code). Recording these prevents future agents from
      "fixing" them. -->
 
+## [2.2.0] - 2026-07-02
+
+### Added
+- `docs/QUEUE-ENROLLMENT.md`; enrollment near-mandated.
+
 ## [2.1.0] - 2026-07-02
 
 ### Added
