@@ -17,5 +17,7 @@ audit, the autonomous loop) rely on these paths.
 | `.ops/incidents.jsonl` | machine incident stream (appears lazily; append-only; weekly-rotated) |
 | `plans/QUEUE.md` | the autonomous work queue (`## Pending` = auto-merge lane) |
 | `TODO.md` | setup survey — master checklist mirroring every `TODO(setup):` in the tree |
+| `docs/ARCHITECTURE.md` | the system map agents load when entering cold |
+| `SECURITY.md` | secrets doctrine + leak playbook |
 
 **Setup audit:** `grep -rn "TODO(setup)"` — zero hits = fully configured.

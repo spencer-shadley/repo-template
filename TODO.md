@@ -18,6 +18,10 @@ the DECISION; this list makes the audit one glance.
 - [ ] State/data ownership and migration story
 - [ ] Dependency posture (vendored? pinned? update cadence?)
 
+## Architecture & security
+- [ ] docs/ARCHITECTURE.md: components, data flows, external deps w/ reversibility class, look-first files
+- [ ] SECURITY.md: extend .gitignore for THIS repo's secret shapes before the first secret exists
+
 ## Wiring
 - [ ] `.github/workflows/ci.yml`: fill the lint/test steps (CI is ADVISORY here — the merge gate is the orchestrator's local worktree CI)
 - [ ] Pre-commit hooks (if any) documented in AGENTS.md — and NEVER able to block WIP-preservation commits (loop uses --no-verify for those by design)
