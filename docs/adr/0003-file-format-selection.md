@@ -39,7 +39,7 @@ Secondary axes: write pattern (appended vs whole-state) and escaping risk.
 Three real bugs from format mistakes in one hardening run: a digest parsing a defunct md log format
 (2 dead report sections); a QUEUE.md line-regex fragility in dequeue bookkeeping; a status-string
 parse (`unknown:ready for codex`) that tripped a global circuit breaker on four SUCCESSFUL runs.
-Meanwhile every jsonl stream (telemetry, triage, incidents) survived concurrent writers and schema
+Convergent evidence: sharingan independently invented a locked JSONL audit ledger (.state/recycle-ledger.jsonl) for its destructive-op trail. Meanwhile every jsonl stream (telemetry, triage, incidents) survived concurrent writers and schema
 drift without incident.
 
 ## Consequences

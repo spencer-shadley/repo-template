@@ -14,7 +14,10 @@ fine — record WHY here.
 2. **External side effects** (APIs, email, user data) — what confines them?
    <!-- TODO(setup): every external call site needs: rate limiting/backoff (429-aware), a circuit
         breaker for repeated failure, and a reversibility note. Lesson: a blocked provider token is
-        EXISTENTIAL; bad code is revertible, consumed quota is not. -->
+        EXISTENTIAL; bad code is revertible, consumed quota is not. Additionally (convention
+        proven in sharingan): DESTRUCTIVE ops (delete/move/overwrite user data) require
+        multi-attribute identity verification gates before acting (never single-key matching),
+        fail-closed on any uncertainty, and write a JSONL audit ledger row for every action. -->
 3. **Testing depth** — what layers, and what does the verify gate run?
    <!-- TODO(setup): the loop's verify gate is the REAL quality bar (merge-blocking, runs locally).
         It must cover every artifact type in the repo and be environment-honest: browser/docker/

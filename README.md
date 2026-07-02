@@ -19,5 +19,7 @@ audit, the autonomous loop) rely on these paths.
 | `TODO.md` | setup survey — master checklist mirroring every `TODO(setup):` in the tree |
 | `docs/ARCHITECTURE.md` | the system map agents load when entering cold |
 | `SECURITY.md` | secrets doctrine + leak playbook |
+| `CHANGELOG.md` | Keep-a-Changelog + the *Unchanged (intentional)* frozen-namespace section |
+| `GEMINI.md` | thin pointer (every agent tool gets one; all point at AGENTS.md) |
 
 **Setup audit:** `grep -rn "TODO(setup)"` — zero hits = fully configured.

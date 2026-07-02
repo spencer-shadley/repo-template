@@ -18,3 +18,17 @@ obligations (ADR-0001 §8) include updating this when components/flows change.
 
 ## Where to look first
 <!-- TODO(setup): top 3 entry-point files for understanding + top 3 for debugging. -->
+
+## Diagram (recommended)
+A mermaid diagram makes the map agent-parseable AND renderable. Keep the syntax-guard comment —
+it prevents agents from generating unrenderable variants (convention from task-dag):
+```mermaid
+%% Mermaid syntax guard: simple flowchart arrows only; no custom classes; no thick labeled arrows.
+flowchart LR
+  User --> App
+```
+
+## Component inventory (for repos with many moving parts)
+Optional table (convention from sharingan — excellent for script fleets): one row per component:
+`ID | area | responsibilities | consumed-by`. The consumed-by column ("imported by N scripts:
+...") is the high-value part — it makes blast-radius visible before a change.
