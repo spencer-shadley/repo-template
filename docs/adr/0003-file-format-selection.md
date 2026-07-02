@@ -5,8 +5,13 @@
 
 ## Decision
 
-Choose by three axes: WHO reads it (human/LLM vs program), HOW it's written (authored vs appended
-vs whole-state), and whether fields can contain prose (escaping risk).
+Choose by CONTEXT vs RECORD (the primary axis — agents are the primary readers of everything):
+- **RECORD** (things that HAPPENED: events, incidents, outcomes, metrics) → **jsonl, always.**
+  Readable forms are GENERATED VIEWS rendered on demand — never maintained files.
+- **CONTEXT** (things agents INGEST to act: instructions, doctrine, decision prose) → **md** — LLMs
+  consume long prose most efficiently as markdown, and context gets diff-reviewed (md diffs read;
+  escaped-prose jsonl diffs do not).
+Secondary axes: write pattern (appended vs whole-state) and escaping risk.
 
 | Format | Use when |
 |---|---|
@@ -18,6 +23,7 @@ vs whole-state), and whether fields can contain prose (escaping risk).
 
 ## Rules
 
+0. **No maintained record-files in md.** A curated incident/report md file is a record wearing a context costume — it WILL drift from the stream. Generated views only (digest/ops-report pattern).
 1. **md-as-data is banned for new surfaces.** Grandfathered only where the schema is
    one-line-regex-simple AND humans must hand-edit it (plans/QUEUE.md). Anything richer:
    **jsonl is the source of truth; md is a GENERATED view** (digest pattern). Never hand-maintain
