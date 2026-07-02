@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 002 P2 queue-adoption-enrollment-spelled-out-and-near-mandated-next
