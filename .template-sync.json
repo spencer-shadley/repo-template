@@ -1,7 +1,8 @@
 {
   "template": "spencer-shadley/repo-template",
+  "syncedVersion": "TODO(setup): template semver this repo last synced to (e.g. 1.0.0)",
   "syncedCommit": "TODO(setup): set to the template HEAD sha this repo was instantiated/last synced from",
   "syncedAt": "TODO(setup): ISO date of that sync",
   "skipPaths": [],
-  "_comment": "Template-subscription anchor. A sweep diffs template HEAD against syncedCommit and files a migration issue when structural deltas appear. After applying a migration plan, update syncedCommit+syncedAt in the same PR. skipPaths lists template paths this repo deliberately diverges from (each entry should cite an ADR or CHANGELOG 'Unchanged (intentional)' line)."
+  "_comment": "Template-subscription anchor. A sweep diffs template HEAD against syncedCommit and files a migration issue when structural deltas appear. After applying a migration plan, update syncedCommit+syncedAt in the same PR. skipPaths lists template paths this repo deliberately diverges from (each entry should cite an ADR or CHANGELOG 'Unchanged (intentional)' line). syncedVersion is the semantic anchor: the drift sweep files MAJOR bumps as P1 must-migrate, MINOR as P2 should-adopt, and stays SILENT on patch-only drift."
 }

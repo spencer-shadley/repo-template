@@ -15,6 +15,11 @@ them when working on this repo.
   ```
 - **Change discipline:** every structural change states WHICH fleet learning/incident motivates it
   (ADRs cite evidence); user-facing additions get README-table + TODO.md entries.
+- **Versioning (semver for STRUCTURE):** every merged change updates CHANGELOG [Unreleased]. Bumps:
+  MAJOR = breaking (file moved/removed/renamed, schema change, rule reversal in an accepted ADR) —
+  repos MUST migrate; MINOR = additive structure (new file/section/ADR/survey question) — repos
+  SHOULD adopt; PATCH = wording/clarity — no migration, silent pickup. A release = set
+  TEMPLATE_VERSION + move [Unreleased] under a version heading + git tag vX.Y.Z (same commit).
 - **Sync duty (living-template doctrine):** when structure changes, verify the adopt-project
   skill's instructions still match; flag drift in the plan/PR.
 <!-- /TEMPLATE-SELF -->
