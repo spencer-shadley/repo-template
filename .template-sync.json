@@ -1,0 +1,7 @@
+{
+  "template": "spencer-shadley/repo-template",
+  "syncedCommit": "TODO(setup): set to the template HEAD sha this repo was instantiated/last synced from",
+  "syncedAt": "TODO(setup): ISO date of that sync",
+  "skipPaths": [],
+  "_comment": "Template-subscription anchor. A sweep diffs template HEAD against syncedCommit and files a migration issue when structural deltas appear. After applying a migration plan, update syncedCommit+syncedAt in the same PR. skipPaths lists template paths this repo deliberately diverges from (each entry should cite an ADR or CHANGELOG 'Unchanged (intentional)' line)."
+}

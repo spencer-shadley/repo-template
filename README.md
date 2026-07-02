@@ -21,5 +21,6 @@ audit, the autonomous loop) rely on these paths.
 | `SECURITY.md` | secrets doctrine + leak playbook |
 | `CHANGELOG.md` | Keep-a-Changelog + the *Unchanged (intentional)* frozen-namespace section |
 | `GEMINI.md` | thin pointer (every agent tool gets one; all point at AGENTS.md) |
+| `.template-sync.json` | subscription anchor: which template commit this repo last synced to |
 
 **Setup audit:** `grep -rn "TODO(setup)"` — zero hits = fully configured.
