@@ -5,3 +5,4 @@
 
 ## Pending
 - 001 P2 workspace-context-section-every-repo-lives-under-the-code-wo
+- 002 P2 queue-adoption-enrollment-spelled-out-and-near-mandated-next
