@@ -1,7 +1,7 @@
 # Plan 005: MAJOR upgrades roll out canary-first (one leaf repo, then fleet)
 
 - **Project:** repo-template
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** low
 

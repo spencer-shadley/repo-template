@@ -10,6 +10,7 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Documented canary-first rollout order for MAJOR template upgrades.
 
 ### Unchanged (intentional — frozen)
 <!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy
