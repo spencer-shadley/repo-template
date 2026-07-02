@@ -2,6 +2,7 @@
 
 - **Status:** accepted (workspace default)
 - **Date:** 2026-07-02
+- **Deciders:** Spencer Shadley, autonomous-loop maintainers
 
 ## Decision — the ladder (escalate only when forced)
 

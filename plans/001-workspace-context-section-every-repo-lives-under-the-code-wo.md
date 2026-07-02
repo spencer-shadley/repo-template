@@ -48,7 +48,7 @@ tags vX.Y.Z after merge — tags can't ride a squash-merge).
 ## Verify
 
 ```bash
-! grep -rn '<<<<<<<' --include='*.md' --include='*.yml' .
+! grep -rn '<''<<<<<<' --include='*.md' --include='*.yml' .
 for f in README.md AGENTS.md CLAUDE.md TODO.md SECURITY.md .gitignore plans/QUEUE.md docs/ARCHITECTURE.md docs/adr/0001-design-philosophies.md docs/adr/0005-git-conventions.md TEMPLATE_VERSION CHANGELOG.md; do [ -f "$f" ] || { echo "missing $f"; exit 1; }; done
 grep -q "the next MINOR above the current TEMPLATE_VERSION at implementation time" TEMPLATE_VERSION
 grep -q "spencer-shadley/code" README.md

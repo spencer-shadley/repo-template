@@ -4,6 +4,7 @@ node_modules/
 .env
 .env.*
 *.secret.*
+.orchestrator-tree.lock
 
 # loop transient sidecars (never commit)
 plans/*.log.md
@@ -11,6 +12,7 @@ plans/*.result.md
 plans/*.feedback.md
 plans/*.paused
 
-# incident log IS tracked — guard against future blanket ignores swallowing it
+# keep LAST: incident log IS tracked — guard against future blanket ignores swallowing it.
+# Parent-directory ignore rules can still hide .ops before this file is read; fix those at the parent.
 !.ops/
 !.ops/**

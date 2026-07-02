@@ -1,7 +1,7 @@
 # Plan 003: v2.0.0 pre-migration hardening — fix the 4 blockers + audit/consistency batch (MAJOR)
 
 - **Project:** repo-template
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P1
 - **Effort:** high
 
@@ -30,14 +30,14 @@ doctrine core is ship-ready; the instantiation experience has 4 blocking defects
    Reword the 4 prose self-matches (README table row + audit line, SECURITY.md:5, CHANGELOG
    convention note) to say "setup markers" without the literal pattern; add the missing colon in
    ci.yml's TODO echo.
-4. **Tier the markers.** Promote to `TODO(setup!):` (~12): verify-gate cmd, autonomy/risk tiers,
+4. **Tier the markers.** Promote to must-answer setup markers (~12): verify-gate cmd, autonomy/risk tiers,
    infra namespace, secret .gitignore shapes, ADR-0001 §2 (side effects), authoritative
    verification tool. Everything else stays `TODO(setup):`. State the two-tier rule in README.
 
 ### Consistency batch
 5. Placeholders: unify on `{{UPPER_SNAKE_0-9}}` everywhere substituted at instantiation
-   (`<project-name>` → `{{PROJECT_NAME}}` in README/ARCHITECTURE/OBSERVABILITY/RUNBOOK/QUEUE.md;
-   drop `<FILL>`); angle-brackets remain ONLY inside docs/adr/0000-template.md (per-ADR fills) —
+   (legacy project-name token → `{{PROJECT_NAME}}` in README/ARCHITECTURE/OBSERVABILITY/RUNBOOK/QUEUE.md;
+   drop the legacy fill token); angle-brackets remain ONLY inside docs/adr/0000-template.md (per-ADR fills) —
    say so there.
 6. `.template-sync.json`: null sentinels for syncedVersion/syncedCommit/syncedAt + a
    `"_setup": "TODO(setup!): adopt-project fills these at instantiation"` key.
@@ -82,19 +82,19 @@ itself (orchestrator plan 058); git tag (post-merge, driver).
 
 ## Acceptance criteria
 
-- [ ] Fresh-clone simulation: after replacing every `{{...}}` and answering every `TODO(setup!)`,
+- [ ] Fresh-clone simulation: after replacing every `{{...}}` and answering every must-answer setup marker,
       the item-3 audit grep returns ZERO (prove the audit can reach zero).
 - [ ] AGENTS.md content section contains no unconditional app-only claims (grep for `/health`,
       `redeploys`, `typecheck` outside placeholder/example comments).
 - [ ] `## Verify gate` section exists below the strip marker with `{{VERIFY_GATE_CMD}}`.
 - [ ] template-manifest.json lists every tracked file; TEMPLATE-SELF gate validates against it.
-- [ ] TODO.md contains only out-of-tree actions; `TODO(setup!)` count is 10-14.
+- [ ] TODO.md contains only out-of-tree actions; must-answer setup-marker count is 10-14.
 - [ ] Verify gate green.
 
 ## Verify
 
 ```bash
-! grep -rn '<<<<<<<' --include='*.md' --include='*.yml' --include='*.json' .
+! grep -rn '<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' .
 node -e "const m=require('./template-manifest.json');const {execSync}=require('child_process');const tracked=execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/);const missing=tracked.filter(f=>!m[f]);if(missing.length){console.error('unmanifested:',missing);process.exit(1)}"
 grep -q "2.0.0" TEMPLATE_VERSION
 ! grep -rn "TODO(setup)" --include='*.md' . | grep -v "TODO(setup)!*:" | grep -vE "setup markers|grep"
@@ -120,7 +120,7 @@ the guardrails.
     are the safety, revert is the fallback. No direct-merge bots. Upgrade plans for majors must
     cite the changelog/breaking-notes in the plan body." Remove the survey TODO for q6; keep an
     override slot.
-17. **{{DEFAULT_EFFORT}} stays a per-repo `TODO(setup!):` question — never defaulted** — and the
+17. **{{DEFAULT_EFFORT}} stays a per-repo must-answer setup-marker question — never defaulted** — and the
     adjacent comment gains selection GUIDANCE: "Pick by cost-vs-first-attempt-quality: `low` =
     docs/config repos and repos with cheap, fast verify gates (retries are cheap); `medium` =
     product repos (default starting point); `high` = only where a failed first attempt is

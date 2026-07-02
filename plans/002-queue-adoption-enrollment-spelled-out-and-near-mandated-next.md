@@ -41,7 +41,7 @@ should be the near-mandatory default, not an optional extra. User-requested 2026
    system per docs/QUEUE-ENROLLMENT.md (NEAR-MANDATORY — opt-out requires an accepted ADR)".
 4. **AGENTS.md** (content section): one line under the workspace-context paragraph: "This repo is
    queue-enrolled (see docs/QUEUE-ENROLLMENT.md); source changes go through the plan queue."
-   Include a `TODO(setup)` marker to confirm enrollment happened.
+   Include a `TODO(setup):` marker to confirm enrollment happened.
 5. **CHANGELOG.md**: new MINOR heading (next version above the current TEMPLATE_VERSION at
    implementation time, e.g. 1.2.0→1.3.0): "Added: QUEUE-ENROLLMENT doc; enrollment near-mandated."
 6. **TEMPLATE_VERSION**: bump to that same next MINOR.
@@ -61,7 +61,7 @@ git tagging (post-merge, human/driver).
 ## Verify
 
 ```bash
-! grep -rn '<<<<<<<' --include='*.md' --include='*.yml' .
+! grep -rn '<''<<<<<<' --include='*.md' --include='*.yml' .
 for f in README.md AGENTS.md CLAUDE.md TODO.md SECURITY.md .gitignore plans/QUEUE.md docs/ARCHITECTURE.md docs/QUEUE-ENROLLMENT.md TEMPLATE_VERSION CHANGELOG.md; do [ -f "$f" ] || { echo "missing $f"; exit 1; }; done
 grep -qi "opt-out requires" docs/QUEUE-ENROLLMENT.md
 grep -q "QUEUE-ENROLLMENT" README.md TODO.md AGENTS.md

@@ -36,7 +36,7 @@ plan is mechanical. Runs AFTER the v2.0.0 hardening plan (uses its template-mani
      CHANGELOG "Unchanged (intentional)" line) — otherwise the drift sweep re-files everything the
      migration deliberately skipped.
    - **Survey sourcing:** answer ADR-0001 questions from the repo's existing docs/history first
-     (most are derivable); leave `TODO(setup!)` only for the genuinely-human ones.
+     (most are derivable); leave must-answer setup markers only for the genuinely-human ones.
    - **Tier rule:** migrations of risk-tiered repos (orchestrator, workspace root) run human-tier
      (--no-queue); leaf repos may run auto-lane.
    - **Enrollment proof:** finish by running the smoke plan (plans/drafts/000-smoke.md).
@@ -55,7 +55,7 @@ plan is mechanical. Runs AFTER the v2.0.0 hardening plan (uses its template-mani
 ## Verify
 
 ```bash
-! grep -rn '<<<<<<<' --include='*.md' --include='*.yml' --include='*.json' .
+! grep -rn '<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' .
 grep -qi "case-insensitive" docs/MIGRATION.md && grep -qi "skipPaths" docs/MIGRATION.md
 grep -q "2.1.0" TEMPLATE_VERSION
 ```

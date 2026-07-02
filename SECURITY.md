@@ -2,7 +2,8 @@
 
 1. **No secret is ever committed** — tokens, capability URLs (an ntfy topic IS a password), API
    keys, `.env`. The template `.gitignore` seeds the common patterns; extend it for this repo's
-   shapes BEFORE the first secret exists (TODO(setup) in TODO.md).
+   shapes BEFORE the first secret exists. <!-- TODO(setup!): add repo-specific secret filename
+   patterns before any real secret is created. -->
 2. **Secrets live in**: gitignored local files (`.***-token`, `.notify.json`-style) or the
    platform's secret store — never in code, config-committed, or logs. Verify-gate/log output must
    not echo env (tails get pushed to branches and job logs).

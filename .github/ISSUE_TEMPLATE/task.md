@@ -1,6 +1,7 @@
 ---
 name: Task / bug / feature
 about: Triage-ready issue — the autonomous pipeline authors a plan from this
+labels: agent-review
 ---
 
 ## What
