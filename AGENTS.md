@@ -45,6 +45,12 @@ rules here take precedence on any conflict.
 
 ## Validation policy
 
+**Authoritative verification tool:** {{VISUAL_VERIFICATION_TOOL}} <!-- TODO(setup): e.g. "Playwright — never a raw dev server or preview MCP" (task-dag convention). Declaring ONE authoritative tool stops agents substituting weaker checks. -->
+
+**Done-report convention:** when reporting a change complete, state WHAT validation ran and the
+deploy state (e.g. "lint+test+e2e green; docker app rebuilt/redeployed: yes/no") — reviewers and
+future agents rely on this line.
+
 Run validation appropriate to the change size; at minimum `lint`, `typecheck`, and `test` must pass
 before a change is "done". Run `e2e` when touching routes, UI, or runtime behavior. The verify gate
 rebuilds + redeploys, smokes `/health`, and runs e2e against the deployed server.

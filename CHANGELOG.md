@@ -5,6 +5,12 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-02
+
+### Added
+- Authoritative-verification-tool declaration + done-report convention in AGENTS.md (from task-dag)
+- ADR-0005: read-only agents use mirrors, never the live checkout (from agent-review)
+
 ## [1.0.0] - 2026-07-02
 
 ### Added

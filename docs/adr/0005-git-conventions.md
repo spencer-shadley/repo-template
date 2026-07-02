@@ -16,7 +16,9 @@
    normal commits.
 5. **Never mutate a shared working tree that a loop might be using**: idle-check first; inspect
    via `origin/<branch>` reads or isolated worktrees (`git worktree add --detach`). Bot commits to
-   busy repos go through a temp worktree + push.
+   busy repos go through a temp worktree + push. Read-only agents (reviewers, auditors) go
+   further: operate on dedicated MIRRORS (fetch + reset, never the live checkout) — convention
+   proven by the agent-review system.
 6. **Multi-writer pushes** (queue bookkeeping): fetch + rebase-retry loops, or single-commit
    atomic bookkeeping — never blind force.
 
