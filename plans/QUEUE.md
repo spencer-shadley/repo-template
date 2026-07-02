@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 005 P2 major-upgrades-roll-out-canary-first-one-leaf-repo-then-flee
