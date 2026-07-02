@@ -10,11 +10,12 @@ them when working on this repo.
   auto-merge. `plans/QUEUE.md` here is this repo's LIVE queue; instantiation resets it.
 - **Verify gate for THIS repo:**
   ```bash
-  ! grep -rn '<<<<<<<' --include='*.md' --include='*.yml' .
-  for f in README.md AGENTS.md CLAUDE.md TODO.md SECURITY.md .gitignore plans/QUEUE.md docs/ARCHITECTURE.md docs/adr/0001-design-philosophies.md docs/adr/0005-git-conventions.md; do [ -f "$f" ] || { echo "missing $f"; exit 1; }; done
+  ! grep -rn '<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' --include='TEMPLATE_VERSION' .
+  node -e "const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const {execSync}=require('child_process');const tracked=execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>`${k}:${v}`);if(missing.length||invalid.length){if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);process.exit(1)}"
   ```
 - **Change discipline:** every structural change states WHICH fleet learning/incident motivates it
-  (ADRs cite evidence); user-facing additions get README-table + TODO.md entries.
+  (ADRs cite evidence); user-facing additions get README-table entries and setup markers when
+  adoption needs a human answer.
 - **Versioning (semver for STRUCTURE):** every merged change updates CHANGELOG [Unreleased]. Bumps:
   MAJOR = breaking (file moved/removed/renamed, schema change, rule reversal in an accepted ADR) —
   repos MUST migrate; MINOR = additive structure (new file/section/ADR/survey question) — repos
@@ -45,17 +46,28 @@ rules here take precedence on any conflict.
 
 ## Validation policy
 
-**Authoritative verification tool:** {{VISUAL_VERIFICATION_TOOL}} <!-- TODO(setup): e.g. "Playwright — never a raw dev server or preview MCP" (task-dag convention). Declaring ONE authoritative tool stops agents substituting weaker checks. -->
+**Authoritative verification tool:** {{VISUAL_VERIFICATION_TOOL}} <!-- TODO(setup!): choose the strongest verifier for this stack, or n/a for docs/config-only repos. Example: "Playwright — never a raw dev server or preview MCP" (task-dag convention). Declaring ONE authoritative tool stops agents substituting weaker checks. -->
 
 **Done-report convention:** when reporting a change complete, state WHAT validation ran and the
 deploy state (e.g. "lint+test+e2e green; docker app rebuilt/redeployed: yes/no") — reviewers and
 future agents rely on this line.
 
-Run validation appropriate to the change size; at minimum `lint`, `typecheck`, and `test` must pass
-before a change is "done". Run `e2e` when touching routes, UI, or runtime behavior. The verify gate
-rebuilds + redeploys, smokes `/health`, and runs e2e against the deployed server.
+Run validation appropriate to the change size; every command listed above that exists for this
+stack must pass before a change is "done". Run the stack's runtime/UI verifier when touching routes,
+UI, or runtime behavior.
 
-{{QUALITY_GATE_NOTES}}  <!-- e.g. eslint.quality limits + suppressions baseline; or <FILL> -->
+{{VERIFY_GATE_SHAPE}}  <!-- TODO(setup!): describe the gate shape for this repo. Web-app example: lint/typecheck/test/build, then rebuild + redeploy, smoke /health, and run e2e against the deployed server. -->
+
+{{QUALITY_GATE_NOTES}}  <!-- e.g. eslint.quality limits + suppressions baseline; or n/a -->
+
+## Verify gate
+
+```bash
+{{VERIFY_GATE_CMD}}
+```
+
+<!-- TODO(setup!): replace with the exact merge-blocking gate. It must validate every artifact type
+     this repo contains and follow docs/adr/0002-verify-gate-contract.md. -->
 
 ## Core user flows
 
@@ -69,6 +81,7 @@ rebuilds + redeploys, smokes `/health`, and runs e2e against the deployed server
 
 These bind to persisted data / external tools and are deliberately decoupled from the repo name.
 Renaming orphans data. Chosen distinct from every other workspace project:
+<!-- TODO(setup!): fill all entries below, or mark the whole section n/a — omit for this stack. -->
 
 - **DB / connection:** {{DB_NAME}}
 - **Docker:** compose project `{{COMPOSE_PROJECT}}`, volume(s) `{{VOLUMES}}`, network `{{NETWORK}}`
@@ -81,17 +94,18 @@ Interaction events + queryable error telemetry via `{{EMIT_HELPER}}`; events fol
 with documented payloads; stored in {{TELEMETRY_SINK}}, queried via `{{TELEMETRY_QUERY}}`. Never log
 sensitive user content — event names + non-PII metadata only. New user-facing flows ship with their
 interaction events.
+<!-- TODO(setup): document this, or n/a — omit for this stack. -->
 
 ## Onboarding / docs to keep in sync
 
-- **In-app tutorial surface:** {{TUTORIAL_SURFACE}}  <!-- update it when flows/interactions change -->
+- **In-app tutorial surface:** {{TUTORIAL_SURFACE}}  <!-- TODO(setup): update it when flows/interactions change, or n/a — omit for this stack -->
 - **CHANGELOG.md:** AI-maintained — update it when a plan changes user-facing behavior.
-{{DESIGN_SYNC_RULE}}  <!-- if it has a synced design system: rebuild bundle + re-sync on token/component change; else omit -->
+{{DESIGN_SYNC_RULE}}  <!-- TODO(setup): if it has a synced design system, rebuild bundle + re-sync on token/component change; else n/a — omit for this stack -->
 
 ## Autonomy policy
 
-{{AUTONOMY_POLICY}}  <!-- fully-autonomous | risk-tiered (per-plan auto/human) | human-approval. If not fully-autonomous, list the triggers that force `human` (deletion, one-way/irreversible, live-service risk, major changes) and note that QUEUE.md ## Pending holds ONLY auto-tier plans. -->
-Default Effort for plans: **{{DEFAULT_EFFORT}}**.
+{{AUTONOMY_POLICY}}  <!-- TODO(setup!): fully-autonomous | risk-tiered (per-plan auto/human) | human-approval. If not fully-autonomous, list the triggers that force `human` (deletion, one-way/irreversible, live-service risk, major changes) and note that QUEUE.md ## Pending holds ONLY auto-tier plans. -->
+Default Effort for plans: **{{DEFAULT_EFFORT}}**. <!-- TODO(setup!): Pick by cost-vs-first-attempt-quality: `low` = docs/config repos and repos with cheap, fast verify gates (retries are cheap); `medium` = product repos (default starting point); `high` = only where a failed first attempt is expensive (long verify gates like e2e suites, e.g. 30+ min). The ladder auto-escalates per plan regardless; this sets the FLOOR. Repo priority offsets may modulate this in future (orchestrator #171). -->
 
 ## Incident log (`.ops/incidents.jsonl`)
 
@@ -102,11 +116,12 @@ appends automatically. Agents and humans append manually when they hit or fix an
 incident here:
 
 ```bash
-node agent-orchestrator/lib/incident-log.mjs <project> '{"kind":"env","summary":"...","fix":"PR #N"}'
+node ../agent-orchestrator/lib/incident-log.mjs <project> '{"kind":"env","summary":"...","fix":"PR #N"}'
 ```
 
-Schema per line: `ts, repo, source, severity, kind (stall|wedge|phantom|env|notify|push-race|
-double-run|ci-red|other), plan?, summary, rootCause?, fix?, evidence?, fingerprint`. Discovery
-agents read the current+previous week for recurring-failure patterns and auto-file `pattern:`
-issues — a good record here becomes an automatic fix. If the file is absent, there have simply
-been no incidents yet.
+The helper ships with orchestrator plan 058 — until it lands, append the JSON line by hand.
+This assumes the standard sibling layout under `C:\code`; read-only mirrors may not have
+`../agent-orchestrator`, so inspect the JSONL directly there. Schema is documented in
+`.ops/README.md`. Discovery agents read the current+previous week for recurring-failure patterns
+and auto-file `pattern:` issues — a good record here becomes an automatic fix. If the file is
+absent, there have simply been no incidents yet.

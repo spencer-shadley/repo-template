@@ -1,4 +1,4 @@
-# Observability — <project-name>
+# Observability — {{PROJECT_NAME}}
 
 <!-- TODO(setup): fill the three questions -->
 1. **What do we log?** (events, levels, where they land)

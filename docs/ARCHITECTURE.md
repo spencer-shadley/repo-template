@@ -1,4 +1,4 @@
-# Architecture — <project-name>
+# Architecture — {{PROJECT_NAME}}
 
 The system map an agent needs when entering this repo cold. Keep it current — post-merge
 obligations (ADR-0001 §8) include updating this when components/flows change.
