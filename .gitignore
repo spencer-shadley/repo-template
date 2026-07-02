@@ -14,3 +14,6 @@ plans/*.paused
 # incident log IS tracked — guard against future blanket ignores swallowing it
 !.ops/
 !.ops/**
+
+# runner tree-lock mutex: transient, must never make the tree dirty (fleet-starvation incident 2026-07-02)
+.orchestrator-tree.lock
