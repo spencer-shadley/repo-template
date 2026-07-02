@@ -18,6 +18,7 @@
   "docs/INCIDENTS.md": "copy",
   "docs/MIGRATION.md": "copy",
   "docs/OBSERVABILITY.md": "copy",
+  "docs/QUEUE-ENROLLMENT.md": "copy",
   "docs/RUNBOOK.md": "copy",
   "docs/adr/0000-template.md": "copy",
   "docs/adr/0001-design-philosophies.md": "copy",

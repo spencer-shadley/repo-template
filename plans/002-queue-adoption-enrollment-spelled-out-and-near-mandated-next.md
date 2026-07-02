@@ -1,7 +1,7 @@
 # Plan 002: queue-adoption enrollment — spelled out and near-mandated (next MINOR)
 
 - **Project:** repo-template
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** low
 

@@ -30,6 +30,10 @@ them when working on this repo.
 {{ONE_LINE_DESCRIPTION}}. The root `../AGENTS.md` (Codex handoff protocol) also applies;
 rules here take precedence on any conflict.
 
+This repo is queue-enrolled (see docs/QUEUE-ENROLLMENT.md); source changes go through the plan
+queue. <!-- TODO(setup): confirm enrollment happened (agent-orchestrator/projects.json, Windmill
+drain schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
+
 **Stack:** {{STACK}}.
 **Package manager:** {{PACKAGE_MANAGER}}. **Data/migrations:** {{DB_AND_MIGRATIONS}}.
 **E2E:** {{E2E}}. **Deploy:** {{DEPLOY}}.
