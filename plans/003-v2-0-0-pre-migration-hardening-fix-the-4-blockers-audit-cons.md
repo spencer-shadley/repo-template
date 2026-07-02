@@ -104,3 +104,9 @@ grep -q "2.0.0" TEMPLATE_VERSION
 
 Tier: `auto` (docs/config only per TEMPLATE-SELF). Large but mechanical; the acceptance greps are
 the guardrails.
+
+## AMENDMENT (2026-07-02): tree-lock gitignore
+
+15. Template `.gitignore` gains `.orchestrator-tree.lock` (the per-repo working-tree lock file —
+    live evidence: repos without the ignore show the active lock as untracked dirt, causing
+    dirty-abort noise and risking WIP commits capturing an active lock).
