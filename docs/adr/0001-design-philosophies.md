@@ -22,7 +22,7 @@ fine — record WHY here.
         (a 30-min hang burns ~5 codex turns; see workspace INCIDENTS 2026-07-02). -->
 4. **CI posture** — GitHub Actions is ADVISORY in this workspace (quota-immune local worktree CI is
    the merge gate). <!-- TODO(setup): list what Actions still runs (security scans etc.) -->
-5. **State & data** — who owns the schema, how do migrations run, what's disposable?
+5. **State & data** — pick the storage rung via ADR-0004's ladder; if a DB: declare disposable-vs-durable, and durable REQUIRES migrations+backups+restore recipe day one.
    <!-- TODO(setup) -->
 6. **Dependency posture** — pinned? vendored (never lint/modify vendored code)? update cadence?
    <!-- TODO(setup) -->
