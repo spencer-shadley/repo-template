@@ -1,7 +1,7 @@
 # Plan 004: docs/MIGRATION.md — the overlay playbook for existing repos (next MINOR)
 
 - **Project:** repo-template
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P1
 - **Effort:** medium
 
