@@ -1,0 +1,1 @@
+{"ts":"2026-07-02T18:30:15.513Z","repo":"repo-template","source":"drain-one","severity":"incident","kind":"wedge","summary":"repo-template drain aborted dirty","evidence":"{\"outcome\":\"abort-dirty\",\"more\":0,\"lane\":\"interactive\",\"runId\":\"\"}","fingerprint":"43efffab9ecedf82"}
