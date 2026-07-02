@@ -81,6 +81,18 @@ Migrations for risk-tiered repositories, including the orchestrator and workspac
 human-tier work with `--no-queue`. Leaf repos may use the auto lane when their local autonomy policy
 allows it.
 
+## Rollout order
+
+MINOR and PATCH template upgrades can roll out across subscribed repositories without a canary.
+MAJOR upgrades roll out canary-first: migrate one leaf repo before opening migration plans for the
+rest of the fleet. The default canary is `gmail-markdown` because it has the smallest verify surface,
+but a MAJOR bump may name a different canary in its `CHANGELOG.md` entry when the change targets a
+more representative surface.
+
+The fleet rollout waits until the canary is green. Green means the canary migration PR merged, its
+verify gate passed, and the canary's next drain cycle added no `.ops/incidents.jsonl` lines
+attributable to the migration.
+
 ## Enrollment proof
 
 Finish migration by running the smoke plan at `plans/drafts/000-smoke.md`. The smoke plan proves the

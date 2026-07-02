@@ -21,6 +21,7 @@ them when working on this repo.
   repos MUST migrate; MINOR = additive structure (new file/section/ADR/survey question) — repos
   SHOULD adopt; PATCH = wording/clarity — no migration, silent pickup. A release = set
   TEMPLATE_VERSION + move [Unreleased] under a version heading + git tag vX.Y.Z (same commit).
+  MAJOR upgrades follow the canary-first rollout order in `docs/MIGRATION.md`.
 - **Sync duty (living-template doctrine):** when structure changes, verify the adopt-project
   skill's instructions still match; flag drift in the plan/PR.
 <!-- /TEMPLATE-SELF -->

@@ -30,11 +30,18 @@
   "plans/002-queue-adoption-enrollment-spelled-out-and-near-mandated-next.md": "self",
   "plans/003-v2-0-0-pre-migration-hardening-fix-the-4-blockers-audit-cons.md": "self",
   "plans/004-docs-migration-md-the-overlay-playbook-for-existing-repos-ne.md": "self",
+  "plans/005-major-upgrades-roll-out-canary-first-one-leaf-repo-then-flee.md": "self",
   "plans/QUEUE.md": "self",
   "plans/archive/.gitkeep": "generated",
+  "plans/archive/002-queue-adoption-enrollment-spelled-out-and-near-mandated-next.md": "self",
+  "plans/archive/002.log.md": "self",
+  "plans/archive/002.result.md": "self",
   "plans/archive/003-v2-0-0-pre-migration-hardening-fix-the-4-blockers-audit-cons.md": "self",
   "plans/archive/003.log.md": "self",
   "plans/archive/003.result.md": "self",
+  "plans/archive/004-docs-migration-md-the-overlay-playbook-for-existing-repos-ne.md": "self",
+  "plans/archive/004.log.md": "self",
+  "plans/archive/004.result.md": "self",
   "plans/drafts/000-smoke.md": "copy",
   "template-manifest.json": "self"
 }
