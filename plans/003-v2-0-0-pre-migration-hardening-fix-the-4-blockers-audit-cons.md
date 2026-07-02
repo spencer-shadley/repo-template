@@ -110,3 +110,20 @@ the guardrails.
 15. Template `.gitignore` gains `.orchestrator-tree.lock` (the per-repo working-tree lock file —
     live evidence: repos without the ignore show the active lock as untracked dirt, causing
     dirty-abort noise and risking WIP commits capturing an active lock).
+
+## AMENDMENT 2 (2026-07-02, user survey decisions):
+
+16. **ADR-0001 q6 (dependency posture) gets a workspace-default answer baked in** (repos may
+    override with reasons): "Dependency upgrades are AUTOMATIC, majors included, via the
+    discovery → triage → plan → loop pipeline: a deterministic finder files outdated-dep issues
+    (self-deduplicating via fingerprints), triage authors upgrade plans, the verify gate + reviewer
+    are the safety, revert is the fallback. No direct-merge bots. Upgrade plans for majors must
+    cite the changelog/breaking-notes in the plan body." Remove the survey TODO for q6; keep an
+    override slot.
+17. **{{DEFAULT_EFFORT}} stays a per-repo `TODO(setup!):` question — never defaulted** — and the
+    adjacent comment gains selection GUIDANCE: "Pick by cost-vs-first-attempt-quality: `low` =
+    docs/config repos and repos with cheap, fast verify gates (retries are cheap); `medium` =
+    product repos (default starting point); `high` = only where a failed first attempt is
+    expensive (long verify gates like e2e suites — e.g. a repo whose gate takes 30+ min earns
+    `high` to avoid iteration churn). The ladder auto-escalates per plan regardless; this sets the
+    FLOOR. Repo priority offsets may modulate this in future (orchestrator #171)."
