@@ -11,6 +11,7 @@ audit, the autonomous loop) rely on these paths.
 | `AGENTS.md` | THE operating manual for agents: commands, verify gate, risk tiers |
 | `CLAUDE.md` | thin pointer at AGENTS.md (single source of truth) |
 | `docs/adr/` | Architecture Decision Records — decide-once, audit-forever |
+| `docs/MIGRATION.md` | overlay playbook for adopting template updates in existing repos |
 | `docs/INCIDENTS.md` | curated post-mortems (majors only) |
 | `docs/RUNBOOK.md` | recovery recipes specific to this repo |
 | `docs/OBSERVABILITY.md` | what we log/measure and where to look |
@@ -41,3 +42,5 @@ Setup markers have two tiers: normal markers can be answered during adoption; mu
 block the first plan because they define safety boundaries. Audit command:
 `grep -rnE 'TODO\(setup!?\):|\{\{[A-Z0-9_]+\}\}' --exclude-dir=.git .` — zero hits = fully
 configured.
+
+Workspace context: use `docs/MIGRATION.md` when applying this living template to an existing repo.

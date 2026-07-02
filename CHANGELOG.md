@@ -16,6 +16,12 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
      namespaces, DB identities, vendored code). Recording these prevents future agents from
      "fixing" them. -->
 
+## [2.1.0] - 2026-07-02
+
+### Added
+- `docs/MIGRATION.md` as the overlay playbook for migrating existing repos onto the template.
+- README entry and workspace-context pointer for the migration playbook.
+
 ## [2.0.0] - 2026-07-02
 
 ### Added

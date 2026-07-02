@@ -16,6 +16,7 @@
   "TODO.md": "copy",
   "docs/ARCHITECTURE.md": "copy",
   "docs/INCIDENTS.md": "copy",
+  "docs/MIGRATION.md": "copy",
   "docs/OBSERVABILITY.md": "copy",
   "docs/RUNBOOK.md": "copy",
   "docs/adr/0000-template.md": "copy",
@@ -30,6 +31,9 @@
   "plans/004-docs-migration-md-the-overlay-playbook-for-existing-repos-ne.md": "self",
   "plans/QUEUE.md": "self",
   "plans/archive/.gitkeep": "generated",
+  "plans/archive/003-v2-0-0-pre-migration-hardening-fix-the-4-blockers-audit-cons.md": "self",
+  "plans/archive/003.log.md": "self",
+  "plans/archive/003.result.md": "self",
   "plans/drafts/000-smoke.md": "copy",
   "template-manifest.json": "self"
 }
