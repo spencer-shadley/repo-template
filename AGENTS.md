@@ -1,0 +1,80 @@
+# {{NAME}} — Agent Rules
+
+{{ONE_LINE_DESCRIPTION}}. The root `../AGENTS.md` (Codex handoff protocol) also applies;
+rules here take precedence on any conflict.
+
+**Stack:** {{STACK}}.
+**Package manager:** {{PACKAGE_MANAGER}}. **Data/migrations:** {{DB_AND_MIGRATIONS}}.
+**E2E:** {{E2E}}. **Deploy:** {{DEPLOY}}.
+
+## Commands
+
+- **Dev:** `{{DEV_CMD}}`
+- **Build:** `{{BUILD_CMD}}`
+- **Lint:** `{{LINT_CMD}}`
+- **Typecheck:** `{{TYPECHECK_CMD}}`
+- **Test:** `{{TEST_CMD}}`
+- **E2E:** `{{E2E_CMD}}`
+- **Migrations:** `{{MIGRATE_CMD}}`  <!-- omit if no DB -->
+
+## Validation policy
+
+Run validation appropriate to the change size; at minimum `lint`, `typecheck`, and `test` must pass
+before a change is "done". Run `e2e` when touching routes, UI, or runtime behavior. The verify gate
+rebuilds + redeploys, smokes `/health`, and runs e2e against the deployed server.
+
+{{QUALITY_GATE_NOTES}}  <!-- e.g. eslint.quality limits + suppressions baseline; or <FILL> -->
+
+## Core user flows
+
+{{CORE_FLOWS}}  <!-- the handful of flows that define the app; from the adoption interview -->
+
+## External services & constraints
+
+{{EXTERNAL_SERVICES}}  <!-- each API + its rate-limit/cost/auth rules agents must respect; or "none" -->
+
+## Infra namespace (frozen — never auto-rename)
+
+These bind to persisted data / external tools and are deliberately decoupled from the repo name.
+Renaming orphans data. Chosen distinct from every other workspace project:
+
+- **DB / connection:** {{DB_NAME}}
+- **Docker:** compose project `{{COMPOSE_PROJECT}}`, volume(s) `{{VOLUMES}}`, network `{{NETWORK}}`
+- **Ports:** dev `{{DEV_PORT}}`, preview `{{PREVIEW_PORT}}`, health/e2e `{{E2E_PORT}}`
+- **Browser storage key(s):** {{STORAGE_KEYS}}  <!-- or "n/a" -->
+
+## Telemetry
+
+Interaction events + queryable error telemetry via `{{EMIT_HELPER}}`; events follow `surface.action`
+with documented payloads; stored in {{TELEMETRY_SINK}}, queried via `{{TELEMETRY_QUERY}}`. Never log
+sensitive user content — event names + non-PII metadata only. New user-facing flows ship with their
+interaction events.
+
+## Onboarding / docs to keep in sync
+
+- **In-app tutorial surface:** {{TUTORIAL_SURFACE}}  <!-- update it when flows/interactions change -->
+- **CHANGELOG.md:** AI-maintained — update it when a plan changes user-facing behavior.
+{{DESIGN_SYNC_RULE}}  <!-- if it has a synced design system: rebuild bundle + re-sync on token/component change; else omit -->
+
+## Autonomy policy
+
+{{AUTONOMY_POLICY}}  <!-- fully-autonomous | risk-tiered (per-plan auto/human) | human-approval. If not fully-autonomous, list the triggers that force `human` (deletion, one-way/irreversible, live-service risk, major changes) and note that QUEUE.md ## Pending holds ONLY auto-tier plans. -->
+Default Effort for plans: **{{DEFAULT_EFFORT}}**.
+
+## Incident log (`.ops/incidents.jsonl`)
+
+This repo keeps an append-only JSONL incident log at `.ops/incidents.jsonl`, rotated weekly into
+`.ops/archive/` and **tracked in git** (append-only; never rewrite or delete entries). The
+orchestrator's machinery (run-loop stalls, drain aborts/wedges, breaker trips, anomaly detections)
+appends automatically. Agents and humans append manually when they hit or fix an operational
+incident here:
+
+```bash
+node agent-orchestrator/lib/incident-log.mjs <project> '{"kind":"env","summary":"...","fix":"PR #N"}'
+```
+
+Schema per line: `ts, repo, source, severity, kind (stall|wedge|phantom|env|notify|push-race|
+double-run|ci-red|other), plan?, summary, rootCause?, fix?, evidence?, fingerprint`. Discovery
+agents read the current+previous week for recurring-failure patterns and auto-file `pattern:`
+issues — a good record here becomes an automatic fix. If the file is absent, there have simply
+been no incidents yet.

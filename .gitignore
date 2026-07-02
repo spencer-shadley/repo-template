@@ -1,0 +1,16 @@
+node_modules/
+*.log
+.DS_Store
+.env
+.env.*
+*.secret.*
+
+# loop transient sidecars (never commit)
+plans/*.log.md
+plans/*.result.md
+plans/*.feedback.md
+plans/*.paused
+
+# incident log IS tracked — guard against future blanket ignores swallowing it
+!.ops/
+!.ops/**

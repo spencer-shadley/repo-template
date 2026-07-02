@@ -1,0 +1,16 @@
+# ADVISORY CI — the merge-blocking gate is the orchestrator's local worktree CI (quota-immune).
+# Keep this green anyway; it's the clean-room signal + PR annotation.
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # TODO(setup): toolchain setup (node/python/etc.)
+      # TODO(setup): lint step
+      # TODO(setup): test step
+      - run: echo "TODO(setup) - replace with real lint+test"
