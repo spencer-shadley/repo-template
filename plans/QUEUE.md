@@ -5,3 +5,4 @@
 
 ## Pending
 - 006 P2 resolve-unfilled-version-placeholder-throughout-plan-001
+- 007 P2 define-a-machine-checkable-canary-green-criterion-for-fleet-
