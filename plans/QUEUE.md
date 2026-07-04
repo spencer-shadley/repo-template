@@ -4,6 +4,5 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 006 P2 resolve-unfilled-version-placeholder-throughout-plan-001
 - 007 P2 define-a-machine-checkable-canary-green-criterion-for-fleet-
 - 008 P2 resolve-discovery-findings-in-verify-gate
