@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/006-resolve-unfilled-version-placeholder-throughout-plan-001
-- **Status:** ready for codex
+- **Status:** stalled - env: verify-74052-1783209493111.sh: line 3: {{VERIFY_GATE_CMD}}: command not found
 - **Priority:** P2
 - **Effort:** low
 
