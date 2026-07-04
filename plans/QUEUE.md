@@ -4,3 +4,4 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
+- 006 P2 resolve-unfilled-version-placeholder-throughout-plan-001
