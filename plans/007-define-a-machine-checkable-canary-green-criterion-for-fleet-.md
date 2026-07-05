@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/007-define-a-machine-checkable-canary-green-criterion-for-fleet-
-- **Status:** ready for codex
+- **Status:** stalled - obsolete
 - **Priority:** P2
 - **Effort:** low
 
