@@ -11,6 +11,8 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
 - Documented canary-first rollout order for MAJOR template upgrades.
+- Tightened the template verify gate to scan JSONL incident logs for conflict markers while allowing
+  rotated `.ops/archive/` incident logs to remain outside the manifest.
 
 ### Unchanged (intentional — frozen)
 <!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy
