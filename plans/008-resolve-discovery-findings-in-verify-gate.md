@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/008-resolve-discovery-findings-in-verify-gate
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** low
 
