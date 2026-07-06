@@ -5,3 +5,4 @@
 
 ## Pending
 - 012 P2 resolve-discovery-findings-in-verify-gate
+- 013 P2 resolve-incidents-jsonl-tracked-in-git-vs-auto-append-drain-
