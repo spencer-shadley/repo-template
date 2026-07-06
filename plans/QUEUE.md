@@ -5,3 +5,4 @@
 
 ## Pending
 - 015 P2 resolve-discovery-findings-in-verify-gate
+- 016 P3 set-repo-template-s-live-queue-md-header-to-a-real-project-n
