@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/015-resolve-discovery-findings-in-verify-gate
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** low
 
@@ -41,7 +41,7 @@ Relevant files: `AGENTS.md`, `template-manifest.json`.
 ## Verify
 
 ```bash
-bash -c 'grep -rn "<<<<<<<" --include="*.md" .; ec=$?; [ $ec -eq 1 ]'
+bash -c 'grep -rn "^<""<<<<<<" --include="*.md" . && exit 1; ec=$?; [ "$ec" -eq 1 ]'
 ```
 
 ## Risk
