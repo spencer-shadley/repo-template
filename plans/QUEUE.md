@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 011 P2 harden-template-self-verify-gate-conflict-marker-check-to-pa
