@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 010 P2 harden-verify-gate-conflict-marker-check-to-distinguish-grep
