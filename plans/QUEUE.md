@@ -4,3 +4,4 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
+- 009 P2 expand-literal-verify-gate-cmd-in-plans-006-and-007-with-the
