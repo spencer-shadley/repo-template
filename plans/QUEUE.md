@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 014 P3 fill-in-repo-template-in-the-live-queue-md-header
