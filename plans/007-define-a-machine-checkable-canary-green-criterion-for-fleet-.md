@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/007-define-a-machine-checkable-canary-green-criterion-for-fleet-
-- **Status:** stalled - obsolete
+- **Status:** ready for codex
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
 - **Priority:** P2
@@ -37,7 +37,8 @@ Relevant files: `docs/MIGRATION.md`.
 ## Verify
 
 ```bash
-{{VERIFY_GATE_CMD}}
+! grep -rn '<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' --include='*.jsonl' --include='TEMPLATE_VERSION' .
+node -e "const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const {execSync}=require('child_process');const tracked=execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>`${k}:${v}`);if(missing.length||invalid.length){if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);process.exit(1)}"
 ```
 
 ## Risk

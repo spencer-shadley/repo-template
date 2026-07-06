@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/009-expand-literal-verify-gate-cmd-in-plans-006-and-007-with-the
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** low
 
