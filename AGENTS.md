@@ -127,6 +127,14 @@ node ../agent-orchestrator/lib/incident-log.mjs <project> '{"kind":"env","summar
 The helper ships with orchestrator plan 058 — until it lands, append the JSON line by hand.
 This assumes the standard sibling layout under `C:\code`; read-only mirrors may not have
 `../agent-orchestrator`, so inspect the JSONL directly there. Schema is documented in
-`.ops/README.md`. Discovery agents read the current+previous week for recurring-failure patterns
-and auto-file `pattern:` issues — a good record here becomes an automatic fix. If the file is
-absent, there have simply been no incidents yet.
+`.ops/README.md`.
+
+Drain policy: if orchestrator automation appended `.ops/incidents.jsonl` and that is the only
+dirty file blocking a drain, the drain must commit it before proceeding with the exact commit subject
+`ops: incidents (auto)`. This keeps the active log tracked without letting auto-appends wedge the
+queue. This policy is motivated by incident fingerprint `43efffab9ecedf82` (repeated abort-dirty
+drains).
+
+Discovery agents read the current+previous week for recurring-failure patterns and auto-file
+`pattern:` issues — a good record here becomes an automatic fix. If the file is absent, there have
+simply been no incidents yet.

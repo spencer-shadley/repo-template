@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/013-resolve-incidents-jsonl-tracked-in-git-vs-auto-append-drain-
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** medium
 
