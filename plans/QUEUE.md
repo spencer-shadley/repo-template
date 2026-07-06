@@ -4,3 +4,4 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
+- 012 P2 resolve-discovery-findings-in-verify-gate
