@@ -2,7 +2,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/017-fix-replace-queue-md-placeholder-project-name-and-guard-it-i
-- **Status:** ready for codex
+- **Status:** stalled - obsolete
+- **Stall-retries:** 1
+- **Last-stall:** stalled - obsolete
 - **Priority:** P3
 - **Effort:** low
 
