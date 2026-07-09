@@ -7,6 +7,11 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Added
 <!-- new capabilities or files -->
+- AGENTS.md gains two required steering sections: `## Responsibilities & non-goals` and
+  `## Product principles` (both `TODO(setup!)`-gated), plus a progressive-disclosure preamble
+  (what the file is, where deeper docs live, move oversized sections to `docs/` with a summary +
+  link). Motivated by the 2026-07-09 steering-docs audit: adopted repos (task-dag, gmail-markdown)
+  carried product principles only in tool memory, violating doctrine-lives-in-repo. MINOR.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->

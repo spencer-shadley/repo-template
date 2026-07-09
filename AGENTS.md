@@ -31,6 +31,13 @@ them when working on this repo.
 {{ONE_LINE_DESCRIPTION}}. The root `../AGENTS.md` (Codex handoff protocol) also applies;
 rules here take precedence on any conflict.
 
+> **What this file is:** the operating manual every agent loads first — responsibilities,
+> principles, commands, gates, flows, autonomy. Deeper context lives one hop away:
+> `docs/ARCHITECTURE.md` (system map), `docs/adr/` (decisions), `docs/RUNBOOK.md` (recovery),
+> `README.md` (human-facing orientation). **Progressive disclosure:** keep each section here
+> summary-sized; when one outgrows roughly a screen, move the detail to its own file under `docs/`
+> and leave a two-line summary + link here.
+
 This repo is queue-enrolled (see docs/QUEUE-ENROLLMENT.md); source changes go through the plan
 queue. <!-- TODO(setup): confirm enrollment happened (agent-orchestrator/projects.json, Windmill
 drain schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
@@ -38,6 +45,23 @@ drain schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
 **Stack:** {{STACK}}.
 **Package manager:** {{PACKAGE_MANAGER}}. **Data/migrations:** {{DB_AND_MIGRATIONS}}.
 **E2E:** {{E2E}}. **Deploy:** {{DEPLOY}}.
+
+## Responsibilities & non-goals
+
+{{RESPONSIBILITIES}}  <!-- TODO(setup!): what this repo OWNS — its function in the fleet and its
+boundaries with sibling repos. One short paragraph or 2-4 bullets. -->
+
+**Non-goals:** {{NON_GOALS}}  <!-- TODO(setup!): what this repo explicitly does NOT do — the
+adjacent scope agents must not drift into (e.g. "no production deploy lane", "task content is
+owned by the external service, not us"). -->
+
+## Product principles
+
+{{PRODUCT_PRINCIPLES}}  <!-- TODO(setup!): the 2-5 ratified principles that steer every feature,
+prompt, and review in this repo, with decider + date (e.g. task-dag's "the AI never moralizes
+about, warns against, or deprioritizes user tasks"; gmail-markdown's "the draft is sacred / fail
+open"). Added as a required section fleet-wide 2026-07-09 after a steering-docs audit found adopted
+repos carrying these only in tool memory — doctrine lives in the repo. -->
 
 ## Commands
 
