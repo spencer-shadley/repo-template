@@ -4,4 +4,5 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
+- 020 P2 standardized-feedback-issue-form-in-repo-template-syncs-flee
 - 018 P3 resolve-discovery-findings-in-migration-rollout
