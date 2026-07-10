@@ -2,7 +2,11 @@
 
 - **Project:** repo-template
 - **Branch:** feat/018-resolve-discovery-findings-in-migration-rollout
-- **Status:** stalled - env: verify-164400-1783710066300.sh: line 3: {{VERIFY_GATE_CMD}}: command not found
+- **Status:** stalled - env: verify-164400-1783710066300.sh: line 3: bash
+ec=0; grep -rn '^<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' --include='*.jsonl' --include='TEMPLATE_VERSION' . || ec=$?; if [ "$ec" -ne 1 ]; then exit 1; fi
+node -e "const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const {execSync}=require('child_process');const tracked=execSync('git ls-files',{encoding:'utf8'}).trim().split(/
+?
+/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>`${k}:${v}`);if(missing.length||invalid.length){if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);process.exit(1)}": command not found
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
 - **Priority:** P3
@@ -53,7 +57,8 @@ Relevant files: `docs/MIGRATION.md`.
 ## Verify
 
 ```bash
-{{VERIFY_GATE_CMD}}
+ec=0; grep -rn '^<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' --include='*.jsonl' --include='TEMPLATE_VERSION' . || ec=$?; if [ "$ec" -ne 1 ]; then exit 1; fi
+node -e "const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const cp=require('child_process');const NL=String.fromCharCode(10),CR=String.fromCharCode(13);const tracked=cp.execSync('git ls-files',{encoding:'utf8'}).split(NL).map(s=>s.split(CR).join('')).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>k+':'+v);if(missing.length||invalid.length){if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);process.exit(1)}"
 ```
 
 ## Risk
