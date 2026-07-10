@@ -2,8 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/020-standardized-feedback-issue-form-in-repo-template-syncs-flee
-- **Status:** ready for codex
-- **Stall-retries:** 2
+- **Status:** parked - stalled x3 (needs triage)
+- **Stall-retries:** 3
 - **Last-stall:** stalled - deterministic-verify-wedge
 - **Priority:** P2
 - **Effort:** low
