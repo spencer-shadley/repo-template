@@ -2,8 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/012-resolve-discovery-findings-in-verify-gate
-- **Status:** ready for codex
-- **Stall-retries:** 2
+- **Status:** parked - stalled x3 (needs triage)
+- **Stall-retries:** 3
 - **Last-stall:** stalled - plan staleness drift
 - **Priority:** P2
 - **Effort:** low
