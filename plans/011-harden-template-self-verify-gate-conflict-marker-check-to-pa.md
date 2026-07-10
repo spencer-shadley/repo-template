@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/011-harden-template-self-verify-gate-conflict-marker-check-to-pa
-- **Status:** stalled - obsolete
+- **Status:** ready for codex
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
 - **Priority:** P2
