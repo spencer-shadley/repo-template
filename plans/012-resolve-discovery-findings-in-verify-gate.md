@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/012-resolve-discovery-findings-in-verify-gate
-- **Status:** stalled - obsolete
+- **Status:** ready for codex
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
 - **Priority:** P2
