@@ -5,3 +5,4 @@
 
 ## Pending
 - 010 P2 harden-verify-gate-conflict-marker-check-to-distinguish-grep
+- 011 P2 harden-template-self-verify-gate-conflict-marker-check-to-pa
