@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/010-harden-verify-gate-conflict-marker-check-to-distinguish-grep
-- **Status:** stalled - obsolete
+- **Status:** ready for codex
 - **Stall-retries:** 2
 - **Last-stall:** stalled - obsolete
 - **Priority:** P2
