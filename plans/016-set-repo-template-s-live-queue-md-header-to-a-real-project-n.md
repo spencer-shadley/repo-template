@@ -2,9 +2,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/016-set-repo-template-s-live-queue-md-header-to-a-real-project-n
-- **Status:** ready for codex
-- **Stall-retries:** 1
-- **Last-stall:** stalled - obsolete
+- **Status:** stalled - plan staleness drift
+- **Stall-retries:** 2
+- **Last-stall:** stalled - plan staleness drift
 - **Priority:** P3
 - **Effort:** low
 
