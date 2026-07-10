@@ -2,8 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/017-fix-replace-queue-md-placeholder-project-name-and-guard-it-i
-- **Status:** ready for codex
-- **Stall-retries:** 2
+- **Status:** parked - stalled x3 (needs triage)
+- **Stall-retries:** 3
 - **Last-stall:** stalled - plan staleness drift
 - **Priority:** P3
 - **Effort:** low
