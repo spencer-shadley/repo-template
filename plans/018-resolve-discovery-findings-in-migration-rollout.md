@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/018-resolve-discovery-findings-in-migration-rollout
-- **Status:** stalled - env: verify-135880-1783721493173.sh: line 3: {{VERIFY_GATE_CMD}}: command not found
+- **Status:** ready for codex
 <!-- retry reason: class=stall-retry, source=operator 2026-07-10, detail=verify gate was a literal unexpanded {{VERIFY_GATE_CMD}} template placeholder; replaced with the AGENTS.md repo gate (conflict-marker grep + manifest check). 19 identical env stalls in 14h. -->
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
