@@ -4,7 +4,6 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 010 P2 harden-verify-gate-conflict-marker-check-to-distinguish-grep
 - 011 P2 harden-template-self-verify-gate-conflict-marker-check-to-pa
 - 012 P2 resolve-discovery-findings-in-verify-gate
 - 020 P2 standardized-feedback-issue-form-in-repo-template-syncs-flee
