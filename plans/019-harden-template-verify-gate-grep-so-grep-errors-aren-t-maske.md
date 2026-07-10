@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/019-harden-template-verify-gate-grep-so-grep-errors-aren-t-maske
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** low
 

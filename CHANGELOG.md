@@ -18,8 +18,9 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 - Documented canary-first rollout order for MAJOR template upgrades.
 - Tightened the template verify gate to scan JSONL incident logs for conflict markers while allowing
   rotated `.ops/archive/` incident logs to remain outside the manifest.
-- Hardened the template self verify gate to fail on conflict-marker matches and grep errors while
-  ignoring generated `plans/` queue artifacts in manifest enforcement.
+- Hardened the template self verify gate to fail on conflict-marker matches and grep execution
+  errors without relying on `set -e`, while ignoring generated `plans/` queue artifacts in manifest
+  enforcement.
 - Documented the tracked `.ops/incidents.jsonl` drain policy: sole dirty auto-appends are committed
   as `ops: incidents (auto)` before drain proceeds, motivated by incident fingerprint
   `43efffab9ecedf82`.

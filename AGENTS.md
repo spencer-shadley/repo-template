@@ -10,7 +10,7 @@ them when working on this repo.
   auto-merge. `plans/QUEUE.md` here is this repo's LIVE queue; instantiation resets it.
 - **Verify gate for THIS repo:**
   ```bash
-  grep -rn '^<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' --include='*.jsonl' --include='TEMPLATE_VERSION' . && exit 1; ec=$?; [ "$ec" -eq 1 ]
+  ec=0; grep -rn '^<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' --include='*.jsonl' --include='TEMPLATE_VERSION' . || ec=$?; if [ "$ec" -ne 1 ]; then exit 1; fi
   node -e "const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const {execSync}=require('child_process');const tracked=execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>`${k}:${v}`);if(missing.length||invalid.length){if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);process.exit(1)}"
   ```
 - **Change discipline:** every structural change states WHICH fleet learning/incident motivates it
