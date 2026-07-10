@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/017-fix-replace-queue-md-placeholder-project-name-and-guard-it-i
-- **Status:** stalled - plan staleness drift
+- **Status:** ready for codex
 - **Stall-retries:** 2
 - **Last-stall:** stalled - plan staleness drift
 - **Priority:** P3
