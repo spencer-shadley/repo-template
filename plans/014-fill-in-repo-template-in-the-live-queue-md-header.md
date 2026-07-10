@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/014-fill-in-repo-template-in-the-live-queue-md-header
-- **Status:** stalled - obsolete
+- **Status:** ready for codex
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
 - **Priority:** P3
