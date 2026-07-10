@@ -1,5 +1,8 @@
 {
+  ".github/ISSUE_TEMPLATE/config.yml": "copy",
+  ".github/ISSUE_TEMPLATE/feedback.yml": "copy",
   ".github/ISSUE_TEMPLATE/task.md": "copy",
+  ".github/labels.yml": "copy",
   ".github/pull_request_template.md": "copy",
   ".github/workflows/ci.yml": "copy",
   ".gitignore": "merge",

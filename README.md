@@ -31,6 +31,8 @@ audit, the autonomous loop) rely on these paths.
 | `.github/workflows/ci.yml` | advisory clean-room CI skeleton |
 | `.github/pull_request_template.md` | review prompts for side effects and obligations |
 | `.github/ISSUE_TEMPLATE/task.md` | triage-ready issue intake |
+| `.github/ISSUE_TEMPLATE/feedback.yml` | standardized feedback form inherited through template-sync; apps additionally wire an in-app nub to it |
+| `.github/labels.yml` | canonical labels required by feedback intake and triage |
 
 **Start here**
 1. `AGENTS.md`

@@ -1,0 +1,6 @@
+- name: human-feedback
+  color: "0E8A16"
+  description: Human-sourced feedback intake
+- name: needs-info
+  color: "FBCA04"
+  description: Triage awaiting author reply

@@ -7,6 +7,9 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Added
 <!-- new capabilities or files -->
+- Standardized GitHub feedback issue form plus canonical `human-feedback` and `needs-info` labels
+  for fleet-wide human feedback intake via template-sync. Motivated by the orchestrator triage lane
+  requiring a consistent `human-feedback` label on user-filed issues. MINOR.
 - AGENTS.md gains two required steering sections: `## Responsibilities & non-goals` and
   `## Product principles` (both `TODO(setup!)`-gated), plus a progressive-disclosure preamble
   (what the file is, where deeper docs live, move oversized sections to `docs/` with a summary +

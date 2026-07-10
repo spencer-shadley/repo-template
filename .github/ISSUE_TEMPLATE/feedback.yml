@@ -1,0 +1,46 @@
+name: Feedback / bug
+description: Share human-sourced feedback for orchestrator triage.
+title: "[Feedback] "
+labels:
+  - human-feedback
+body:
+  - type: dropdown
+    id: source
+    attributes:
+      label: Source
+      description: Where did this feedback come from?
+      options:
+        - app
+        - phone
+        - chat
+        - other
+    validations:
+      required: true
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: Short version of the feedback or bug.
+    validations:
+      required: true
+  - type: textarea
+    id: what_happened
+    attributes:
+      label: What happened
+      description: What did you see or hear?
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What should have happened instead?
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Optional app-filled details such as commit SHA, route, or console errors.
+    validations:
+      required: false
