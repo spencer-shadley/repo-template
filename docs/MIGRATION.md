@@ -86,12 +86,31 @@ allows it.
 MINOR and PATCH template upgrades can roll out across subscribed repositories without a canary.
 MAJOR upgrades roll out canary-first: migrate one leaf repo before opening migration plans for the
 rest of the fleet. The default canary is `gmail-markdown` because it has the smallest verify surface,
-but a MAJOR bump may name a different canary in its `CHANGELOG.md` entry when the change targets a
-more representative surface.
+but each MAJOR bump must re-validate that default in its `CHANGELOG.md` entry before use. The entry
+must either state that `gmail-markdown` still has the smallest verify surface among candidate leaf
+repos or name a different canary with the same criterion, plus any extra reason the changed surface
+needs a more representative repo.
+
+The migration PR's changed-file set is the attribution surface for the canary. An
+`.ops/incidents.jsonl` line counts against the canary when either its area/path/file/repo metadata
+matches a file touched by the migration PR, or its summary/rootCause/fix text references a feature,
+rule, helper, or artifact introduced or changed by the template bump. Incidents outside that surface
+do not block the rollout, but record the skip rationale in the rollout notes.
 
 The fleet rollout waits until the canary is green. Green means the canary migration PR merged, its
-verify gate passed, and the canary's next drain cycle added no `.ops/incidents.jsonl` lines
-attributable to the migration.
+verify gate passed, and the observation window completed cleanly: at least three consecutive drain
+cycles, spanning at least 24 hours after the merge, with no verify failures and no
+migration-attributed `.ops/incidents.jsonl` lines by the attribution rule above. A single clean
+five-minute drain cycle, including the first run after a restart, is never enough to satisfy this
+gate.
+
+### If the canary goes red
+
+Red uses the same observation window and attribution rule as green: any canary verify failure or
+migration-attributed `.ops/incidents.jsonl` line before the window closes makes the canary red.
+Block the fleet rollout immediately, open a P1 issue against repo-template with the canary PR and
+incident or verify evidence, then choose one recovery path before retrying: revert the canary
+migration PR, or hotfix the template/canary and rerun the canary window from the beginning.
 
 ## Enrollment proof
 

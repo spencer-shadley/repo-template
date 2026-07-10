@@ -15,7 +15,9 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
-- Documented canary-first rollout order for MAJOR template upgrades.
+- Documented canary-first rollout order for MAJOR template upgrades, including canary
+  re-validation, a concrete green observation window, migration-incident attribution, and the red
+  failure path.
 - Tightened the template verify gate to scan JSONL incident logs for conflict markers while allowing
   rotated `.ops/archive/` incident logs to remain outside the manifest.
 - Hardened the template self verify gate to fail on conflict-marker matches and grep execution
