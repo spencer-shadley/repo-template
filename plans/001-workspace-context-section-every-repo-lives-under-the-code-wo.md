@@ -1,7 +1,9 @@
 # Plan 001: workspace-context section — every repo lives under the code workspace (vthe next MINOR above the current TEMPLATE_VERSION at implementation time)
 
 - **Project:** repo-template
-- **Status:** ready for codex
+- **Status:** stalled - plan staleness drift
+- **Stall-retries:** 1
+- **Last-stall:** stalled - plan staleness drift
 - **Priority:** P2
 - **Effort:** low
 
