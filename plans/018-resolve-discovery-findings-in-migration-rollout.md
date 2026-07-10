@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/018-resolve-discovery-findings-in-migration-rollout
-- **Status:** stalled - obsolete
+- **Status:** ready for codex
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
 - **Priority:** P3
