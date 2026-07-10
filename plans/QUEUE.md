@@ -4,7 +4,6 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 012 P2 resolve-discovery-findings-in-verify-gate
 - 020 P2 standardized-feedback-issue-form-in-repo-template-syncs-flee
 - 014 P3 fill-in-repo-template-in-the-live-queue-md-header
 - 016 P3 set-repo-template-s-live-queue-md-header-to-a-real-project-n
