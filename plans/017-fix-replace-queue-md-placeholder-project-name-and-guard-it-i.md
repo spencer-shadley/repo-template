@@ -1,8 +1,8 @@
-# Plan 017: Fix: replace QUEUE.md placeholder project name and guard it in the verify gate
+# Plan 017: Fix: replace plans/QUEUE.md placeholder project name and guard it in the verify gate
 
 - **Project:** repo-template
 - **Branch:** feat/017-fix-replace-queue-md-placeholder-project-name-and-guard-it-i
-- **Status:** ready for codex
+- **Status:** stalled - plan staleness drift
 - **Stall-retries:** 2
 - **Last-stall:** stalled - plan staleness drift
 - **Priority:** P3
@@ -22,7 +22,7 @@ placeholder can't silently persist. Fixes #15.
   `TODO(setup)` comment about risk-tiering remains.
 - Nuance: repo-template IS the template — downstream repos are supposed to receive a placeholder
   they replace. So the fix must distinguish the template's OWN queue (this file, should say
-  `repo-template`) from the template payload it ships to new repos (if the QUEUE.md is copied
+  `repo-template`) from the template payload it ships to new repos (if `plans/QUEUE.md` is copied
   verbatim, keep the placeholder in whatever template-payload mechanism exists — check
   `template-manifest.json` / docs for how files are stamped for downstream use, and follow the
   existing pattern used by other self-vs-payload files).
@@ -63,3 +63,8 @@ bash -c '! grep -q "<project-name>" plans/QUEUE.md'
 ## Risk
 
 auto — docs/metadata-only change in a non-risk-tiered repo.
+
+## Notes
+
+- Staleness refresh: `QUEUE.md` -> `plans/QUEUE.md`; the root `QUEUE.md` anchor is absent in this
+  checkout, and the current queue file is `plans/QUEUE.md`.
