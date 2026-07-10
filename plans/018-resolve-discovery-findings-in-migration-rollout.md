@@ -3,6 +3,7 @@
 - **Project:** repo-template
 - **Branch:** feat/018-resolve-discovery-findings-in-migration-rollout
 - **Status:** ready for codex
+<!-- retry reason: class=stall-retry, source=operator 2026-07-10, detail=verify gate was a literal unexpanded {{VERIFY_GATE_CMD}} template placeholder; replaced with the AGENTS.md repo gate (conflict-marker grep + manifest check). 19 identical env stalls in 14h. -->
 - **Stall-retries:** 1
 - **Last-stall:** stalled - obsolete
 - **Priority:** P3
@@ -53,7 +54,8 @@ Relevant files: `docs/MIGRATION.md`.
 ## Verify
 
 ```bash
-{{VERIFY_GATE_CMD}}
+ec=0; grep -rn '^<''<<<<<<' --include='*.md' --include='*.yml' --include='*.json' --include='*.jsonl' --include='TEMPLATE_VERSION' . || ec=$?; if [ "$ec" -ne 1 ]; then exit 1; fi
+node -e "const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const cp=require('child_process');const NL=String.fromCharCode(10),CR=String.fromCharCode(13);const tracked=cp.execSync('git ls-files',{encoding:'utf8'}).split(NL).map(s=>s.split(CR).join('')).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>k+':'+v);if(missing.length||invalid.length){if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);process.exit(1)}"
 ```
 
 ## Risk
