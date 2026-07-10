@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/018-resolve-discovery-findings-in-migration-rollout
-- **Status:** stalled - env: verify-124116-1783685756265.sh: line 3: {{VERIFY_GATE_CMD}}: command not found
+- **Status:** ready for codex
 - **Priority:** P3
 - **Effort:** low
 
