@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 017 P3 fix-replace-queue-md-placeholder-project-name-and-guard-it-i
