@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/023-harden-template-verify-gate-conflict-marker-scan-to-cover-al
-- **Status:** stalled - needs attention
+- **Status:** ready for codex
 - **Stall-retries:** 1
 - **Last-stall:** stalled - needs attention
 - **Priority:** P3
