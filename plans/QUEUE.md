@@ -5,3 +5,4 @@
 
 ## Pending
 - 014 P3 fill-in-repo-template-in-the-live-queue-md-header retry:manual
+- 016 P3 set-repo-template-s-live-queue-md-header-to-a-real-project-n retry:manual

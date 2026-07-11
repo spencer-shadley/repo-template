@@ -43,3 +43,7 @@ Relevant files: `plans/QUEUE.md`.
 ## Risk
 
 Auto tier: discovery triage accepted bounded issue work and the existing queue verify/review gates remain in force.
+
+## Retry history
+
+- 2026-07-11T22:49:57.701Z manual (manual): CEO survey approval 2026-07-10 (.ops/human-survey record) - machine-recovery unblock
