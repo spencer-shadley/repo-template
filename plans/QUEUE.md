@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 022 P1 ignore-failed-plan-critic-verdict-artifacts-without-hiding-t retry:stall-retry
