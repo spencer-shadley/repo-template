@@ -42,3 +42,7 @@ grep -q 'Run queue — repo-template' plans/QUEUE.md && ! grep -q '<project-name
 ## Risk
 
 Auto tier: discovery triage accepted bounded issue work and the existing queue verify/review gates remain in force.
+
+## Retry history
+
+- 2026-07-11T22:49:45.202Z manual (manual): CEO survey approval 2026-07-10 (.ops/human-survey record) - machine-recovery unblock
