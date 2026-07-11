@@ -2,9 +2,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/014-fill-in-repo-template-in-the-live-queue-md-header
-- **Status:** ready for codex
+- **Status:** parked - stalled x4 (needs triage)
 - **Requeue-reason:** manual: CEO survey approval 2026-07-10 (.ops/human-survey record) - machine-recovery unblock
-- **Stall-retries:** 3
+- **Stall-retries:** 4
 - **Last-stall:** stalled - plan staleness drift
 - **Priority:** P3
 - **Effort:** low
