@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 023 P3 harden-template-verify-gate-conflict-marker-scan-to-cover-al
