@@ -1,3 +1,10 @@
+> **RETIRED 2026-07-11 — OBSOLETE / SATISFIED ON MASTER.** Repo-template plan 018 merged the
+> machine-checkable canary gate as PR #75 (`d3dbcf2`): `docs/MIGRATION.md` now requires at least
+> three consecutive drain cycles spanning 24 hours after merge, with no verify failures or
+> migration-attributed incident lines, and defines attribution from the migration PR's changed-file
+> surface. Plan 007 has no remaining implementation work and is archived unrun to prevent a
+> duplicate edit of `docs/MIGRATION.md`.
+
 # Plan 007: Define a machine-checkable canary-green criterion for fleet rollout
 
 - **Project:** repo-template
