@@ -2,7 +2,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/022-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t
-- **Status:** ready for codex
+- **Status:** stalled - deterministic-verify-wedge
+- **Stall-retries:** 1
+- **Last-stall:** stalled - deterministic-verify-wedge
 - **Requeue-reason:** stall-retry: plan 021 never started; fresh-number retry avoids cross-repo legacy approved-not-merged counter contamination
 - **Priority:** P1
 - **Effort:** low
