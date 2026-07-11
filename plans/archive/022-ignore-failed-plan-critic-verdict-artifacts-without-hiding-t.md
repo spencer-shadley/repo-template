@@ -3,8 +3,6 @@
 - **Project:** repo-template
 - **Branch:** feat/022-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t
 - **Status:** ready for user approval
-- **Stall-retries:** 1
-- **Last-stall:** stalled - deterministic-verify-wedge
 - **Requeue-reason:** stall-retry: implementation was correct, but Bash consumed template-literal backticks in the captured Verify command; use shell-safe concatenation in both the plan gate and canonical AGENTS.md gate, then resume preserved WIP
 - **Priority:** P1
 - **Effort:** low
