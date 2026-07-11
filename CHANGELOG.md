@@ -31,6 +31,8 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
   stay useful local diagnostics without dirtying or wedging scheduled drains; tracked incident logs
   and `plans/*.critic.md` remain unaffected. Motivated by an observed queue-abort-dirty instance of
   this class in this repo and in newly adopted `model-router`.
+- Ported the template self verify gate's conflict-marker scan into the existing Node manifest check,
+  preserving marker coverage while removing bash/grep exit-code dependence. PATCH.
 
 ### Unchanged (intentional — frozen)
 <!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy

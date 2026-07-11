@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/024-port-verify-gate-conflict-marker-scan-into-the-existing-node
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P3
 - **Effort:** low
 

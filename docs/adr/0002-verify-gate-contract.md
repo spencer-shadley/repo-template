@@ -12,6 +12,10 @@ The plan-loop verify gate for this repo:
    gate nor masquerade as a code failure.
 3. Runs from the project directory; never prefixes `cd <project>` (the loop guarantees cwd).
 4. Emits real output on failure — the loop logs the tail; silent failure is a gate defect.
+5. Keeps repo-template's self-gate portable: conflict-marker detection and manifest validation run
+   in one Node invocation, with no bash-only `grep` exit-code handling. The marker scan covers
+   `*.md`, `*.yml`, `*.json`, `*.jsonl`, and `TEMPLATE_VERSION`, and fails on any line beginning
+   `<<<<<<<`.
 
 ## Context (why — fleet incidents 2026-07-02)
 A PATH defect made every scheduled verify die in 2s for a night (env, not code); docker-wait loops
