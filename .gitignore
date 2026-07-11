@@ -12,12 +12,18 @@ plans/*.result.md
 plans/*.feedback.md
 plans/*.paused
 
-# keep LAST: incident log IS tracked; drain auto-commits sole dirty auto-appends as
+# keep near LAST: incident log IS tracked; drain auto-commits sole dirty auto-appends as
 # "ops: incidents (auto)" so the active log cannot wedge the queue.
-# Guard against future blanket ignores swallowing it.
+# Guard against future blanket ignores swallowing it. File-precise transient re-ignores (e.g. the
+# critic rule below) may still follow this block; blanket `.ops/` or `.ops/**` ignores remain forbidden.
 # Parent-directory ignore rules can still hide .ops before this file is read; fix those at the parent.
 !.ops/
 !.ops/**
+
+# plan-critic/pre-enqueue writes failed verdict reports here for local diagnostics; successful
+# verdicts are copied into tracked plans/<NNN>.critic.md. Re-ignore file-precise so failed runs
+# don't dirty or wedge the queue (queue-abort-dirty incident).
+.ops/critic/*.md
 
 # runner tree-lock mutex: transient, must never make the tree dirty (fleet-starvation incident 2026-07-02)
 .orchestrator-tree.lock

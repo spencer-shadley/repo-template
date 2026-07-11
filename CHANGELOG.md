@@ -26,6 +26,11 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 - Documented the tracked `.ops/incidents.jsonl` drain policy: sole dirty auto-appends are committed
   as `ops: incidents (auto)` before drain proceeds, motivated by incident fingerprint
   `43efffab9ecedf82`.
+- Re-ignored `.ops/critic/*.md` (failed pre-enqueue plan-critic verdicts, per
+  `agent-orchestrator/lib/artifacts.mjs`) after the broad `.ops/**` re-include, so failed critic runs
+  stay useful local diagnostics without dirtying or wedging scheduled drains; tracked incident logs
+  and `plans/*.critic.md` remain unaffected. Motivated by an observed queue-abort-dirty instance of
+  this class in this repo and in newly adopted `model-router`.
 
 ### Unchanged (intentional — frozen)
 <!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy
