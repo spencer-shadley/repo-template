@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/021-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t
-- **Status:** ready for codex
+- **Status:** stalled - superseded by fresh-number retry after cross-repo approved-not-merged counter contamination
 - **Priority:** P1
 - **Effort:** low
 
