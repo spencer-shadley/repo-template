@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 025 P1 seed-model-boundary-policy-in-every-adopted-repository
