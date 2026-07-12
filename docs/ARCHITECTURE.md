@@ -16,6 +16,17 @@ obligations (ADR-0001 §8) include updating this when components/flows change.
      REVERSIBLE (bad call = retry/revert) vs IRREVERSIBLE/EXISTENTIAL (quota, tokens, user-visible
      sends) — irreversible ones MUST have rate-limit/breaker confinement (ADR-0001 §2). -->
 
+## Model boundary
+
+`model-boundary.json` is the machine-readable source of truth for whether this repo serves model
+tasks. The default is fail-closed: no direct provider invocation and no provider-specific paths.
+
+<!-- TODO(setup): if this repo has model-backed flows, describe the capabilities they serve, whether
+     the repo consumes the fleet gateway or owns an application-specific adapter registry, and the
+     capability/latency/privacy/cost/offline/independence constraints that affect routing. Do not
+     assign a role to a vendor or choose a sacred default model. Provider-specific paths must be
+     declared in model-boundary.json with an owning role. Serving provenance remains mandatory. -->
+
 ## Where to look first
 <!-- TODO(setup): top 3 entry-point files for understanding + top 3 for debugging. -->
 

@@ -7,6 +7,23 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Added
 <!-- new capabilities or files -->
+
+### Changed
+<!-- behavior changes; breaking ones marked **BREAKING** -->
+
+### Unchanged (intentional — frozen)
+<!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy
+     namespaces, DB identities, vendored code). Recording these prevents future agents from
+     "fixing" them. -->
+
+## [2.4.0] - 2026-07-12
+
+### Added
+<!-- new capabilities or files -->
+- `model-boundary.json` as a copied, fail-closed declaration for model-backed capabilities,
+  canonical gateway/adapter ownership, provider-specific exception paths, owning role, and serving
+  provenance. AGENTS, README, architecture, runbook, setup, and template self-checks now document
+  the CEO invariant: roles choose capabilities, never sacred providers. MINOR.
 - AGENTS.md gains two required steering sections: `## Responsibilities & non-goals` and
   `## Product principles` (both `TODO(setup!)`-gated), plus a progressive-disclosure preamble
   (what the file is, where deeper docs live, move oversized sections to `docs/` with a summary +

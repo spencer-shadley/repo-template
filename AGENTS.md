@@ -10,7 +10,7 @@ them when working on this repo.
   auto-merge. `plans/QUEUE.md` here is this repo's LIVE queue; instantiation resets it.
 - **Verify gate for THIS repo:**
   ```
-  node -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const exts=new Set(['.md','.yml','.json','.jsonl']);const conflicts=[];function scan(dir){for(const ent of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory()){if(ent.name!=='.git')scan(p);continue}if(!ent.isFile())continue;const rel=path.relative('.',p).split(path.sep).join('/');if(ent.name!=='TEMPLATE_VERSION'&&!exts.has(path.extname(ent.name)))continue;const lines=fs.readFileSync(p,'utf8').split(/\r?\n/);lines.forEach((line,i)=>{if(line.startsWith('<<<<<<<'))conflicts.push(rel+':'+(i+1)+':'+line)})}}scan('.');const tracked=cp.execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>k+':'+v);if(conflicts.length||missing.length||invalid.length){if(conflicts.length)console.error('conflict markers:',conflicts);if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);process.exit(1)}"
+  node -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const exts=new Set(['.md','.yml','.json','.jsonl']);const conflicts=[];function scan(dir){for(const ent of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory()){if(ent.name!=='.git')scan(p);continue}if(!ent.isFile())continue;const rel=path.relative('.',p).split(path.sep).join('/');if(ent.name!=='TEMPLATE_VERSION'&&!exts.has(path.extname(ent.name)))continue;const lines=fs.readFileSync(p,'utf8').split(/\r?\n/);lines.forEach((line,i)=>{if(line.startsWith('<<<<<<<'))conflicts.push(rel+':'+(i+1)+':'+line)})}}scan('.');const tracked=cp.execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>k+':'+v);const boundaryErrors=[];if(m['model-boundary.json']!=='copy')boundaryErrors.push('model-boundary.json must be manifest copy');let b;try{const raw=fs.readFileSync('model-boundary.json','utf8');if(/TODO\\(setup!?\\):|\\{\\{[A-Z0-9_]+\\}\\}/.test(raw))boundaryErrors.push('model-boundary.json has unresolved setup placeholders');b=JSON.parse(raw)}catch(e){boundaryErrors.push('model-boundary.json parse failed: '+e.message)}if(b){if(b.schemaVersion!==1)boundaryErrors.push('schemaVersion must be 1');if(b.servesModelTasks!==false)boundaryErrors.push('default servesModelTasks must be false');if(b.directProviderInvocation!=='forbidden')boundaryErrors.push('default directProviderInvocation must be forbidden');if(b.servingProvenanceRequired!==true)boundaryErrors.push('servingProvenanceRequired must be true');if(typeof b.ownerRole!=='string'||!b.ownerRole.trim())boundaryErrors.push('ownerRole required');const p=b.allowedProviderSpecificPaths;if(!p||typeof p!=='object')boundaryErrors.push('allowedProviderSpecificPaths required');else for(const k of ['adapters','catalogs','configuration','fixtures','history'])if(!Array.isArray(p[k]))boundaryErrors.push('allowedProviderSpecificPaths.'+k+' must be an array')}if(conflicts.length||missing.length||invalid.length||boundaryErrors.length){if(conflicts.length)console.error('conflict markers:',conflicts);if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);if(boundaryErrors.length)console.error('model boundary:',boundaryErrors);process.exit(1)}"
   ```
 - **Change discipline:** every structural change states WHICH fleet learning/incident motivates it
   (ADRs cite evidence); user-facing additions get README-table entries and setup markers when
@@ -61,6 +61,20 @@ prompt, and review in this repo, with decider + date (e.g. task-dag's "the AI ne
 about, warns against, or deprioritizes user tasks"; gmail-markdown's "the draft is sacred / fail
 open"). Added as a required section fleet-wide 2026-07-09 after a steering-docs audit found adopted
 repos carrying these only in tool memory — doctrine lives in the repo. -->
+
+## Model boundary
+
+Model roles choose capabilities, never sacred providers. Provider-specific code may live only in
+the adapter, catalog, configuration, fixture, or history paths declared in `model-boundary.json`;
+business logic must route through the declared gateway or adapter registry and remain
+provider-neutral. Every model-backed flow must retain serving provenance so audits can reconstruct
+which provider/model served a request, even though selection is interchangeable.
+
+During setup, answer these without naming a sacred default model:
+- Does this repo have model-backed flows? If yes, list the user-facing capabilities they serve.
+- Does it consume the fleet gateway, or does it own an application-specific adapter registry?
+- Which capability, latency, privacy, cost, offline, or independence constraints affect routing?
+- Which provider-specific adapter/catalog/config paths are legitimate, and which role owns them?
 
 ## Commands
 
