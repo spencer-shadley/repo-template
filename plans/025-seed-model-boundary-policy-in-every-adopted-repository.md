@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/025-seed-model-boundary-policy-in-every-adopted-repository
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P1
 - **Effort:** medium
 

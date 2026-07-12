@@ -10,6 +10,7 @@
   "CHANGELOG.md": "merge",
   "CLAUDE.md": "copy",
   "GEMINI.md": "copy",
+  "model-boundary.json": "copy",
   "README.md": "merge",
   "SECURITY.md": "copy",
   "TEMPLATE_VERSION": "self",

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "servesModelTasks": false,
+  "canonicalGateway": null,
+  "ownerRole": "repo-maintainer",
+  "providerSelectionPolicy": "roles choose capabilities, never sacred providers",
+  "directProviderInvocation": "forbidden",
+  "allowedProviderSpecificPaths": {
+    "adapters": [],
+    "catalogs": [],
+    "configuration": [],
+    "fixtures": [],
+    "history": []
+  },
+  "servingProvenanceRequired": true
+}
