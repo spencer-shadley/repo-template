@@ -4,4 +4,3 @@
      human-tier plans enqueued --no-queue. Delete this comment otherwise. -->
 
 ## Pending
-- 027 P2 user-surface-leak-lint
