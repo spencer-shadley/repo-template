@@ -91,3 +91,29 @@ before repos sync. The loop reviewer must fail the review if the diff modifies a
 AGENTS.md prose or any file beyond AGENTS.md/TEMPLATE_VERSION/CHANGELOG.md. Operator approval
 provenance: CEO directive in chat 2026-07-13 ("this should be a general thing in agents.md — it
 should always point to the principles").
+
+## Scope extension (CEO directive 2026-07-13, same day): fleet-wide principle numbering + SLO convention
+
+The CEO ratified a fleet-wide FORM for `## Product principles` (piloted in sharingan plan 017's
+review doc) — this plan's AGENTS.md changes must also encode the section spec, applying to EVERY
+repo:
+
+1. **Precedence numbering**: principles are a numbered list ordered by precedence — **P1 is the
+   strongest; in any conflict the LOWER-numbered principle wins** and the higher yields and
+   retries later. The section header states this convention explicitly. Nothing may be inserted
+   above P1 without CEO sign-off.
+2. **SLI/SLO per principle**: each principle carries an `SLI:` line (what is measured — durable)
+   and an `SLO:` line (target — tunable; `report-only` is a valid initial target while
+   baselining). An SLO breach is a principle-tagged defect.
+3. **Principle-tagged findings**: reviews, discovery issues, and PRs cite principles as `P<n>`
+   (machine-parseable), enabling per-principle violation trending (orchestrator side:
+   agent-orchestrator#1223).
+
+Verify-gate addition: the gate must also assert AGENTS.md's Product-principles section states the
+"lower number wins" convention (e.g. contains the phrase "lower number wins" or "P1 is the
+strongest").
+
+Downstream note: repos whose principle sections predate this convention (model-router, dotfiles
+completed theirs unordered) become non-conforming at the next template sync — their sync/drift
+plans reorder WITH the repo owner's sign-off at merge per their tier; ordering proposals are
+agent-drafted, never silently imposed.
