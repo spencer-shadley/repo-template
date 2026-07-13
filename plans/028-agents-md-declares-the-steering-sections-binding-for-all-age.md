@@ -128,3 +128,21 @@ LEXICOGRAPHIC: lower X wins; within a class, lower Y wins — every pair of prin
 deterministic winner. Nothing is added above P0.1 without CEO sign-off. Findings cite `PX.Y`.
 Verify-gate wording updates accordingly (assert the section states the lexicographic convention,
 e.g. contains "lower X wins" or "P0" + "tiebreaker").
+
+## Post-merge obligation (CEO directive 2026-07-13): version bump MUST propagate as adoption issues
+
+The TEMPLATE_VERSION MINOR bump (Changes step 2) is not just bookkeeping — it is the trigger for
+fleet adoption. After this plan merges:
+
+1. Verify the anomaly-sweep template-drift detector fires on the new version: within 24h (next
+   scheduled sweep), every repo whose `.template-sync.json` syncedVersion < the new version gets a
+   `template drift: <repo> X -> <new>` adoption issue filed automatically (P2/MINOR severity).
+   Evidence = the filed issue URLs; absence after 24h is an incident (relates
+   agent-orchestrator#1212, template-wave convergence).
+2. Repos with ALREADY-QUEUED sync plans (task-dag 183, sharingan 017, code 057, gmail-markdown
+   085, model-router 006, dotfiles 009, orch 408) resolve repo-template origin/master at
+   implementation time, so a plan that drains AFTER this merge absorbs it with no extra issue —
+   the sweep's new drift issue for such a repo should be closed as satisfied by the pending plan
+   (do not double-plan; supersession discipline per #1212).
+3. Record in this plan's result which repos got issues vs. which absorb via pending plans, so the
+   wave's coverage is auditable (no silent gaps).
