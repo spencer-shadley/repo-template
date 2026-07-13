@@ -1,7 +1,7 @@
 # Plan 026: Backfill the missing CHANGELOG [2.3.0] section (canary-first release)
 
 - **Project:** repo-template
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P3
 - **Effort:** low
 
