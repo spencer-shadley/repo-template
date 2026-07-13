@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # TODO(setup): toolchain setup (node/python/etc.)
+      - run: node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json
       # TODO(setup): lint step
       # TODO(setup): test step
       - run: 'echo "TODO(setup): replace with real lint+test"'

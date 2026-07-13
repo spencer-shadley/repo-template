@@ -1,0 +1,21 @@
+{
+  "include": [
+    "src/**/*.js"
+  ],
+  "allowlist": [
+    {
+      "path": "src/messages.js",
+      "line": 2,
+      "rule": "env-var",
+      "match": "SSO_ID",
+      "justification": "SSO ID is a user-facing integration field label in this product."
+    },
+    {
+      "path": "src/messages.js",
+      "line": 3,
+      "rule": "infra-noun",
+      "match": "Docker",
+      "justification": "This documentation product intentionally names Docker as the article subject."
+    }
+  ]
+}

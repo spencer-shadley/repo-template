@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/027-user-surface-leak-lint
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Priority:** P2
 - **Effort:** medium
 
