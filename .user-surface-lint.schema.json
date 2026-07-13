@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "User surface leak lint config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "include"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "include": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Globs for files containing user-visible strings or response messages."
+    },
+    "allowlist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "justification"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "File path or glob relative to the repository root."
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "rule": {
+            "enum": [
+              "env-var",
+              "infra-noun",
+              "absolute-path",
+              "internal-error"
+            ]
+          },
+          "match": {
+            "type": "string",
+            "minLength": 1
+          },
+          "justification": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "default": []
+    }
+  }
+}

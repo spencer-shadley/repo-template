@@ -19,6 +19,9 @@ audit, the autonomous loop) rely on these paths.
 | `.ops/README.md` | incident stream schema and append rules |
 | `.ops/incidents.jsonl` | machine incident stream (appears lazily; append-only; weekly-rotated) |
 | `model-boundary.json` | machine-readable model boundary: gateway, provider-specific exceptions, owner |
+| `.user-surface-lint.json` | configured user-facing source globs and justified allowlist for developer-leak lint |
+| `.user-surface-lint.schema.json` | schema for the user-surface leak lint config |
+| `scripts/lint-user-surface-leaks.mjs` | deterministic lint preventing developer/operator internals in user-visible literals |
 | `plans/QUEUE.md` | the autonomous work queue (`## Pending` = auto-merge lane) |
 | `plans/archive/` | archived completed plan specs/results/logs |
 | `plans/drafts/000-smoke.md` | first enrollment-proof plan for new repos |
@@ -53,3 +56,11 @@ tasks, update `model-boundary.json` during adoption with the gateway or adapter 
 the provider-specific adapter/catalog/config paths it legitimately contains, and the owning role for
 those exceptions. Do not choose a sacred default model in template setup; roles select capabilities,
 and serving provenance remains mandatory.
+
+**User-surface leak lint**
+
+Repos with user-facing screens or response messages must set `.user-surface-lint.json` `include`
+globs to the files that contain those strings, then run
+`node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json` in the verify gate. Use
+`allowlist` entries only with `path`, optional `line`/`rule`/`match`, and a human-readable
+`justification`; repos with no user surface keep `include: []`, which no-ops with an explicit notice.

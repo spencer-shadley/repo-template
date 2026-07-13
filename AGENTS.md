@@ -10,6 +10,7 @@ them when working on this repo.
   auto-merge. `plans/QUEUE.md` here is this repo's LIVE queue; instantiation resets it.
 - **Verify gate for THIS repo:**
   ```
+  node scripts/lint-user-surface-leaks.mjs --self-test
   node -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const exts=new Set(['.md','.yml','.json','.jsonl']);const conflicts=[];function scan(dir){for(const ent of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory()){if(ent.name!=='.git')scan(p);continue}if(!ent.isFile())continue;const rel=path.relative('.',p).split(path.sep).join('/');if(ent.name!=='TEMPLATE_VERSION'&&!exts.has(path.extname(ent.name)))continue;const lines=fs.readFileSync(p,'utf8').split(/\r?\n/);lines.forEach((line,i)=>{if(line.startsWith('<<<<<<<'))conflicts.push(rel+':'+(i+1)+':'+line)})}}scan('.');const tracked=cp.execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>k+':'+v);const boundaryErrors=[];if(m['model-boundary.json']!=='copy')boundaryErrors.push('model-boundary.json must be manifest copy');let b;try{const raw=fs.readFileSync('model-boundary.json','utf8');if(/TODO\\(setup!?\\):|\\{\\{[A-Z0-9_]+\\}\\}/.test(raw))boundaryErrors.push('model-boundary.json has unresolved setup placeholders');b=JSON.parse(raw)}catch(e){boundaryErrors.push('model-boundary.json parse failed: '+e.message)}if(b){if(b.schemaVersion!==1)boundaryErrors.push('schemaVersion must be 1');if(b.servesModelTasks!==false)boundaryErrors.push('default servesModelTasks must be false');if(b.directProviderInvocation!=='forbidden')boundaryErrors.push('default directProviderInvocation must be forbidden');if(b.servingProvenanceRequired!==true)boundaryErrors.push('servingProvenanceRequired must be true');if(typeof b.ownerRole!=='string'||!b.ownerRole.trim())boundaryErrors.push('ownerRole required');const p=b.allowedProviderSpecificPaths;if(!p||typeof p!=='object')boundaryErrors.push('allowedProviderSpecificPaths required');else for(const k of ['adapters','catalogs','configuration','fixtures','history'])if(!Array.isArray(p[k]))boundaryErrors.push('allowedProviderSpecificPaths.'+k+' must be an array')}if(conflicts.length||missing.length||invalid.length||boundaryErrors.length){if(conflicts.length)console.error('conflict markers:',conflicts);if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);if(boundaryErrors.length)console.error('model boundary:',boundaryErrors);process.exit(1)}"
   ```
 - **Change discipline:** every structural change states WHICH fleet learning/incident motivates it
@@ -97,6 +98,10 @@ future agents rely on this line.
 Run validation appropriate to the change size; every command listed above that exists for this
 stack must pass before a change is "done". Run the stack's runtime/UI verifier when touching routes,
 UI, or runtime behavior.
+
+Run `node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json` in the verify gate
+for repos with user-facing screens or response messages. Keep `.user-surface-lint.json` explicit:
+empty `include` globs are a committed no-user-surface choice and print a no-op notice.
 
 {{VERIFY_GATE_SHAPE}}  <!-- TODO(setup!): describe the gate shape for this repo. Web-app example: lint/typecheck/test/build, then rebuild + redeploy, smoke /health, and run e2e against the deployed server. -->
 

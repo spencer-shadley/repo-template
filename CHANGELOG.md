@@ -7,6 +7,11 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Added
 <!-- new capabilities or files -->
+- `scripts/lint-user-surface-leaks.mjs` plus `.user-surface-lint.json`, a deterministic
+  user-facing string lint for env-var names, infra/operator wording, host paths, and detectable
+  internal-error passthroughs. The gate cites the CEO-ratified no-developer-leakage doctrine from
+  agent-orchestrator `docs/DOCTRINE.md` §12 and no-ops loudly when a repo commits empty include
+  globs. MINOR.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
