@@ -117,3 +117,14 @@ Downstream note: repos whose principle sections predate this convention (model-r
 completed theirs unordered) become non-conforming at the next template sync — their sync/drift
 plans reorder WITH the repo owner's sign-off at merge per their tier; ordering proposals are
 agent-drafted, never silently imposed.
+
+## Numbering refinement (CEO, 2026-07-13, final): `PX.Y` class-tiered form
+
+Supersedes the flat `P<n>` spec above. Principles are numbered **`PX.Y`**: **X** = class bracket
+(P0 strongest, typically P0→P4 — suggested bracket semantics: P0 existential invariants, P1
+safety/destruction invariants, P2 governance & platform integrity, P3 product guarantees, P4
+conveniences/speculative); **Y** = incremental tiebreaker within the class. Precedence is
+LEXICOGRAPHIC: lower X wins; within a class, lower Y wins — every pair of principles has a
+deterministic winner. Nothing is added above P0.1 without CEO sign-off. Findings cite `PX.Y`.
+Verify-gate wording updates accordingly (assert the section states the lexicographic convention,
+e.g. contains "lower X wins" or "P0" + "tiebreaker").
