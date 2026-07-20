@@ -2,7 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/030-build-the-unreleased-new-repository-materializer-foundation
-- **Status:** ready for codex
+- **Status:** draft - blocked on 029 → 028, AO 423 landed receipts, and the independently reviewed
+  draft-blocked Plan 031 terminal contract
 - **Priority:** P1
 - **Depends:** 028, 029
 - **Effort:** high
@@ -27,8 +28,14 @@ Turn AI-First Engineering Stack v1.0.0 into one deterministic, unreleased founda
 - byte-stable create/noop/drift behavior with fail-closed publication.
 
 This plan deliberately does not release the template, enroll a repository, enable autonomy, or
-migrate an existing tree. A separately named terminal plan owns the live canary, version/tag, real
-enrollment proof, and issue #85 closure after every production consumer exists.
+migrate an existing tree. Plan 031 owns the live canary, version/tag, real enrollment proof, and
+issue #85 closure after every production consumer exists.
+
+The executable consumer order is explicit and acyclic:
+Plan 030 lands first, Code Plan 059 then lands against this unreleased contract and its mechanically
+separate terminal-candidate seam, and Plan 031 finally invokes that seam for release. Plan 031's
+release receipt gates ordinary later production adoption; it is not a Plan-059 implementation or
+landing prerequisite.
 
 ## Context and ownership
 
@@ -49,8 +56,8 @@ enrollment proof, and issue #85 closure after every production consumer exists.
   `effectiveVerifyGate` and `localCiGreen`. Until that lands, this foundation proves only its own
   fixture contract and cannot satisfy the terminal scheduled-canary gate.
 - Code issue #404 adds only the fleet-registry pointer and the responsibilities/non-goals/product-
-  principles interview. A separate human-tier `code` consumer plan linked to AO #1278 owns invoking
-  this materializer from the adoption skill and collecting the full input packet once.
+  principles interview. Code Plan 059 is the separate human-tier consumer linked to AO #1278; it
+  owns invoking this materializer from the adoption skill and collecting the full input packet once.
 - The external `.ops` migration's primitive/store plans are not the cutover. The terminal release
   is blocked until the externally stored operational-state contract is complete and generated docs
   can refer to its logical CLI/resolver interface without tracking live `.ops` telemetry.
@@ -69,8 +76,9 @@ Add `package.json`, `.npmrc`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, and `turb
    - `engines.pnpm` to that exact pnpm version;
    - `engines.node` to the supported semver range for the selected Active-LTS major; and
    - exact devDependency versions, including `markdownlint-cli2`, Ajv 2020-12 support, a bounded
-     YAML parser, and a pinned Mermaid parser/compiler strategy that does not trigger an implicit
-     Chromium download.
+     YAML parser, and the pinned official `mermaid` package. Diagram validation calls
+     `await mermaid.parse(text, { suppressErrors: false })` directly; it does not render SVG,
+     invoke Mermaid CLI, require a DOM/browser, or trigger Chromium download.
 2. Expose these stable commands:
    - `bootstrap` — thin materializer CLI;
    - `bootstrap:canary` — OS-temp fixture canary with guaranteed cleanup;
@@ -94,23 +102,28 @@ Add `package.json`, `.npmrc`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, and `turb
 
    A non-empty `allowBuilds` entry is permitted only when a pinned dependency demonstrably needs a
    build script and the same change adds its exact package selector, rationale, negative test, and
-   expected artifact. Never permit arbitrary scripts.
+   expected artifact. Never permit arbitrary scripts. The resolved pnpm version must support every
+   exact listed setting; schema/behavior probes fail the implementation rather than silently omit,
+   rename, or approximate an unsupported key.
 4. The materializer creates a lock in staging using the generated package-manager version,
    `install --lockfile-only --ignore-scripts`, and `cwd=staging`. It validates the full allowlist
-   and publishes no `node_modules`. The canary later installs frozen from inside the generated
-   directory so Corepack selects the generated `packageManager`. Fixture-selected pnpm and every
-   generated bootstrap dependency/version must equal the root packageManager and a subset of the
-   root lock. The initial root frozen install proves that exact Corepack-selected pnpm is executable;
-   the canary then primes a dedicated OS-temp pnpm store from the root lock, switches to an
-   intentionally unreachable registry, and performs generated-tree fetch/install with
-   `--offline --frozen-lockfile --store-dir <dedicated-store>`. No global/default store or network
-   fallback may satisfy the generated install.
+   and publishes no `node_modules`. Fixture-selected pnpm and every generated bootstrap
+   dependency/version must equal the root packageManager and a subset of the root lock. Before the
+   first fixture materialization, the canary derives that expected dependency set without writing,
+   proves the subset, primes a dedicated OS-temp pnpm store from the root lock, and switches to an
+   intentionally unreachable registry. Fixture-mode staging lock creation must itself use
+   `--offline --store-dir <dedicated-store>` in addition to `--lockfile-only --ignore-scripts`;
+   the later generated-tree install uses
+   `--offline --frozen-lockfile --store-dir <dedicated-store>`. Production lock generation instead
+   consumes Plan 031's separately bounded and receipt-bound production resolution path. No
+   global/default store or unrecorded network fallback may satisfy either fixture operation.
 5. Future pin changes are explicit governed updates owned by the AO #1278 compatibility/audit
    route. No adopted repository silently follows a mutable upstream version.
 
 ### 2. One complete input packet and strict document modes
 
-Add `schemas/bootstrap-input.schema.json`. `--input <file>` is the sole noninteractive product
+Add `schemas/bootstrap-input.schema.json` and
+`schemas/release-prerequisites.schema.json`. `--input <file>` is the sole noninteractive product
 answer packet and is reusable by the adoption consumer. It covers every must-answer surface:
 
 - repository and package name, one-line purpose, responsibilities, non-goals;
@@ -135,6 +148,23 @@ Every bootstrap YAML/JSON document has `documentMode: template | materialized`.
 - The role enum contains exactly `primary`, `secondary`, `accessory`, `specialized`, `dormant`,
   and `not-targeted`; the sentinel is never a seventh role.
 - Schemas use local-only `$ref`, `additionalProperties: false`, and bounded YAML aliases.
+
+The release-prerequisites schema is the already-landed contract that Plan 031 later uses for its
+metadata-only readiness amendment. It is JSON Schema 2020-12, strict and closed, with:
+
+- `schemaVersion: 1` and `kind: "repo-template-release-prerequisites/v1"`;
+- exact foundation plan/source/content-tree/materializer-contract identities;
+- the exact prerequisite IDs `ao-stack-registry`, `ao-local-ci`, `code-adoption`,
+  `workspace-resolver`, `external-ops`, `schedule-truth`, and `worker-capacity`;
+- for each prerequisite, project identity, non-empty plan numbers and landed SHAs, closed
+  schema-identity/version/hash rows, receipt hashes, and named readbacks; and
+- a canonical prerequisite-set digest.
+
+The production validator enforces the exact prerequisite-ID set, SHA/hash grammar, global
+uniqueness, canonical ordering/digest, and no ambient path/timestamp/status/prose authority.
+Plan 030 tests valid and tampered synthetic fixtures but does not commit
+`plans/031.prerequisites.json`; Plan 031 later commits only that data after the real immutable
+receipts exist.
 
 ### 3. Product controls and canonical registry consumption
 
@@ -163,11 +193,14 @@ Requirements:
    they cannot rewrite canonical authority fields or convert `blocked` or `evaluation-required`
    into `resolved`. A fleet-unknown candidate stays eligible when it has an evaluation owner,
    deadline or review trigger, evidence target, and exit criteria. Preserve trial-by-fire:
-   each `evaluation-required` item deterministically generates a ready-for-codex evaluation plan
-   outside `QUEUE.md`, bound to the resolution receipt. The materializer never enqueues that plan or
-   enables autonomy; after enrollment succeeds, the adoption consumer inserts it automatically
-   through the standard authorized auto lane. Only a canonical `blocked` disposition prevents
-   materialization.
+   each `evaluation-required` item deterministically generates an implementation-ready evaluation
+   plan outside `QUEUE.md`, bound to the resolution receipt and explicitly classified against the
+   packet's target autonomy/human-trigger policy plus current protected-path classifier. After
+   enrollment succeeds, policy-auto evaluations enter Pending automatically through the standard
+   authorized auto lane. Human-tier evaluations stay outside Pending and use the already-carried
+   commission when it covers their exact effects; they do not trigger a new interview or repeated
+   product approval. The materializer never enqueues a plan, changes the declared autonomy policy,
+   or decides merge authority. Only a canonical `blocked` disposition prevents materialization.
 3. `local-ci.json` contains each stable gate ID exactly once:
    `format-lint`, `compiler-static`, `unit`, `integration`, `production-build`,
    `api-event-compatibility`, `secret-detection`, `critical-vulnerabilities`,
@@ -332,7 +365,8 @@ Add `scripts/validate-template.mjs` plus cohesive helpers.
 Add real Markdown and diagram checks:
 
 - `markdownlint-cli2` is pinned with committed config;
-- every Mermaid fence in manifest-selected prose is passed to the pinned Mermaid parser/compiler;
+- every Mermaid fence in manifest-selected prose is passed to the pinned `mermaid.parse()` syntax
+  boundary with errors unsuppressed; rendering is not part of this repository-only lint gate;
 - mutable-version lint uses named immutable/fixture/plan/incident/changelog exclusions, never an
   open extension skip;
 - conflict scanning still covers all tracked text, including excluded prose classes.
@@ -370,13 +404,14 @@ absence. Add an Unreleased entry. Do not change `TEMPLATE_VERSION` or create a t
 - Existing-repository adoption, refresh, in-place mutation, or migration.
 - Product leaf topology, application code, deployment infrastructure, credentials, or services.
 - Flipping `releaseState`, bumping `TEMPLATE_VERSION`, tagging, or closing issue #85.
-- Retiring historical plan evidence; a separate plan reevaluates each live/stale artifact.
+- Retiring historical plan evidence; Plan 032 owns the frozen evidence-preserving disposition set
+  after this foundation lands.
 
 ## Acceptance criteria
 
 - [ ] Plan 028, Plan 029, and AO Plan 423's exact landed registry/resolver contract are landed and
       their immutable SHAs, schema hashes, and validation-receipt hash are pinned.
-- [ ] Root package metadata and lock are exact; pnpm settings use current supported keys and a
+- [ ] Root package metadata and lock are exact; the resolved pnpm proves every listed setting and a
       seven-day `minimumReleaseAge`; unallowlisted dependency scripts cannot execute.
 - [ ] One complete input packet covers every setup marker and produces no unresolved marker.
 - [ ] Template/materialized schema modes are strict, local-only, bounded, and independently tested.
@@ -399,8 +434,10 @@ absence. Add an Unreleased entry. Do not change `TEMPLATE_VERSION` or create a t
       conflicts in every textual format while ignoring binary bytes.
 - [ ] Pinned Markdown/Mermaid/mutable-version checks fail closed without implicit browser setup.
 - [ ] A generated repository installs frozen/offline and passes its own `pnpm verify`.
-- [ ] Compatibility state remains `unreleased`; `TEMPLATE_VERSION` is unchanged; the terminal
-      release/enrollment plan exists before this foundation merges.
+- [ ] Compatibility state remains `unreleased`; `TEMPLATE_VERSION` is unchanged; Plan 031 exists,
+      remains blocked on exact external receipts, and names this Plan 030 dependency.
+- [ ] The closed Plan-031 prerequisite schema and production validator land before any readiness
+      fixture; valid/tampered synthetic fixtures prove exact-set and digest enforcement.
 
 ## Verify
 
@@ -424,32 +461,37 @@ corepack pnpm bootstrap:canary
 
 1. create a unique root with `fs.mkdtemp()` under `os.tmpdir()` and remove only that root in
    `try/finally`;
-2. materialize from fixed toolchain/source/resolver fixtures using
-   `--test-mode --allow-fixture-provenance`;
-3. validate the pre-Git output and exact intended-file inventory;
-4. assert all self-state omissions and `status=created, sourceMode=fixture`;
-5. capture a full byte-tree hash, rerun identical input, assert `noop`/`wroteBytes=0`, and compare;
-6. run changed input, assert `drift`/`wroteBytes=0`, and compare again;
-7. prove fixture pnpm/dependencies are an exact subset of the root lock, prime a dedicated temp
-   store from that lock, set the registry to an intentionally unreachable endpoint, then `cd` into
-   the generated tree, run `corepack pnpm install --offline --frozen-lockfile --store-dir
-   <dedicated-store>`, and run `corepack pnpm verify`; assert no default/global store access;
-8. prove each fixture flag alone is rejected; a no-flag production invocation rejects fixture
+2. derive the fixed fixture's expected generated manifest without writing, prove its pnpm/dependency
+   set is an exact subset of the root lock, prime a dedicated temp store, and set the registry to an
+   intentionally unreachable endpoint before either materialization;
+3. materialize identical fixed packet/toolchain/source/resolver/clock inputs into two distinct absent
+   destinations using `--test-mode --allow-fixture-provenance`; require fixture staging lock creation
+   to use the same dedicated store and offline/unreachable-registry controls;
+4. validate both pre-Git outputs, exact intended-file inventories, self-state omissions, and
+   `status=created, sourceMode=fixture`;
+5. compare the two complete byte-tree hashes including finished receipts and require exact equality;
+6. rerun identical input against one destination, assert `noop`/`wroteBytes=0`, and prove its bytes
+   remain unchanged;
+7. run changed input against that destination, assert `drift`/`wroteBytes=0`, and prove its bytes
+   remain unchanged;
+8. `cd` into each generated tree, run
+   `corepack pnpm install --offline --frozen-lockfile --store-dir <dedicated-store>`, then
+   `corepack pnpm verify`; assert no default/global store or network access;
+9. prove each fixture flag alone is rejected; a no-flag production invocation rejects fixture
    provenance and an unreleased source; the exact paired flags enter test mode and stamp
    `sourceMode: "fixture"`—the paired invocation is never classified as production;
-9. prove an unallowlisted install script cannot execute; and
-10. inject staging/publication failures plus two-process contention and prove the destination is
+10. prove an unallowlisted install script cannot execute; and
+11. inject staging/publication failures plus two-process contention and prove the destination is
     either absent or one fully valid output, never partial.
 
 ## Terminal dependencies and rollback
 
-Before this foundation merges, create a named terminal dependent plan. That terminal remains blocked
-on:
+Plan 031 is the named terminal dependent plan. It remains blocked on:
 
 1. AO Plan 423's landed registry/schema/resolution receipt contract;
 2. AO Plan 424's repo-local `local-ci.json` runtime consumer, proven through `effectiveVerifyGate` and
    `localCiGreen`;
-3. the explicitly numbered `code` human-tier adoption-skill consumer;
+3. Code Plan 059, the human-tier adoption-skill consumer;
 4. Plan 389 resolver readback plus a nonlegacy relocation/path-independence proof using exact
    resolver receipts; physical closure of repo-template issue #84 is audit-only when that proof is
    green;

@@ -2,11 +2,12 @@
 
 - **Project:** repo-template
 - **Branch:** feat/031-release-the-materializer-through-a-real-scheduled-new-repo-c
-- **Status:** ready for codex
+- **Status:** draft - blocked on 029 → 028 → 030 and exact external prerequisite receipts
 - **Priority:** P1
 - **Depends:** 030
 - **Effort:** high
-- **Issue:** Closes repo-template #85 only after every terminal receipt is green.
+- **Issue:** Relates to repo-template #85; the terminal runner closes it only after every receipt is
+  green.
 
 ## Risk
 
@@ -40,7 +41,9 @@ Plan 030 must be archived as landed. Plans 028 and 029 are inherited transitivel
 ## External prerequisites
 
 This plan is intentionally non-executable until a governed amendment commits
-`plans/031.prerequisites.json` under a closed schema and changes Status to `ready for codex`.
+`plans/031.prerequisites.json`, validated by
+the already-landed Plan-030 `schemas/release-prerequisites.schema.json` through the Plan-030
+production validator, and changes Status to `ready for codex`.
 That file must contain the exact landed plan numbers, origin SHAs, schema versions, and
 content/receipt hashes below. The terminal runner reads that one file, re-derives each identity from
 origin/live readback, and rejects mismatch. Issue/plan status or prose is never sufficient.
@@ -55,8 +58,8 @@ origin/live readback, and rejects mismatch. Issue/plan status or prose is never 
    - production `effectiveVerifyGate` and `localCiGreen` readbacks; and
    - transition/malformed/deletion proof. Plan 425 cleanup is desirable evidence but does not block
      this canary when Plan 424's authority is already singular and fail-closed.
-3. **Code adoption consumer**
-   - exact numbered plan and landed SHA for the one-shot materialize→private-origin→staged-ready
+3. **Code Plan 059 — adoption consumer**
+   - landed SHA for the one-shot materialize→private-origin→staged-ready
      transaction;
    - packet and staged-receipt schema hashes; and
    - disabled-schedule activation patch contract.
@@ -84,7 +87,18 @@ schedule-enable, or issue-close effects.
 
 ### 1. Freeze the terminal input and release candidate
 
-Add a closed `release-canary-input/v1` fixture and terminal receipt schema. The input names:
+Add:
+
+- `schemas/release-canary-input.schema.json`;
+- `schemas/template-release-receipt.schema.json`;
+- `fixtures/release-canary/input.json`;
+- `scripts/release-materializer.mjs` as the thin terminal state-machine CLI; and
+- `scripts/lib/release-candidate-source.mjs` as the exact-SHA private candidate adapter.
+
+Register every new Plan-031 schema, fixture, and script in `template-manifest.json` with mode `self`;
+none may appear in a materialized product repository.
+
+The closed `release-canary-input/v1` fixture names:
 
 - exact Plan-030 source SHA and content tree;
 - exact external prerequisite receipts above;
@@ -126,6 +140,9 @@ From a clean immutable source worktree:
 - stamp the live toolchain and exact external producer identities;
 - flip compatibility from `unreleased` to `released` only in the terminal candidate;
 - set `TEMPLATE_VERSION` and changelog to the computed next minor;
+- compute `releaseContentDigest` over the sorted path/mode/blob tuples for every tracked path except
+  `plans/**` and `.ops/**`; this is the stable product/template identity across governed
+  squash-merge bookkeeping;
 - run frozen install, docs lint, validator, focused tests, and bootstrap canary;
 - run production-mode materialization once through a terminal-private candidate-source adapter
   bound to the exact SHA; and
@@ -138,7 +155,8 @@ normal adoption. No public `--allow-unreleased` escape hatch is added.
 
 ### 4. Adopt one private canary through the production skill
 
-Invoke the released-path adoption transaction with the complete input packet:
+Invoke Code Plan 059's adoption transaction with the complete input packet and the terminal-private
+candidate-source adapter:
 
 - call the materializer exactly once;
 - create a private GitHub repository with only `master` as published default;
@@ -172,22 +190,35 @@ the canonical governed route. Then:
 
 On deterministic plan failure, schedule mismatch, capacity loss, dirty checkout, duplicate writer,
 or ops-publication ambiguity, immediately commit/reconcile `enabled: false`, record a terminal-red
-receipt, keep every artifact, and leave #85 open.
+receipt, keep every artifact, and leave #85 open. The retreat changes only execution state; it does
+not lower the canary's declared autonomy policy, verification contract, or future eligibility.
 
-### 6. Publish only after the canary is green
+### 6. Cross the governed merge boundary, then publish
 
 After both scheduled ticks and external-state proofs are green:
 
-1. merge the release candidate through the governed human route;
-2. assert the tested candidate identity equals the merged release commit;
-3. create the computed annotated tag on that exact commit;
-4. push the tag once and verify the remote tag resolves to the same SHA;
-5. materialize once through the normal public tagged production path and compare its normalized
-   receipt/tree identity to the candidate;
-6. publish `template-release-receipt/v1` containing every prerequisite, toolchain, adoption,
-   schedule, job, merge, ops-HWM, release, tag, and final materialization identity;
-7. post the bounded receipt to repo-template #85; and
-8. close #85 last.
+1. The pre-merge terminal phase writes an immutable `premerge-canary-green/v1` receipt containing
+   the reviewed candidate head SHA, `releaseContentDigest`, prerequisite set, scheduled canary/tick
+   evidence, and exact review result; then it returns `merge-required` without merging, checking out,
+   committing, or pushing the candidate branch.
+2. The governed human lane alone merges the exact reviewed head and emits a merge receipt containing
+   PR/head/merged SHAs and the normalized content digest. The terminal runner never merges its own
+   PR.
+3. A post-merge resume reads origin and requires the merged commit's `releaseContentDigest` to equal
+   the pre-merge candidate digest. Candidate SHA and squash-merged SHA remain distinct recorded
+   identities; plan/queue/archive bookkeeping is excluded from the digest, not ignored by review.
+4. Create the computed annotated tag locally on the exact merged commit, but do not push it.
+5. Run the full local deterministic gate and materialize once through the normal tagged production
+   entrypoint using that local immutable tag. Compare its normalized receipt/tree identity to the
+   canary candidate.
+6. Only after that final gate is green, push the annotated tag once and verify the remote tag resolves
+   to the merged SHA. Any failure before push leaves no public release tag.
+7. Create-only publish `template-release-receipt/v1` to the immutable external evidence store at
+   `template-release-receipts/<tag>/<merged-sha>/<release-content-digest>.json`. The receipt contains
+   every prerequisite, toolchain, candidate/merged identity, adoption, schedule, job, ops-HWM, local
+   tag, remote tag, and final materialization identity. Conflicting existing bytes are red.
+8. Post only the receipt digest and immutable evidence-store pointer to repo-template #85, then close
+   #85 last.
 
 The release PR must not contain `Fixes #85`; premature PR merge must not close the issue.
 
@@ -200,7 +231,8 @@ The release PR must not contain `Fixes #85`; premature PR merge must not close t
 - Broad #1278 critic/audit rollout unrelated to materialization.
 - Physical repo-template relocation when canonical resolver/path-independence proof is green.
 - P9/P10 cleanup of historical in-repo `.ops` evidence.
-- Stale-plan cleanup; the separate disposition plan owns it and does not block release.
+- Stale-plan cleanup; Plan 032 owns the frozen disposition set after Plan 030 lands and does not
+  block release.
 
 ## Acceptance criteria
 
@@ -216,8 +248,14 @@ The release PR must not contain `Fixes #85`; premature PR merge must not close t
 - [ ] External ops publication advances while the checkout remains clean before, during, and after
       merge.
 - [ ] Failure retreats to disabled without weakening autonomy, verification, or evidence.
-- [ ] Release source, tested candidate, merged SHA, version, changelog, compatibility state, tag,
-      final materialization, and receipt all agree.
+- [ ] Reviewed candidate SHA and squash-merged SHA are recorded separately and share the exact
+      normalized `releaseContentDigest`; version, changelog, compatibility, tag, materialization,
+      and receipt all agree.
+- [ ] The terminal runner returns at the merge boundary; only the governed human lane merges the
+      reviewed head, and post-merge release resumes from immutable pre-merge/merge receipts.
+- [ ] The remote tag is absent until normal tagged production materialization passes locally.
+- [ ] The authoritative receipt is create-only in the external evidence store; #85 contains only its
+      digest/pointer and closes last.
 - [ ] #85 remains open on any failure and closes only after the remote tag/final receipt readback.
 - [ ] Re-running against the same completed identities is a no-op; any conflicting identity is red.
 
@@ -235,10 +273,20 @@ corepack pnpm bootstrap:canary
 git diff --check
 ```
 
-The one-time terminal runner additionally performs the authenticated GitHub, AO registration,
+The resumable terminal state machine additionally performs the authenticated GitHub, AO registration,
 committed/live schedule, capacity, Windmill scheduled-job, local-CI provenance, two-tick,
-external-ops HWM, remote-tag, final production materialization, and #85 closure readbacks above.
-Those live receipts are acceptance evidence, not replaced by the local gate.
+external-ops HWM, pre-merge receipt, governed-merge handoff, local-tag gate, remote-tag, immutable
+release-receipt, and #85 closure readbacks above. Tests cover every phase transition and prove the
+runner has no merge action. Those live receipts are acceptance evidence, not replaced by the local
+gate.
+
+The terminal remains one plan because the candidate-source override, staged canary identity,
+activation, immutable pre-merge receipt, governed merge handoff, content-equivalent release commit,
+tag, and final production materialization form one fail-closed identity chain. The runner itself is
+phased and yields git authority at `merge-required`; keeping the contract in one plan does not give it
+merge ownership. Splitting at `staged-ready` would strand a private override/candidate whose later
+plan could no longer prove it is the tested release input. The state machine persists a receipt before
+each boundary and resumes without repeating effects.
 
 ## Rollback and idempotency
 
