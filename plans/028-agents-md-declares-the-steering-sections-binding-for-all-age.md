@@ -2,7 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/028-agents-md-declares-the-steering-sections-binding-for-all-age
-- **Status:** draft
+- **Status:** ready for codex
+- **Requeue-reason:** manual: consolidated contradictory amendments and requested a fresh critic verdict before execution
 - **Priority:** P2
 - **Depends:** 029
 - **Effort:** medium
@@ -223,3 +224,7 @@ node -e "const fs=require('fs'),path=require('path'),cp=require('child_process')
 - Do not claim fleet convergence from this merge alone. A separate post-merge plan snapshots every
   stale repo and proves exactly one disposition: already synchronized, covered by an existing sync
   plan, or represented by one drift issue.
+
+## Retry history
+
+- 2026-07-20T17:56:21.127Z manual (manual): consolidated contradictory amendments and requested a fresh critic verdict before execution

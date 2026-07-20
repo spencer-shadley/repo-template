@@ -5,3 +5,4 @@
 
 ## Pending
 - 029 P1 ignore-orchestrator-transient-state-without-hiding-durable-i retry:manual
+- 028 P2 agents-md-declares-the-steering-sections-binding-for-all-age deps:029 retry:manual
