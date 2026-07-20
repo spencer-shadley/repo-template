@@ -2,8 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/029-ignore-orchestrator-transient-state-without-hiding-durable-i
-- **Status:** draft
-- **Requeue-reason:** manual: Plan 029 fixes gitignore runtime-state starvation; Plan 028 governs binding steer and only shares an additive changelog file
+- **Status:** ready for codex
+- **Requeue-reason:** manual: refreshed to address every critic finding before fleet execution
 - **Priority:** P1
 - **Effort:** low
 
@@ -119,4 +119,6 @@ after this lands; no cleanup command is needed.
 
 ## Retry history
 
+
+- 2026-07-20T17:50:23.063Z manual (manual): refreshed to address every critic finding before fleet execution
 - 2026-07-20T17:47:03.645Z manual (manual): Plan 029 fixes gitignore runtime-state starvation; Plan 028 governs binding steer and only shares an additive changelog file
