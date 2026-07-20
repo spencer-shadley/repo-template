@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/029-ignore-orchestrator-transient-state-without-hiding-durable-i
-- **Status:** ready for codex
+- **Status:** draft
 - **Requeue-reason:** manual: Plan 029 fixes gitignore runtime-state starvation; Plan 028 governs binding steer and only shares an additive changelog file
 - **Priority:** P1
 - **Effort:** low
@@ -71,10 +71,41 @@ git check-ignore --no-index --quiet .orchestrator-test.lease &&
 git check-ignore --no-index --quiet .ops-auto-commit-state.json &&
 git check-ignore --no-index --quiet .ops/freeze-expired.notify &&
 ! git check-ignore --no-index --quiet .ops/incidents.jsonl &&
+! grep -qxE '^\.ops/(\*\*)?$' .gitignore &&
 test "$(grep -c '^\.orchestrator-tree\.lock$' .gitignore)" -eq 1 &&
 test "$(grep -c '^\.orchestrator-\*\.lease$' .gitignore)" -eq 1 &&
 test "$(grep -c '^\.ops-auto-commit-state\.json$' .gitignore)" -eq 1 &&
 test "$(grep -c '^\.ops/freeze-expired\.notify$' .gitignore)" -eq 1 &&
+node --input-type=module <<'NODE'
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+
+const changelog = readFileSync("CHANGELOG.md", "utf8");
+const unreleased = changelog
+  .split(/^## \[Unreleased\]\s*$/m)[1]
+  ?.split(/^## \[/m)[0] ?? "";
+if (!/runtime state|scheduled drain|dirty/i.test(unreleased)) {
+  console.error("Unreleased changelog does not describe the runtime-state drain unblock");
+  process.exit(1);
+}
+
+const base = execFileSync("git", ["merge-base", "origin/master", "HEAD"], {
+  encoding: "utf8",
+}).trim();
+const changed = execFileSync("git", ["diff", "--name-only", base, "--"], {
+  encoding: "utf8",
+}).trim().split(/\r?\n/).filter(Boolean);
+const unexpected = changed.filter((path) =>
+  ![".gitignore", "CHANGELOG.md"].includes(path) &&
+  !path.startsWith("plans/") &&
+  !path.startsWith(".ops/")
+);
+if (unexpected.length) {
+  console.error("unexpected changed files:", unexpected);
+  process.exit(1);
+}
+NODE
+[ "$?" -eq 0 ] &&
 node scripts/lint-user-surface-leaks.mjs --self-test &&
 node -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const exts=new Set(['.md','.yml','.json','.jsonl']);const conflicts=[];function scan(dir){for(const ent of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory()){if(ent.name!=='.git')scan(p);continue}if(!ent.isFile())continue;const rel=path.relative('.',p).split(path.sep).join('/');if(ent.name!=='TEMPLATE_VERSION'&&!exts.has(path.extname(ent.name)))continue;const lines=fs.readFileSync(p,'utf8').split(/\r?\n/);lines.forEach((line,i)=>{if(line.startsWith('<<<<<<<'))conflicts.push(rel+':'+(i+1)+':'+line)})}}scan('.');const tracked=cp.execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>k+':'+v);const boundaryErrors=[];if(m['model-boundary.json']!=='copy')boundaryErrors.push('model-boundary.json must be manifest copy');let b;try{const raw=fs.readFileSync('model-boundary.json','utf8');if(/TODO\\(setup!?\\):|\\{\\{[A-Z0-9_]+\\}\\}/.test(raw))boundaryErrors.push('model-boundary.json has unresolved setup placeholders');b=JSON.parse(raw)}catch(e){boundaryErrors.push('model-boundary.json parse failed: '+e.message)}if(b){if(b.schemaVersion!==1)boundaryErrors.push('schemaVersion must be 1');if(b.servesModelTasks!==false)boundaryErrors.push('default servesModelTasks must be false');if(b.directProviderInvocation!=='forbidden')boundaryErrors.push('default directProviderInvocation must be forbidden');if(b.servingProvenanceRequired!==true)boundaryErrors.push('servingProvenanceRequired must be true');if(typeof b.ownerRole!=='string'||!b.ownerRole.trim())boundaryErrors.push('ownerRole required');const p=b.allowedProviderSpecificPaths;if(!p||typeof p!=='object')boundaryErrors.push('allowedProviderSpecificPaths required');else for(const k of ['adapters','catalogs','configuration','fixtures','history'])if(!Array.isArray(p[k]))boundaryErrors.push('allowedProviderSpecificPaths.'+k+' must be an array')}if(conflicts.length||missing.length||invalid.length||boundaryErrors.length){if(conflicts.length)console.error('conflict markers:',conflicts);if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);if(boundaryErrors.length)console.error('model boundary:',boundaryErrors);process.exit(1)}"
 ```
