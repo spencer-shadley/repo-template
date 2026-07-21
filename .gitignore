@@ -5,6 +5,8 @@ node_modules/
 .env.*
 *.secret.*
 .orchestrator-tree.lock
+.orchestrator-*.lease
+.ops-auto-commit-state.json
 
 # loop transient sidecars (never commit)
 plans/*.log.md
@@ -19,11 +21,10 @@ plans/*.paused
 # Parent-directory ignore rules can still hide .ops before this file is read; fix those at the parent.
 !.ops/
 !.ops/**
+.ops/concurrency-capture.jsonl
+.ops/freeze-expired.notify
 
 # plan-critic/pre-enqueue writes failed verdict reports here for local diagnostics; successful
 # verdicts are copied into tracked plans/<NNN>.critic.md. Re-ignore file-precise so failed runs
 # don't dirty or wedge the queue (queue-abort-dirty incident).
 .ops/critic/*.md
-
-# runner tree-lock mutex: transient, must never make the tree dirty (fleet-starvation incident 2026-07-02)
-.orchestrator-tree.lock

@@ -15,6 +15,8 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Ignored precise orchestrator runtime state so dirty-tree preflight no longer wedges scheduled
+  drains, while keeping durable `.ops/incidents.jsonl` evidence tracked. PATCH.
 
 ### Unchanged (intentional — frozen)
 <!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy
