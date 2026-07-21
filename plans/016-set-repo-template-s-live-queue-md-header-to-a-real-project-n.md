@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/016-set-repo-template-s-live-queue-md-header-to-a-real-project-n
-- **Status:** parked - stalled x4 (needs triage)
+- **Status:** superseded - objective already satisfied on master (QUEUE.md header reads 'Run queue - repo-template', verified origin 2026-07-20); stall-lifecycle triage AO#1666
 - **Requeue-reason:** manual: CEO survey approval 2026-07-10 (.ops/human-survey record) - machine-recovery unblock
 - **Stall-retries:** 4
 - **Last-stall:** stalled - plan staleness drift
