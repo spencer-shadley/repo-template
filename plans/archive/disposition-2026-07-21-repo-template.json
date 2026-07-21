@@ -18,6 +18,17 @@
       "durableClassOwner": "agent-orchestrator#1919"
     }
   ],
+  "historicalSidecars": [
+    { "path": "plans/archive/007.feedback.md", "sha256": "24c31ceae46d91156163f5f3a5ef1bae5c14dab5cbfb1e6d59e10803830aa532" },
+    { "path": "plans/archive/007.log.md", "sha256": "1dca0646672cc3d5600ead1f00e599a81de72740fe5cce9bf4dcb99d9747d6e2" },
+    { "path": "plans/archive/007.result.md", "sha256": "f7729656b6b90028a00b30febcb6f469f02835b865fb7eccf9280894ee330119" },
+    { "path": "plans/archive/017.feedback.md", "sha256": "24c31ceae46d91156163f5f3a5ef1bae5c14dab5cbfb1e6d59e10803830aa532" },
+    { "path": "plans/archive/017.log.md", "sha256": "9b8ca5b6d8466af71b4ec76170f0789701173c3d8be39e99cf807365d6d68346" },
+    { "path": "plans/archive/017.result.md", "sha256": "f75b573cfa54be5bf4522f1d729d8968e81564a433aac0374e8be16444fc87c0" },
+    { "path": "plans/archive/020.pre-refresh.feedback.md", "sha256": "506d347a3f27a7f9e38e4cb5194a1098bf1a3f7f7375e61af904dbdd508a89f8" },
+    { "path": "plans/archive/020.pre-refresh.log.md", "sha256": "edfd2ae43851f1981cf734de458e55c4c3e3748e287ee473ae03f9043256035d" },
+    { "path": "plans/archive/020.pre-refresh.result.md", "sha256": "93ab2f43bd097602e9c8959ba1f74263ac2deafa342584205727ebfc1c5f69c1" }
+  ],
   "plans": [
     {
       "plan": "001",
