@@ -71,6 +71,12 @@ same immutable template version.
   tracking live `.ops` telemetry. The canonical `ops-store-activation/v1` journal is authority;
   `.store-active` is only a derived cache/receipt and can never activate or recover authority by
   existence.
+- Agent-orchestrator Plan 270 plus its dependent canonical first-class-membership plan own the
+  fleet enrollment invariant: one active registry entry implies drain, manager, discovery,
+  projection, supervisor/overseer, incident, and liveness coverage. This materializer does not
+  reproduce that policy; its generated enrollment documentation and prerequisite schema must bind
+  the exact landed producer receipts so a new repository cannot be presented as loop-ready after a
+  partial registration.
 - The 2026-07-21 manager re-baseline retired Plans 001, 006, 010, 011, 012, 014, 016, 021, 023, and
   032 into the archive with a machine-readable disposition ledger. Their remaining useful intent is
   consolidated here or in Plan 020; no later cleanup framework is a release dependency.
@@ -150,8 +156,8 @@ answer packet and is reusable by the adoption consumer. It covers every must-ans
 The input schema uses JSON Schema 2020-12, Ajv strict mode, `additionalProperties: false`, bounded
 strings/arrays/files, repository/package-name grammar, no path separators in logical names, no NUL
 or control characters, and no credential/secret fields. External GitHub, branch-protection,
-watchlist, permissions, schedule, and autonomy-enablement decisions remain enrollment effects and
-are not materializer inputs.
+permissions, the complete drain/manager/discovery schedule bundle, and autonomy-enablement
+decisions remain enrollment effects and are not materializer inputs.
 
 Every bootstrap YAML/JSON document has `documentMode: template | materialized`.
 
@@ -399,6 +405,13 @@ Update `AGENTS.md`, `README.md`, `TODO.md`, `.github/workflows/ci.yml`,
 `docs/ARCHITECTURE.md`, `docs/MIGRATION.md`, `docs/QUEUE-ENROLLMENT.md`,
 `docs/adr/0002-verify-gate-contract.md`, `CHANGELOG.md`, and `template-manifest.json`.
 
+`docs/QUEUE-ENROLLMENT.md` and the generated AGENTS/README contract define first-class membership
+by reference to the canonical AO producer: registry resolution plus committed/live drain, manager,
+and discovery schedules; projection and supervisor/overseer inclusion; incident/backup/orphan
+coverage; and fresh execution/liveness receipts. Staging requires the complete schedule bundle
+disabled. Only one governed bundle activation followed by all-role proof may produce
+`active-proven`; no generated consumer may add a repo-specific opt-in.
+
 Fold forward Plan 001's still-useful operating intent:
 
 - separate repository Git ownership and inherited root-AGENTS precedence;
@@ -454,6 +467,9 @@ absence. Add an Unreleased entry. Do not change `TEMPLATE_VERSION` or create a t
       031 exist, remain blocked on exact receipts, and name this Plan 030 dependency.
 - [ ] The closed Plan-031 prerequisite schema and production validator land before any readiness
       fixture; valid/tampered synthetic fixtures prove exact-set and digest enforcement.
+- [ ] Generated queue-enrollment docs define the canonical first-class membership and staged
+      drain/manager/discovery bundle contract, and contain no consumer-local repo allowlist or
+      `includeRepoTemplate`-style opt-in.
 
 ## Verify
 
@@ -515,7 +531,8 @@ remains blocked on:
    green;
 5. the exact landed external `.ops` store/publish/cutover/readback plan receipts named in the
    terminal plan (not broad issue status); and
-6. a real newly generated repository enrollment plus one scheduled-drain merge.
+6. a real newly generated repository enrollment plus scheduled drain/manager/discovery execution
+   evidence, including one automatic drain merge and fresh manager/discovery heartbeats.
 
 Only the terminal plan may first invoke production-mode live Node/pnpm resolution as release
 evidence, flip compatibility to `released`, bump `TEMPLATE_VERSION`, tag, enroll the real canary,
@@ -532,4 +549,14 @@ repositories.
   accepted orchestrator can implement, review, and merge it under its delegated lane without
   another design decision from Spencer.
 - Existence is not function. The bootstrap receipt says `materialized`; separate adoption receipts
-  prove registration, schedule readback, gate execution, and a real autonomous merge.
+  prove registration, complete schedule-bundle readback, projection/oversight inclusion, gate
+  execution, and real drain/manager/discovery function.
+
+## Approval provenance
+
+- **sourceKind:** human-chat
+- **human:** Spencer Shadley (CEO)
+- **approvedAt:** 2026-07-21T14:25:42-07:00
+- **scopeFingerprint:** sha256:409cfbdbf3e450f76b53df1cd58351d88ac1c97e30e46e1201039bd85cfc7ead
+- **approvalRef:** CEO chat 2026-07-21: 'update everywhere relevant for this to be treated as another first class citizen repo in the flywheel'
+- **decision:** approve

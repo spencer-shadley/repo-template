@@ -12,14 +12,15 @@
 ## Risk
 
 **Tier: human.** This plan publishes an immutable template release, creates and enrolls a private
-canary repository, changes committed/live schedule state, enables one experimental drain, and closes
-an issue. Use the governed human lane. Spencer's commission is approval provenance for this exact
-terminal route; it does not require repeated approvals at each reversible step.
+canary repository, changes committed/live schedule state, enables one experimental flywheel bundle,
+and closes an issue. Use the governed human lane. Spencer's commission is approval provenance for
+this exact terminal route; it does not require repeated approvals at each reversible step.
 
 The canary is intentionally trial-by-fire. Once every deterministic prerequisite is green, run the
-real production schedule and learn from the first automatic merge. Do not replace that proof with
-another synthetic readiness review. On failure, retreat the canary schedule to disabled, preserve
-all evidence, and leave #85 open; do not weaken verification or target autonomy.
+real production schedules and learn from the first automatic merge plus manager/discovery runs. Do
+not replace that proof with another synthetic readiness review. On failure, retreat the complete
+canary schedule bundle to disabled, preserve all evidence, and leave #85 open; do not weaken
+verification or target autonomy.
 
 ## Objective
 
@@ -29,8 +30,10 @@ Publish the first released version of the new-only materializer only after it:
 2. produces an exact clean candidate repository;
 3. is consumed through the production adoption skill;
 4. enrolls a private experimental canary with repo-local CI and external operational state;
-5. proves post-enrollment worker capacity and committed schedule truth;
-6. automatically merges and archives one harmless plan through a real scheduled Windmill tick;
+5. proves post-enrollment worker capacity, canonical first-class membership, and complete committed
+   drain/manager/discovery schedule truth;
+6. automatically merges and archives one harmless plan through a real scheduled drain tick while
+   real manager and discovery ticks leave fresh execution evidence;
 7. remains checkout-clean on the next tick while external `.ops` publication advances; and
 8. binds the immutable release tag, source SHA, receipts, and issue closure in that order.
 
@@ -63,7 +66,7 @@ origin/live readback, and rejects mismatch. Issue/plan status or prose is never 
    - landed SHA for the one-shot materialize→private-origin→staged-ready
      transaction;
    - packet and staged-receipt schema hashes; and
-   - disabled-schedule activation patch contract;
+   - disabled drain/manager/discovery bundle activation patch contract;
    - reusable external-ops new-repository initialization receipt; and
    - idempotent `.github/labels.yml` reconciliation receipt consumed by Plan 020.
 4. **Workspace resolver**
@@ -81,9 +84,12 @@ origin/live readback, and rejects mismatch. Issue/plan status or prose is never 
 6. **Schedule truth and capacity**
    - the committed-YAML one-way reconciler/kill-switch chain (Plan 270 and exact landed
      prerequisites/successor receipts);
+   - Plan 270's dependent canonical first-class-membership receipt proving registry membership
+     automatically reaches every fleet consumer and topology audit;
    - AO Plan 384 or its exact successor proving live flow-worker capacity is at least the
      post-enrollment drainable-repository count; and
-   - no untracked live-only schedule.
+   - exactly one committed/live drain, manager, and discovery schedule for every active project,
+     with no untracked live-only schedule.
 
 Missing/mismatched prerequisites produce `terminal-prerequisite-red` with zero release, tag,
 schedule-enable, or issue-close effects.
@@ -112,7 +118,7 @@ The closed `release-canary-input/v1` fixture names:
 - no UI, customer, external service, port, database, secret, billing, DNS, or deployment
   requirement;
 - one harmless auto-tier smoke change and bounded `corepack pnpm verify` gate;
-- committed schedule cadence/timezone;
+- committed drain, manager, and discovery cadences/timezones;
 - expected post-enrollment capacity; and
 - evidence store identities.
 
@@ -167,38 +173,49 @@ candidate-source adapter:
 - create a private GitHub repository with only `master` as published default;
 - publish the validated initial tree;
 - generate and land the separately governed AO enrollment plan;
-- commit the registry row and `enabled: false` schedule together;
+- commit the registry row and the drain/manager/discovery definitions, all `enabled: false`,
+  together;
 - provision/read back post-enrollment capacity;
-- reconcile/read back the live schedule as disabled;
+- reconcile/read back all three live schedules as disabled and prove canonical topology/projection
+  inclusion;
 - prove the generated repo-local `local-ci.json` is authoritative;
 - reconcile/read back every label in the generated `.github/labels.yml` catalog and prove a canary
   feedback issue receives `human-feedback` automatically;
-- establish agy/read-only permission/telemetry integration; and
+- establish canonical manager/discovery, read-only permission, and telemetry integration without
+  writing the retired `agy` watchlist; and
 - leave exactly one harmless automatic smoke plan pending.
 
-Require the staged receipt's negative assertions:
-`scheduleEnabled=false`, `drainDispatched=false`, and `automaticMergeObserved=false`.
+Require the staged receipt's negative assertions for all three roles:
+`scheduleBundleEnabled=false`, `drainDispatched=false`, `managerDispatched=false`,
+`discoveryDispatched=false`, and `automaticMergeObserved=false`.
 
 ### 5. Activate once and prove the real scheduled lane
 
-Apply the generated one-line committed schedule change `enabled: false` → `enabled: true` through
-the canonical governed route. Then:
+Apply the generated atomic three-definition bundle transition `enabled: false` → `enabled: true`
+through the canonical governed route. Then:
 
-1. reconcile and read back the exact committed/live schedule identity;
-2. wait for the next real scheduled `drain_queue` Windmill job—never invoke a manual drain;
+1. reconcile and read back the exact committed/live drain, manager, and discovery identities;
+2. wait for the next real scheduled `drain_queue`, `manager_sweep`, and `discovery_triage` Windmill
+   jobs—never substitute a manual invocation for scheduled proof;
 3. prove it selected the expected smoke plan, used the generated local-CI contract, implemented,
    reviewed, squash-merged, and archived plan/result/log evidence;
-4. bind job ID, schedule revision, plan/branch/PR/merge/archive SHAs, gate IDs/results, models, and
-   timestamps;
+4. bind all three job IDs and schedule revisions plus plan/branch/PR/merge/archive SHAs,
+   gate IDs/results, models, and timestamps;
 5. observe the following scheduled tick and prove the queue is empty, checkout is clean, no lease
-   or process remains, and no duplicate execution occurred; and
+   or process remains, no duplicate execution occurred, and manager/discovery heartbeats are fresh;
+   and
 6. prove external `.ops` shards/publication advanced their HWM while no telemetry dirt touched the
    product checkout or raced the merge.
 
+Only after all six checks may the adoption journal transition from `staged-ready` to
+`active-proven`; the receipt binds the canonical topology row and the three scheduled job/heartbeat
+identities.
+
 On deterministic plan failure, schedule mismatch, capacity loss, dirty checkout, duplicate writer,
-or ops-publication ambiguity, immediately commit/reconcile `enabled: false`, record a terminal-red
-receipt, keep every artifact, and leave #85 open. The retreat changes only execution state; it does
-not lower the canary's declared autonomy policy, verification contract, or future eligibility.
+or ops-publication ambiguity, immediately commit/reconcile all three definitions to
+`enabled: false`, record a terminal-red receipt, keep every artifact, and leave #85 open. The
+retreat changes only execution state; it does not lower the canary's declared autonomy policy,
+verification contract, or future eligibility.
 
 ### 6. Cross the governed merge boundary, then publish
 
@@ -222,7 +239,8 @@ After both scheduled ticks and external-state proofs are green:
    to the merged SHA. Any failure before push leaves no public release tag.
 7. Create-only publish `template-release-receipt/v1` to the immutable external evidence store at
    `template-release-receipts/<tag>/<merged-sha>/<release-content-digest>.json`. The receipt contains
-   every prerequisite, toolchain, candidate/merged identity, adoption, schedule, job, ops-HWM, local
+   every prerequisite, toolchain, candidate/merged identity, adoption, schedule bundle, all-role job,
+   ops-HWM, local
    tag, remote tag, and final materialization identity. Conflicting existing bytes are red.
 8. Post only the receipt digest and immutable evidence-store pointer to repo-template #85, then close
    #85 last.
@@ -249,9 +267,12 @@ The release PR must not contain `Fixes #85`; premature PR merge must not close t
 - [ ] The production adoption transaction—not bespoke hand edits—creates and stages the canary.
 - [ ] Plan 020's feedback form/catalog is present in the candidate; Code Plan 059 reconciles its
       labels idempotently and a canary filing receives `human-feedback`.
-- [ ] Registry, disabled schedule, resolver, local-CI, permissions, telemetry, and capacity receipts
-      are green before activation.
-- [ ] A real scheduled Windmill tick automatically merges and archives the smoke plan.
+- [ ] Registry, disabled drain/manager/discovery schedules, topology/projection, resolver, local-CI,
+      permissions, telemetry, and capacity receipts are green before activation.
+- [ ] Real scheduled Windmill drain, manager, and discovery jobs run; the drain automatically merges
+      and archives the smoke plan and the other two leave fresh heartbeats.
+- [ ] `active-proven` is unreachable until the all-role topology and scheduled-execution receipt is
+      complete; a drain merge alone is insufficient.
 - [ ] The following scheduled tick is clean/idle with exactly one writer and no duplicate.
 - [ ] External ops publication advances while the checkout remains clean before, during, and after
       merge.
@@ -282,11 +303,11 @@ git diff --check
 ```
 
 The resumable terminal state machine additionally performs the authenticated GitHub, AO registration,
-committed/live schedule, capacity, Windmill scheduled-job, local-CI provenance, two-tick,
-external-ops HWM, pre-merge receipt, governed-merge handoff, local-tag gate, remote-tag, immutable
-release-receipt, and #85 closure readbacks above. Tests cover every phase transition and prove the
-runner has no merge action. Those live receipts are acceptance evidence, not replaced by the local
-gate.
+committed/live schedule bundle, capacity, all-role Windmill scheduled-job, local-CI provenance,
+two-tick, external-ops HWM, pre-merge receipt, governed-merge handoff, local-tag gate, remote-tag,
+immutable release-receipt, and #85 closure readbacks above. Tests cover every phase transition and
+prove the runner has no merge action. Those live receipts are acceptance evidence, not replaced by
+the local gate.
 
 The terminal remains one plan because the candidate-source override, staged canary identity,
 activation, immutable pre-merge receipt, governed merge handoff, content-equivalent release commit,
@@ -300,10 +321,20 @@ each boundary and resumes without repeating effects.
 
 - Before canary origin creation: remove only the owned OS-temp stage/transaction through its API.
 - After private origin creation: never auto-delete it; preserve/resume by node ID and exact ref.
-- After enrollment but before activation: leave schedule disabled and halt. If rollback is actually
-  commissioned, the operator authors a separately numbered AO de-enrollment plan through the
+- After enrollment but before activation: leave the complete schedule bundle disabled and halt. If
+  rollback is actually commissioned, the operator authors a separately numbered AO de-enrollment plan through the
   governed queue only after proving there is no job, lease, or writer; this release plan neither
   invents that plan preemptively nor mutates the registry during rollback.
-- After activation failure: first retreat committed/live schedule to disabled, then diagnose.
+- After activation failure: first retreat all committed/live drain, manager, and discovery schedules
+  to disabled, then diagnose.
 - After tag publication: tags are immutable. Correct forward with a new version; never force-move.
 - Same packet/tag/SHA/closed-issue receipt is success/no-op; any mismatch is deterministic red.
+
+## Approval provenance
+
+- **sourceKind:** human-chat
+- **human:** Spencer Shadley (CEO)
+- **approvedAt:** 2026-07-21T14:25:42-07:00
+- **scopeFingerprint:** sha256:1eed95978b5812a8083866c306b14d8c044a7de1e3a0525e74f10a13c86e54e9
+- **approvalRef:** CEO chat 2026-07-21: 'update everywhere relevant for this to be treated as another first class citizen repo in the flywheel'
+- **decision:** approve
