@@ -84,7 +84,7 @@ origin/live readback, and rejects mismatch. Issue/plan status or prose is never 
 6. **Schedule truth and capacity**
    - the committed-YAML one-way reconciler/kill-switch chain (Plan 270 and exact landed
      prerequisites/successor receipts);
-   - Plan 270's dependent canonical first-class-membership receipt proving registry membership
+   - AO Plan 441's canonical first-class-membership receipt proving registry membership
      automatically reaches every fleet consumer and topology audit;
    - AO Plan 384 or its exact successor proving live flow-worker capacity is at least the
      post-enrollment drainable-repository count; and

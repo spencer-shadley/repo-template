@@ -71,7 +71,7 @@ same immutable template version.
   tracking live `.ops` telemetry. The canonical `ops-store-activation/v1` journal is authority;
   `.store-active` is only a derived cache/receipt and can never activate or recover authority by
   existence.
-- Agent-orchestrator Plan 270 plus its dependent canonical first-class-membership plan own the
+- Agent-orchestrator Plans 270 and 441 own the
   fleet enrollment invariant: one active registry entry implies drain, manager, discovery,
   projection, supervisor/overseer, incident, and liveness coverage. This materializer does not
   reproduce that policy; its generated enrollment documentation and prerequisite schema must bind
