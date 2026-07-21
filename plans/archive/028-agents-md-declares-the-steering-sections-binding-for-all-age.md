@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/028-agents-md-declares-the-steering-sections-binding-for-all-age
-- **Status:** ready for user approval
+- **Status:** merged
 - **Requeue-reason:** manual: consolidated contradictory amendments and requested a fresh critic verdict before execution
 - **Priority:** P2
 - **Depends:** 029
