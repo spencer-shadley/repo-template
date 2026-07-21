@@ -7,6 +7,15 @@
 - **Priority:** P1
 - **Effort:** low
 
+## Risk
+
+- **Tier:** auto
+
+Isolated `.gitignore`/docs repair under the repository's TEMPLATE-SELF policy (see Context);
+reversible, no executable or cross-repository surface. Canonical Tier header added 2026-07-20
+(amendment A4, alignment packet AO#1651): the prose "auto-tier" declaration below predates the
+machine-readable header requirement.
+
 ## Objective
 
 Keep routine orchestrator runtime state from dirtying `repo-template` and aborting every scheduled
