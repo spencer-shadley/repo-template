@@ -7,6 +7,41 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Added
 <!-- new capabilities or files -->
+
+### Changed
+<!-- behavior changes; breaking ones marked **BREAKING** -->
+
+### Unchanged (intentional — frozen)
+<!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy
+     namespaces, DB identities, vendored code). Recording these prevents future agents from
+     "fixing" them. -->
+
+## [2.6.0] - 2026-07-21
+
+### Added
+<!-- new capabilities or files -->
+- AGENTS.md now declares binding steer for interactive and autonomous agents:
+  discovery, triage, review, implementation, and supervision must obey ratified responsibilities,
+  non-goals, and product principles. Technically correct principle violations are defects,
+  non-goal expansion is rejected with a charter citation, and findings, issues, reviews,
+  implementation reports, and PR descriptions cite exact `P<X>.<Y>` principle identifiers. MINOR.
+- Product principles now have a machine-addressable schema with unique numeric `P<X>.<Y>`
+  precedence, required durable `SLI:` definitions, tunable `SLO:` targets, and report-only
+  baselining support. SLO breaches are exact-principle-tagged defects. Motivated by the
+  principle-blind discovery/review incident behind the 2026-07-13 CEO steering directive. MINOR.
+
+### Changed
+<!-- behavior changes; breaking ones marked **BREAKING** -->
+
+### Unchanged (intentional — frozen)
+<!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy
+     namespaces, DB identities, vendored code). Recording these prevents future agents from
+     "fixing" them. -->
+
+## [2.5.0] - 2026-07-20
+
+### Added
+<!-- new capabilities or files -->
 - `scripts/lint-user-surface-leaks.mjs` plus `.user-surface-lint.json`, a deterministic
   user-facing string lint for env-var names, infra/operator wording, host paths, and detectable
   internal-error passthroughs. The gate cites the CEO-ratified no-developer-leakage doctrine from

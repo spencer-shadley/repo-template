@@ -46,6 +46,16 @@ drain schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
 **Package manager:** {{PACKAGE_MANAGER}}. **Data/migrations:** {{DB_AND_MIGRATIONS}}.
 **E2E:** {{E2E}}. **Deploy:** {{DEPLOY}}.
 
+## Binding steer
+
+Every interactive or autonomous agent operating in this repository, including discovery, triage,
+review, implementation, and supervision agents, must read and obey the Responsibilities &
+non-goals and Product principles sections before acting.
+
+A technically correct change that violates a ratified product principle is a defect. Work beyond a
+ratified non-goal is rejected with the charter citation. Findings, issues, reviews, implementation
+reports, and PR descriptions cite every applicable principle by its exact `P<X>.<Y>` identifier.
+
 ## Responsibilities & non-goals
 
 {{RESPONSIBILITIES}}  <!-- TODO(setup!): what this repo OWNS — its function in the fleet and its
@@ -57,11 +67,22 @@ owned by the external service, not us"). -->
 
 ## Product principles
 
+Principles use one and only one schema. Every principle has a unique `P<X>.<Y>` identifier, where X
+and Y are non-negative integers compared numerically, not lexically. Lower X wins; when X ties,
+lower Y wins. `P0.1` is the strongest reserved position, and adding or moving anything ahead of it
+requires CEO sign-off.
+
+Suggested classes are guidance: P0 existential invariants, P1 safety/destruction invariants, P2
+governance/platform integrity, P3 product guarantees, and P4 convenience/speculation. Every
+principle has a durable `SLI:` definition and a tunable `SLO:` target; `report-only` is valid while
+baselining. An SLO breach is a defect tagged with the exact principle identifier.
+
 {{PRODUCT_PRINCIPLES}}  <!-- TODO(setup!): the 2-5 ratified principles that steer every feature,
-prompt, and review in this repo, with decider + date (e.g. task-dag's "the AI never moralizes
-about, warns against, or deprioritizes user tasks"; gmail-markdown's "the draft is sacred / fail
-open"). Added as a required section fleet-wide 2026-07-09 after a steering-docs audit found adopted
-repos carrying these only in tool memory — doctrine lives in the repo. -->
+prompt, and review in this repo, each with identifier, SLI, SLO, decider, and decision date (e.g.
+task-dag's "the AI never moralizes about, warns against, or deprioritizes user tasks";
+gmail-markdown's "the draft is sacred / fail open"). Added as a required section fleet-wide
+2026-07-09 after a steering-docs audit found adopted repos carrying these only in tool memory —
+doctrine lives in the repo. -->
 
 ## Model boundary
 
