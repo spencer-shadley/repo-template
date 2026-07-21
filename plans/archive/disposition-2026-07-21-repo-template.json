@@ -110,7 +110,7 @@
       "disposition": "duplicate-landed",
       "canonicalOwner": "commit:d97d3ed624ba2498c6485dae8078cab66f71f842",
       "rationale": "The live queue header and risk-tier policy were corrected directly at d97d3ed624ba2498c6485dae8078cab66f71f842; issue #15 is closed and the branch changes only stalled metadata.",
-      "remoteBranch": "feat/014-fill-in-repo-template-in-the-live-queue-md-header@2405407cc2937eff33422b43a106189c34c083c18",
+      "remoteBranch": "feat/014-fill-in-repo-template-in-the-live-queue-md-header@2405407cc2937f270f01fd35b6bf2f4d0d82b28b",
       "uniqueRemoteImplementation": false,
       "artifacts": [
         { "path": "plans/archive/014-fill-in-repo-template-in-the-live-queue-md-header.md", "sha256": "0e909def0c30afa7f40e1e6c78fb1a6e2a3f00eeed3ef580bb860c82417b5492" },
