@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/029-ignore-orchestrator-transient-state-without-hiding-durable-i
-- **Status:** ready for codex
+- **Status:** ready for user approval
 - **Requeue-reason:** manual: refreshed to address every critic finding before fleet execution
 - **Priority:** P1
 - **Effort:** low
