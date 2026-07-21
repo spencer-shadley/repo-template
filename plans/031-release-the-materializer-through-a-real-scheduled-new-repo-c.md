@@ -2,9 +2,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/031-release-the-materializer-through-a-real-scheduled-new-repo-c
-- **Status:** draft - blocked on 029 → 028 → 030 and exact external prerequisite receipts
+- **Status:** draft - blocked on 030 -> Code 059 -> 020 and exact external prerequisite receipts
 - **Priority:** P1
-- **Depends:** 030
+- **Depends:** 030, 020
 - **Effort:** high
 - **Issue:** Relates to repo-template #85; the terminal runner closes it only after every receipt is
   green.
@@ -36,7 +36,8 @@ Publish the first released version of the new-only materializer only after it:
 
 ## Same-repository dependency
 
-Plan 030 must be archived as landed. Plans 028 and 029 are inherited transitively through 030.
+Plans 030 and 020 must be archived as landed. Plans 028 and 029 are inherited transitively through
+030. The refreshed Plan 020 must bind Code Plan 059's exact landed label-reconciliation receipt.
 
 ## External prerequisites
 
@@ -62,17 +63,21 @@ origin/live readback, and rejects mismatch. Issue/plan status or prose is never 
    - landed SHA for the one-shot materialize→private-origin→staged-ready
      transaction;
    - packet and staged-receipt schema hashes; and
-   - disabled-schedule activation patch contract.
+   - disabled-schedule activation patch contract;
+   - reusable external-ops new-repository initialization receipt; and
+   - idempotent `.github/labels.yml` reconciliation receipt consumed by Plan 020.
 4. **Workspace resolver**
    - AO Plan 389 landed SHA plus a nonlegacy path/relocation test proving logical resolution without
      physical `C:\code\<repo>` assumptions. Closing repo-template #84 is audit-only if this proof is
      green.
 5. **External operations state**
-   - AO Plans 418 and 419 landed;
-   - exact later store aggregation, serialized publish, per-repo cutover, reader cutover, rollback,
-     and checkout-clean readback plan IDs/SHAs;
-   - `.store-active` and publication-HWM receipt schema hashes; and
-   - repo-template, code, and AO cutover green. P9/P10 historical cleanup is not release-blocking.
+   - AO Plans 418 and 419 landed plus the exact P3 projection receipt owned by AO #1678;
+   - exact P4-P8 serialized publish, dormant routing, proof, prepared-generation, per-repo cutover,
+     reader/writer redirection, rollback, and checkout-clean receipts owned by AO #1679;
+   - the reusable new-repository initializer used by Code Plan 059;
+   - canonical `ops-store-activation/v1` journal and publication-HWM schema hashes; and
+   - repo-template, code, and AO cutover green. Any `.store-active` file is a derived cache/receipt,
+     never activation authority. P9/P10 historical cleanup is not release-blocking.
 6. **Schedule truth and capacity**
    - the committed-YAML one-way reconciler/kill-switch chain (Plan 270 and exact landed
      prerequisites/successor receipts);
@@ -166,6 +171,8 @@ candidate-source adapter:
 - provision/read back post-enrollment capacity;
 - reconcile/read back the live schedule as disabled;
 - prove the generated repo-local `local-ci.json` is authoritative;
+- reconcile/read back every label in the generated `.github/labels.yml` catalog and prove a canary
+  feedback issue receives `human-feedback` automatically;
 - establish agy/read-only permission/telemetry integration; and
 - leave exactly one harmless automatic smoke plan pending.
 
@@ -231,8 +238,7 @@ The release PR must not contain `Fixes #85`; premature PR merge must not close t
 - Broad #1278 critic/audit rollout unrelated to materialization.
 - Physical repo-template relocation when canonical resolver/path-independence proof is green.
 - P9/P10 cleanup of historical in-repo `.ops` evidence.
-- Stale-plan cleanup; Plan 032 owns the frozen disposition set after Plan 030 lands and does not
-  block release.
+- Historical plan cleanup; the 2026-07-21 disposition ledger already owns and preserves it.
 
 ## Acceptance criteria
 
@@ -241,6 +247,8 @@ The release PR must not contain `Fixes #85`; premature PR merge must not close t
 - [ ] Official live Node/pnpm resolution is bounded, hashed, exact, and reproducible.
 - [ ] The candidate produces a marker-free, pre-Git repository with current immutable stamps.
 - [ ] The production adoption transaction—not bespoke hand edits—creates and stages the canary.
+- [ ] Plan 020's feedback form/catalog is present in the candidate; Code Plan 059 reconciles its
+      labels idempotently and a canary filing receives `human-feedback`.
 - [ ] Registry, disabled schedule, resolver, local-CI, permissions, telemetry, and capacity receipts
       are green before activation.
 - [ ] A real scheduled Windmill tick automatically merges and archives the smoke plan.
@@ -292,8 +300,10 @@ each boundary and resumes without repeating effects.
 
 - Before canary origin creation: remove only the owned OS-temp stage/transaction through its API.
 - After private origin creation: never auto-delete it; preserve/resume by node ID and exact ref.
-- After enrollment but before activation: leave schedule disabled; rollback is a governed AO
-  de-enrollment plan only after proving no job/lease/writer.
+- After enrollment but before activation: leave schedule disabled and halt. If rollback is actually
+  commissioned, the operator authors a separately numbered AO de-enrollment plan through the
+  governed queue only after proving there is no job, lease, or writer; this release plan neither
+  invents that plan preemptively nor mutates the registry during rollback.
 - After activation failure: first retreat committed/live schedule to disabled, then diagnose.
 - After tag publication: tags are immutable. Correct forward with a new version; never force-move.
 - Same packet/tag/SHA/closed-issue receipt is success/no-op; any mismatch is deterministic red.

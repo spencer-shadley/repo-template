@@ -2,11 +2,14 @@
 
 - **Project:** repo-template
 - **Branch:** feat/030-build-the-unreleased-new-repository-materializer-foundation
-- **Status:** draft - blocked on 029 → 028, AO 423 landed receipts, and the independently reviewed
-  draft-blocked Plan 031 terminal contract
+- **Status:** draft - blocked on AO Plan 423 exact landed receipt
 - **Priority:** P1
 - **Depends:** 028, 029
+- **External dependency:** agent-orchestrator/423
 - **Effort:** high
+- **Plan 028 landed SHA:** c75dcd9ff1aacd56628a8bfd88fe7b8fa40fb5b2
+- **Plan 029 landed SHA:** 4fa4dac50f8a9e4769f0ad58fe0dd2efedb3ce0c
+- **AO Plan 423 landed SHA:** pending
 
 ## Risk
 
@@ -32,17 +35,19 @@ migrate an existing tree. Plan 031 owns the live canary, version/tag, real enrol
 issue #85 closure after every production consumer exists.
 
 The executable consumer order is explicit and acyclic:
-Plan 030 lands first, Code Plan 059 then lands against this unreleased contract and its mechanically
-separate terminal-candidate seam, and Plan 031 finally invokes that seam for release. Plan 031's
-release receipt gates ordinary later production adoption; it is not a Plan-059 implementation or
-landing prerequisite.
+`Plan 030 foundation -> Code Plan 059 adoption consumer -> refreshed Plan 020 feedback contract ->
+Plan 031 release canary`. Plan 031's release receipt gates ordinary later production adoption; it is
+not a Plan-059 implementation or landing prerequisite. Plan 020 lands before the release so the
+materialized canary proves the issue form and idempotently provisioned label catalog as part of the
+same immutable template version.
 
 ## Context and ownership
 
 - Implements the repository side of repo-template issue #85 and the ratified guide at
   `agent-orchestrator/docs/AI-FIRST-ENGINEERING-STACK.md` v1.0.0.
 - Plan 028 establishes binding responsibilities, non-goals, and `P<X>.<Y>` principles; Plan 029
-  removes known transient checkout dirt without hiding incident evidence.
+  removes known transient checkout dirt without hiding incident evidence. Both are landed at the
+  exact SHAs recorded above; their archive/status text is not authority.
 - Agent-orchestrator Plan 423 is the exact Phase-A producer for fleet registry schemas, schema IDs,
   lifecycle values, logical identities, and registry validation/resolution receipts. It was
   durably drafted at origin commit `077dcbf`; this plan may be prepared now but may implement only
@@ -57,10 +62,18 @@ landing prerequisite.
   fixture contract and cannot satisfy the terminal scheduled-canary gate.
 - Code issue #404 adds only the fleet-registry pointer and the responsibilities/non-goals/product-
   principles interview. Code Plan 059 is the separate human-tier consumer linked to AO #1278; it
-  owns invoking this materializer from the adoption skill and collecting the full input packet once.
+  owns invoking this materializer from the adoption skill, collecting the full input packet once,
+  initializing external operational state, and idempotently reconciling the label catalog consumed
+  by Plan 020.
 - The external `.ops` migration's primitive/store plans are not the cutover. The terminal release
-  is blocked until the externally stored operational-state contract is complete and generated docs
-  can refer to its logical CLI/resolver interface without tracking live `.ops` telemetry.
+  is blocked until the reusable new-repository initializer and the externally stored operational-
+  state contract are complete. Generated docs refer to its logical CLI/resolver interface without
+  tracking live `.ops` telemetry. The canonical `ops-store-activation/v1` journal is authority;
+  `.store-active` is only a derived cache/receipt and can never activate or recover authority by
+  existence.
+- The 2026-07-21 manager re-baseline retired Plans 001, 006, 010, 011, 012, 014, 016, 021, 023, and
+  032 into the archive with a machine-readable disposition ledger. Their remaining useful intent is
+  consolidated here or in Plan 020; no later cleanup framework is a release dependency.
 - `engineering-stack-compatibility.json` remains `releaseState: "unreleased"` in this plan.
   Normal production materialization must refuse an unreleased, dirty, or non-exact template source.
   Tests may exercise the foundation only through explicit fixture provenance.
@@ -371,6 +384,9 @@ Add real Markdown and diagram checks:
   open extension skip;
 - conflict scanning still covers all tracked text, including excluded prose classes.
 
+This all-text, NUL-aware validator contract is the consolidated replacement for Plan 023. It is not
+permitted to regress to an extension allowlist.
+
 Add fixtures and focused tests for every role/lifecycle/gate disposition, unknown-candidate
 evaluation, AO schema receipt compatibility, Node Active-versus-Maintenance LTS selection, pnpm
 selection/integrity, bad HTTP/size/semver/clock cases, source provenance refusal, input bounds,
@@ -404,8 +420,8 @@ absence. Add an Unreleased entry. Do not change `TEMPLATE_VERSION` or create a t
 - Existing-repository adoption, refresh, in-place mutation, or migration.
 - Product leaf topology, application code, deployment infrastructure, credentials, or services.
 - Flipping `releaseState`, bumping `TEMPLATE_VERSION`, tagging, or closing issue #85.
-- Retiring historical plan evidence; Plan 032 owns the frozen evidence-preserving disposition set
-  after this foundation lands.
+- Rewriting or deleting historical plan evidence; the 2026-07-21 disposition ledger and archived
+  bytes are immutable audit inputs.
 
 ## Acceptance criteria
 
@@ -434,8 +450,8 @@ absence. Add an Unreleased entry. Do not change `TEMPLATE_VERSION` or create a t
       conflicts in every textual format while ignoring binary bytes.
 - [ ] Pinned Markdown/Mermaid/mutable-version checks fail closed without implicit browser setup.
 - [ ] A generated repository installs frozen/offline and passes its own `pnpm verify`.
-- [ ] Compatibility state remains `unreleased`; `TEMPLATE_VERSION` is unchanged; Plan 031 exists,
-      remains blocked on exact external receipts, and names this Plan 030 dependency.
+- [ ] Compatibility state remains `unreleased`; `TEMPLATE_VERSION` is unchanged; Plan 020 and Plan
+      031 exist, remain blocked on exact receipts, and name this Plan 030 dependency.
 - [ ] The closed Plan-031 prerequisite schema and production validator land before any readiness
       fixture; valid/tampered synthetic fixtures prove exact-set and digest enforcement.
 
@@ -486,7 +502,9 @@ corepack pnpm bootstrap:canary
 
 ## Terminal dependencies and rollback
 
-Plan 031 is the named terminal dependent plan. It remains blocked on:
+Plans 020 and 031 are the named same-repository dependents. Plan 020 first consumes Code Plan 059's
+landed label-reconciliation contract and then lands the canonical feedback form/catalog. Plan 031
+remains blocked on:
 
 1. AO Plan 423's landed registry/schema/resolution receipt contract;
 2. AO Plan 424's repo-local `local-ci.json` runtime consumer, proven through `effectiveVerifyGate` and

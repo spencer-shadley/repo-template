@@ -10,6 +10,10 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Completed the v2.6.0 transient-state contract by removing the ignored
+  `.ops/concurrency-capture.jsonl` runtime journal from Git tracking. Plan 029's result recorded the
+  removal, but its landed commit omitted the index deletion and left the self-verify gate red;
+  `agent-orchestrator#1919` owns the durable cross-repo classification/enqueue fix. PATCH.
 
 ### Unchanged (intentional — frozen)
 <!-- Things a reader might EXPECT to have changed but which are deliberately frozen (legacy

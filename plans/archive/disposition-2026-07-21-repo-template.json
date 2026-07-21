@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "kind": "repo-template-plan-disposition/v1",
+  "auditedAt": "2026-07-21T19:46:03.1863682Z",
+  "authorization": "Direct operator request in Codex task: deep-review every repo-template plan and issue; refresh, consolidate, or deprecate as evidence requires.",
+  "canonicalDeliverySpine": [
+    "repo-template/030",
+    "code/059",
+    "repo-template/020",
+    "repo-template/031"
+  ],
+  "repairs": [
+    {
+      "plan": "029",
+      "kind": "missed-landed-postcondition",
+      "action": "Remove .ops/concurrency-capture.jsonl from Git tracking while preserving the ignored local runtime file.",
+      "evidence": "Plan 029's result records git rm --cached, but landed commit 4fa4dac50f8a9e4769f0ad58fe0dd2efedb3ce0c contains no deletion; current master therefore failed its manifest-coverage gate.",
+      "durableClassOwner": "agent-orchestrator#1919"
+    }
+  ],
+  "plans": [
+    {
+      "plan": "001",
+      "priorStatus": "ready for codex",
+      "disposition": "superseded-consolidated",
+      "canonicalOwner": "repo-template/030",
+      "rationale": "The physical C:\\code\\<repo> premise is obsolete under code#475. Plan 030 preserves separate Git ownership, inherited steering, queue/incident/discovery services, and logical resolver identity without freezing a checkout path.",
+      "remoteBranch": "feat/001-workspace-context-section-every-repo-lives-under-the-code-wo@10d019e006efe7b28c0fd7fcd268e8c7379a3974",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/001-workspace-context-section-every-repo-lives-under-the-code-wo.md", "sha256": "648c717eb41751526dbe58f5996f644d39a4860fa34053d96b9f07306898cb4e" },
+        { "path": "plans/archive/001.feedback.md", "sha256": "ae0b7e6a4be3e046813ddb83c97c961f5dcf1cb54389c5d4d4c9a68cc47bd658" },
+        { "path": "plans/archive/001.log.md", "sha256": "41d61a2864e160ec30c84a54fd29c28fa5dbdae6bb505c724327cd37c7612e20" },
+        { "path": "plans/archive/001.result.md", "sha256": "553a159c3f79704b0c8e23a3373bada8491d1e508c2de46507011b546493fd3b" }
+      ]
+    },
+    {
+      "plan": "006",
+      "priorStatus": "ready for codex",
+      "disposition": "superseded-consolidated",
+      "canonicalOwner": "repo-template/030",
+      "rationale": "Plan 006 only repaired Plan 001's placeholder. Issue #2 is closed and Plan 001 itself is consolidated into Plan 030, so a separate repair plan has no executable target.",
+      "remoteBranch": "feat/006-resolve-unfilled-version-placeholder-throughout-plan-001@84ea8cc93aa425d8335c21869c57f074d8a35043",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/006-resolve-unfilled-version-placeholder-throughout-plan-001.md", "sha256": "a8e715554c487f7eab7471036a7b26353ac6d95a9207df87b113fed17e707d59" },
+        { "path": "plans/archive/006.log.md", "sha256": "a0b1439f42e316698590df2fbd386d15a7413069c061923574ef86bcfdb1b8a0" },
+        { "path": "plans/archive/006.result.md", "sha256": "2b5233e61b1b76357698ac76c5029a5b269a86ea3c41da464a0e19ce9d504b18" }
+      ]
+    },
+    {
+      "plan": "010",
+      "priorStatus": "parked - stalled x3 (needs triage)",
+      "disposition": "superseded-landed",
+      "canonicalOwner": "repo-template/015+019",
+      "rationale": "Plan 015 landed the issue #33/#45 gate fixes at 1473e9900c472f230df411606629f6fdc502441c and Plan 019 hardened the exit-code contract at ea0040662997316a9a4c819afdade6f02f1d2ee6. The stale branch has no additional current value.",
+      "remoteBranch": "feat/010-harden-verify-gate-conflict-marker-check-to-distinguish-grep@d4e95190b6c3a835f77d6649e33816752c985048",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/010-harden-verify-gate-conflict-marker-check-to-distinguish-grep.md", "sha256": "746f67b6e626756d875ef18d5e91170f5da6732a3250f8056c99109fe3d62845" },
+        { "path": "plans/archive/010.feedback.md", "sha256": "c8734f9c7f6e2c1125de57b31e9de698d816faabd0d15dccdaddac4fc4b24c23" },
+        { "path": "plans/archive/010.log.md", "sha256": "04f1fdc720ea649a2f41f726ffae5ec3361cfca7720c910a080acbb1460f6412" },
+        { "path": "plans/archive/010.result.md", "sha256": "69f760477f1338423f50cf1a89e080332d139db7bb7d3c373de25e56fd6be66c" }
+      ]
+    },
+    {
+      "plan": "011",
+      "priorStatus": "parked - stalled x3 (needs triage)",
+      "disposition": "superseded-landed",
+      "canonicalOwner": "repo-template/015+019",
+      "rationale": "Plan 011 is a second formulation of Plan 010. Plans 015 and 019 landed the complete portable gate correction; its branch deletes 010 but adds no surviving capability.",
+      "remoteBranch": "feat/011-harden-template-self-verify-gate-conflict-marker-check-to-pa@34f9de892597682e9ab3501a1f7838c65867708d",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/011-harden-template-self-verify-gate-conflict-marker-check-to-pa.md", "sha256": "9a6ecd4b5d148e539764e6e33c47a10fc03930527fd600250ca7e9d6de559d7b" },
+        { "path": "plans/archive/011.feedback.md", "sha256": "d47d93c71cdd8c5ef83f7c5a3a8eb801d2d7b56a2ad55c3973d264c084e91c0f" },
+        { "path": "plans/archive/011.log.md", "sha256": "094e4324dc8d45f54424aaebe994bd74b07079b2179a456b4fc5e0dc901e99fb" },
+        { "path": "plans/archive/011.result.md", "sha256": "26014ffad8a0b2fd3ec5e4c65ef76c4e2b2592fd9624db1343923cda2b3c4387" }
+      ]
+    },
+    {
+      "plan": "012",
+      "priorStatus": "parked - stalled x3 (needs triage)",
+      "disposition": "superseded-landed",
+      "canonicalOwner": "repo-template/015+019",
+      "rationale": "Plan 015 landed the combined issue #33/#45 correction and Plan 019 hardened its error semantics. The remote branch changes only its own stalled status.",
+      "remoteBranch": "feat/012-resolve-discovery-findings-in-verify-gate@de2bb4012977eff33422b43a106189c34c083c18",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/012-resolve-discovery-findings-in-verify-gate.md", "sha256": "8a5ccd8f87125e823d2043e4ae07e6108ba1df880cfcec83623041c9d64ab63d" },
+        { "path": "plans/archive/012.feedback.md", "sha256": "24c31ceae46d91156163f5f3a5ef1bae5c14dab5cbfb1e6d59e10803830aa532" },
+        { "path": "plans/archive/012.log.md", "sha256": "56d0f4648b4a3321541e7527039bbf46926a8a9f4466b388c51c45e2ad12fd38" },
+        { "path": "plans/archive/012.result.md", "sha256": "07703753da45b9e170fa62d0327051aaa0bdc437ab34ca6cdb1a66c2417e66a5" }
+      ]
+    },
+    {
+      "plan": "014",
+      "priorStatus": "parked - stalled x4 (needs triage)",
+      "disposition": "duplicate-landed",
+      "canonicalOwner": "commit:d97d3ed624ba2498c6485dae8078cab66f71f842",
+      "rationale": "The live queue header and risk-tier policy were corrected directly at d97d3ed624ba2498c6485dae8078cab66f71f842; issue #15 is closed and the branch changes only stalled metadata.",
+      "remoteBranch": "feat/014-fill-in-repo-template-in-the-live-queue-md-header@2405407cc2937eff33422b43a106189c34c083c18",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/014-fill-in-repo-template-in-the-live-queue-md-header.md", "sha256": "0e909def0c30afa7f40e1e6c78fb1a6e2a3f00eeed3ef580bb860c82417b5492" },
+        { "path": "plans/archive/014.feedback.md", "sha256": "24c31ceae46d91156163f5f3a5ef1bae5c14dab5cbfb1e6d59e10803830aa532" },
+        { "path": "plans/archive/014.log.md", "sha256": "53659d4c364ba9840f72445bb5f736f71f15112308b2c991445d4b7cc0fab48d" },
+        { "path": "plans/archive/014.result.md", "sha256": "654112ec46e181800ecebce7f59f9bd8703ae24d9c836d3c916ed5509eff8987" }
+      ]
+    },
+    {
+      "plan": "016",
+      "priorStatus": "superseded - objective already satisfied on master",
+      "disposition": "duplicate-landed",
+      "canonicalOwner": "commit:d97d3ed624ba2498c6485dae8078cab66f71f842",
+      "rationale": "Plan 016 duplicates Plan 014 and current master already satisfies the exact header objective. Its stale legacy log is not an active executor signal.",
+      "remoteBranch": "feat/016-set-repo-template-s-live-queue-md-header-to-a-real-project-n@a55e32389fe180d07fd72c7575c68c95710fd312",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/016-set-repo-template-s-live-queue-md-header-to-a-real-project-n.md", "sha256": "76a17d22e4027f6b19f26276c9fff85162642db76bcaa1be41f8ab0e31dbe7af" },
+        { "path": "plans/archive/016.feedback.md", "sha256": "24c31ceae46d91156163f5f3a5ef1bae5c14dab5cbfb1e6d59e10803830aa532" },
+        { "path": "plans/archive/016.log.md", "sha256": "2247b2f4997d0729ca2790458795fc72deeb08566cea6dff23c9588c0faf672d" },
+        { "path": "plans/archive/016.result.md", "sha256": "ec6d24f80cd93e403d50d283446313d21c0580e3a6ac2f6301e4c6646dc58f9e" }
+      ]
+    },
+    {
+      "plan": "021",
+      "priorStatus": "stalled - superseded by fresh-number retry",
+      "disposition": "superseded-landed",
+      "canonicalOwner": "repo-template/022",
+      "rationale": "Plan 022 landed the exact ignore-rule and durable-incident visibility fix at 5ed5ed8728f5e7ec25fd9b5728b29c2ee40f2e48. Plan 021 has no remote branch or unique WIP.",
+      "remoteBranch": null,
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/021-ignore-failed-plan-critic-verdict-artifacts-without-hiding-t.md", "sha256": "6b0ab759e4d544604cc5439ec8fa7a8a6c55466609c799ad97280406a28e282e" },
+        { "path": "plans/archive/021.critic.md", "sha256": "972a6207fc2c4c1dfccb530e593dcaa017d4d854205f819cbfcda515f937b776" }
+      ]
+    },
+    {
+      "plan": "023",
+      "priorStatus": "parked - stalled x3 (needs triage)",
+      "disposition": "superseded-consolidated",
+      "canonicalOwner": "repo-template/030",
+      "rationale": "Plan 024 removed the shell-specific scanner but intentionally preserved the extension allowlist, so Plan 023's all-text/NUL-aware remainder is real. Plan 030 now owns that exact validator contract and forbids regression to an extension allowlist; a second implementation plan would conflict.",
+      "remoteBranch": "feat/023-harden-template-verify-gate-conflict-marker-scan-to-cover-al@f41c0239db46e43ec41feebbcca4ae489c425c93",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/023-harden-template-verify-gate-conflict-marker-scan-to-cover-al.md", "sha256": "8ca049bbdb78cbe9f23e8d3c09865645f2253d5fea7d0e68bcae18bd89c60d13" },
+        { "path": "plans/archive/023.feedback.md", "sha256": "d47d93c71cdd8c5ef83f7c5a3a8eb801d2d7b56a2ad55c3973d264c084e91c0f" },
+        { "path": "plans/archive/023.log.md", "sha256": "b0f05dfc1ea4f8b72db90e945ab0b05e4fa61f92326212fed7a1af841ff259bd" },
+        { "path": "plans/archive/023.result.md", "sha256": "49cdb4fec6b724e391483ebd4c3beea1e889e719ccbed90c0ceac6427e4fe775" }
+      ]
+    },
+    {
+      "plan": "032",
+      "priorStatus": "draft - blocked on Plan 030 landed disposition evidence",
+      "disposition": "superseded-by-audit",
+      "canonicalOwner": "disposition-2026-07-21-repo-template.json",
+      "rationale": "The operator-authorized manager audit completed the evidence review directly. Static archived bytes plus this machine-readable ledger preserve provenance without adding a schema, validator, and restore runtime solely to clean plan metadata. Plan 020 now carries the only remaining refresh work.",
+      "remoteBranch": null,
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        { "path": "plans/archive/032-reconcile-repo-template-plan-debt-without-discarding-commiss.md", "sha256": "b119b1a6dc6ece046bef03de3f8ec20d2ec584bd382c9d64dda95f03bcf7995e" },
+        { "path": "plans/archive/032.critic.md", "sha256": "773bbc17094691d15d3ce53e438dca5370649722fe7222429557b8b5c5215e5d" }
+      ]
+    }
+  ]
+}
