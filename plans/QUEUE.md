@@ -4,5 +4,4 @@ RISK-TIERED repo: only docs/config `auto` plans belong in `## Pending`; executab
 cross-repository `human` plans are enqueued with `--no-queue` and use the one-off governed lane.
 
 ## Pending
-- 029 P1 ignore-orchestrator-transient-state-without-hiding-durable-i retry:manual
 - 028 P2 agents-md-declares-the-steering-sections-binding-for-all-age deps:029 retry:manual
