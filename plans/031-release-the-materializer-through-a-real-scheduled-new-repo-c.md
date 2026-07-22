@@ -42,6 +42,24 @@ Publish the first released version of the new-only materializer only after it:
 Plans 030 and 020 must be archived as landed. Plans 028 and 029 are inherited transitively through
 030. The refreshed Plan 020 must bind Code Plan 059's exact landed label-reconciliation receipt.
 
+### Release-train completeness boundary
+
+The release candidate is the complete commissioned next-release train, not merely the repository
+state that happened to be landed when this plan was drafted. Immediately before candidate freeze,
+the terminal runner must re-read `plans/QUEUE.md` plus every non-archived repo-template plan and
+produce a closed `release-train-manifest/v1`. Each live plan is classified as either:
+
+- `included` — its exact landed SHA is part of this release candidate; or
+- `deferred-next-release` — it has an explicit scope/authority reason and was not commissioned for
+  this train.
+
+For the currently commissioned train, Plans 030 and 020 are required included predecessors and this
+Plan 031 supplies the terminal release changes. A plan already queued, commissioned, or explicitly
+targeted at this release may not disappear merely because it has not landed yet: candidate freeze
+waits for its exact landed receipt or fails closed with `release-train-incomplete`. Work first
+created after the immutable freeze belongs to the next release unless it is a P0/P1 correction that
+invalidates the candidate; in that case the candidate is discarded and re-frozen after the fix.
+
 ## External prerequisites
 
 This plan is intentionally non-executable until a governed amendment commits
@@ -101,6 +119,7 @@ schedule-enable, or issue-close effects.
 Add:
 
 - `schemas/release-canary-input.schema.json`;
+- `schemas/release-train-manifest.schema.json`;
 - `schemas/template-release-receipt.schema.json`;
 - `fixtures/release-canary/input.json`;
 - `scripts/release-materializer.mjs` as the thin terminal state-machine CLI; and
@@ -111,7 +130,9 @@ none may appear in a materialized product repository.
 
 The closed `release-canary-input/v1` fixture names:
 
-- exact Plan-030 source SHA and content tree;
+- exact Plan-030 materializer-producer SHA, content-tree digest, and foundation receipt;
+- exact release-candidate base SHA after every `included` predecessor has landed, plus the complete
+  `release-train-manifest/v1` with ordered plan IDs and landed SHAs;
 - exact external prerequisite receipts above;
 - a dedicated hyphen-case canary identity and private GitHub owner;
 - experimental/low-criticality autonomy posture;
@@ -148,6 +169,10 @@ exists with a different identity.
 
 From a clean immutable source worktree:
 
+- require the candidate base to equal the manifest's exact base SHA and prove its content contains
+  every included landed plan; never materialize from the Plan-030 producer tree alone;
+- re-read origin and the live plan inventory immediately before freeze, failing closed if an
+  included/commissioned update is missing or if the manifest was computed from stale queue state;
 - stamp the live toolchain and exact external producer identities;
 - flip compatibility from `unreleased` to `released` only in the terminal candidate;
 - set `TEMPLATE_VERSION` and changelog to the computed next minor;
@@ -261,6 +286,9 @@ The release PR must not contain `Fixes #85`; premature PR merge must not close t
 ## Acceptance criteria
 
 - [ ] Every prerequisite is immutable, exact, landed, and schema/hash validated.
+- [ ] `release-train-manifest/v1` accounts for every live repo-template plan at freeze time; every
+      queued/commissioned update targeted at this release is present by exact landed SHA, and no
+      missing update is silently replaced by the older landed baseline.
 - [ ] Historical `v2.6.0` and the dynamic next-minor release ledger are coherent; no tag is moved.
 - [ ] Official live Node/pnpm resolution is bounded, hashed, exact, and reproducible.
 - [ ] The candidate produces a marker-free, pre-Git repository with current immutable stamps.
@@ -337,4 +365,13 @@ each boundary and resumes without repeating effects.
 - **approvedAt:** 2026-07-21T14:25:42-07:00
 - **scopeFingerprint:** sha256:1eed95978b5812a8083866c306b14d8c044a7de1e3a0525e74f10a13c86e54e9
 - **approvalRef:** CEO chat 2026-07-21: 'update everywhere relevant for this to be treated as another first class citizen repo in the flywheel'
+- **decision:** approve
+
+## Approval provenance
+
+- **sourceKind:** human-chat
+- **human:** Spencer Shadley (CEO)
+- **approvedAt:** 2026-07-22T11:20:00-07:00
+- **scopeFingerprint:** sha256:6e18a00af51e843fc4f22f35b775f2b961645f65d248b53b131f00d9e99baa29
+- **approvalRef:** CEO chat 2026-07-22: 'make sure the repo-template is using the latest queued update (not just what landed) since there are upcoming improvements'
 - **decision:** approve
