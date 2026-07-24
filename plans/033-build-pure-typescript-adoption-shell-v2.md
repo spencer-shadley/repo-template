@@ -6,6 +6,7 @@
 - **Priority:** P1
 - **Depends:** none
 - **Effort:** high
+- **Model:** critical
 - **Risk tier:** human
 - **Implementation model:** GPT-5.6-sol only; never invoke a pre-5.6 GPT model
 - **Final critics:** Gemini 3.6 Flash and Grok 4.5 on the identical immutable candidate
@@ -30,10 +31,11 @@ Admit with `enqueue-plan.mjs ... --no-queue`, run through the one-off governed l
 worktree, and merge only the exact reviewed candidate. The repo-template discovery schedule remains
 disabled and this plan grants no schedule re-enable authority.
 
-The implementation ladder is explicitly all `gpt-5.6-sol` rungs. Any default ladder containing
-GPT 5.5 or older is forbidden for this plan. The final candidate requires Gemini 3.6 Flash and Grok
-4.5 review under the ratified availability rule: both approvals pass; one genuinely unavailable
-route permits the other approval; two unavailable routes do not pass.
+The implementation ladder is explicitly all `gpt-5.6-sol` rungs. The critical marker makes any
+credit/failure fallback park fail-closed instead of invoking a non-GPT-5.6 implementer. Any default
+ladder containing GPT 5.5 or older is forbidden for this plan. The final candidate requires Gemini
+3.6 Flash and Grok 4.5 review under the ratified availability rule: both approvals pass; one
+genuinely unavailable route permits the other approval; two unavailable routes do not pass.
 
 ## Bound inputs and current state
 
