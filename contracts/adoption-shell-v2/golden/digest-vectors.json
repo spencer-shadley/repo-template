@@ -1,0 +1,8 @@
+{
+  "envelopeAlgorithm": "sha256-rfc8785-v1",
+  "canonical": "{\"a\":1,\"b\":2}",
+  "canonicalSha256": "43258cff783fe7036d8a43033f830adfc60ec037382473548ac742b888292777",
+  "payloadAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+  "payloadSha256": "143f8f9a9ef567beea4048d0bf3b42b8379e9b33b94ddb4f926dd67aa320e618",
+  "firstEntryContentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09"
+}

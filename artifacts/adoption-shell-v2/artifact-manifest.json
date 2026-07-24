@@ -1,0 +1,469 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "235ac3cfc92ba4b457043dcab1c16dadd91b7c12c52c9dc744a3bc77e00fee33",
+  "contractId": "repo-template/adoption-shell-v2",
+  "contractVersion": "2.0.0",
+  "digestAlgorithm": "sha256-rfc8785-v1",
+  "artifactDigestAlgorithm": "sha256-rfc8785-v1",
+  "artifactDigest": "88af446496dc3556909e37f0bb47069c9c968a6487227f53b9d93e3f33127ac0",
+  "toolchain": {
+    "typescript": "7.0.2",
+    "nodeCompatibility": ">=24.16.0 <25",
+    "packageManager": "pnpm@11.17.0"
+  },
+  "entrypoint": "index.js",
+  "validatorExport": "validateMaterializerInputV2",
+  "runtimeDependencyCount": 0,
+  "releaseReceiptKind": "repo-template/release-receipt/v1",
+  "sources": [
+    {
+      "path": "packages/adoption-shell/src/canonical-json.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "bd7c969fd40032f72bd83597497f72799124363f9946a44148135d7a34dc7e31",
+      "bytes": 2417
+    },
+    {
+      "path": "packages/adoption-shell/src/capability-bundles.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "520d3cf8788087771eaa9b6c9c64a84cd20c184546308bad91eeebc1f3166a83",
+      "bytes": 11621
+    },
+    {
+      "path": "packages/adoption-shell/src/contract.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "9f97b3df5b54ecf74ed89e7da02dfd3e76a5dea321923f963d34fa1f3bbbd6e0",
+      "bytes": 6854
+    },
+    {
+      "path": "packages/adoption-shell/src/digest.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "961830216d25065a9c472ed4f8cc87026a062a297d7f9781c2becacad0131c30",
+      "bytes": 2319
+    },
+    {
+      "path": "packages/adoption-shell/src/index.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "ba0caf992160fc2e9cb2fe4f02763608c54792dd8739f8c2209c94c36147098f",
+      "bytes": 1370
+    },
+    {
+      "path": "packages/adoption-shell/src/materialize.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "43c3fc204077d1c3e7fc742ed842794ec6602d7a1d93d4e17bb8bd7c799c12d4",
+      "bytes": 4772
+    },
+    {
+      "path": "packages/adoption-shell/src/path-policy.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "d71c5c2e29bf5201a37f374aa35edb67b7609bead755751b129230fd57e1d2a0",
+      "bytes": 2241
+    },
+    {
+      "path": "packages/adoption-shell/src/validate-documentation.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f695f7c9b7bca724c975482f9c4de6cfc65a98c8e68fe222823193d5b08f07bb",
+      "bytes": 2875
+    },
+    {
+      "path": "packages/adoption-shell/src/validate-manifests.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a53b5b46512261494de25e67d33486d83f265be72d444b21113aaa51f21bc14b",
+      "bytes": 15711
+    },
+    {
+      "path": "packages/adoption-shell/src/validate.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f512a465e82f5688825eea55df9e999fb0d126f46550fdf97be340281663c71a",
+      "bytes": 12847
+    },
+    {
+      "path": "packages/adoption-shell/src/validation-helpers.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "3945e13e40fe1f50e4e6ca41e4526412d12c71b6647a4de0295b05cbb9bcca1f",
+      "bytes": 4492
+    }
+  ],
+  "schemas": [
+    {
+      "path": "contracts/adoption-shell-v2/artifact-manifest.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "235ac3cfc92ba4b457043dcab1c16dadd91b7c12c52c9dc744a3bc77e00fee33",
+      "bytes": 4163,
+      "id": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
+      "version": "2.0.0"
+    },
+    {
+      "path": "contracts/adoption-shell-v2/capability-bundle.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+      "bytes": 4027,
+      "id": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+      "version": "2.0.0"
+    },
+    {
+      "path": "contracts/adoption-shell-v2/materializer-input.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+      "bytes": 2316,
+      "id": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+      "version": "2.0.0"
+    },
+    {
+      "path": "contracts/adoption-shell-v2/materializer-output-manifest.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e7503619b5a53579b0f95a7a218f9ca9a3024ea7194c7359e7311d0bde0a90d1",
+      "bytes": 4080,
+      "id": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-output-manifest.schema.json",
+      "version": "2.0.0"
+    },
+    {
+      "path": "contracts/adoption-shell-v2/release-payload-set.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+      "bytes": 2986,
+      "id": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+      "version": "2.0.0"
+    },
+    {
+      "path": "contracts/adoption-shell-v2/verification-receipt.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "8a282bca596130df44f33cb00241d7874a23a2b78c3d23c7c4bd0026103ad256",
+      "bytes": 1588,
+      "id": "https://schemas.repo-template.dev/adoption-shell-v2/verification-receipt.schema.json",
+      "version": "2.0.0"
+    }
+  ],
+  "emitted": [
+    {
+      "path": "canonical-json.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "d7eb17f7db96c51d2ba2e8d6c9c63bb1f383996745145ea3d34e6dac383f1076",
+      "bytes": 138
+    },
+    {
+      "path": "canonical-json.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2eda980ff86f2ae84f8d9352e4a703a0572aa9c8dfa306880a5e7d2a66576211",
+      "bytes": 2556
+    },
+    {
+      "path": "capability-bundles.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "3f83098aee2b086f41ba1e7cc5cd655ae259b3540166f190728319ffc7e07a2d",
+      "bytes": 604
+    },
+    {
+      "path": "capability-bundles.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "8a156b2562b0f93c7bc89abd5ea277cfc4fea4392f5cf2ce02d67a8cc649c46a",
+      "bytes": 11116
+    },
+    {
+      "path": "contract.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e319cd447c8dbf0711ec551b93f83877aa9d6be0678180d32bde222adb61eefa",
+      "bytes": 6956
+    },
+    {
+      "path": "contract.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "6730ab0b890f67d682bc9bb5639601a262ffcf40120cbd6d2bbf61a742a5fc7e",
+      "bytes": 1951
+    },
+    {
+      "path": "digest.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "d919311213003aa54146e36018e8e70be0586f1cb4099af26d53e0fbf963f319",
+      "bytes": 561
+    },
+    {
+      "path": "digest.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e9e367c6817dc38dc0a21e17730fd8f32f178e11bca3df3e4388c6d36790edcf",
+      "bytes": 2100
+    },
+    {
+      "path": "index.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e8fc607486bc81fc2f8a0fa202cd7717639e7eb5002853b034cf4aeb8e6fd17f",
+      "bytes": 1284
+    },
+    {
+      "path": "index.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e9149dce3e4dce240a59e2092a3efd3589187a6d52c87a0c75c04731bb616d07",
+      "bytes": 871
+    },
+    {
+      "path": "materialize.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "eeed3f025a10bce483482f1c0054a0563d4cca4908413a3b54a92b05c95746be",
+      "bytes": 156
+    },
+    {
+      "path": "materialize.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "d70744bee68846fa1ecda1506b0887284672c49a5d0841a6b4fba930cc993440",
+      "bytes": 4579
+    },
+    {
+      "path": "path-policy.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "bdae1a1f0ff24e399575355fdaf5dee9196ced62ef8b543362dfaf6315764427",
+      "bytes": 428
+    },
+    {
+      "path": "path-policy.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "29bd993c73704d8599bee6b9dbab7e26418edf6d9e7d1aba905bd536665084a8",
+      "bytes": 2247
+    },
+    {
+      "path": "validate-documentation.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "bea00beb08953ca562aa490c120558f91a52024ae90b1e2b19747c096458b8e2",
+      "bytes": 282
+    },
+    {
+      "path": "validate-documentation.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "22bbe8440930f5e533d7a06e4db0030a688b1601c9fc0afec9b4e8c0052f4926",
+      "bytes": 2745
+    },
+    {
+      "path": "validate-manifests.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "b7094801ca4a26977f6132fb264cd77a0433082bde63a6ae45f27f3152c53ed2",
+      "bytes": 475
+    },
+    {
+      "path": "validate-manifests.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f9d8ae3edad8928595303fffa067b60f14040e5a8ba162909df0b4ad4feba7df",
+      "bytes": 15408
+    },
+    {
+      "path": "validate.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "620d7772cc29b894e28465202075083be61de3b3c4d4b45d17284382d931b6fa",
+      "bytes": 315
+    },
+    {
+      "path": "validate.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e5e255c6b92d29c8d5ba7aef59e58ebe7080afa23d49ef98ed7fc5a2096a845b",
+      "bytes": 12265
+    },
+    {
+      "path": "validation-helpers.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "8b054c55b7f70f210115ee426bc0e01b287e45763c7ba871d6ca1c5c68d2b308",
+      "bytes": 1175
+    },
+    {
+      "path": "validation-helpers.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "7fa3374381bb70274f3268f2e1bad91f32d446d7e4efa084f825bb35e612aa59",
+      "bytes": 4137
+    }
+  ],
+  "fixtures": [
+    {
+      "path": ".user-surface-lint.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "70d75de5e187a14ae558096f0b641ae85f2cebad8930d5fe05fb2b34d715e00b",
+      "bytes": 88
+    },
+    {
+      "path": ".user-surface-lint.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "c7f91b1502956513277812ea06841d3cb3069d49a093eafa196d6ba5983ae50c",
+      "bytes": 1384
+    },
+    {
+      "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "854cb746578df4c7c23d78b67f8b7fd02d499190c57c2f3f6cbce68fbcf834c4",
+      "bytes": 2306
+    },
+    {
+      "path": "contracts/adoption-shell-v2/fixtures/minimal-input-shuffled-keys.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a63c790768944e40f219d720561c996d5ff4d19dc6ec41deac08c55f2a1060cf",
+      "bytes": 1905
+    },
+    {
+      "path": "contracts/adoption-shell-v2/fixtures/minimal-input.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2d877526f62432a561d5ed8ca56ced59faf8fc9663a6ba175260a8b9435d443e",
+      "bytes": 1905
+    },
+    {
+      "path": "contracts/adoption-shell-v2/fixtures/multi-bundle-input.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "494e00a30817f00754f329502420cf63f5af310b2002f87d245de1d228b23754",
+      "bytes": 3660
+    },
+    {
+      "path": "contracts/adoption-shell-v2/fixtures/negative-inputs.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "c1c160036919b48764f8324667094d98cf4ab0bb57f1c2dcaaa21626af93da5c",
+      "bytes": 221660
+    },
+    {
+      "path": "contracts/adoption-shell-v2/fixtures/portable-docs-input.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e001269814b843268ca120b4c1fbb152ff7fd60731ed12dce2887be32958db7b",
+      "bytes": 3353
+    },
+    {
+      "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "849e065da293db1a8a9b4455afd6db7386a98e8e6b4e95affafccbac08ba50dd",
+      "bytes": 27234
+    },
+    {
+      "path": "scripts/lint-user-surface-leaks.mjs",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "4fba3146cee4497ad5b7a6c09c316676663a085b6ab6f95b3c710e24304748c8",
+      "bytes": 11974
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "32427eb383d4ebd1c1848ef59026ac5457986eb546fede234823f735d69dca4b",
+      "bytes": 484
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "d0cb6d033f643c740f442761b2bef24b6b6362f642b3de6ca36c0d0a26f9a3a2",
+      "bytes": 148
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/bad/config.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/bad/src/messages.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "33260da2ae7e27562929d524c402836f7e6e616fb9135bbdfe328bb1d4c1ba4c",
+      "bytes": 167
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/empty/config.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "4fdb8ebe6d036db4c31cda25967cb9333aabe9b7007e2452ada45d406197cb61",
+      "bytes": 39
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/good/config.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/good/src/messages.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e2736ce772da5d778ffde14b0185d25e88ed985a9cab0f474428abda41b1117a",
+      "bytes": 144
+    }
+  ],
+  "goldens": [
+    {
+      "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "4602e1b99c147f26ff7101ee2bb7d110a7aa14fd1e443a0bbbb7b93674795fec",
+      "bytes": 876
+    },
+    {
+      "path": "contracts/adoption-shell-v2/golden/digest-vectors.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "ec5e776eede0e445d74a4f7457310da6bf10f7703634ea22fcf94ea90b875556",
+      "bytes": 421
+    },
+    {
+      "path": "contracts/adoption-shell-v2/golden/minimal-output.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "7ff2d56aba52e56c1782d151860ca8a719489e9c6e380e57d10fb39800f778b2",
+      "bytes": 1573
+    },
+    {
+      "path": "contracts/adoption-shell-v2/golden/rfc8785-vectors.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "c79c856560252a2a7fc076aa076ae3d866c9ad4731d5a3233947e332f3437b13",
+      "bytes": 1089
+    },
+    {
+      "path": "contracts/adoption-shell-v2/golden/user-surface-lint-modes.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "b66bd23a6415b3e4f5c00da5df3836c26b3773cb44f782564b8df42a17db936e",
+      "bytes": 433
+    }
+  ],
+  "manifestDigest": "88eb5e5267c11a97ec6d0f18d1e883cf0b7d41caee602989076995b37d0b972f"
+}

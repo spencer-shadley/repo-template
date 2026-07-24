@@ -1,0 +1,74 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+  "contractId": "repo-template/adoption-shell-v2",
+  "release": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+    "payloadDigest": "4477c773558f59adb5e236f993da91ad84fa50f87e75c50415689b033de5a05b",
+    "entryCount": 4,
+    "migrationRefs": [],
+    "entries": [
+      {
+        "path": "README.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null,
+        "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+      },
+      {
+        "path": "docs/INCIDENTS.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "bd210faa694d80a6dce4ce7b3db877a17c645da939cf7196171f684cbf169e8f",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null,
+        "contentBase64": "IyBJbmNpZGVudHMKClBlciBbQURSLTAwMDM6IEZpbGUtZm9ybWF0IHNlbGVjdGlvbiAobWQgLyBqc29uIC8ganNvbmwgLyB0c3YgLyBjc3YpXShhZHIvdGVtcGxhdGUtZmlsZS1mb3JtYXQtc2VsZWN0aW9uLm1kKSwgSlNPTkwgaXMgdGhlIGluY2lkZW50IGF1dGhvcml0eS4K"
+      },
+      {
+        "path": "docs/adr/0003-unrelated-local-decision.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "ea7023fb16a9ac6d53862a03ba8cd42ee8fad9d44157318cf383efeb30ecd732",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null,
+        "contentBase64": "IyBBRFItMDAwMzogVW5yZWxhdGVkIGxvY2FsIGRlY2lzaW9uCgpUaGlzIGxvY2FsIGRlY2lzaW9uIGlzIGludGVudGlvbmFsbHkgdW5yZWxhdGVkLgo="
+      },
+      {
+        "path": "docs/adr/template-file-format-selection.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "1f93f7fa176ee3c365be766c6551232da3e97f406874f642604968c10684a5a5",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null,
+        "contentBase64": "IyBBRFItMDAwMzogRmlsZS1mb3JtYXQgc2VsZWN0aW9uIChtZCAvIGpzb24gLyBqc29ubCAvIHRzdiAvIGNzdikKClRlbXBsYXRlLW93bmVkIGRlY2lzaW9uLgo="
+      }
+    ],
+    "releaseDigest": "40ab87da7c3b1c49247cb4bdc15a887e4baeaaf4250fd410dbd1ab788cc86cb9"
+  },
+  "capabilities": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "bundles": [],
+    "registryDigest": "4839f876f0d53a59efcb0e53585ee4a82db099bdac7261cba5fb0528ecf21a48"
+  },
+  "requestedBundles": [],
+  "conformance": {
+    "noLocalIssueTemplateOverride": true,
+    "noPreCustodyWorkflows": true
+  }
+}

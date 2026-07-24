@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
+import { pathToFileURL } from 'node:url';
 
 const DEFAULT_CONFIG = '.user-surface-lint.json';
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'vendor', 'dist', 'build', 'coverage']);
@@ -38,6 +39,10 @@ const SOURCE_RULES = [
       /\b(?:res\.(?:send|json)|reply\.(?:send|code)|new Response)\s*\([^;\n]*(?:err|error)\.stack\b/g,
   },
 ];
+
+function compare(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
 
 function usage() {
   return [
@@ -189,7 +194,7 @@ function matchingFiles(root, include) {
     const rel = normalizeRel(path.relative(root, file));
     if (matchers.some((matcher) => matcher.test(rel))) files.push({ abs: file, rel });
   }
-  return files.sort((a, b) => a.rel.localeCompare(b.rel));
+  return files.sort((a, b) => compare(a.rel, b.rel));
 }
 
 function lineForIndex(text, index) {
@@ -323,8 +328,8 @@ function runLint({ root, configPath, stdout = console.log, stderr = console.erro
   return 1;
 }
 
-function selfTest() {
-  const fixtureRoot = path.resolve('tests/fixtures/user-surface-lint');
+function selfTest(root = process.cwd(), stdout = console.log) {
+  const fixtureRoot = path.resolve(root, 'tests/fixtures/user-surface-lint');
   const cases = [
     {
       name: 'good fixture passes',
@@ -375,17 +380,26 @@ function selfTest() {
       }
     }
   }
-  console.log('user-surface-lint: self-test passed');
+  stdout('user-surface-lint: self-test passed');
 }
 
-try {
-  const args = parseArgs(process.argv.slice(2));
-  if (args.selfTest) {
-    selfTest();
-  } else {
-    process.exitCode = runLint({ root: process.cwd(), configPath: args.configPath });
+const invokedPath = process.argv[1];
+const invokedAsMain =
+  invokedPath !== undefined &&
+  pathToFileURL(path.resolve(invokedPath)).href === import.meta.url;
+
+if (invokedAsMain) {
+  try {
+    const args = parseArgs(process.argv.slice(2));
+    if (args.selfTest) {
+      selfTest();
+    } else {
+      process.exitCode = runLint({ root: process.cwd(), configPath: args.configPath });
+    }
+  } catch (error) {
+    console.error(`user-surface-lint: ${error.message}`);
+    process.exitCode = 2;
   }
-} catch (error) {
-  console.error(`user-surface-lint: ${error.message}`);
-  process.exitCode = 2;
 }
+
+export { runLint, selfTest };

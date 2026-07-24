@@ -10,8 +10,10 @@ them when working on this repo.
   auto-merge. `plans/QUEUE.md` here is this repo's LIVE queue; instantiation resets it.
 - **Verify gate for THIS repo:**
   ```
-  node scripts/lint-user-surface-leaks.mjs --self-test
-  node -e "const fs=require('fs'),path=require('path'),cp=require('child_process');const m=require('./template-manifest.json');const allowed=new Set(['copy','merge','self','generated']);const exts=new Set(['.md','.yml','.json','.jsonl']);const conflicts=[];function scan(dir){for(const ent of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,ent.name);if(ent.isDirectory()){if(ent.name!=='.git')scan(p);continue}if(!ent.isFile())continue;const rel=path.relative('.',p).split(path.sep).join('/');if(ent.name!=='TEMPLATE_VERSION'&&!exts.has(path.extname(ent.name)))continue;const lines=fs.readFileSync(p,'utf8').split(/\r?\n/);lines.forEach((line,i)=>{if(line.startsWith('<<<<<<<'))conflicts.push(rel+':'+(i+1)+':'+line)})}}scan('.');const tracked=cp.execSync('git ls-files',{encoding:'utf8'}).trim().split(/\r?\n/).filter(Boolean);const missing=tracked.filter(f=>!f.startsWith('.ops/archive/')&&!f.startsWith('plans/')&&!m[f]);const invalid=Object.entries(m).filter(([,v])=>!allowed.has(v)).map(([k,v])=>k+':'+v);const boundaryErrors=[];if(m['model-boundary.json']!=='copy')boundaryErrors.push('model-boundary.json must be manifest copy');let b;try{const raw=fs.readFileSync('model-boundary.json','utf8');if(/TODO\\(setup!?\\):|\\{\\{[A-Z0-9_]+\\}\\}/.test(raw))boundaryErrors.push('model-boundary.json has unresolved setup placeholders');b=JSON.parse(raw)}catch(e){boundaryErrors.push('model-boundary.json parse failed: '+e.message)}if(b){if(b.schemaVersion!==1)boundaryErrors.push('schemaVersion must be 1');if(b.servesModelTasks!==false)boundaryErrors.push('default servesModelTasks must be false');if(b.directProviderInvocation!=='forbidden')boundaryErrors.push('default directProviderInvocation must be forbidden');if(b.servingProvenanceRequired!==true)boundaryErrors.push('servingProvenanceRequired must be true');if(typeof b.ownerRole!=='string'||!b.ownerRole.trim())boundaryErrors.push('ownerRole required');const p=b.allowedProviderSpecificPaths;if(!p||typeof p!=='object')boundaryErrors.push('allowedProviderSpecificPaths required');else for(const k of ['adapters','catalogs','configuration','fixtures','history'])if(!Array.isArray(p[k]))boundaryErrors.push('allowedProviderSpecificPaths.'+k+' must be an array')}if(conflicts.length||missing.length||invalid.length||boundaryErrors.length){if(conflicts.length)console.error('conflict markers:',conflicts);if(missing.length)console.error('unmanifested:',missing);if(invalid.length)console.error('invalid manifest modes:',invalid);if(boundaryErrors.length)console.error('model boundary:',boundaryErrors);process.exit(1)}"
+  corepack_bin=corepack
+  if command -v corepack.cmd >/dev/null 2>&1; then corepack_bin=corepack.cmd; fi
+  "$corepack_bin" pnpm install --frozen-lockfile --ignore-scripts
+  "$corepack_bin" pnpm verify
   ```
 - **Change discipline:** every structural change states WHICH fleet learning/incident motivates it
   (ADRs cite evidence); user-facing additions get README-table entries and setup markers when
@@ -38,13 +40,28 @@ rules here take precedence on any conflict.
 > summary-sized; when one outgrows roughly a screen, move the detail to its own file under `docs/`
 > and leave a two-line summary + link here.
 
-This repo is queue-enrolled (see docs/QUEUE-ENROLLMENT.md); source changes go through the plan
-queue. <!-- TODO(setup): confirm enrollment happened (agent-orchestrator/projects.json, Windmill
-drain schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
+This repo is queue-enrolled (see docs/QUEUE-ENROLLMENT.md). Effectful, shared-authority, and
+non-trivial changes use the governed lane; qualifying direct-L0 work uses the fast path below.
+<!-- TODO(setup): confirm enrollment happened (agent-orchestrator/projects.json, Windmill drain
+schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
 
 **Stack:** {{STACK}}.
 **Package manager:** {{PACKAGE_MANAGER}}. **Data/migrations:** {{DB_AND_MIGRATIONS}}.
 **E2E:** {{E2E}}. **Deploy:** {{DEPLOY}}.
+
+## Direct L0 fast path
+
+The repo manager may directly write, commit, and land simple reversible repo-contained source,
+tests, fixtures, deterministic fakes, local builds, and generated artifacts without a plan, queue
+entry, pull request, preregistration, external critic, or full-suite ceremony. Use only the
+affected deterministic checks that materially reduce risk, then preserve one lightweight immutable
+receipt naming the exact landed bytes, checks/results, no-effect assertion, and rollback ref.
+
+Direct L0 is forbidden when the transaction uses credentials; causes provider, network, GitHub, or
+other external mutation beyond the repo-local git landing; changes registration or recurring
+schedules; deploys to production; performs an irreversible migration; transfers shared
+writer/effect authority; or cuts over a capability. Split those effects into their governed
+transaction. An applicable failed check or actual negative review blocks the candidate bytes.
 
 ## Binding steer
 

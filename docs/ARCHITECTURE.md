@@ -1,7 +1,8 @@
 # Architecture — {{PROJECT_NAME}}
 
 The system map an agent needs when entering this repo cold. Keep it current — post-merge
-obligations (ADR-0001 §8) include updating this when components/flows change.
+obligations in [ADR-0001: Design philosophies for this repo](adr/0001-design-philosophies.md) §8
+include updating this when components/flows change.
 
 ## Components
 <!-- TODO(setup): list the moving parts (services, workers, UIs, schedulers) — one line each:
@@ -14,7 +15,8 @@ obligations (ADR-0001 §8) include updating this when components/flows change.
 ## External dependencies (with reversibility class)
 <!-- TODO(setup): every external system this repo touches, each classified:
      REVERSIBLE (bad call = retry/revert) vs IRREVERSIBLE/EXISTENTIAL (quota, tokens, user-visible
-     sends) — irreversible ones MUST have rate-limit/breaker confinement (ADR-0001 §2). -->
+     sends) — irreversible ones MUST have rate-limit/breaker confinement per
+     [ADR-0001: Design philosophies for this repo](adr/0001-design-philosophies.md) §2. -->
 
 ## Model boundary
 

@@ -1,0 +1,23 @@
+{
+  "name": "@repo-template/adoption-shell",
+  "version": "0.0.0-private",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=24.16.0 <25"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
+    "build:check": "node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",
+    "test": "node --test packages/adoption-shell/test/*.test.ts",
+    "verify:artifact": "node tools/artifact-build.ts verify",
+    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node tools/verify-template-self.ts",
+    "verify": "pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "7.0.2"
+  }
+}

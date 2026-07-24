@@ -1,0 +1,103 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+  "contractId": "repo-template/adoption-shell-v2",
+  "release": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+    "payloadDigest": "61a3add44ceba6081a60f973edc8c90f690b88a7887e801b5d78e82b3a621314",
+    "entryCount": 3,
+    "migrationRefs": [],
+    "entries": [
+      {
+        "path": "README.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null,
+        "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+      },
+      {
+        "path": "features/alpha.txt",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "b6a98d9ce9a2d9149288fa3df42d377c3e42737afdcdaf714e33c0a100b51060",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "example/alpha",
+        "contentBase64": "YWxwaGEK"
+      },
+      {
+        "path": "features/beta.txt",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "f2c82decdd7181cf98945929a62598db7e6b477e11f6e0eb0ae97020eff151ad",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "example/beta",
+        "contentBase64": "YmV0YQo="
+      }
+    ],
+    "releaseDigest": "cdaf83d2e209f89b5161cb430b54ad13cce6008bba3ea62d776b30996b655197"
+  },
+  "capabilities": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "bundles": [
+      {
+        "id": "example/alpha",
+        "version": "1.0.0",
+        "dependencies": [],
+        "artifacts": [
+          "features/alpha.txt"
+        ],
+        "fixtures": [],
+        "goldens": [],
+        "modes": [],
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "digest": "79954b0b5567fa76fc206de35868254c365717e74b72897986eb725ff69acb83"
+      },
+      {
+        "id": "example/beta",
+        "version": "1.0.0",
+        "dependencies": [
+          {
+            "id": "example/alpha",
+            "version": "1.0.0",
+            "digest": "79954b0b5567fa76fc206de35868254c365717e74b72897986eb725ff69acb83"
+          }
+        ],
+        "artifacts": [
+          "features/beta.txt"
+        ],
+        "fixtures": [],
+        "goldens": [],
+        "modes": [],
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "digest": "873c3fa44455bfccddbd2e3df5b5d40e30625381ccb9fa2adedc39c9235f5a34"
+      }
+    ],
+    "registryDigest": "2480b41483c2c1e6af639788def9e79beb591bfc66f81bb0c75c0b39d60777e5"
+  },
+  "requestedBundles": [
+    {
+      "id": "example/beta",
+      "version": "1.0.0",
+      "digest": "873c3fa44455bfccddbd2e3df5b5d40e30625381ccb9fa2adedc39c9235f5a34"
+    }
+  ],
+  "conformance": {
+    "noLocalIssueTemplateOverride": true,
+    "noPreCustodyWorkflows": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "bundle": {
+    "id": "repo-template/user-surface-lint",
+    "version": "2.6.0",
+    "digest": "9b53952d6ff7ad1a66f026297aabce5c9c742d76840fa871980a3f3637974349"
+  },
+  "modes": [
+    {
+      "id": "config",
+      "invocation": "node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json"
+    },
+    {
+      "id": "self-test",
+      "invocation": "node scripts/lint-user-surface-leaks.mjs --self-test"
+    }
+  ]
+}

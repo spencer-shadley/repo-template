@@ -6,7 +6,9 @@
 
 ## Decision — the ladder (escalate only when forced)
 
-1. **Files in git** (md context / json state / jsonl records per ADR-0003) — the DEFAULT.
+1. **Files in git** (md context / json state / jsonl records per
+   [ADR-0003: File-format selection (md / json / jsonl / tsv / csv)](0003-file-format-selection.md))
+   — the DEFAULT.
    Git gives audit history, replication, recovery, and universal agent access (read/grep) for free.
 2. **jsonl + rotation + generated views** — records at volume (the observability layer).
 3. **SQLite** — first real-DB rung: transactions, SQL queries, zero ops, single host. Runtime
@@ -28,8 +30,10 @@
 
 ## Rules
 
-1. **One source of truth per fact** (same as ADR-0003): a DB may hold live/derived/product state;
-   the durable record lives in git OR the DB has the declared durability story. Never both.
+1. **One source of truth per fact** (same as
+   [ADR-0003: File-format selection (md / json / jsonl / tsv / csv)](0003-file-format-selection.md)):
+   a DB may hold live/derived/product state; the durable record lives in git OR the DB has the
+   declared durability story. Never both.
 2. **Agent access is a requirement**: whatever the rung, agents must be able to read the state
    (SQL via a documented CLI, or jsonl exports). A DB nobody can inspect breaks observability.
 3. **Downgrade is success**: if a DB's contents turn out re-derivable, declare it disposable and

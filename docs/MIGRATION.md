@@ -36,15 +36,17 @@ adds the copied files.
 
 ## ADR numbering
 
-The survey ADR, `0001-design-philosophies`, is repo-local. When copying it into a repo that already
-has ADRs, renumber it to the repo's next free ADR number and keep the title recognizable.
+Copied template ADRs retain their original identity and exact decision title. Never renumber
+inherited prose into an existing local ADR number: doing so can make a reference to Template's
+file-format or storage authority silently resolve to an unrelated local decision.
 
-Workspace-standard ADRs are different. The verify-gate contract, file-format doctrine, storage
-ladder, and git-conventions ADRs should be referenced by template URL instead of copied when the
-target repo already has its own ADR numbering. Repos that use another ADR format, such as a single
-decision log or README section, keep that format. Link to the template decision, record the skipped
-path in `.template-sync.json` `skipPaths`, and cite the repo-local decision or changelog line that
-explains the choice. Do not convert ADR formats during migration.
+When the destination already owns the same ADR number or uses another decision format, do not copy
+over or reinterpret either decision. Link to the exact titled Template decision by canonical URL,
+record the skipped path in `.template-sync.json` `skipPaths`, and cite the repo-local decision or
+changelog line that explains the conflict. If local policy differs, add a new repo-local decision
+at its next free identity that explicitly supersedes the inherited decision by exact title; never
+reuse the inherited number or title for different authority. Do not convert ADR formats during
+migration.
 
 ## Never-touch rule
 

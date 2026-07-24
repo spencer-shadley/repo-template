@@ -1,13 +1,23 @@
 # Changelog
 
 Format: [Keep a Changelog](https://keepachangelog.com). Maintained at merge time (post-merge
-obligations, ADR-0001 §8) — one entry per user-visible or structural change.
+obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-design-philosophies.md)
+§8) — one entry per user-visible or structural change.
 
 ## [Unreleased]
 
 ### Added
 <!-- new capabilities or files -->
-- Accepted ADR-0006, the complete AI-First Stack v1.1.0 technology decision for a
+- **BREAKING:** Added the pure TypeScript `adoption-shell-v2` contract, six closed schemas,
+  dependency-free compiled ESM/declarations, authenticated capability registry, deterministic
+  fixtures/goldens, negative-effect proofs, and a reproducible artifact manifest. This implements
+  [ADR-0006: Pure TypeScript adoption shell and release boundary](docs/adr/0006-adoption-shell-v2-technology-decision.md)
+  without publishing or activating a release. MAJOR.
+- Added the portable direct-L0 fast path: simple reversible repo-contained source uses
+  proportionate affected checks plus one exact-byte/no-effect/rollback receipt, while external
+  effects and shared authority remain governed. MINOR.
+- Accepted [ADR-0006: Pure TypeScript adoption shell and release boundary](docs/adr/0006-adoption-shell-v2-technology-decision.md),
+  the complete AI-First Stack v1.1.0 technology decision for a
   runtime-dependency-free TypeScript `adoption-shell-v2`, closed schemas and capability bundles,
   exact compiled artifacts, pure offline materialization, and the later generic Template release
   seam. The ADR binds immutable Factory compatibility input while preserving zero target,
@@ -15,6 +25,18 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Fixed issue #92 as a capability-closure class: `user-surface-lint` now carries both configuration
+  files and all seven `--self-test` fixtures as `copy`, and its two advertised modes are exercised
+  from only the materialized payload. MINOR.
+- Fixed issue #93 as a portable-reference class: copied incident/storage documentation links exact
+  ADR titles, the fleet incident catalog uses canonical HTTPS, and migration guidance preserves
+  inherited ADR identity while local decisions supersede instead of reusing a number. PATCH.
+- Replaced the Template-self inline verifier with the stable frozen-install plus `pnpm verify`
+  root gate, covering typecheck, exact artifact rebuild, committed-artifact consumer tests,
+  purity/closure verification, and the predecessor self checks. MINOR.
+- Rejected `.github/workflows/` from the inert v2 seed/release and required an explicit
+  `noPreCustodyWorkflows` conformance assertion, preventing Template workflows from executing
+  before a newly created repo manager acquires custody. MAJOR.
 - Archived stale Plans 020, 030, and 031 plus their invalidated critic receipts with a
   machine-readable 2026-07-24 disposition ledger. Their useful intent is conserved in the
   owner-pure `adoption-shell-v2` → public `.github` canary → generic Template release train;
@@ -146,7 +168,8 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Added
 - Authoritative-verification-tool declaration + done-report convention in AGENTS.md (from task-dag)
-- ADR-0005: read-only agents use mirrors, never the live checkout (from agent-review)
+- [ADR-0005: Git conventions (workspace standard)](docs/adr/0005-git-conventions.md): read-only
+  agents use mirrors, never the live checkout (from agent-review)
 
 ## [1.0.0] - 2026-07-02
 

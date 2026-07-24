@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+  "title": "adoption-shell-v2 materializer input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "schemaDigest",
+    "contractId",
+    "release",
+    "capabilities",
+    "requestedBundles",
+    "conformance"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "schemaDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "contractId": {
+      "const": "repo-template/adoption-shell-v2"
+    },
+    "release": {
+      "$ref": "./release-payload-set.schema.json"
+    },
+    "capabilities": {
+      "$ref": "./capability-bundle.schema.json"
+    },
+    "requestedBundles": {
+      "type": "array",
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/bundleReference"
+      }
+    },
+    "conformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "noLocalIssueTemplateOverride",
+        "noPreCustodyWorkflows"
+      ],
+      "properties": {
+        "noLocalIssueTemplateOverride": {
+          "const": true
+        },
+        "noPreCustodyWorkflows": {
+          "const": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "bundleReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[a-z0-9]+(?:[._/-][a-z0-9]+)*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 80,
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  }
+}

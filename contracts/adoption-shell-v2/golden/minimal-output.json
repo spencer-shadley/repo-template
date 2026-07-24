@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "path": "README.md",
+      "kind": "file",
+      "mode": "100644",
+      "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+      "role": "generic-base-text",
+      "encoding": "utf-8",
+      "bundleId": null,
+      "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+    }
+  ],
+  "manifest": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-output-manifest.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "e7503619b5a53579b0f95a7a218f9ca9a3024ea7194c7359e7311d0bde0a90d1",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "releaseDigest": "cfb262942b19e1aa8c5092bea566cdf2f2e345ae1a6f226768d1f5612d3c9f46",
+    "releasePayloadDigest": "143f8f9a9ef567beea4048d0bf3b42b8379e9b33b94ddb4f926dd67aa320e618",
+    "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+    "outputPayloadDigest": "143f8f9a9ef567beea4048d0bf3b42b8379e9b33b94ddb4f926dd67aa320e618",
+    "entryCount": 1,
+    "selectedBundles": [],
+    "migrationRefs": [],
+    "entries": [
+      {
+        "path": "README.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null
+      }
+    ],
+    "manifestDigest": "7e4fbb869793d6b19046ebf74c2cb9a919ca52c8d30bef047e59024338f5146f"
+  }
+}

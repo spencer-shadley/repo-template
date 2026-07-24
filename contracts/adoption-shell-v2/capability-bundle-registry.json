@@ -1,0 +1,57 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+  "contractId": "repo-template/adoption-shell-v2",
+  "digestAlgorithm": "sha256-rfc8785-v1",
+  "bundles": [
+    {
+      "id": "repo-template/user-surface-lint",
+      "version": "2.6.0",
+      "dependencies": [],
+      "artifacts": [
+        ".user-surface-lint.json",
+        ".user-surface-lint.schema.json",
+        "scripts/lint-user-surface-leaks.mjs"
+      ],
+      "fixtures": [
+        "tests/fixtures/user-surface-lint/allowlisted/config.json",
+        "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
+        "tests/fixtures/user-surface-lint/bad/config.json",
+        "tests/fixtures/user-surface-lint/bad/src/messages.js",
+        "tests/fixtures/user-surface-lint/empty/config.json",
+        "tests/fixtures/user-surface-lint/good/config.json",
+        "tests/fixtures/user-surface-lint/good/src/messages.js"
+      ],
+      "goldens": [],
+      "modes": [
+        {
+          "id": "config",
+          "entrypoint": "scripts/lint-user-surface-leaks.mjs",
+          "requiredPaths": [
+            ".user-surface-lint.json",
+            ".user-surface-lint.schema.json",
+            "scripts/lint-user-surface-leaks.mjs"
+          ]
+        },
+        {
+          "id": "self-test",
+          "entrypoint": "scripts/lint-user-surface-leaks.mjs",
+          "requiredPaths": [
+            "scripts/lint-user-surface-leaks.mjs",
+            "tests/fixtures/user-surface-lint/allowlisted/config.json",
+            "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
+            "tests/fixtures/user-surface-lint/bad/config.json",
+            "tests/fixtures/user-surface-lint/bad/src/messages.js",
+            "tests/fixtures/user-surface-lint/empty/config.json",
+            "tests/fixtures/user-surface-lint/good/config.json",
+            "tests/fixtures/user-surface-lint/good/src/messages.js"
+          ]
+        }
+      ],
+      "digestAlgorithm": "sha256-rfc8785-v1",
+      "digest": "9b53952d6ff7ad1a66f026297aabce5c9c742d76840fa871980a3f3637974349"
+    }
+  ],
+  "registryDigest": "dabb315c031ae852a50a7bd6a39d469791ee598e704a8b25d44de8bb0ff7650f"
+}
