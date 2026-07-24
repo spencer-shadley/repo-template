@@ -1,0 +1,181 @@
+{
+  "schema": "ManagerRecoveryV1",
+  "repo": "spencer-shadley/repo-template",
+  "managerTaskId": "019f915e-6339-7612-960d-9e36aaefafe4",
+  "durableGoal": {
+    "statement": "Converge repo-template on the ratified small, portable, versioned, pure offline repository standard while preserving useful intent and refusing foreign authority.",
+    "status": "active"
+  },
+  "bindings": {
+    "repoHandoff": {
+      "path": "C:/code/scratchpad/repo-split-overnight/REPO-TEMPLATE-MANAGER-HANDOFF.md",
+      "sha256": "c003ef3cbaac416c97494ba8dba8065c051460911918784343f79b04dfe9ef2c"
+    },
+    "fleetVision": {
+      "path": "C:/code/scratchpad/repo-split-overnight/FLEET-MANAGER-ARCHITECTURE-VISION.md",
+      "sha256": "200f1f7dd46841def9970c97a54f03919e36fe7752f7ef1031fea479617fff73"
+    },
+    "coordinationProtocol": {
+      "path": "C:/code/scratchpad/repo-split-overnight/MANAGER-COORDINATION-PROTOCOL.md",
+      "sha256": "11e8fe8e7736db918d921a251de59ed140aeaf62440d5e65b71c4f56765ec691"
+    },
+    "reportingProtocol": {
+      "path": "C:/code/scratchpad/repo-split-overnight/COMPACTION-AND-MANAGER-REPORTING-PROTOCOL.md",
+      "sha256": "b4e0c87a647d6b91e3612a61b9bfa5d89daa1b6f71974f23c5601084c0151077"
+    }
+  },
+  "authoritativeDefault": {
+    "sourceCommit": "a61a3226bf5d1cee0f977f21ace144ab7c0c80e1",
+    "sourceTree": "f7d927fbec6fc910945d2194e4f13468388cf9fa",
+    "queueBlob": "bc942d4c39842cc7d534475de0c2481d2c5b323a",
+    "checkpointEnvelope": "The Git commit containing this file is the receipt-only successor to sourceCommit; it does not change the measured capability bytes."
+  },
+  "canonicalCheckout": {
+    "path": "C:/code/repo-template",
+    "preCheckpointHead": "cbf37c6553b29311d39d50f93425208a1ba40817",
+    "preCheckpointStatus": "clean",
+    "requiredPostcondition": "clean and fast-forwarded to the checkpoint envelope commit"
+  },
+  "activeTransaction": null,
+  "externalAuthorityEffects": {
+    "repoLocalGitLanding": "source and checkpoint commits only",
+    "credentials": 0,
+    "providerCalls": 0,
+    "providerSpend": 0,
+    "githubIssueOrPullRequestMutation": 0,
+    "foreignRepoMutation": 0,
+    "registration": 0,
+    "recurringSchedules": 0,
+    "productionDeployment": 0,
+    "dataMigration": 0,
+    "sharedWriterOrEffectTransfer": 0,
+    "capabilityCutover": 0,
+    "scheduleRestoreAuthority": 0
+  },
+  "openGates": [
+    {
+      "gate": "Publish a generic TemplateRelease and immutable annotated-tag receipt from exact landed bytes.",
+      "owner": "repo-template",
+      "requiredReceipt": "repo-template/release-receipt/v1 with publicationState=published",
+      "blockingCurrentSource": false
+    },
+    {
+      "gate": "Factory or Queue Canary performs the first effectful consumer proof.",
+      "owner": "repo-factory and queue-canary owners",
+      "requiredReceipt": "consumer-owned materialization/canary receipt binding the future published TemplateRelease",
+      "blockingCurrentSource": false
+    },
+    {
+      "gate": "Canonical checkout relocation issue #84 receives destination ownership acceptance.",
+      "owner": "coordinator-routed destination owner",
+      "requiredReceipt": "OwnershipConcernAcceptanceV1",
+      "blockingCurrentSource": false
+    }
+  ],
+  "topNextItems": [
+    {
+      "rank": 1,
+      "item": "Publish the smallest generic TemplateRelease/annotated-tag receipt over the pure adoption-shell bytes.",
+      "roi": "Unlocks Factory, Registry, and Canary consumption without importing their lifecycle or effect authority."
+    },
+    {
+      "rank": 2,
+      "item": "Close create-only migration and compatibility semantics around the immutable Factory g0001 consumer baseline.",
+      "roi": "Removes the remaining reproducibility ambiguity before privileged repo creation consumes the standard."
+    },
+    {
+      "rank": 3,
+      "item": "Re-ground the portable emergency-lane and existing-repo conformance/migration contract.",
+      "roi": "Converts repeated fleet drift into one generic validation surface while leaving host and recovery execution external."
+    }
+  ],
+  "deliveryMeasurement": {
+    "contractId": "repo-template/delivery-measurement-v1",
+    "adoptionRef": "a61a3226bf5d1cee0f977f21ace144ab7c0c80e1:contracts/adoption-shell-v2/fixtures/delivery-declaration.json",
+    "artifactDigest": "58726f0869fbf790acb37e507336534ebad5d1e0c63158541374220cf67b4a6b",
+    "attributionCoverage": {
+      "declaredStages": [
+        "implementation",
+        "planning",
+        "recovery",
+        "review",
+        "verification"
+      ],
+      "completeForThisLanding": false,
+      "errors": [
+        "unattributed-token-usage"
+      ],
+      "reason": "The current task API exposes no exact per-phase token count; the missing value remains visible rather than inferred."
+    },
+    "baseline": "pending Registry-owned observed baseline",
+    "activeSloException": {
+      "state": "active",
+      "reason": "Registry target, budget, window, and exception values and Observatory aggregation are not yet published; portable source remains non-blocking.",
+      "revisit": "When Registry publishes the repo/plane/fleet map or outcome classes materially change."
+    }
+  },
+  "foreignIssueCustody": [
+    {
+      "issue": "https://github.com/spencer-shadley/repo-template/issues/84",
+      "concern": "Canonical checkout relocation and host/path activation are foreign effects.",
+      "status": "evidence-custodied; implementation, close, duplicate, and transfer remain paused",
+      "acceptanceRef": null
+    }
+  ],
+  "currentL0Slice": {
+    "status": "landed",
+    "scope": "portable direct-L0 standard plus six-SLI append-only event/declaration measurement foundation",
+    "expectedReceipt": "this ManagerRecoveryV1 embeds the latest DirectL0ReceiptV1",
+    "canary": "21 deterministic local tests and artifact purity/runtime tripwires",
+    "missBlocker": null
+  },
+  "latestDirectL0Receipt": {
+    "schema": "DirectL0ReceiptV1",
+    "baseCommit": "cbf37c6553b29311d39d50f93425208a1ba40817",
+    "sourceCommit": "a61a3226bf5d1cee0f977f21ace144ab7c0c80e1",
+    "sourceTree": "f7d927fbec6fc910945d2194e4f13468388cf9fa",
+    "changedPathCount": 31,
+    "changedPathDigest": {
+      "algorithm": "sha256(sorted-utf8-paths-lf-v1)",
+      "digest": "768a8d3d77e3354ad1a2e6389f4849170171088430ca0af231029291a99c43dd"
+    },
+    "artifactManifestBlob": "69dc2a48cf7329ebf3c49d2ff2f81b09f5a549bb",
+    "artifactManifestSha256": "9c23effbe01713283c2d815439ad2c9b44df2c180a1639992f0e0c3262a4e466",
+    "artifactDigest": "58726f0869fbf790acb37e507336534ebad5d1e0c63158541374220cf67b4a6b",
+    "artifactManifestDigest": "19892c3d08684aa793c07e16eed82e4091977bd6804a132af2712293bb809bd5",
+    "schemaDigests": {
+      "deliveryDeclaration": "7d70655d8232962d9a6e95b3edaf256a9d2c0e674ade9877cb787a29b98c5b7e",
+      "deliveryEvent": "d0594c890c3291f1cc811886496b1d17f99df7155645571dd36fd03d0d50fa72"
+    },
+    "checks": [
+      "corepack.cmd pnpm install --frozen-lockfile --ignore-scripts",
+      "corepack.cmd pnpm typecheck",
+      "corepack.cmd pnpm build:check",
+      "corepack.cmd pnpm test: 21/21 pass",
+      "corepack.cmd pnpm verify:artifact",
+      "corepack.cmd pnpm verify",
+      "git diff --check",
+      "issue-template blob unchanged at 1383ad89b6bdccc6369c490d27a8326fa05f49cc",
+      "TEMPLATE_VERSION unchanged"
+    ],
+    "noEffectAssertion": "All external/effect counters are zero except the ordinary repo-local Git landing.",
+    "rollbackRef": "cbf37c6553b29311d39d50f93425208a1ba40817",
+    "modelAllocation": {
+      "provider": "OpenAI",
+      "model": "gpt-5.6-sol",
+      "tokens": null,
+      "tokenCoverage": "unavailable from the current task API",
+      "outcome": "landed after deterministic owner verification",
+      "externalCritic": "not invoked; direct-L0 proportionate owner judgment"
+    }
+  },
+  "humanBlockers": [],
+  "lastLanding": {
+    "commit": "a61a3226bf5d1cee0f977f21ace144ab7c0c80e1",
+    "tree": "f7d927fbec6fc910945d2194e4f13468388cf9fa",
+    "remoteReadback": "origin/master=a61a3226bf5d1cee0f977f21ace144ab7c0c80e1",
+    "rollback": "ordinary revert to cbf37c6553b29311d39d50f93425208a1ba40817"
+  },
+  "oneWriterCustody": "Repo Template manager is the sole writer; no worker, coordinator, AO task, schedule, or foreign manager has Template write or schedule-restore authority.",
+  "timestamp": "2026-07-24T17:57:35Z"
+}
