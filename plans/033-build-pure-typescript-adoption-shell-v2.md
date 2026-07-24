@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/033-build-pure-typescript-adoption-shell-v2
-- **Status:** ready for codex
+- **Status:** stalled - env: Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\Users\Spencer\AppData\Local\agent-orchestrator\worktrees\repo-template-033\packages\adoption-shell\src\contract.js' imported fr
 - **Priority:** P1
 - **Depends:** none
 - **Effort:** high

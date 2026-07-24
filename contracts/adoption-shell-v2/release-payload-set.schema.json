@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+  "title": "adoption-shell-v2 release payload set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "schemaDigest",
+    "contractId",
+    "digestAlgorithm",
+    "payloadDigestAlgorithm",
+    "releaseDigest",
+    "payloadDigest",
+    "entryCount",
+    "migrationRefs",
+    "entries"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "schemaDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "contractId": {
+      "const": "repo-template/adoption-shell-v2"
+    },
+    "digestAlgorithm": {
+      "const": "sha256-rfc8785-v1"
+    },
+    "payloadDigestAlgorithm": {
+      "const": "sha256-framed-path-kind-mode-content-v1"
+    },
+    "releaseDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "payloadDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "entryCount": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4096
+    },
+    "migrationRefs": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240,
+      "pattern": "^[A-Za-z0-9._@()+,=-]+(?:/[A-Za-z0-9._@()+,=-]+)*$"
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "kind",
+        "mode",
+        "contentSha256",
+        "role",
+        "encoding",
+        "bundleId",
+        "contentBase64"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "kind": {
+          "const": "file"
+        },
+        "mode": {
+          "enum": [
+            "100644",
+            "100755"
+          ]
+        },
+        "contentSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "role": {
+          "enum": [
+            "generic-base-text",
+            "generic-base-binary",
+            "capability-executable",
+            "capability-config",
+            "capability-fixture",
+            "capability-golden"
+          ]
+        },
+        "encoding": {
+          "enum": [
+            "utf-8",
+            "binary"
+          ]
+        },
+        "bundleId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 80
+        },
+        "contentBase64": {
+          "type": "string",
+          "maxLength": 22369624,
+          "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+        }
+      }
+    }
+  }
+}

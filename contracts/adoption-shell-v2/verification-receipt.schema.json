@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/adoption-shell-v2/verification-receipt.schema.json",
+  "title": "adoption-shell-v2 deterministic verification receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "schemaDigest",
+    "contractId",
+    "receiptKind",
+    "digestAlgorithm",
+    "receiptDigest",
+    "artifactDigest",
+    "inputDigest",
+    "outputManifestDigest",
+    "outputPayloadDigest",
+    "independentRunCount",
+    "result"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/adoption-shell-v2/verification-receipt.schema.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "schemaDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "contractId": {
+      "const": "repo-template/adoption-shell-v2"
+    },
+    "receiptKind": {
+      "const": "repo-template/adoption-shell-verification/v2"
+    },
+    "digestAlgorithm": {
+      "const": "sha256-rfc8785-v1"
+    },
+    "receiptDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "artifactDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "inputDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "outputManifestDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "outputPayloadDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "independentRunCount": {
+      "const": 2
+    },
+    "result": {
+      "const": "verified"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

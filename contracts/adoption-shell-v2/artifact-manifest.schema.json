@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
+  "title": "adoption-shell-v2 compiled artifact manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "schemaDigest",
+    "contractId",
+    "contractVersion",
+    "digestAlgorithm",
+    "manifestDigest",
+    "artifactDigestAlgorithm",
+    "artifactDigest",
+    "toolchain",
+    "entrypoint",
+    "validatorExport",
+    "runtimeDependencyCount",
+    "releaseReceiptKind",
+    "sources",
+    "schemas",
+    "emitted",
+    "fixtures",
+    "goldens"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "schemaDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "contractId": {
+      "const": "repo-template/adoption-shell-v2"
+    },
+    "contractVersion": {
+      "const": "2.0.0"
+    },
+    "digestAlgorithm": {
+      "const": "sha256-rfc8785-v1"
+    },
+    "manifestDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "artifactDigestAlgorithm": {
+      "const": "sha256-rfc8785-v1"
+    },
+    "artifactDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "toolchain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "typescript",
+        "nodeCompatibility",
+        "packageManager"
+      ],
+      "properties": {
+        "typescript": {
+          "const": "7.0.2"
+        },
+        "nodeCompatibility": {
+          "const": ">=24.16.0 <25"
+        },
+        "packageManager": {
+          "const": "pnpm@11.17.0"
+        }
+      }
+    },
+    "entrypoint": {
+      "const": "index.js"
+    },
+    "validatorExport": {
+      "const": "validateMaterializerInputV2"
+    },
+    "runtimeDependencyCount": {
+      "const": 0
+    },
+    "releaseReceiptKind": {
+      "const": "repo-template/release-receipt/v1"
+    },
+    "sources": {
+      "$ref": "#/$defs/files"
+    },
+    "schemas": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/schemaFile"
+      }
+    },
+    "emitted": {
+      "$ref": "#/$defs/files"
+    },
+    "fixtures": {
+      "$ref": "#/$defs/files"
+    },
+    "goldens": {
+      "$ref": "#/$defs/files"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "kind",
+        "mode",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "kind": {
+          "const": "file"
+        },
+        "mode": {
+          "enum": [
+            "100644",
+            "100755"
+          ]
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 33554432
+        }
+      }
+    },
+    "schemaFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "path",
+        "kind",
+        "mode",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uri"
+        },
+        "version": {
+          "const": "2.0.0"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 240
+        },
+        "kind": {
+          "const": "file"
+        },
+        "mode": {
+          "const": "100644"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/file"
+      }
+    }
+  }
+}
