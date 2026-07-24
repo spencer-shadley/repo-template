@@ -7,9 +7,9 @@
 - **Depends:** none
 - **Effort:** high
 - **Model:** critical
-- **Risk tier:** human
+- **Risk tier:** L0 local-source (complex bounded slice)
 - **Implementation model:** GPT-5.6-sol only; never invoke a pre-5.6 GPT model
-- **Final critics:** Gemini 3.6 Flash and Grok 4.5 on the identical immutable candidate
+- **External critics:** optional only if owner judgment finds them proportionate; not an L0 gate
 - **Architecture decision:** `docs/adr/0006-adoption-shell-v2-technology-decision.md`
 - **Issues:** #85, #89, #92, #93
 
@@ -26,16 +26,20 @@ schedule, activate, or verify any concrete repository.
 
 ## Risk and execution lane
 
-**Human tier.** This adds executable source, schemas, a lockfile, and a breaking v2 contract.
-Admit with `enqueue-plan.mjs ... --no-queue`, run through the one-off governed lane from an isolated
-worktree, and merge only the exact reviewed candidate. The repo-template discovery schedule remains
-disabled and this plan grants no schedule re-enable authority.
+**L0 local-source.** This adds executable source, schemas, a lockfile, and a breaking v2 contract,
+but publishes no release, activates no consumer, and has no credential, provider/network, GitHub
+mutation beyond its own Git landing, registration, schedule, deployment, migration, shared writer,
+or capability-cutover effect. Keep this plan as the complex slice's bounded specification and use
+one manager-owned isolated worktree, the complete deterministic gate, an ordinary non-force landing,
+and one lightweight exact-byte/check/no-effect/rollback receipt. A pull request, queue round trip,
+preregistration, or external critic is not an L0 prerequisite. The repo-template discovery schedule
+remains disabled and this plan grants no schedule re-enable authority.
 
 The implementation ladder is explicitly all `gpt-5.6-sol` rungs. The critical marker makes any
 credit/failure fallback park fail-closed instead of invoking a non-GPT-5.6 implementer. Any default
-ladder containing GPT 5.5 or older is forbidden for this plan. The final candidate requires Gemini
-3.6 Flash and Grok 4.5 review under the ratified availability rule: both approvals pass; one
-genuinely unavailable route permits the other approval; two unavailable routes do not pass.
+ladder containing GPT 5.5 or older is forbidden for this plan. External review remains available
+through Gemini 3.6 Flash and Grok 4.5 if owner judgment finds it proportionate, but the superseding
+direct-L0 authority makes it optional for these reversible repo-contained bytes.
 
 ## Bound inputs and current state
 
@@ -46,8 +50,8 @@ The accepted source architecture baseline is:
 
 Begin the governed retry worktree from the exact post-admission execution base:
 
-- commit `c240a91ea59e0cede11fff405872b886e127d6ab`;
-- tree `4450c3130506813ce0d4b0caee60cd34e0971009`;
+- commit `8b76bb5680cc4c9dc9b974345e859ca82f80955f`;
+- tree `2838ae81f3ea49ef80d9dc30c6757515545fdb17`;
 - empty queue blob `bc942d4c39842cc7d534475de0c2481d2c5b323a`; and
 - zero open pull requests at execution-base readback.
 
@@ -64,6 +68,20 @@ fresh retry, inspect that exact WIP diff as a draft recovery input, reapply only
 bytes, complete the still-missing plan surfaces, and correct anything the deterministic gates find.
 Do not treat the WIP commit, its changed plan status, or its partial artifact set as acceptance.
 
+The second governed `gpt-5.6-sol@xhigh` turn is preserved as non-authoritative WIP commit
+`f7beec183f230209dc2916b1a73cbaf1ee833c42`, tree
+`9828d72e2c138900edb103a14a7453111a3de659`. Its 28-file candidate reached the project gate, where
+`typecheck` passed and `build:check` failed before artifact construction because the directly
+executed TypeScript tool imported `packages/adoption-shell/src/index.ts`, whose ESM graph uses
+compiled `.js` specifiers; Node therefore could not resolve source-only `contract.js`. The
+orchestrator's generic `ERR_MODULE_NOT_FOUND` rule misclassified this candidate defect as a host
+environment fault and stalled after one identical retry. On the fresh retry, recover the useful
+in-scope bytes from this exact WIP, correct the TypeScript source/tool execution seam under the
+declared closed runtime and dependency closure, then complete every still-missing test, fixture,
+artifact, documentation, and manifest surface. Do not weaken the ESM build contract, replace the
+gate with a source-only shortcut, or treat the preserved WIP or its partial `typecheck` result as
+acceptance.
+
 Authority inputs:
 
 - AI-First Engineering Stack v1.1.0 at
@@ -72,9 +90,13 @@ Authority inputs:
 - accepted ADR-0006, which contains the complete §34 Technology Decision Proposal;
 - Template manager handoff SHA-256
   `4da29a7c0b22c7c70f769ce235a2b1053f7a00325c8a3de733336b836d4ecf7a`;
-- current fleet architecture/protocol SHA-256
-  `9fb84569b047a1c1d302456dc911c018cccca73378a645fb66be37a7fb60d349` /
-  `97e32ed1ba2c267d151ebcc37aae9e87227bf874a7e933029d8dd357ace8b8a4`;
+- current fleet architecture/protocol/reporting SHA-256
+  `2d89a92882224078285d948e28bf09869b1790dc43a5050c3e18e6d49a11905e` /
+  `6fa0168fd3cf7c793927794ac22c0cc4663fda4106779b1fadadbe81f7690d78` /
+  `2e48b488e757515ce0b34d61b7c7ea0d80fa3fd24a6b6915968f00a486e48697`;
+- the newly ratified `MeaningfulDeliveryV1` portable declaration requirement is a separately
+  governed Template-owned follow-on before initial release publication; it does not expand this
+  active plan's adoption-shell-v2 candidate;
 - `PreGenesisFactoryConsumerBaselineV1` generation
   `pre-genesis-factory-consumer-baseline:g0001`, raw envelope
   `7dbf15235e5a6b50046d15d272e4d3365555cf6d595663990a1942b6ac88f818`,
@@ -382,8 +404,8 @@ Do not bump `TEMPLATE_VERSION`, add a release heading, create/tag a version, or 
 - [ ] Existing Template self verification remains green through the stable root gate.
 - [ ] `TEMPLATE_VERSION`, tags, releases, queues, schedules, registration, credentials, providers,
       deployments, serving, and all external repos remain unchanged.
-- [ ] The immutable candidate is reviewed under the exact model policy, with fresh reviews after
-      every substantive byte change.
+- [ ] One immutable L0 receipt binds the landed commit/tree and changed-path digest, every check
+      result, explicit zero-effect counters, and the ordinary revert rollback ref.
 
 ## Verify
 
@@ -405,15 +427,10 @@ test "$(git rev-parse HEAD:TEMPLATE_VERSION)" = "$(git hash-object TEMPLATE_VERS
 No deploy, browser, Docker, service smoke, or E2E: this is a pure offline library/contract with no
 deployable or user interface. The tests and exact artifact consumer smoke are the behavioral gate.
 
-After the deterministic gate passes, freeze the candidate commit/tree and run final read-only
-critics against the identical diff plus plan/ADR:
-
-1. Gemini 3.6 Flash;
-2. Grok 4.5.
-
-Record model, availability/verdict, candidate commit/tree, prompt/input digest, response digest, and
-substantive findings. Any correction creates new candidate bytes and invalidates both prior
-reviews. GitHub Actions/App status is never substituted for these receipts.
+After the deterministic gate passes, freeze the candidate commit/tree and emit the lightweight L0
+receipt described above. External critics are optional under owner judgment; if invoked, use only
+Gemini 3.6 Flash and Grok 4.5 against identical immutable bytes and never override an actual
+negative. GitHub Actions/App status is never substituted for the local exact-byte gate receipt.
 
 ## Rollback and idempotency
 
@@ -430,5 +447,6 @@ reviews. GitHub Actions/App status is never substituted for these receipts.
 - **human:** Spencer Shadley
 - **approvedAt:** 2026-07-23/24 PT repo-split charter and boundary delegations
 - **scope:** bring repo-template to the ratified portable standard; new source TypeScript-first;
-  preserve exact owner boundaries; final critics Gemini 3.6 Flash and Grok 4.5
-- **decision:** approved under the sole Repo Template manager's human-tier governed lane
+  preserve exact owner boundaries; land reversible repo-contained source under direct L0
+- **decision:** approved under the sole Repo Template manager's bounded direct-L0 lane, with
+  proportionate deterministic proof and zero external effects
