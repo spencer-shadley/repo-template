@@ -44,16 +44,25 @@ The accepted source architecture baseline is:
 - commit `2499fd5511e921deedc67aa59550fe946469f036`; and
 - tree `c5545e1c14fcb7b695ae82df68edc2bab306b102`.
 
-Begin the governed implementation worktree from the exact post-admission execution base:
+Begin the governed retry worktree from the exact post-admission execution base:
 
-- commit `f3a23c949e3e4612d6fed71877a6b05fdff5c674`;
-- tree `af7c89e9691d2381e3505aa1ec5be5c1a7a7ffe9`;
+- commit `c240a91ea59e0cede11fff405872b886e127d6ab`;
+- tree `4450c3130506813ce0d4b0caee60cd34e0971009`;
 - empty queue blob `bc942d4c39842cc7d534475de0c2481d2c5b323a`; and
 - zero open pull requests at execution-base readback.
 
 The commits between the architecture baseline and execution base are manager metadata/admission
-and the append-only incident-prefix repair only; they add no source, package, release, schedule,
-provider, deployment, or serving behavior.
+and append-only incident preservation/weekly rotation only; they add no source, package, release,
+schedule, provider, deployment, or serving behavior.
+
+The first governed `gpt-5.6-sol@xhigh` turn was preserved as non-authoritative WIP commit
+`0aeb8e36b6e0e5fd71e3869c1f7e395e37d61512`, tree
+`5f45b0ac9b09d5bafa4150460c8468dc78df2c66`. Its source was never reviewed and its gate did not
+reach project code: Git Bash invoked the extensionless Windows Corepack shim, whose internal MSYS
+path conversion produced `C:\c\Program Files\...` and failed with `ERR_MODULE_NOT_FOUND`. On the
+fresh retry, inspect that exact WIP diff as a draft recovery input, reapply only in-scope useful
+bytes, complete the still-missing plan surfaces, and correct anything the deterministic gates find.
+Do not treat the WIP commit, its changed plan status, or its partial artifact set as acceptance.
 
 Authority inputs:
 
@@ -380,12 +389,14 @@ Do not bump `TEMPLATE_VERSION`, add a release heading, create/tag a version, or 
 
 ```bash
 set -euo pipefail
-corepack pnpm install --frozen-lockfile --ignore-scripts
-corepack pnpm typecheck
-corepack pnpm build:check
-corepack pnpm test
-corepack pnpm verify:artifact
-corepack pnpm verify
+corepack_bin=corepack
+if command -v corepack.cmd >/dev/null 2>&1; then corepack_bin=corepack.cmd; fi
+"$corepack_bin" pnpm install --frozen-lockfile --ignore-scripts
+"$corepack_bin" pnpm typecheck
+"$corepack_bin" pnpm build:check
+"$corepack_bin" pnpm test
+"$corepack_bin" pnpm verify:artifact
+"$corepack_bin" pnpm verify
 git diff --check
 test "$(git hash-object .github/ISSUE_TEMPLATE/task.md)" = "1383ad89b6bdccc6369c490d27a8326fa05f49cc"
 test "$(git rev-parse HEAD:TEMPLATE_VERSION)" = "$(git hash-object TEMPLATE_VERSION)"
