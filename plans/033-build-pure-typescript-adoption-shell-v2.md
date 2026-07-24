@@ -37,12 +37,21 @@ route permits the other approval; two unavailable routes do not pass.
 
 ## Bound inputs and current state
 
-Implement against exact base:
+The accepted source architecture baseline is:
 
-- commit `2499fd5511e921deedc67aa59550fe946469f036`;
-- tree `c5545e1c14fcb7b695ae82df68edc2bab306b102`;
+- commit `2499fd5511e921deedc67aa59550fe946469f036`; and
+- tree `c5545e1c14fcb7b695ae82df68edc2bab306b102`.
+
+Begin the governed implementation worktree from the exact post-admission execution base:
+
+- commit `f3a23c949e3e4612d6fed71877a6b05fdff5c674`;
+- tree `af7c89e9691d2381e3505aa1ec5be5c1a7a7ffe9`;
 - empty queue blob `bc942d4c39842cc7d534475de0c2481d2c5b323a`; and
-- zero open pull requests at planning time.
+- zero open pull requests at execution-base readback.
+
+The commits between the architecture baseline and execution base are manager metadata/admission
+and the append-only incident-prefix repair only; they add no source, package, release, schedule,
+provider, deployment, or serving behavior.
 
 Authority inputs:
 
