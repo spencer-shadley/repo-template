@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/033-build-pure-typescript-adoption-shell-v2
-- **Status:** hold - critic death (retry: critic-available)
+- **Status:** ready for codex
 - **Priority:** P1
 - **Depends:** none
 - **Effort:** high
