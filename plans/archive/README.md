@@ -4,15 +4,24 @@ Archived means terminally dispositioned with evidence preserved; it does not mea
 forgotten. The original plan and available loop sidecars remain byte-for-byte artifacts.
 
 Machine-readable lifecycle decisions from the 2026-07-21 repo-wide coherence audit live in
-`disposition-2026-07-21-repo-template.json`. The active delivery spine after that audit is:
+`disposition-2026-07-21-repo-template.json`.
+
+The 2026-07-24 manager re-baseline in
+`disposition-2026-07-24-repo-template.json` supersedes that audit's delivery spine after the fleet
+split ratified separate Template, Registry, Factory, Host, Control Plane, and `.github` ownership.
+Plans 020, 030, and 031 and their stale approvals are preserved here as immutable lineage. The
+current minimal train is:
 
 ```text
-repo-template/030 -> code/059 -> repo-template/020 -> repo-template/031
+repo-template/033 adoption-shell-v2
+  -> external public .github native-selection canary
+  -> bounded repo-template no-local-override + TemplateRelease plan
+  -> Registry/Factory consumption under their own authority
 ```
 
-GitHub issue #85 remains the program record. Issue #84 remains the separately triggered physical
-checkout-relocation record under `spencer-shadley/code#475` and is not silently absorbed by the
-materializer release.
+GitHub issue #85 remains the Template program record. Issue #84 remains the separately triggered
+physical checkout-relocation record under `spencer-shadley/code#475` and is not silently absorbed
+by materializer or release work.
 
 The audit also repaired Plan 029's missed postcondition: `.ops/concurrency-capture.jsonl` remains an
 ignored local runtime journal but is no longer Git-tracked. The exact landed Plan 029 result claimed

@@ -7,9 +7,19 @@ obligations, ADR-0001 §8) — one entry per user-visible or structural change.
 
 ### Added
 <!-- new capabilities or files -->
+- Accepted ADR-0006, the complete AI-First Stack v1.1.0 technology decision for a
+  runtime-dependency-free TypeScript `adoption-shell-v2`, closed schemas and capability bundles,
+  exact compiled artifacts, pure offline materialization, and the later generic Template release
+  seam. The ADR binds immutable Factory compatibility input while preserving zero target,
+  Registry, GitHub, schedule, activation, provider, deployment, and serving authority. MINOR.
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Archived stale Plans 020, 030, and 031 plus their invalidated critic receipts with a
+  machine-readable 2026-07-24 disposition ledger. Their useful intent is conserved in the
+  owner-pure `adoption-shell-v2` → public `.github` canary → generic Template release train;
+  cross-owner lifecycle and issue-template content work is no longer presented as Template work.
+  PATCH.
 - Completed the v2.6.0 transient-state contract by removing the ignored
   `.ops/concurrency-capture.jsonl` runtime journal from Git tracking. Plan 029's result recorded the
   removal, but its landed commit omitted the index deletion and left the self-verify gate red;

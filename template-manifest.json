@@ -37,6 +37,7 @@
   "docs/adr/0003-file-format-selection.md": "copy",
   "docs/adr/0004-when-to-use-a-real-database.md": "copy",
   "docs/adr/0005-git-conventions.md": "copy",
+  "docs/adr/0006-adoption-shell-v2-technology-decision.md": "self",
   "plans/001-workspace-context-section-every-repo-lives-under-the-code-wo.md": "self",
   "plans/002-queue-adoption-enrollment-spelled-out-and-near-mandated-next.md": "self",
   "plans/003-v2-0-0-pre-migration-hardening-fix-the-4-blockers-audit-cons.md": "self",

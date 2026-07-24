@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "kind": "repo-template-plan-disposition/v2",
+  "auditedAt": "2026-07-24T08:49:28.4193376-07:00",
+  "authorization": "Repo Template steady-state manager under the coordinator-accepted custody handback; ordinary bounded Template-local plan and metadata transactions are manager-owned.",
+  "base": {
+    "commit": "7c014616b4b3d090fd3c962ac5071b9999664503",
+    "tree": "72ae006fefe570f7d194b0410916980dc6628f53",
+    "queueState": "empty",
+    "externalEffects": false
+  },
+  "architectureBindings": {
+    "managerHandoffSha256": "4da29a7c0b22c7c70f769ce235a2b1053f7a00325c8a3de733336b836d4ecf7a",
+    "fleetVisionSha256": "9fb84569b047a1c1d302456dc911c018cccca73378a645fb66be37a7fb60d349",
+    "coordinationProtocolSha256": "97e32ed1ba2c267d151ebcc37aae9e87227bf874a7e933029d8dd357ace8b8a4",
+    "issueTemplateMigrationSha256": "be7194d9aff536134ba56516b9558bf33b058535a72de0d0b323fb4c05966b62",
+    "aiFirstGuide": {
+      "version": "1.1.0",
+      "producerCommit": "7264863f88e452c7bedf439b91bf47dbbebc3e49",
+      "producerTree": "c58850e1fc38005e923aaff9bb42570ad2bbcecd",
+      "fileSha256": "7c06483e94a3321d7218f83d57c4f0e07b47135180f9e0156eae7c56c450a752"
+    },
+    "technologyDecision": "docs/adr/0006-adoption-shell-v2-technology-decision.md",
+    "preGenesisFactoryConsumerBaseline": {
+      "generation": "pre-genesis-factory-consumer-baseline:g0001",
+      "rawEnvelopeSha256": "7dbf15235e5a6b50046d15d272e4d3365555cf6d595663990a1942b6ac88f818",
+      "artifactInventorySha256": "cbf068990a21e1a5162752ed0df41017f22352603f9c96b36af496708b2f7440",
+      "localizationSubsetSha256": "90f2c2d55654cf350cf9231c6b88be8dc9c41b6cd40a5e39b647ec88dd9e8718",
+      "classification": "external-zero-authority-consumer-compatibility-input"
+    }
+  },
+  "deliveryTrain": [
+    {
+      "step": 1,
+      "owner": "repo-template",
+      "capability": "adoption-shell-v2",
+      "plan": "repo-template/033",
+      "status": "admit-separately-after-this-metadata-landing"
+    },
+    {
+      "step": 2,
+      "owner": "spencer-shadley/.github",
+      "capability": "public-native-issue-template-selection-canary",
+      "plan": null,
+      "status": "external-pre-genesis"
+    },
+    {
+      "step": 3,
+      "owner": "repo-template",
+      "capability": "no-local-issue-template-override-conformance-and-template-release",
+      "plan": "future-bounded-release-plan",
+      "status": "blocked-on-steps-1-and-2"
+    },
+    {
+      "step": 4,
+      "owner": "repo-factory-and-fleet-registry",
+      "capability": "consume-published-template-release",
+      "plan": null,
+      "status": "external-consumer-owned"
+    }
+  ],
+  "plans": [
+    {
+      "plan": "020",
+      "priorStatus": "draft - blocked on Plan 030 implementation and Code Plan 059 exact landed receipt",
+      "disposition": "superseded-foreign-content-owner",
+      "canonicalOwner": "spencer-shadley/.github",
+      "rationale": "GitHub's public native account defaults are now the sole shared issue-template content authority. Any local .github/ISSUE_TEMPLATE file suppresses that source. Template may later own only no-local-override conformance and optional pure validation after the external native-selection canary; it must not publish or mutate issue-template content or labels.",
+      "remoteBranch": "feat/020-standardized-feedback-issue-form-in-repo-template-syncs-flee@b1c31048572f269ab8aae079c24d89838751f839",
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        {
+          "path": "plans/archive/020-standardized-feedback-issue-form-in-repo-template-syncs-flee.md",
+          "bytes": 7104,
+          "sha256": "c35d2a8016b605ae35c119fb27bfdf3acaead38d8a35c214d0b80635030b0f6b"
+        },
+        {
+          "path": "plans/archive/020.critic.md",
+          "bytes": 824,
+          "sha256": "33d403fc18b44e07b44babcd27c7c254d6a226f82a56aba395c015b881e6a6de"
+        }
+      ]
+    },
+    {
+      "plan": "030",
+      "priorStatus": "draft - blocked on AO Plan 423 exact landed receipt",
+      "disposition": "superseded-breaking-owner-pure-replacement",
+      "canonicalOwner": "repo-template/033",
+      "rationale": "The v1 lineage mixes Template semantics with Registry identity, target paths, model and queue policy, Git and child-process execution, network resolution, destination writes, schedules, enrollment, and activation. Authenticated v1 artifact readback independently confirmed those violations. Preserve the useful deterministic payload, schema, closure, fixture, and release requirements in a breaking pure TypeScript adoption-shell-v2 plan bound to AI-First guide v1.1.0 and ADR-0006.",
+      "remoteBranch": null,
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        {
+          "path": "plans/archive/030-build-the-unreleased-new-repository-materializer-foundation.md",
+          "bytes": 35316,
+          "sha256": "68dfd1e2952ee40e436107acf731f860e13118134b2d0f31c70ac998ca6ef2fb"
+        },
+        {
+          "path": "plans/archive/030.critic.md",
+          "bytes": 822,
+          "sha256": "98a997a5915f7d588c8c9ba2e1d33cc3521198344c0d30f812dd58ae20017935"
+        }
+      ]
+    },
+    {
+      "plan": "031",
+      "priorStatus": "draft - blocked on exact landed external receipts",
+      "disposition": "superseded-split-by-owner",
+      "canonicalOwner": "repo-template release plan plus repo-factory/fleet-registry/queue-canary external owners",
+      "rationale": "Template owns a generic published release receipt, not GitHub repository creation, target identity, Registry lifecycle, enrollment, schedule reconciliation, capacity, real queue execution, activation, external evidence stores, or issue closure in other repos. A later bounded Template plan will publish only the generic annotated-tag receipt after adoption-shell-v2 and the public issue-template canary; every lifecycle/canary effect remains with its ratified owner.",
+      "remoteBranch": null,
+      "uniqueRemoteImplementation": false,
+      "artifacts": [
+        {
+          "path": "plans/archive/031-release-the-materializer-through-a-real-scheduled-new-repo-c.md",
+          "bytes": 22297,
+          "sha256": "e2e929561c1172d50264e7be38edc9df610e3bb9acbdd0844c2ffc1c9df4d26e"
+        },
+        {
+          "path": "plans/archive/031.critic.md",
+          "bytes": 824,
+          "sha256": "6f05279aaede5dba34a1d8f1736093786286371176e33dd7d83a9ca940d98561"
+        }
+      ]
+    }
+  ],
+  "issueDispositions": [
+    {
+      "issue": 83,
+      "disposition": "terminal-operational-lineage",
+      "nextAction": "close against the completed reconciliation/breaker settlement; recurring terminalization machinery remains external"
+    },
+    {
+      "issue": 84,
+      "disposition": "retain-external-trigger",
+      "nextAction": "physical relocation remains owned by spencer-shadley/code#475 and is not a Template source prerequisite"
+    },
+    {
+      "issue": 85,
+      "disposition": "retain-program-record",
+      "nextAction": "replace the stale v1.0 spine with adoption-shell-v2 and the later generic Template release"
+    },
+    {
+      "issue": 88,
+      "disposition": "close-superseded",
+      "nextAction": "Plan 020 is archived; public .github owns content and labels"
+    },
+    {
+      "issue": 89,
+      "disposition": "close-after-replacement-admission",
+      "nextAction": "bind Plan 033 to ADR-0006 and immutable g0001 input"
+    },
+    {
+      "issue": 90,
+      "disposition": "retain-p3-split",
+      "nextAction": "fold canonical SemVer and release receipt into the later release plan; require new evidence before inventing weekly changelog rotation"
+    },
+    {
+      "issue": 92,
+      "disposition": "include-in-plan-033",
+      "nextAction": "capability bundles and exact materialized-consumer smoke must prove executable dependency/fixture closure"
+    },
+    {
+      "issue": 93,
+      "disposition": "include-portable-doc-regressions-in-plan-033",
+      "nextAction": "remove bare mutable ADR authority and checkout-depth links; do not touch local issue-template files before the public canary"
+    }
+  ],
+  "authority": {
+    "repoWriter": "repo-template-manager",
+    "queueChanged": false,
+    "scheduleChanged": false,
+    "registrationChanged": false,
+    "credentialsChanged": false,
+    "providerEffects": false,
+    "deploymentEffects": false,
+    "servingEffects": false,
+    "externalRepositoryWrites": false
+  }
+}
