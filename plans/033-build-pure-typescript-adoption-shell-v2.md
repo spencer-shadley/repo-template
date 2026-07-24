@@ -91,7 +91,7 @@ Authority inputs:
 - Template manager handoff SHA-256
   `4da29a7c0b22c7c70f769ce235a2b1053f7a00325c8a3de733336b836d4ecf7a`;
 - current fleet architecture/protocol/reporting SHA-256
-  `2d89a92882224078285d948e28bf09869b1790dc43a5050c3e18e6d49a11905e` /
+  `b02d64fbd7d28b6a814d937bbfa58a700f5ee680bfc01fc1bb12e9e073734022` /
   `6fa0168fd3cf7c793927794ac22c0cc4663fda4106779b1fadadbe81f7690d78` /
   `2e48b488e757515ce0b34d61b7c7ea0d80fa3fd24a6b6915968f00a486e48697`;
 - the newly ratified `MeaningfulDeliveryV1` portable declaration requirement is a separately
