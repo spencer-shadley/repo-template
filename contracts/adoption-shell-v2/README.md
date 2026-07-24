@@ -35,3 +35,20 @@ GitHub, Registry publication, lifecycle, queue, schedule, activation, verificati
 credentials, providers, clocks, filesystem destinations, and effect instructions are foreign
 authority and therefore rejected as unknown fields. Template's release payload digest is
 deliberately distinct from a future Factory-owned per-intent output-tree identity.
+
+## Delivery measurement v1
+
+The same dependency-free artifact exports pure validators for two additional closed portable
+schemas:
+
+- `delivery-event` records append-only stable work/outcome identity, per-stage model/token usage,
+  landed or non-delivery evidence, declared meaningful class, verified SLO deltas, human-message
+  primary attribution, and explicit coverage errors.
+- `delivery-declaration` binds domain-owned meaningful classes, the complete token-attribution
+  boundary, anti-gaming exclusions, all six required repo/plane/fleet SLI identities, target/budget/
+  window/exception/revisit references, and the central rollup reference.
+
+Commits, plans, pull requests, documentation, receipts, review attempts, elapsed turns, and token
+consumption alone are activity, never meaningful delivery. Coverage errors remain visible event
+data and do not block repo-local source. Registry owns concrete maps and target references;
+Observatory owns aggregation. This artifact computes neither.

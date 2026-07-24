@@ -35,6 +35,8 @@ const sourcePrefix = "packages/adoption-shell/src";
 const SCHEMA_FILES = [
   "artifact-manifest.schema.json",
   "capability-bundle.schema.json",
+  "delivery-declaration.schema.json",
+  "delivery-event.schema.json",
   "materializer-input.schema.json",
   "materializer-output-manifest.schema.json",
   "release-payload-set.schema.json",

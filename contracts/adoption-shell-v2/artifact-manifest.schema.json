@@ -90,8 +90,8 @@
     },
     "schemas": {
       "type": "array",
-      "minItems": 6,
-      "maxItems": 6,
+      "minItems": 8,
+      "maxItems": 8,
       "items": {
         "$ref": "#/$defs/schemaFile"
       }

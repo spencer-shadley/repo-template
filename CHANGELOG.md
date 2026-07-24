@@ -16,6 +16,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 - Added the portable direct-L0 fast path: simple reversible repo-contained source uses
   proportionate affected checks plus one exact-byte/no-effect/rollback receipt, while external
   effects and shared authority remain governed. MINOR.
+- Added portable append-only delivery event and repository declaration schemas plus pure validators
+  for the six delivery/token/SLO/human-message SLIs. Anti-gaming exclusions reject activity proxies,
+  coverage errors remain visible and non-blocking, and concrete targets/aggregation remain
+  Registry/Observatory references. MINOR.
 - Accepted [ADR-0006: Pure TypeScript adoption shell and release boundary](docs/adr/0006-adoption-shell-v2-technology-decision.md),
   the complete AI-First Stack v1.1.0 technology decision for a
   runtime-dependency-free TypeScript `adoption-shell-v2`, closed schemas and capability bundles,

@@ -1,0 +1,62 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-event.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "d0594c890c3291f1cc811886496b1d17f99df7155645571dd36fd03d0d50fa72",
+  "contractId": "repo-template/delivery-measurement-v1",
+  "eventKind": "repo-template/delivery-event/v1",
+  "eventId": "event:fixture:delivery-001",
+  "workId": "work:fixture:001",
+  "repoRef": "repo:spencer-shadley/repo-template",
+  "planeRef": "plane:engineering",
+  "fleetRef": "fleet:spencer-shadley",
+  "recordedAt": "2026-07-24T18:00:00Z",
+  "tokenUsage": [
+    {
+      "attributionId": "usage:fixture:implementation",
+      "stage": "implementation",
+      "provider": "provider:fixture",
+      "model": "model:fixture",
+      "inputTokens": 10,
+      "outputTokens": 5,
+      "totalTokens": 15
+    }
+  ],
+  "outcome": {
+    "outcomeId": "outcome:fixture:001",
+    "status": "landed",
+    "receiptRef": "receipt:fixture:landing",
+    "meaningful": true,
+    "meaningfulClass": "portable-standard-capability",
+    "weight": 1,
+    "qualifyingEvidence": [
+      {
+        "kind": "capability",
+        "verificationRef": "verification:fixture:gate"
+      }
+    ],
+    "activityRefs": [
+      "commit:fixture:source",
+      "receipt:fixture:landing"
+    ]
+  },
+  "sloDeltas": [
+    {
+      "sloRef": "slo:fixture:portable-standard",
+      "measuredDelta": 1,
+      "verified": true,
+      "verificationRef": "verification:fixture:slo"
+    }
+  ],
+  "humanMessages": [
+    {
+      "messageId": "message:fixture:001",
+      "kind": "decide",
+      "primaryWorkId": "work:fixture:001",
+      "relatedRefs": []
+    }
+  ],
+  "coverage": {
+    "complete": true,
+    "errors": []
+  }
+}

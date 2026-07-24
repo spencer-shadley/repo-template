@@ -1,0 +1,146 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-declaration.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "7d70655d8232962d9a6e95b3edaf256a9d2c0e674ade9877cb787a29b98c5b7e",
+  "contractId": "repo-template/delivery-measurement-v1",
+  "declarationKind": "repo-template/delivery-declaration/v1",
+  "classificationGeneration": "classification:fixture:g0001",
+  "repoBinding": {
+    "repoRef": "repo:spencer-shadley/repo-template",
+    "planeRef": "plane:engineering",
+    "fleetRef": "fleet:spencer-shadley",
+    "registryGeneration": "registry:fixture:g0001",
+    "registryDigest": "0000000000000000000000000000000000000000000000000000000000000000",
+    "centralRollupRef": "observatory:fixture:delivery-rollup"
+  },
+  "meaningfulClasses": [
+    {
+      "classId": "portable-standard-capability",
+      "description": "A verified portable repository capability available to downstream consumers.",
+      "evidenceKinds": [
+        "capability"
+      ],
+      "aggregationMode": "segmented",
+      "weight": null
+    }
+  ],
+  "antiGamingExclusions": [
+    "commit",
+    "documentation",
+    "elapsed-turn",
+    "plan",
+    "pull-request",
+    "receipt",
+    "review-attempt",
+    "token-consumption"
+  ],
+  "tokenAttribution": {
+    "stages": [
+      "implementation",
+      "planning",
+      "recovery",
+      "review",
+      "verification"
+    ],
+    "requireComplete": true,
+    "unattributedPolicy": "visible-coverage-error-in-totals"
+  },
+  "slis": [
+    {
+      "id": "deliveries_per_tokens",
+      "scopes": [
+        "fleet",
+        "plane",
+        "repo"
+      ],
+      "targetRef": "registry:fixture:target/deliveries_per_tokens",
+      "budgetRef": "registry:fixture:budget/deliveries_per_tokens",
+      "windowRef": "registry:fixture:window/deliveries_per_tokens",
+      "exceptionPolicyRef": "registry:fixture:exception/deliveries_per_tokens",
+      "revisitTrigger": "Revisit deliveries_per_tokens when attribution coverage or outcome classes change.",
+      "centralRollupRef": "observatory:fixture:rollup/deliveries_per_tokens"
+    },
+    {
+      "id": "human_messages_per_meaningful_delivery",
+      "scopes": [
+        "fleet",
+        "plane",
+        "repo"
+      ],
+      "targetRef": "registry:fixture:target/human_messages_per_meaningful_delivery",
+      "budgetRef": "registry:fixture:budget/human_messages_per_meaningful_delivery",
+      "windowRef": "registry:fixture:window/human_messages_per_meaningful_delivery",
+      "exceptionPolicyRef": "registry:fixture:exception/human_messages_per_meaningful_delivery",
+      "revisitTrigger": "Revisit human_messages_per_meaningful_delivery when attribution coverage or outcome classes change.",
+      "centralRollupRef": "observatory:fixture:rollup/human_messages_per_meaningful_delivery"
+    },
+    {
+      "id": "meaningful_deliveries_per_tokens",
+      "scopes": [
+        "fleet",
+        "plane",
+        "repo"
+      ],
+      "targetRef": "registry:fixture:target/meaningful_deliveries_per_tokens",
+      "budgetRef": "registry:fixture:budget/meaningful_deliveries_per_tokens",
+      "windowRef": "registry:fixture:window/meaningful_deliveries_per_tokens",
+      "exceptionPolicyRef": "registry:fixture:exception/meaningful_deliveries_per_tokens",
+      "revisitTrigger": "Revisit meaningful_deliveries_per_tokens when attribution coverage or outcome classes change.",
+      "centralRollupRef": "observatory:fixture:rollup/meaningful_deliveries_per_tokens"
+    },
+    {
+      "id": "non_meaningful_token_consumption",
+      "scopes": [
+        "fleet",
+        "plane",
+        "repo"
+      ],
+      "targetRef": "registry:fixture:target/non_meaningful_token_consumption",
+      "budgetRef": "registry:fixture:budget/non_meaningful_token_consumption",
+      "windowRef": "registry:fixture:window/non_meaningful_token_consumption",
+      "exceptionPolicyRef": "registry:fixture:exception/non_meaningful_token_consumption",
+      "revisitTrigger": "Revisit non_meaningful_token_consumption when attribution coverage or outcome classes change.",
+      "centralRollupRef": "observatory:fixture:rollup/non_meaningful_token_consumption"
+    },
+    {
+      "id": "slo_meaningful_deliveries_per_tokens",
+      "scopes": [
+        "fleet",
+        "plane",
+        "repo"
+      ],
+      "targetRef": "registry:fixture:target/slo_meaningful_deliveries_per_tokens",
+      "budgetRef": "registry:fixture:budget/slo_meaningful_deliveries_per_tokens",
+      "windowRef": "registry:fixture:window/slo_meaningful_deliveries_per_tokens",
+      "exceptionPolicyRef": "registry:fixture:exception/slo_meaningful_deliveries_per_tokens",
+      "revisitTrigger": "Revisit slo_meaningful_deliveries_per_tokens when attribution coverage or outcome classes change.",
+      "centralRollupRef": "observatory:fixture:rollup/slo_meaningful_deliveries_per_tokens"
+    },
+    {
+      "id": "slo_work_ratio",
+      "scopes": [
+        "fleet",
+        "plane",
+        "repo"
+      ],
+      "targetRef": "registry:fixture:target/slo_work_ratio",
+      "budgetRef": "registry:fixture:budget/slo_work_ratio",
+      "windowRef": "registry:fixture:window/slo_work_ratio",
+      "exceptionPolicyRef": "registry:fixture:exception/slo_work_ratio",
+      "revisitTrigger": "Revisit slo_work_ratio when attribution coverage or outcome classes change.",
+      "centralRollupRef": "observatory:fixture:rollup/slo_work_ratio"
+    }
+  ],
+  "eventCapture": {
+    "appendOnly": true,
+    "eventKind": "repo-template/delivery-event/v1",
+    "coverageErrorPolicy": "visible-non-blocking",
+    "requiredCoverage": [
+      "human-intervention",
+      "landed-or-non-delivery-outcome",
+      "slo-delta",
+      "stable-work-outcome-identity",
+      "token-stage-model"
+    ]
+  }
+}

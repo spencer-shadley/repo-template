@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-event.schema.json",
+  "title": "append-only delivery measurement event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "schemaDigest",
+    "contractId",
+    "eventKind",
+    "eventId",
+    "workId",
+    "repoRef",
+    "planeRef",
+    "fleetRef",
+    "recordedAt",
+    "tokenUsage",
+    "outcome",
+    "sloDeltas",
+    "humanMessages",
+    "coverage"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-event.schema.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "schemaDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "contractId": {
+      "const": "repo-template/delivery-measurement-v1"
+    },
+    "eventKind": {
+      "const": "repo-template/delivery-event/v1"
+    },
+    "eventId": {
+      "$ref": "#/$defs/ref"
+    },
+    "workId": {
+      "$ref": "#/$defs/ref"
+    },
+    "repoRef": {
+      "$ref": "#/$defs/ref"
+    },
+    "planeRef": {
+      "$ref": "#/$defs/ref"
+    },
+    "fleetRef": {
+      "$ref": "#/$defs/ref"
+    },
+    "recordedAt": {
+      "type": "string",
+      "format": "date-time",
+      "maxLength": 35
+    },
+    "tokenUsage": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/tokenUsage"
+      }
+    },
+    "outcome": {
+      "$ref": "#/$defs/outcome"
+    },
+    "sloDeltas": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/sloDelta"
+      }
+    },
+    "humanMessages": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/humanMessage"
+      }
+    },
+    "coverage": {
+      "$ref": "#/$defs/coverage"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "tokenUsage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attributionId",
+        "stage",
+        "provider",
+        "model",
+        "inputTokens",
+        "outputTokens",
+        "totalTokens"
+      ],
+      "properties": {
+        "attributionId": {
+          "$ref": "#/$defs/ref"
+        },
+        "stage": {
+          "enum": [
+            "planning",
+            "implementation",
+            "review",
+            "verification",
+            "recovery"
+          ]
+        },
+        "provider": {
+          "$ref": "#/$defs/ref"
+        },
+        "model": {
+          "$ref": "#/$defs/ref"
+        },
+        "inputTokens": {
+          "$ref": "#/$defs/tokenCount"
+        },
+        "outputTokens": {
+          "$ref": "#/$defs/tokenCount"
+        },
+        "totalTokens": {
+          "$ref": "#/$defs/tokenCount"
+        }
+      }
+    },
+    "tokenCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "qualifyingEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "verificationRef"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "capability",
+            "defect-class",
+            "material-risk",
+            "operational-improvement"
+          ]
+        },
+        "verificationRef": {
+          "$ref": "#/$defs/ref"
+        }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcomeId",
+        "status",
+        "receiptRef",
+        "meaningful",
+        "meaningfulClass",
+        "weight",
+        "qualifyingEvidence",
+        "activityRefs"
+      ],
+      "properties": {
+        "outcomeId": {
+          "$ref": "#/$defs/ref"
+        },
+        "status": {
+          "enum": [
+            "landed",
+            "non-delivery"
+          ]
+        },
+        "receiptRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "meaningful": {
+          "type": "boolean"
+        },
+        "meaningfulClass": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "qualifyingEvidence": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/$defs/qualifyingEvidence"
+          }
+        },
+        "activityRefs": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/$defs/ref"
+          }
+        }
+      }
+    },
+    "sloDelta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sloRef",
+        "measuredDelta",
+        "verified",
+        "verificationRef"
+      ],
+      "properties": {
+        "sloRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "measuredDelta": {
+          "type": "number"
+        },
+        "verified": {
+          "type": "boolean"
+        },
+        "verificationRef": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "humanMessage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "messageId",
+        "kind",
+        "primaryWorkId",
+        "relatedRefs"
+      ],
+      "properties": {
+        "messageId": {
+          "$ref": "#/$defs/ref"
+        },
+        "kind": {
+          "enum": [
+            "decide",
+            "correct",
+            "unblock",
+            "approve"
+          ]
+        },
+        "primaryWorkId": {
+          "$ref": "#/$defs/ref"
+        },
+        "relatedRefs": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "$ref": "#/$defs/ref"
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "complete",
+        "errors"
+      ],
+      "properties": {
+        "complete": {
+          "type": "boolean"
+        },
+        "errors": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "unattributed-token-usage",
+              "missing-outcome-receipt",
+              "missing-slo-verification",
+              "missing-human-message-primary-attribution",
+              "incomplete-stage-capture"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

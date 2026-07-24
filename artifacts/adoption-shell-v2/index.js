@@ -5,4 +5,6 @@ export { resolveCapabilityClosure, validateCapabilityBundleRegistryV2, } from ".
 export { validateArtifactManifestV2, validateMaterializerOutputManifestV2, validateVerificationReceiptV2, } from "./validate-manifests.js";
 export { validateDocumentationLinks, } from "./validate-documentation.js";
 export { validateMaterializerInputV2, validateReleasePayloadSetV2, } from "./validate.js";
+export { validateDeliveryDeclarationV1, validateDeliveryEventV1, } from "./delivery-measurement.js";
+export { DELIVERY_ANTI_GAMING_EXCLUSIONS, DELIVERY_COVERAGE_FIELDS, DELIVERY_MEASUREMENT_CONTRACT_ID, DELIVERY_SLI_IDS, DELIVERY_STAGES, } from "./delivery-measurement-contract.js";
 export { materializeAdoptionShellV2 } from "./materialize.js";

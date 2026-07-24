@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-declaration.schema.json",
+  "title": "repository delivery measurement declaration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "schemaDigest",
+    "contractId",
+    "declarationKind",
+    "classificationGeneration",
+    "repoBinding",
+    "meaningfulClasses",
+    "antiGamingExclusions",
+    "tokenAttribution",
+    "slis",
+    "eventCapture"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-declaration.schema.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "schemaDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "contractId": {
+      "const": "repo-template/delivery-measurement-v1"
+    },
+    "declarationKind": {
+      "const": "repo-template/delivery-declaration/v1"
+    },
+    "classificationGeneration": {
+      "$ref": "#/$defs/ref"
+    },
+    "repoBinding": {
+      "$ref": "#/$defs/repoBinding"
+    },
+    "meaningfulClasses": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/meaningfulClass"
+      }
+    },
+    "antiGamingExclusions": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "commit",
+          "documentation",
+          "elapsed-turn",
+          "plan",
+          "pull-request",
+          "receipt",
+          "review-attempt",
+          "token-consumption"
+        ]
+      }
+    },
+    "tokenAttribution": {
+      "$ref": "#/$defs/tokenAttribution"
+    },
+    "slis": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "$ref": "#/$defs/sli"
+      }
+    },
+    "eventCapture": {
+      "$ref": "#/$defs/eventCapture"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$"
+    },
+    "repoBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repoRef",
+        "planeRef",
+        "fleetRef",
+        "registryGeneration",
+        "registryDigest",
+        "centralRollupRef"
+      ],
+      "properties": {
+        "repoRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "planeRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "fleetRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "registryGeneration": {
+          "$ref": "#/$defs/ref"
+        },
+        "registryDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "centralRollupRef": {
+          "$ref": "#/$defs/ref"
+        }
+      }
+    },
+    "meaningfulClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classId",
+        "description",
+        "evidenceKinds",
+        "aggregationMode",
+        "weight"
+      ],
+      "properties": {
+        "classId": {
+          "$ref": "#/$defs/ref"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "evidenceKinds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "capability",
+              "defect-class",
+              "material-risk",
+              "operational-improvement"
+            ]
+          }
+        },
+        "aggregationMode": {
+          "enum": [
+            "segmented",
+            "weighted"
+          ]
+        },
+        "weight": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0,
+          "maximum": 1000
+        }
+      }
+    },
+    "tokenAttribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stages",
+        "requireComplete",
+        "unattributedPolicy"
+      ],
+      "properties": {
+        "stages": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "implementation",
+              "planning",
+              "recovery",
+              "review",
+              "verification"
+            ]
+          }
+        },
+        "requireComplete": {
+          "const": true
+        },
+        "unattributedPolicy": {
+          "const": "visible-coverage-error-in-totals"
+        }
+      }
+    },
+    "sli": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "scopes",
+        "targetRef",
+        "budgetRef",
+        "windowRef",
+        "exceptionPolicyRef",
+        "revisitTrigger",
+        "centralRollupRef"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "deliveries_per_tokens",
+            "human_messages_per_meaningful_delivery",
+            "meaningful_deliveries_per_tokens",
+            "non_meaningful_token_consumption",
+            "slo_meaningful_deliveries_per_tokens",
+            "slo_work_ratio"
+          ]
+        },
+        "scopes": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "fleet",
+              "plane",
+              "repo"
+            ]
+          }
+        },
+        "targetRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "budgetRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "windowRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "exceptionPolicyRef": {
+          "$ref": "#/$defs/ref"
+        },
+        "revisitTrigger": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "centralRollupRef": {
+          "$ref": "#/$defs/ref"
+        }
+      }
+    },
+    "eventCapture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "appendOnly",
+        "eventKind",
+        "coverageErrorPolicy",
+        "requiredCoverage"
+      ],
+      "properties": {
+        "appendOnly": {
+          "const": true
+        },
+        "eventKind": {
+          "const": "repo-template/delivery-event/v1"
+        },
+        "coverageErrorPolicy": {
+          "const": "visible-non-blocking"
+        },
+        "requiredCoverage": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "human-intervention",
+              "landed-or-non-delivery-outcome",
+              "slo-delta",
+              "stable-work-outcome-identity",
+              "token-stage-model"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

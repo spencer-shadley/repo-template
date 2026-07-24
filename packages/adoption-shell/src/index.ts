@@ -56,4 +56,19 @@ export {
   validateMaterializerInputV2,
   validateReleasePayloadSetV2,
 } from "./validate.ts";
+export {
+  validateDeliveryDeclarationV1,
+  validateDeliveryEventV1,
+} from "./delivery-measurement.ts";
+export {
+  DELIVERY_ANTI_GAMING_EXCLUSIONS,
+  DELIVERY_COVERAGE_FIELDS,
+  DELIVERY_MEASUREMENT_CONTRACT_ID,
+  DELIVERY_SLI_IDS,
+  DELIVERY_STAGES,
+} from "./delivery-measurement-contract.ts";
+export type {
+  DeliveryDeclarationV1,
+  DeliveryEventV1,
+} from "./delivery-measurement-contract.ts";
 export { materializeAdoptionShellV2 } from "./materialize.ts";

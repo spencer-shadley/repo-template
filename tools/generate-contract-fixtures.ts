@@ -5,6 +5,11 @@ import { fileURLToPath } from "node:url";
 import {
   CONTRACT_ID,
   CONTRACT_VERSION,
+  DELIVERY_ANTI_GAMING_EXCLUSIONS,
+  DELIVERY_COVERAGE_FIELDS,
+  DELIVERY_MEASUREMENT_CONTRACT_ID,
+  DELIVERY_SLI_IDS,
+  DELIVERY_STAGES,
   ENVELOPE_DIGEST_ALGORITHM,
   PAYLOAD_DIGEST_ALGORITHM,
   SCHEMA_DIGESTS,
@@ -17,6 +22,8 @@ import {
   type BundleReference,
   type CapabilityBundle,
   type CapabilityBundleRegistry,
+  type DeliveryDeclarationV1,
+  type DeliveryEventV1,
   type EntryRole,
   type MaterializerInput,
   type PayloadEntry,
@@ -206,6 +213,117 @@ const baseEntry = textEntry(
   null,
 );
 const minimalInput = input(release([baseEntry]), registry([]), []);
+
+const deliveryEventFixture: DeliveryEventV1 = {
+  schemaId: SCHEMA_IDS.deliveryEvent,
+  schemaVersion: CONTRACT_VERSION,
+  schemaDigest: SCHEMA_DIGESTS.deliveryEvent,
+  contractId: DELIVERY_MEASUREMENT_CONTRACT_ID,
+  eventKind: "repo-template/delivery-event/v1",
+  eventId: "event:fixture:delivery-001",
+  workId: "work:fixture:001",
+  repoRef: "repo:spencer-shadley/repo-template",
+  planeRef: "plane:engineering",
+  fleetRef: "fleet:spencer-shadley",
+  recordedAt: "2026-07-24T18:00:00Z",
+  tokenUsage: [
+    {
+      attributionId: "usage:fixture:implementation",
+      stage: "implementation",
+      provider: "provider:fixture",
+      model: "model:fixture",
+      inputTokens: 10,
+      outputTokens: 5,
+      totalTokens: 15,
+    },
+  ],
+  outcome: {
+    outcomeId: "outcome:fixture:001",
+    status: "landed",
+    receiptRef: "receipt:fixture:landing",
+    meaningful: true,
+    meaningfulClass: "portable-standard-capability",
+    weight: 1,
+    qualifyingEvidence: [
+      {
+        kind: "capability",
+        verificationRef: "verification:fixture:gate",
+      },
+    ],
+    activityRefs: [
+      "commit:fixture:source",
+      "receipt:fixture:landing",
+    ],
+  },
+  sloDeltas: [
+    {
+      sloRef: "slo:fixture:portable-standard",
+      measuredDelta: 1,
+      verified: true,
+      verificationRef: "verification:fixture:slo",
+    },
+  ],
+  humanMessages: [
+    {
+      messageId: "message:fixture:001",
+      kind: "decide",
+      primaryWorkId: "work:fixture:001",
+      relatedRefs: [],
+    },
+  ],
+  coverage: {
+    complete: true,
+    errors: [],
+  },
+};
+
+const deliveryDeclarationFixture: DeliveryDeclarationV1 = {
+  schemaId: SCHEMA_IDS.deliveryDeclaration,
+  schemaVersion: CONTRACT_VERSION,
+  schemaDigest: SCHEMA_DIGESTS.deliveryDeclaration,
+  contractId: DELIVERY_MEASUREMENT_CONTRACT_ID,
+  declarationKind: "repo-template/delivery-declaration/v1",
+  classificationGeneration: "classification:fixture:g0001",
+  repoBinding: {
+    repoRef: "repo:spencer-shadley/repo-template",
+    planeRef: "plane:engineering",
+    fleetRef: "fleet:spencer-shadley",
+    registryGeneration: "registry:fixture:g0001",
+    registryDigest: "0".repeat(64),
+    centralRollupRef: "observatory:fixture:delivery-rollup",
+  },
+  meaningfulClasses: [
+    {
+      classId: "portable-standard-capability",
+      description: "A verified portable repository capability available to downstream consumers.",
+      evidenceKinds: ["capability"],
+      aggregationMode: "segmented",
+      weight: null,
+    },
+  ],
+  antiGamingExclusions: DELIVERY_ANTI_GAMING_EXCLUSIONS,
+  tokenAttribution: {
+    stages: DELIVERY_STAGES,
+    requireComplete: true,
+    unattributedPolicy: "visible-coverage-error-in-totals",
+  },
+  slis: DELIVERY_SLI_IDS.map((id) => ({
+    id,
+    scopes: ["fleet", "plane", "repo"] as const,
+    targetRef: `registry:fixture:target/${id}`,
+    budgetRef: `registry:fixture:budget/${id}`,
+    windowRef: `registry:fixture:window/${id}`,
+    exceptionPolicyRef: `registry:fixture:exception/${id}`,
+    revisitTrigger: `Revisit ${id} when attribution coverage or outcome classes change.`,
+    centralRollupRef: `observatory:fixture:rollup/${id}`,
+  })),
+  eventCapture: {
+    appendOnly: true,
+    eventKind: "repo-template/delivery-event/v1",
+    coverageErrorPolicy: "visible-non-blocking",
+    requiredCoverage: DELIVERY_COVERAGE_FIELDS,
+  },
+};
 
 const alpha = bundle({
   id: "example/alpha",
@@ -647,6 +765,8 @@ export function generateContractFixtures(
   fs.rmSync(goldenRoot, { recursive: true, force: true });
 
   writeJson(path.join(fixtureRoot, "minimal-input.json"), minimalInput);
+  writeJson(path.join(fixtureRoot, "delivery-declaration.json"), deliveryDeclarationFixture);
+  writeJson(path.join(fixtureRoot, "delivery-event.json"), deliveryEventFixture);
   writeJson(path.join(fixtureRoot, "minimal-input-shuffled-keys.json"), {
     conformance: minimalInput.conformance,
     requestedBundles: minimalInput.requestedBundles,
