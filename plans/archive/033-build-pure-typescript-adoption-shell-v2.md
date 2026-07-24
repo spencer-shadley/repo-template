@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/033-build-pure-typescript-adoption-shell-v2
-- **Status:** ready for codex
+- **Status:** completed
 - **Priority:** P1
 - **Depends:** none
 - **Effort:** high
