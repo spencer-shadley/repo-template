@@ -2,6 +2,10 @@
      (and resets plans/ + deletes any .ops data) when instantiating a new repo. -->
 # THIS repo: the living template (meta-rules)
 
+> **Source of truth (workspace constitution):** `C:\code\AGENTS.md` — [Agent Constitution](../../../AGENTS.md).
+> Fleet always-on law and progressive-disclosure index. Nested git roots may stop ancestral walk — resolve this path explicitly.
+> Rules in *this* file win only for stack/risk inside this directory tree.
+
 This repo IS the workspace standard. Everything below the `/TEMPLATE-SELF` marker is CONTENT copied
 into new repos — `{{PLACEHOLDERS}}` and `TODO(setup):` markers there are INTENTIONAL; never "fix"
 them when working on this repo.
