@@ -80,7 +80,43 @@ const invalid = Object.entries(manifest)
   .filter(([, mode]) => !allowedModes.has(mode))
   .map(([file, mode]) => `${file}:${mode}`);
 
-const boundaryErrors: string[] = [];
+const templateAgents = fs.readFileSync(path.join(root, "AGENTS.md"), "utf8");
+const requiredDirectL0Defaults = [
+  [
+    "persistent goals disabled pending native guards",
+    /persistent goals are disabled for autonomous repo managers and coordinators[\s\S]{0,100}native\s+pre-injection guards exist/i,
+  ],
+  [
+    "one finite heartbeat deliverable and terminal stop",
+    /bounded heartbeat wakes exactly one finite deliverable[\s\S]{0,100}paused or\s+no-progress manager stops and never self-requeues/i,
+  ],
+  [
+    "typed coordinator and independent overseer containment",
+    /at every poll, the coordinator consumes AO's typed `GoalContinuationDecisionV1` contract[\s\S]{0,180}overseer independently consumes the same contract[\s\S]{0,100}corrects missed containment/i,
+  ],
+  [
+    "Luna-low manager boundary and mechanical allowance",
+    /Luna-low is excluded from repo-manager\/coordinator judgment[\s\S]{0,120}bounded mechanical substeps/i,
+  ],
+] as const;
+function validateDirectL0Defaults(text: string): string[] {
+  return requiredDirectL0Defaults
+    .filter(([, pattern]) => !pattern.test(text))
+    .map(([label]) => `missing required direct-L0 default: ${label}`);
+}
+
+const directL0DefaultErrors = validateDirectL0Defaults(templateAgents);
+for (const [label, pattern] of requiredDirectL0Defaults) {
+  const damaged = templateAgents.replace(pattern, `[removed ${label}]`);
+  if (
+    damaged === templateAgents ||
+    !validateDirectL0Defaults(damaged).some((error) => error.includes(label))
+  ) {
+    directL0DefaultErrors.push(`direct-L0 removal check failed: ${label}`);
+  }
+}
+
+const boundaryErrors: string[] = [...directL0DefaultErrors];
 if (manifest["model-boundary.json"] !== "copy") {
   boundaryErrors.push("model-boundary.json must be manifest copy");
 }
@@ -132,7 +168,16 @@ const headVersion = git("show", "HEAD:TEMPLATE_VERSION");
 const workingVersion = fs.readFileSync(path.join(root, "TEMPLATE_VERSION"), "utf8");
 if (headVersion !== workingVersion) boundaryErrors.push("TEMPLATE_VERSION changed");
 
-if (
+if (process.argv.includes("--direct-l0-defaults")) {
+  if (directL0DefaultErrors.length > 0) {
+    console.error("direct-L0 defaults:", directL0DefaultErrors);
+    process.exitCode = 1;
+  } else {
+    console.log(
+      `direct-L0 defaults: ${requiredDirectL0Defaults.length} clauses and removal checks passed`,
+    );
+  }
+} else if (
   conflicts.length > 0 ||
   missing.length > 0 ||
   invalid.length > 0 ||

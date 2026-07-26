@@ -68,6 +68,16 @@ schedules; deploys to production; performs an irreversible migration; transfers 
 writer/effect authority; or cuts over a capability. Split those effects into their governed
 transaction. An applicable failed check or actual negative review blocks the candidate bytes.
 
+Persistent goals are disabled for autonomous repo managers and coordinators until native
+pre-injection guards exist. A bounded heartbeat wakes exactly one finite deliverable; a paused or
+no-progress manager stops and never self-requeues.
+
+At every poll, the coordinator consumes AO's typed `GoalContinuationDecisionV1` contract to contain
+unsafe continuation; the overseer independently consumes the same contract at incident cadence and
+corrects missed containment. This template does not duplicate AO's detector or implementation.
+**Luna-low is excluded from repo-manager/coordinator judgment**, but remains eligible for explicitly
+bounded mechanical substeps.
+
 ## Binding steer
 
 Every interactive or autonomous agent operating in this repository, including discovery, triage,
