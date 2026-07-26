@@ -227,6 +227,13 @@ export interface TemplateReleaseReceipt extends SchemaIdentity, Readonly<{
     migrationRefs: readonly [];
 }> {
 }
+export interface TemplateReleaseClosure extends Readonly<{
+    receipt: TemplateReleaseReceipt;
+    payloadSet: ReleasePayloadSet;
+    capabilityRegistry: CapabilityBundleRegistry;
+    artifactManifest: ArtifactManifest;
+}> {
+}
 export interface MaterializationResult extends Readonly<{
     entries: readonly PayloadEntry[];
     manifest: MaterializerOutputManifest;

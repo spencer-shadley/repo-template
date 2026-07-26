@@ -24,6 +24,9 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
   producer commit/tree, annotated-tag transport, payload-set identity, sorted capability bundles,
   and exact materializer closure. Candidate receipts are valid but non-authoritative; only
   `publicationState=published` is authoritative. MINOR.
+- Added a pure release-closure validator that cross-authenticates a receipt against the supplied
+  payload set, complete capability registry, and compiled artifact manifest before publication.
+  MINOR.
 - Accepted [ADR-0006: Pure TypeScript adoption shell and release boundary](docs/adr/0006-adoption-shell-v2-technology-decision.md),
   the complete AI-First Stack v1.1.0 technology decision for a
   runtime-dependency-free TypeScript `adoption-shell-v2`, closed schemas and capability bundles,
