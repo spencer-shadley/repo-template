@@ -51,12 +51,25 @@ function gitBlobId(content: Uint8Array): string {
   return createHash("sha1").update(header).update(content).digest("hex");
 }
 
+function isConflictMarker(line: string): boolean {
+  return /^(?:<{7}|={7}|>{7})/.test(line);
+}
+
+const conflictMarkerSelfTestErrors = ([
+  ["opening", "<<<<<<< HEAD", true],
+  ["separator", "=======", true],
+  ["closing", ">>>>>>> feature", true],
+  ["ordinary text", "no conflict here", false],
+ ] as const)
+  .filter(([, line, expected]) => isConflictMarker(line) !== expected)
+  .map(([label]) => `conflict-marker self-test failed: ${label}`);
+
 const conflicts: string[] = [];
 for (const relativePath of listTextFiles()) {
   fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8")
     .split(/\r?\n/)
     .forEach((line, index) => {
-      if (line.startsWith("<<<<<<<")) {
+      if (isConflictMarker(line)) {
         conflicts.push(`${relativePath}:${index + 1}:${line}`);
       }
     });
@@ -116,7 +129,10 @@ for (const [label, pattern] of requiredDirectL0Defaults) {
   }
 }
 
-const boundaryErrors: string[] = [...directL0DefaultErrors];
+const boundaryErrors: string[] = [
+  ...directL0DefaultErrors,
+  ...conflictMarkerSelfTestErrors,
+];
 if (manifest["model-boundary.json"] !== "copy") {
   boundaryErrors.push("model-boundary.json must be manifest copy");
 }
