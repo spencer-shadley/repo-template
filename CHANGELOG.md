@@ -27,6 +27,9 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 - Added a pure release-closure validator that cross-authenticates a receipt against the supplied
   payload set, complete capability registry, and compiled artifact manifest before publication.
   MINOR.
+- Added a pure deterministic candidate builder that derives the closed non-authoritative release
+  receipt and validates its complete closure from caller-supplied SemVer, commit/tree, payload,
+  capability registry, and artifact manifest values. MINOR.
 - Accepted [ADR-0006: Pure TypeScript adoption shell and release boundary](docs/adr/0006-adoption-shell-v2-technology-decision.md),
   the complete AI-First Stack v1.1.0 technology decision for a
   runtime-dependency-free TypeScript `adoption-shell-v2`, closed schemas and capability bundles,

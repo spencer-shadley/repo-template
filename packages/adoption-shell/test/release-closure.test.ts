@@ -73,46 +73,56 @@ test("release closure authenticates payload, bundles, and compiled artifact toge
 });
 
 test("independently valid but mismatched closure identities fail closed", () => {
-  const payload = clone(closure());
-  const { receiptDigest: _payloadDigest, ...payloadBody } = payload.receipt;
+  const payloadBase = clone(closure());
+  const { receiptDigest: _payloadDigest, ...payloadBody } = payloadBase.receipt;
   const payloadReceiptBody = {
     ...payloadBody,
     payloadSet: {
-      ...payload.receipt.payloadSet,
+      ...payloadBase.receipt.payloadSet,
       payloadDigest: "0".repeat(64),
     },
   };
-  payload.receipt = {
-    ...payloadReceiptBody,
-    receiptDigest: sha256CanonicalJson(payloadReceiptBody),
+  const payload = {
+    ...payloadBase,
+    receipt: {
+      ...payloadReceiptBody,
+      receiptDigest: sha256CanonicalJson(payloadReceiptBody),
+    },
   };
   assert.ok(codes(payload).includes("E_RELEASE_PAYLOAD_MISMATCH"));
 
-  const artifact = clone(closure());
-  const { receiptDigest: _artifactDigest, ...artifactBody } = artifact.receipt;
+  const artifactBase = clone(closure());
+  const { receiptDigest: _artifactDigest, ...artifactBody } =
+    artifactBase.receipt;
   const artifactReceiptBody = {
     ...artifactBody,
     materializer: {
-      ...artifact.receipt.materializer,
+      ...artifactBase.receipt.materializer,
       artifactDigest: "0".repeat(64),
     },
   };
-  artifact.receipt = {
-    ...artifactReceiptBody,
-    receiptDigest: sha256CanonicalJson(artifactReceiptBody),
+  const artifact = {
+    ...artifactBase,
+    receipt: {
+      ...artifactReceiptBody,
+      receiptDigest: sha256CanonicalJson(artifactReceiptBody),
+    },
   };
   assert.ok(codes(artifact).includes("E_ARTIFACT_MISMATCH"));
 
-  const capabilities = clone(closure());
+  const capabilitiesBase = clone(closure());
   const { receiptDigest: _capabilityDigest, ...capabilityBody } =
-    capabilities.receipt;
+    capabilitiesBase.receipt;
   const capabilityReceiptBody = {
     ...capabilityBody,
     capabilityBundles: [],
   };
-  capabilities.receipt = {
-    ...capabilityReceiptBody,
-    receiptDigest: sha256CanonicalJson(capabilityReceiptBody),
+  const capabilities = {
+    ...capabilitiesBase,
+    receipt: {
+      ...capabilityReceiptBody,
+      receiptDigest: sha256CanonicalJson(capabilityReceiptBody),
+    },
   };
   assert.ok(codes(capabilities).includes("E_CAPABILITY_BUNDLES_MISMATCH"));
 });

@@ -234,6 +234,15 @@ export interface TemplateReleaseClosure extends Readonly<{
     artifactManifest: ArtifactManifest;
 }> {
 }
+export interface TemplateReleaseCandidateInput extends Readonly<{
+    semver: string;
+    commit: string;
+    tree: string;
+    payloadSet: ReleasePayloadSet;
+    capabilityRegistry: CapabilityBundleRegistry;
+    artifactManifest: ArtifactManifest;
+}> {
+}
 export interface MaterializationResult extends Readonly<{
     entries: readonly PayloadEntry[];
     manifest: MaterializerOutputManifest;

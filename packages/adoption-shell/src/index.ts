@@ -35,6 +35,7 @@ export type {
   Sha256,
   TemplateReleasePublicationState,
   TemplateReleaseClosure,
+  TemplateReleaseCandidateInput,
   TemplateReleaseReceipt,
   ValidationResult,
   VerificationReceipt,
@@ -51,6 +52,10 @@ export {
   resolveCapabilityClosure,
   validateCapabilityBundleRegistryV2,
 } from "./capability-bundles.ts";
+export {
+  createTemplateReleaseCandidateV1,
+  isTemplateReleaseCandidateInput,
+} from "./release-candidate.ts";
 export {
   validateTemplateReleaseClosureV1,
 } from "./release-closure.ts";
