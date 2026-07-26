@@ -8,6 +8,7 @@ import {
   ENVELOPE_DIGEST_ALGORITHM,
   PAYLOAD_DIGEST_ALGORITHM,
   canonicalizeJson,
+  decodeCanonicalBase64,
   payloadFrame,
   sha256Bytes,
   sha256CanonicalJson,
@@ -53,6 +54,13 @@ test("RFC 8785 rejects values outside its JSON domain", () => {
   cyclic.self = cyclic;
   assert.throws(() => canonicalizeJson(cyclic), /cyclic values/);
   assert.throws(() => canonicalizeJson(new Map()), /plain objects/);
+});
+
+test("canonical base64 decoder rejects alternate spellings", () => {
+  assert.deepEqual([...decodeCanonicalBase64("TWE=")], [0x4d, 0x61]);
+  for (const value of ["TWE", "TWE==", "TR==", "TWE=\n"]) {
+    assert.throws(() => decodeCanonicalBase64(value), /canonical padded base64/);
+  }
 });
 
 test("both named SHA-256 algorithms match committed goldens", () => {

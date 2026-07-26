@@ -44,6 +44,7 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Added canonical-base64 regression coverage for alternate and non-padded encodings. PATCH.
 - Added delivery-event regression coverage for both inconsistent coverage-state directions. PATCH.
 - Added a release-candidate regression assertion that candidate construction preserves caller input
   bytes. PATCH.
