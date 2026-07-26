@@ -40,7 +40,9 @@ function input(): TemplateReleaseCandidateInput {
 }
 
 test("candidate builder deterministically constructs a valid non-authoritative closure", () => {
-  const first = createTemplateReleaseCandidateV1(input());
+  const firstInput = input();
+  const firstInputBefore = canonicalizeJson(firstInput);
+  const first = createTemplateReleaseCandidateV1(firstInput);
   const secondInput = input();
   const second = createTemplateReleaseCandidateV1({
     artifactManifest: secondInput.artifactManifest,
@@ -58,6 +60,7 @@ test("candidate builder deterministically constructs a valid non-authoritative c
   assert.equal(first.value.receipt.producer.tag, "v3.0.0");
   assert.equal(validateTemplateReleaseClosureV1(first.value).ok, true);
   assert.equal(canonicalizeJson(first.value), canonicalizeJson(second.value));
+  assert.equal(canonicalizeJson(firstInput), firstInputBefore);
 });
 
 test("candidate builder fails closed on invalid identity, unknown authority, or payload drift", () => {

@@ -44,6 +44,8 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Added a release-candidate regression assertion that candidate construction preserves caller input
+  bytes. PATCH.
 - Added committed-artifact regression coverage for portable paths and relative documentation-link
   resolution across Windows and traversal boundaries. PATCH.
 - Expanded Template conflict scanning to every tracked UTF-8-safe text file, independent of file
