@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -94,6 +95,28 @@ test("public source and committed JavaScript have only the declared import closu
       const target = path.resolve(path.dirname(path.join(artifactRoot, row.path)), specifier);
       assert.ok(fs.existsSync(target), `${row.path}: missing ${specifier}`);
     }
+  }
+});
+
+test("artifact policy rejects ambient imports with sorted findings", () => {
+  const ownedTemp = fs.mkdtempSync(
+    path.join(os.tmpdir(), "repo-template-artifact-policy-"),
+  );
+  try {
+    fs.writeFileSync(
+      path.join(ownedTemp, "b.js"),
+      'import fs from "node:fs";\nDate.now();\n',
+    );
+    fs.writeFileSync(path.join(ownedTemp, "a.js"), 'import("dynamic");\n');
+
+    const findings = scanPublicCode(ownedTemp, ["b.js", "a.js"]);
+
+    assert.deepEqual(findings, [...findings].sort());
+    assert.ok(findings.some((row) => row.includes("forbidden module import node:fs")));
+    assert.ok(findings.some((row) => row.includes("dynamic import is forbidden")));
+    assert.ok(findings.some((row) => row.includes("forbidden ambient identifier")));
+  } finally {
+    fs.rmSync(ownedTemp, { force: true, recursive: true });
   }
 });
 
