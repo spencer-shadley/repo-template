@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  ARTIFACT_MANIFEST_PATH,
   CONTRACT_ID,
   CONTRACT_VERSION,
   DELIVERY_ANTI_GAMING_EXCLUSIONS,
@@ -12,6 +13,10 @@ import {
   DELIVERY_STAGES,
   ENVELOPE_DIGEST_ALGORITHM,
   PAYLOAD_DIGEST_ALGORITHM,
+  RELEASE_PAYLOAD_MANIFEST_PATH,
+  RELEASE_RECEIPT_KIND,
+  REPO_TEMPLATE_ORIGIN,
+  REPO_TEMPLATE_REPOSITORY,
   SCHEMA_DIGESTS,
   SCHEMA_IDS,
   canonicalizeJson,
@@ -28,6 +33,7 @@ import {
   type MaterializerInput,
   type PayloadEntry,
   type ReleasePayloadSet,
+  type TemplateReleaseReceipt,
 } from "../packages/adoption-shell/src/index.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -409,6 +415,63 @@ const lintInput = input(
   [reference(lintBundle)],
 );
 
+function templateReleaseReceiptFixture(): TemplateReleaseReceipt {
+  const semver = "3.0.0";
+  const tag = `v${semver}`;
+  const body = {
+    schemaId: SCHEMA_IDS.templateReleaseReceipt,
+    schemaVersion: CONTRACT_VERSION,
+    schemaDigest: SCHEMA_DIGESTS.templateReleaseReceipt,
+    contractId: CONTRACT_ID,
+    receiptKind: RELEASE_RECEIPT_KIND,
+    publicationState: "candidate",
+    releaseId: `${REPO_TEMPLATE_REPOSITORY}@${semver}`,
+    receiptDigestAlgorithm: ENVELOPE_DIGEST_ALGORITHM,
+    producer: {
+      repository: REPO_TEMPLATE_REPOSITORY,
+      origin: REPO_TEMPLATE_ORIGIN,
+      semver,
+      tag,
+      commit: "1".repeat(40),
+      tree: "2".repeat(40),
+    },
+    receiptTransport: {
+      kind: "annotated-git-tag-message/v1",
+      tagName: tag,
+      targetObjectType: "commit",
+      bodyEncoding: "utf-8",
+      bodyCanonicalization: "rfc8785",
+    },
+    payloadSet: {
+      manifestPath: RELEASE_PAYLOAD_MANIFEST_PATH,
+      schemaId: SCHEMA_IDS.releasePayloadSet,
+      schemaVersion: CONTRACT_VERSION,
+      schemaDigest: SCHEMA_DIGESTS.releasePayloadSet,
+      manifestDigest: "3".repeat(64),
+      payloadDigestAlgorithm: PAYLOAD_DIGEST_ALGORITHM,
+      payloadDigest: "4".repeat(64),
+      entryCount: 1,
+    },
+    capabilityBundles: [reference(lintBundle)],
+    materializer: {
+      contractId: CONTRACT_ID,
+      contractVersion: CONTRACT_VERSION,
+      artifactManifestPath: ARTIFACT_MANIFEST_PATH,
+      artifactManifestSchemaId: SCHEMA_IDS.artifactManifest,
+      artifactManifestSchemaVersion: CONTRACT_VERSION,
+      artifactManifestSchemaDigest: SCHEMA_DIGESTS.artifactManifest,
+      artifactManifestDigest: "5".repeat(64),
+      artifactDigest: "6".repeat(64),
+      entrypoint: "index.js",
+      validatorExport: "validateMaterializerInputV2",
+      runtimeCompatibility: ">=24.16.0 <25",
+      compatibleReleaseReceiptKind: RELEASE_RECEIPT_KIND,
+    },
+    migrationRefs: [] as const,
+  } as const;
+  return { ...body, receiptDigest: sha256CanonicalJson(body) };
+}
+
 const templateAdr = textEntry(
   "docs/adr/template-file-format-selection.md",
   "# ADR-0003: File-format selection (md / json / jsonl / tsv / csv)\n\nTemplate-owned decision.\n",
@@ -780,6 +843,10 @@ export function generateContractFixtures(
   writeJson(path.join(fixtureRoot, "multi-bundle-input.json"), multiInput);
   writeJson(path.join(fixtureRoot, "portable-docs-input.json"), portableDocsInput);
   writeJson(path.join(fixtureRoot, "user-surface-lint-input.json"), lintInput);
+  writeJson(
+    path.join(fixtureRoot, "template-release-receipt.json"),
+    templateReleaseReceiptFixture(),
+  );
   writeJson(path.join(fixtureRoot, "negative-inputs.json"), negativeFixtures());
   writeJson(path.join(contractRoot, "capability-bundle-registry.json"), lintRegistry);
   writeJson(path.join(goldenRoot, "rfc8785-vectors.json"), rfc8785Vectors);

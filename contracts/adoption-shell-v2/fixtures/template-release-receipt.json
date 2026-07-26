@@ -1,0 +1,58 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "1fced1e7f8519cdcc10310c1e82f786b2f16260a0067653b5744d7ff5c39d149",
+  "contractId": "repo-template/adoption-shell-v2",
+  "receiptKind": "repo-template/release-receipt/v1",
+  "publicationState": "candidate",
+  "releaseId": "spencer-shadley/repo-template@3.0.0",
+  "receiptDigestAlgorithm": "sha256-rfc8785-v1",
+  "producer": {
+    "repository": "spencer-shadley/repo-template",
+    "origin": "https://github.com/spencer-shadley/repo-template.git",
+    "semver": "3.0.0",
+    "tag": "v3.0.0",
+    "commit": "1111111111111111111111111111111111111111",
+    "tree": "2222222222222222222222222222222222222222"
+  },
+  "receiptTransport": {
+    "kind": "annotated-git-tag-message/v1",
+    "tagName": "v3.0.0",
+    "targetObjectType": "commit",
+    "bodyEncoding": "utf-8",
+    "bodyCanonicalization": "rfc8785"
+  },
+  "payloadSet": {
+    "manifestPath": "release/release-payload-set.json",
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+    "manifestDigest": "3333333333333333333333333333333333333333333333333333333333333333",
+    "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+    "payloadDigest": "4444444444444444444444444444444444444444444444444444444444444444",
+    "entryCount": 1
+  },
+  "capabilityBundles": [
+    {
+      "id": "repo-template/user-surface-lint",
+      "version": "2.6.0",
+      "digest": "9b53952d6ff7ad1a66f026297aabce5c9c742d76840fa871980a3f3637974349"
+    }
+  ],
+  "materializer": {
+    "contractId": "repo-template/adoption-shell-v2",
+    "contractVersion": "2.0.0",
+    "artifactManifestPath": "artifacts/adoption-shell-v2/artifact-manifest.json",
+    "artifactManifestSchemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
+    "artifactManifestSchemaVersion": "2.0.0",
+    "artifactManifestSchemaDigest": "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
+    "artifactManifestDigest": "5555555555555555555555555555555555555555555555555555555555555555",
+    "artifactDigest": "6666666666666666666666666666666666666666666666666666666666666666",
+    "entrypoint": "index.js",
+    "validatorExport": "validateMaterializerInputV2",
+    "runtimeCompatibility": ">=24.16.0 <25",
+    "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
+  },
+  "migrationRefs": [],
+  "receiptDigest": "2b60ff59e8ac5b40da1871849eb758a41f18d096dbbf842e5ec351ec3750bd1d"
+}

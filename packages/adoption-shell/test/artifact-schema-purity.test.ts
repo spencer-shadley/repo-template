@@ -49,7 +49,7 @@ test("artifact and all schema identities are closed and content-addressed", () =
   assert.equal(manifest.runtimeDependencyCount, 0);
   assert.equal(manifest.entrypoint, "index.js");
   assert.equal(manifest.validatorExport, "validateMaterializerInputV2");
-  assert.equal(manifest.schemas.length, 8);
+  assert.equal(manifest.schemas.length, 9);
   const ids = new Set(Object.values(SCHEMA_IDS));
   const digests = new Set(Object.values(SCHEMA_DIGESTS));
   for (const row of manifest.schemas) {

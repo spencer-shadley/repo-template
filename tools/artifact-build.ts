@@ -16,6 +16,7 @@ import {
   validateCapabilityBundleRegistryV2,
   validateMaterializerInputV2,
   validateMaterializerOutputManifestV2,
+  validateTemplateReleaseReceiptV1,
   validateVerificationReceiptV2,
   type ArtifactManifest,
   type FileClosureRow,
@@ -40,6 +41,7 @@ const SCHEMA_FILES = [
   "materializer-input.schema.json",
   "materializer-output-manifest.schema.json",
   "release-payload-set.schema.json",
+  "template-release-receipt.schema.json",
   "verification-receipt.schema.json",
 ] as const;
 const PORTABLE_CAPABILITY_PATHS = [
@@ -417,6 +419,16 @@ function verifyJsonClosure(manifest: ArtifactManifest): void {
     fs.readFileSync(path.join(contractRoot, "golden", "deterministic-receipt.json"), "utf8"),
   );
   requireValid(validateVerificationReceiptV2(receipt), "deterministic receipt");
+  const templateReleaseReceipt = JSON.parse(
+    fs.readFileSync(
+      path.join(contractRoot, "fixtures", "template-release-receipt.json"),
+      "utf8",
+    ),
+  );
+  requireValid(
+    validateTemplateReleaseReceiptV1(templateReleaseReceipt),
+    "template release receipt fixture",
+  );
 }
 
 function verifyPackage(): void {

@@ -255,7 +255,7 @@ export function validateArtifactManifestV2(value) {
     validateFileRows(value["emitted"], "/emitted", diagnostics);
     validateFileRows(value["fixtures"], "/fixtures", diagnostics);
     validateFileRows(value["goldens"], "/goldens", diagnostics);
-    if (diagnostics.array(value["schemas"], "/schemas", 8, 8)) {
+    if (diagnostics.array(value["schemas"], "/schemas", 9, 9)) {
         const rows = [];
         value["schemas"].forEach((row, index) => {
             const pointer = `/schemas/${index}`;

@@ -3,6 +3,10 @@ export declare const CONTRACT_VERSION: "2.0.0";
 export declare const ENVELOPE_DIGEST_ALGORITHM: "sha256-rfc8785-v1";
 export declare const PAYLOAD_DIGEST_ALGORITHM: "sha256-framed-path-kind-mode-content-v1";
 export declare const RELEASE_RECEIPT_KIND: "repo-template/release-receipt/v1";
+export declare const REPO_TEMPLATE_REPOSITORY: "spencer-shadley/repo-template";
+export declare const REPO_TEMPLATE_ORIGIN: "https://github.com/spencer-shadley/repo-template.git";
+export declare const RELEASE_PAYLOAD_MANIFEST_PATH: "release/release-payload-set.json";
+export declare const ARTIFACT_MANIFEST_PATH: "artifacts/adoption-shell-v2/artifact-manifest.json";
 export declare const SCHEMA_IDS: {
     readonly deliveryDeclaration: "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-declaration.schema.json";
     readonly deliveryEvent: "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-event.schema.json";
@@ -11,6 +15,7 @@ export declare const SCHEMA_IDS: {
     readonly releasePayloadSet: "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json";
     readonly capabilityBundle: "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json";
     readonly artifactManifest: "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json";
+    readonly templateReleaseReceipt: "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json";
     readonly verificationReceipt: "https://schemas.repo-template.dev/adoption-shell-v2/verification-receipt.schema.json";
 };
 export declare const SCHEMA_DIGESTS: {
@@ -20,7 +25,8 @@ export declare const SCHEMA_DIGESTS: {
     readonly materializerOutputManifest: "e7503619b5a53579b0f95a7a218f9ca9a3024ea7194c7359e7311d0bde0a90d1";
     readonly releasePayloadSet: "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f";
     readonly capabilityBundle: "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0";
-    readonly artifactManifest: "ad14f0c97ecdd41895bc8a870eeac55f6acf0d625e9b8973739e0fb971282957";
+    readonly artifactManifest: "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95";
+    readonly templateReleaseReceipt: "1fced1e7f8519cdcc10310c1e82f786b2f16260a0067653b5744d7ff5c39d149";
     readonly verificationReceipt: "8a282bca596130df44f33cb00241d7874a23a2b78c3d23c7c4bd0026103ad256";
 };
 export type Sha256 = string;
@@ -168,6 +174,57 @@ export interface VerificationReceipt extends SchemaIdentity, Readonly<{
     outputPayloadDigest: Sha256;
     independentRunCount: 2;
     result: "verified";
+}> {
+}
+export type TemplateReleasePublicationState = "candidate" | "published";
+export interface TemplateReleaseReceipt extends SchemaIdentity, Readonly<{
+    contractId: typeof CONTRACT_ID;
+    receiptKind: typeof RELEASE_RECEIPT_KIND;
+    publicationState: TemplateReleasePublicationState;
+    releaseId: string;
+    receiptDigestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+    receiptDigest: Sha256;
+    producer: Readonly<{
+        repository: typeof REPO_TEMPLATE_REPOSITORY;
+        origin: typeof REPO_TEMPLATE_ORIGIN;
+        semver: string;
+        tag: string;
+        commit: string;
+        tree: string;
+    }>;
+    receiptTransport: Readonly<{
+        kind: "annotated-git-tag-message/v1";
+        tagName: string;
+        targetObjectType: "commit";
+        bodyEncoding: "utf-8";
+        bodyCanonicalization: "rfc8785";
+    }>;
+    payloadSet: Readonly<{
+        manifestPath: typeof RELEASE_PAYLOAD_MANIFEST_PATH;
+        schemaId: typeof SCHEMA_IDS.releasePayloadSet;
+        schemaVersion: typeof CONTRACT_VERSION;
+        schemaDigest: Sha256;
+        manifestDigest: Sha256;
+        payloadDigestAlgorithm: typeof PAYLOAD_DIGEST_ALGORITHM;
+        payloadDigest: Sha256;
+        entryCount: number;
+    }>;
+    capabilityBundles: readonly BundleReference[];
+    materializer: Readonly<{
+        contractId: typeof CONTRACT_ID;
+        contractVersion: typeof CONTRACT_VERSION;
+        artifactManifestPath: typeof ARTIFACT_MANIFEST_PATH;
+        artifactManifestSchemaId: typeof SCHEMA_IDS.artifactManifest;
+        artifactManifestSchemaVersion: typeof CONTRACT_VERSION;
+        artifactManifestSchemaDigest: Sha256;
+        artifactManifestDigest: Sha256;
+        artifactDigest: Sha256;
+        entrypoint: "index.js";
+        validatorExport: "validateMaterializerInputV2";
+        runtimeCompatibility: ">=24.16.0 <25";
+        compatibleReleaseReceiptKind: typeof RELEASE_RECEIPT_KIND;
+    }>;
+    migrationRefs: readonly [];
 }> {
 }
 export interface MaterializationResult extends Readonly<{

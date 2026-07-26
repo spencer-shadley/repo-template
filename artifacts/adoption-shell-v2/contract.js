@@ -3,6 +3,10 @@ export const CONTRACT_VERSION = "2.0.0";
 export const ENVELOPE_DIGEST_ALGORITHM = "sha256-rfc8785-v1";
 export const PAYLOAD_DIGEST_ALGORITHM = "sha256-framed-path-kind-mode-content-v1";
 export const RELEASE_RECEIPT_KIND = "repo-template/release-receipt/v1";
+export const REPO_TEMPLATE_REPOSITORY = "spencer-shadley/repo-template";
+export const REPO_TEMPLATE_ORIGIN = "https://github.com/spencer-shadley/repo-template.git";
+export const RELEASE_PAYLOAD_MANIFEST_PATH = "release/release-payload-set.json";
+export const ARTIFACT_MANIFEST_PATH = "artifacts/adoption-shell-v2/artifact-manifest.json";
 export const SCHEMA_IDS = {
     deliveryDeclaration: "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-declaration.schema.json",
     deliveryEvent: "https://schemas.repo-template.dev/delivery-measurement-v1/delivery-event.schema.json",
@@ -11,6 +15,7 @@ export const SCHEMA_IDS = {
     releasePayloadSet: "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
     capabilityBundle: "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
     artifactManifest: "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
+    templateReleaseReceipt: "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json",
     verificationReceipt: "https://schemas.repo-template.dev/adoption-shell-v2/verification-receipt.schema.json",
 };
 // Updated only when the corresponding committed schema bytes change.
@@ -21,7 +26,8 @@ export const SCHEMA_DIGESTS = {
     materializerOutputManifest: "e7503619b5a53579b0f95a7a218f9ca9a3024ea7194c7359e7311d0bde0a90d1",
     releasePayloadSet: "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
     capabilityBundle: "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
-    artifactManifest: "ad14f0c97ecdd41895bc8a870eeac55f6acf0d625e9b8973739e0fb971282957",
+    artifactManifest: "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
+    templateReleaseReceipt: "1fced1e7f8519cdcc10310c1e82f786b2f16260a0067653b5744d7ff5c39d149",
     verificationReceipt: "8a282bca596130df44f33cb00241d7874a23a2b78c3d23c7c4bd0026103ad256",
 };
 export class AdoptionShellValidationError extends Error {

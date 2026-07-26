@@ -1,10 +1,14 @@
 export {
   AdoptionShellValidationError,
+  ARTIFACT_MANIFEST_PATH,
   CONTRACT_ID,
   CONTRACT_VERSION,
   ENVELOPE_DIGEST_ALGORITHM,
   PAYLOAD_DIGEST_ALGORITHM,
+  RELEASE_PAYLOAD_MANIFEST_PATH,
   RELEASE_RECEIPT_KIND,
+  REPO_TEMPLATE_ORIGIN,
+  REPO_TEMPLATE_REPOSITORY,
   SCHEMA_DIGESTS,
   SCHEMA_IDS,
 } from "./contract.ts";
@@ -29,6 +33,8 @@ export type {
   SchemaClosureRow,
   SchemaIdentity,
   Sha256,
+  TemplateReleasePublicationState,
+  TemplateReleaseReceipt,
   ValidationResult,
   VerificationReceipt,
 } from "./contract.ts";
@@ -44,6 +50,10 @@ export {
   resolveCapabilityClosure,
   validateCapabilityBundleRegistryV2,
 } from "./capability-bundles.ts";
+export {
+  validatePublishedTemplateReleaseReceiptV1,
+  validateTemplateReleaseReceiptV1,
+} from "./release-receipt.ts";
 export {
   validateArtifactManifestV2,
   validateMaterializerOutputManifestV2,

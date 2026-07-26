@@ -8,7 +8,7 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 <!-- new capabilities or files -->
-- **BREAKING:** Added the pure TypeScript `adoption-shell-v2` contract, six closed schemas,
+- **BREAKING:** Added the pure TypeScript `adoption-shell-v2` contract, nine closed schemas,
   dependency-free compiled ESM/declarations, authenticated capability registry, deterministic
   fixtures/goldens, negative-effect proofs, and a reproducible artifact manifest. This implements
   [ADR-0006: Pure TypeScript adoption shell and release boundary](docs/adr/0006-adoption-shell-v2-technology-decision.md)
@@ -20,6 +20,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
   for the six delivery/token/SLO/human-message SLIs. Anti-gaming exclusions reject activity proxies,
   coverage errors remain visible and non-blocking, and concrete targets/aggregation remain
   Registry/Observatory references. MINOR.
+- Added a closed `repo-template/release-receipt/v1` schema and pure validator binding SemVer,
+  producer commit/tree, annotated-tag transport, payload-set identity, sorted capability bundles,
+  and exact materializer closure. Candidate receipts are valid but non-authoritative; only
+  `publicationState=published` is authoritative. MINOR.
 - Accepted [ADR-0006: Pure TypeScript adoption shell and release boundary](docs/adr/0006-adoption-shell-v2-technology-decision.md),
   the complete AI-First Stack v1.1.0 technology decision for a
   runtime-dependency-free TypeScript `adoption-shell-v2`, closed schemas and capability bundles,

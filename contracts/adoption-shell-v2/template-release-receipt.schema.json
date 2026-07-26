@@ -1,0 +1,273 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json",
+  "title": "repo-template release receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "schemaDigest",
+    "contractId",
+    "receiptKind",
+    "publicationState",
+    "releaseId",
+    "receiptDigestAlgorithm",
+    "receiptDigest",
+    "producer",
+    "receiptTransport",
+    "payloadSet",
+    "capabilityBundles",
+    "materializer",
+    "migrationRefs"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json"
+    },
+    "schemaVersion": {
+      "const": "2.0.0"
+    },
+    "schemaDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "contractId": {
+      "const": "repo-template/adoption-shell-v2"
+    },
+    "receiptKind": {
+      "const": "repo-template/release-receipt/v1"
+    },
+    "publicationState": {
+      "enum": [
+        "candidate",
+        "published"
+      ]
+    },
+    "releaseId": {
+      "type": "string",
+      "minLength": 34,
+      "maxLength": 120,
+      "pattern": "^spencer-shadley/repo-template@"
+    },
+    "receiptDigestAlgorithm": {
+      "const": "sha256-rfc8785-v1"
+    },
+    "receiptDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "origin",
+        "semver",
+        "tag",
+        "commit",
+        "tree"
+      ],
+      "properties": {
+        "repository": {
+          "const": "spencer-shadley/repo-template"
+        },
+        "origin": {
+          "const": "https://github.com/spencer-shadley/repo-template.git"
+        },
+        "semver": {
+          "$ref": "#/$defs/semver"
+        },
+        "tag": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 81,
+          "pattern": "^v"
+        },
+        "commit": {
+          "$ref": "#/$defs/gitSha1"
+        },
+        "tree": {
+          "$ref": "#/$defs/gitSha1"
+        }
+      }
+    },
+    "receiptTransport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "tagName",
+        "targetObjectType",
+        "bodyEncoding",
+        "bodyCanonicalization"
+      ],
+      "properties": {
+        "kind": {
+          "const": "annotated-git-tag-message/v1"
+        },
+        "tagName": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 81,
+          "pattern": "^v"
+        },
+        "targetObjectType": {
+          "const": "commit"
+        },
+        "bodyEncoding": {
+          "const": "utf-8"
+        },
+        "bodyCanonicalization": {
+          "const": "rfc8785"
+        }
+      }
+    },
+    "payloadSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifestPath",
+        "schemaId",
+        "schemaVersion",
+        "schemaDigest",
+        "manifestDigest",
+        "payloadDigestAlgorithm",
+        "payloadDigest",
+        "entryCount"
+      ],
+      "properties": {
+        "manifestPath": {
+          "const": "release/release-payload-set.json"
+        },
+        "schemaId": {
+          "const": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json"
+        },
+        "schemaVersion": {
+          "const": "2.0.0"
+        },
+        "schemaDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "manifestDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "payloadDigestAlgorithm": {
+          "const": "sha256-framed-path-kind-mode-content-v1"
+        },
+        "payloadDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "entryCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        }
+      }
+    },
+    "capabilityBundles": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/bundleReference"
+      }
+    },
+    "materializer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractId",
+        "contractVersion",
+        "artifactManifestPath",
+        "artifactManifestSchemaId",
+        "artifactManifestSchemaVersion",
+        "artifactManifestSchemaDigest",
+        "artifactManifestDigest",
+        "artifactDigest",
+        "entrypoint",
+        "validatorExport",
+        "runtimeCompatibility",
+        "compatibleReleaseReceiptKind"
+      ],
+      "properties": {
+        "contractId": {
+          "const": "repo-template/adoption-shell-v2"
+        },
+        "contractVersion": {
+          "const": "2.0.0"
+        },
+        "artifactManifestPath": {
+          "const": "artifacts/adoption-shell-v2/artifact-manifest.json"
+        },
+        "artifactManifestSchemaId": {
+          "const": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json"
+        },
+        "artifactManifestSchemaVersion": {
+          "const": "2.0.0"
+        },
+        "artifactManifestSchemaDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "artifactManifestDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "artifactDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "entrypoint": {
+          "const": "index.js"
+        },
+        "validatorExport": {
+          "const": "validateMaterializerInputV2"
+        },
+        "runtimeCompatibility": {
+          "const": ">=24.16.0 <25"
+        },
+        "compatibleReleaseReceiptKind": {
+          "const": "repo-template/release-receipt/v1"
+        }
+      }
+    },
+    "migrationRefs": {
+      "type": "array",
+      "maxItems": 0
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gitSha1": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "semver": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 80,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "bundleReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[a-z0-9]+(?:[._/-][a-z0-9]+)*$"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    }
+  }
+}

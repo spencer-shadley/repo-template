@@ -1,6 +1,6 @@
 # adoption-shell-v2 contract
 
-Repo Template owns this create-only, pure producer contract. All six schemas use Draft 2020-12,
+Repo Template owns this create-only, pure producer contract. All nine schemas use Draft 2020-12,
 stable absolute IDs under `https://schemas.repo-template.dev/adoption-shell-v2/`, version `2.0.0`,
 closed object boundaries, bounded values, and only same-directory or fragment references. Their
 exact byte digests are bound by `artifacts/adoption-shell-v2/artifact-manifest.json`.
@@ -11,6 +11,9 @@ no-pre-custody-workflow conformance flags. `materializer-output-manifest` descri
 in-memory bytes.
 `artifact-manifest` binds the exact compiler, source, schema, emitted, fixture, and golden closure.
 `verification-receipt` proves two independently reconstructed runs without a clock.
+`template-release-receipt` binds candidate or published SemVer to exact producer commit/tree,
+payload-set, annotated-tag transport, and compiled-materializer closure. Only
+`publicationState=published` is authoritative.
 
 Digest domains:
 
