@@ -1,4 +1,4 @@
-# repo-template — priorities, SLI, SLO
+# {{NAME}} — priorities, SLI, SLO
 
 > **Fleet principles (source of truth):** `C:\code\PRIORITIES.md` — [fleet priorities](../../../PRIORITIES.md).
 > **Local agent rules:** [AGENTS.md](./AGENTS.md).

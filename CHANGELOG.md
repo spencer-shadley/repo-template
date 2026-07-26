@@ -44,6 +44,8 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Replaced the copied priorities seed's concrete template identity with the portable `{{NAME}}`
+  placeholder and enforced it in self-verification. PATCH.
 - Fixed the portable `PRIORITIES.md` seed's missing manifest classification and made its
   copy-only conformance deterministic. PATCH.
 - Fixed issue #92 as a capability-closure class: `user-surface-lint` now carries both configuration

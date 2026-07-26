@@ -123,6 +123,10 @@ if (manifest["model-boundary.json"] !== "copy") {
 if (manifest["PRIORITIES.md"] !== "copy") {
   boundaryErrors.push("PRIORITIES.md must be manifest copy");
 }
+const priorities = fs.readFileSync(path.join(root, "PRIORITIES.md"), "utf8");
+if (!priorities.startsWith("# {{NAME}} — priorities, SLI, SLO\n")) {
+  boundaryErrors.push("PRIORITIES.md must retain the portable {{NAME}} heading");
+}
 try {
   const raw = fs.readFileSync(path.join(root, "model-boundary.json"), "utf8");
   if (/TODO\(setup!?\):|\{\{[A-Z0-9_]+\}\}/.test(raw)) {
