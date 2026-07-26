@@ -105,6 +105,14 @@ test("coverage errors remain visible without blocking structurally valid source 
   if (!inconsistent.ok) {
     assert.ok(inconsistent.diagnostics.some((row) => row.code === "E_COVERAGE"));
   }
+
+  event.coverage.complete = false;
+  event.coverage.errors = [];
+  const omitted = validateDeliveryEventV1(event);
+  assert.equal(omitted.ok, false);
+  if (!omitted.ok) {
+    assert.ok(omitted.diagnostics.some((row) => row.code === "E_COVERAGE"));
+  }
 });
 
 test("declaration rejects incomplete SLI coverage and proxy drift", () => {

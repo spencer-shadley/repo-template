@@ -44,6 +44,7 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Added delivery-event regression coverage for both inconsistent coverage-state directions. PATCH.
 - Added a release-candidate regression assertion that candidate construction preserves caller input
   bytes. PATCH.
 - Added committed-artifact regression coverage for portable paths and relative documentation-link
