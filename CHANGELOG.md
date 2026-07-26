@@ -44,6 +44,8 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Fixed the portable `PRIORITIES.md` seed's missing manifest classification and made its
+  copy-only conformance deterministic. PATCH.
 - Fixed issue #92 as a capability-closure class: `user-surface-lint` now carries both configuration
   files and all seven `--self-test` fixtures as `copy`, and its two advertised modes are exercised
   from only the materialized payload. MINOR.

@@ -143,6 +143,7 @@
   "plans/archive/004.result.md": "self",
   "plans/drafts/000-smoke.md": "copy",
   "pnpm-lock.yaml": "self",
+  "PRIORITIES.md": "copy",
   "template-manifest.json": "self",
   "tools/artifact-build.ts": "self",
   "tools/artifact-policy.ts": "self",

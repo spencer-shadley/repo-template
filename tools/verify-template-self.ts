@@ -120,6 +120,9 @@ const boundaryErrors: string[] = [...directL0DefaultErrors];
 if (manifest["model-boundary.json"] !== "copy") {
   boundaryErrors.push("model-boundary.json must be manifest copy");
 }
+if (manifest["PRIORITIES.md"] !== "copy") {
+  boundaryErrors.push("PRIORITIES.md must be manifest copy");
+}
 try {
   const raw = fs.readFileSync(path.join(root, "model-boundary.json"), "utf8");
   if (/TODO\(setup!?\):|\{\{[A-Z0-9_]+\}\}/.test(raw)) {
