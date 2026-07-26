@@ -44,6 +44,7 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Made documentation-link validation accept every absolute URI scheme. PATCH.
 - Added deterministic artifact-policy regression coverage for forbidden ambient imports and
   sorted findings. PATCH.
 - Added canonical-base64 regression coverage for alternate and non-padded encodings. PATCH.

@@ -41,7 +41,7 @@ export function validateDocumentationLinks(
     for (const match of text.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
       const label = match[1] ?? "";
       const link = match[2] ?? "";
-      if (/^https:\/\//.test(link) || link.startsWith("#")) continue;
+      if (/^[A-Za-z][A-Za-z0-9+.-]*:/.test(link) || link.startsWith("#")) continue;
       const resolved = resolvePayloadLink(entry.path, link);
       if (resolved === null || !byPath.has(resolved)) {
         diagnostics.add(

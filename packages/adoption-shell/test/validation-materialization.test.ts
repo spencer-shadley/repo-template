@@ -10,9 +10,11 @@ import {
   materializeAdoptionShellV2,
   validateMaterializerInputV2,
   validateMaterializerOutputManifestV2,
+  validateDocumentationLinks,
   validateVerificationReceiptV2,
   type Diagnostic,
   type MaterializerInput,
+  type PayloadEntry,
   type VerificationReceipt,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 import {
@@ -150,6 +152,27 @@ test("Template release identity stays distinct from output payload identity", ()
   assert.equal("outputRoot" in result.manifest, false);
   assert.equal("invocationReceipt" in result.manifest, false);
   assert.equal("outputTreeDigest" in result.manifest, false);
+});
+
+test("documentation link validation ignores absolute URI schemes", () => {
+  const contentBase64 = Buffer.from(
+    "[HTTP](http://example.com) [Mail](mailto:dev@example.com) [FTP](ftp://example.com)",
+    "utf8",
+  ).toString("base64");
+  const entries: readonly PayloadEntry[] = [
+    {
+      path: "docs/guide.md",
+      kind: "file",
+      mode: "100644",
+      contentSha256: "0".repeat(64),
+      role: "generic-base-text",
+      encoding: "utf-8",
+      bundleId: null,
+      contentBase64,
+    },
+  ];
+
+  assert.deepEqual(validateDocumentationLinks(entries), []);
 });
 
 test("compiled path policy remains portable across Windows and relative-doc boundaries", () => {
