@@ -2,7 +2,7 @@ export { AdoptionShellValidationError, ARTIFACT_MANIFEST_PATH, CONTRACT_ID, CONT
 export { canonicalizeJson, canonicalJsonBytes } from "./canonical-json.js";
 export { decodeCanonicalBase64, payloadFrame, sha256Bytes, sha256CanonicalJson, sha256PayloadEntries, } from "./digest.js";
 export { resolveCapabilityClosure, validateCapabilityBundleRegistryV2, } from "./capability-bundles.js";
-export { createTemplateReleaseCandidateV1, isTemplateReleaseCandidateInput, } from "./release-candidate.js";
+export { createReleasePayloadSetV2, createTemplateReleaseCandidateV1, isReleasePayloadEntryDraftV2, isTemplateReleaseCandidateInput, } from "./release-candidate.js";
 export { validateTemplateReleaseClosureV1, } from "./release-closure.js";
 export { validatePublishedTemplateReleaseReceiptV1, validateTemplateReleaseReceiptV1, } from "./release-receipt.js";
 export { validateArtifactManifestV2, validateMaterializerOutputManifestV2, validateVerificationReceiptV2, } from "./validate-manifests.js";

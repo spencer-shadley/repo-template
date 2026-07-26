@@ -6,10 +6,12 @@ import { fileURLToPath } from "node:url";
 
 import {
   canonicalizeJson,
+  createReleasePayloadSetV2,
   createTemplateReleaseCandidateV1,
   validateTemplateReleaseClosureV1,
   type ArtifactManifest,
   type MaterializerInput,
+  type ReleasePayloadEntryDraftV2,
   type TemplateReleaseCandidateInput,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 
@@ -88,5 +90,53 @@ test("candidate builder fails closed on invalid identity, unknown authority, or 
   assert.equal(result.ok, false);
   if (!result.ok) {
     assert.ok(result.diagnostics.some((row) => row.code === "E_PAYLOAD_DIGEST"));
+  }
+});
+
+test("payload builder hashes, sorts, and reproduces the canonical release payload set", () => {
+  const canonical = input().payloadSet;
+  const drafts = canonical.entries
+    .map(({ contentSha256: _contentSha256, ...entry }) => entry)
+    .reverse();
+  const original = canonicalizeJson(drafts);
+  const result = createReleasePayloadSetV2(drafts);
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(canonicalizeJson(result.value), canonicalizeJson(canonical));
+  assert.equal(canonicalizeJson(drafts), original);
+});
+
+test("payload builder rejects malformed drafts without throwing", () => {
+  const canonical = input().payloadSet;
+  const [first] = canonical.entries;
+  assert.ok(first);
+  const { contentSha256: _contentSha256, ...validDraft } = first;
+
+  const malformedBase64: ReleasePayloadEntryDraftV2 = {
+    ...validDraft,
+    contentBase64: "not canonical base64",
+  };
+  let result = createReleasePayloadSetV2([malformedBase64]);
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.ok(result.diagnostics.some((row) => row.code === "E_BASE64"));
+  }
+
+  result = createReleasePayloadSetV2([{ ...validDraft, foreignAuthority: true }]);
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
+  }
+
+  result = createReleasePayloadSetV2([]);
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.ok(result.diagnostics.some((row) => row.code === "E_COUNT"));
+  }
+
+  result = createReleasePayloadSetV2(validDraft);
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.ok(result.diagnostics.some((row) => row.code === "E_TYPE"));
   }
 });

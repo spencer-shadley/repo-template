@@ -29,6 +29,7 @@ export type {
   MaterializerOutputManifest,
   OutputManifestEntry,
   PayloadEntry,
+  ReleasePayloadEntryDraftV2,
   ReleasePayloadSet,
   SchemaClosureRow,
   SchemaIdentity,
@@ -53,7 +54,9 @@ export {
   validateCapabilityBundleRegistryV2,
 } from "./capability-bundles.ts";
 export {
+  createReleasePayloadSetV2,
   createTemplateReleaseCandidateV1,
+  isReleasePayloadEntryDraftV2,
   isTemplateReleaseCandidateInput,
 } from "./release-candidate.ts";
 export {

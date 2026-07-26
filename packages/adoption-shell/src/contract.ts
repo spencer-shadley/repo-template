@@ -75,6 +75,8 @@ export interface PayloadEntry extends Readonly<{
   contentBase64: string;
 }> {}
 
+export type ReleasePayloadEntryDraftV2 = Omit<PayloadEntry, "contentSha256">;
+
 export interface ReleasePayloadSet extends SchemaIdentity, Readonly<{
   contractId: typeof CONTRACT_ID;
   digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;

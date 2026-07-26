@@ -3,6 +3,7 @@ import {
   CONTRACT_ID,
   CONTRACT_VERSION,
   ENVELOPE_DIGEST_ALGORITHM,
+  PAYLOAD_DIGEST_ALGORITHM,
   RELEASE_PAYLOAD_MANIFEST_PATH,
   RELEASE_RECEIPT_KIND,
   REPO_TEMPLATE_ORIGIN,
@@ -12,18 +13,26 @@ import {
   type ArtifactManifest,
   type CapabilityBundleRegistry,
   type Diagnostic,
+  type PayloadEntry,
+  type ReleasePayloadEntryDraftV2,
   type ReleasePayloadSet,
   type TemplateReleaseCandidateInput,
   type TemplateReleaseClosure,
   type ValidationResult,
 } from "./contract.ts";
 import { validateCapabilityBundleRegistryV2 } from "./capability-bundles.ts";
-import { sha256CanonicalJson } from "./digest.ts";
+import {
+  decodeCanonicalBase64,
+  sha256Bytes,
+  sha256CanonicalJson,
+  sha256PayloadEntries,
+} from "./digest.ts";
 import { validateTemplateReleaseClosureV1 } from "./release-closure.ts";
 import { validateReleasePayloadSetV2 } from "./validate.ts";
 import { validateArtifactManifestV2 } from "./validate-manifests.ts";
 import {
   Diagnostics,
+  isRecord,
   SEMVER_PATTERN,
 } from "./validation-helpers.ts";
 
@@ -172,4 +181,75 @@ export function isTemplateReleaseCandidateInput(
   value: unknown,
 ): value is TemplateReleaseCandidateInput {
   return createTemplateReleaseCandidateV1(value).ok;
+}
+
+export function createReleasePayloadSetV2(
+  value: unknown,
+): ValidationResult<ReleasePayloadSet> {
+  if (!Array.isArray(value)) {
+    const diagnostics = new Diagnostics();
+    diagnostics.add("E_TYPE", "", "expected an array of release payload entry drafts");
+    return finish(value as ReleasePayloadSet, diagnostics);
+  }
+  const rawEntries = value;
+  const entries = rawEntries.map((rawEntry) => {
+    if (!isRecord(rawEntry)) return rawEntry;
+    let contentSha256 = "0".repeat(64);
+    if (typeof rawEntry["contentBase64"] === "string") {
+      try {
+        contentSha256 = sha256Bytes(
+          decodeCanonicalBase64(rawEntry["contentBase64"]),
+        );
+      } catch {
+        // The canonical validator emits the stable entry-level base64 diagnostic.
+      }
+    }
+    return { ...rawEntry, contentSha256 };
+  });
+  entries.sort((left, right) => {
+    const leftPath = isRecord(left) && typeof left["path"] === "string"
+      ? left["path"]
+      : "";
+    const rightPath = isRecord(right) && typeof right["path"] === "string"
+      ? right["path"]
+      : "";
+    return leftPath < rightPath ? -1 : leftPath > rightPath ? 1 : 0;
+  });
+
+  let payloadDigest = "0".repeat(64);
+  try {
+    payloadDigest = sha256PayloadEntries(
+      entries as unknown as readonly PayloadEntry[],
+    );
+  } catch {
+    // The canonical validator reports malformed entries without throwing.
+  }
+  const body = {
+    schemaId: SCHEMA_IDS.releasePayloadSet,
+    schemaVersion: CONTRACT_VERSION,
+    schemaDigest: SCHEMA_DIGESTS.releasePayloadSet,
+    contractId: CONTRACT_ID,
+    digestAlgorithm: ENVELOPE_DIGEST_ALGORITHM,
+    payloadDigestAlgorithm: PAYLOAD_DIGEST_ALGORITHM,
+    payloadDigest,
+    entryCount: entries.length,
+    migrationRefs: [] as const,
+    entries,
+  };
+  let releaseDigest = "0".repeat(64);
+  try {
+    releaseDigest = sha256CanonicalJson(body);
+  } catch {
+    // The canonical validator reports unsupported JSON values.
+  }
+  return validateReleasePayloadSetV2({
+    ...body,
+    releaseDigest,
+  });
+}
+
+export function isReleasePayloadEntryDraftV2(
+  value: unknown,
+): value is ReleasePayloadEntryDraftV2 {
+  return createReleasePayloadSetV2([value]).ok;
 }
