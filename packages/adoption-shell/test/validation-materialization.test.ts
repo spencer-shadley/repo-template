@@ -15,6 +15,10 @@ import {
   type MaterializerInput,
   type VerificationReceipt,
 } from "../../../artifacts/adoption-shell-v2/index.js";
+import {
+  portablePathFailure,
+  resolvePayloadLink,
+} from "../../../artifacts/adoption-shell-v2/path-policy.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -146,4 +150,24 @@ test("Template release identity stays distinct from output payload identity", ()
   assert.equal("outputRoot" in result.manifest, false);
   assert.equal("invocationReceipt" in result.manifest, false);
   assert.equal("outputTreeDigest" in result.manifest, false);
+});
+
+test("compiled path policy remains portable across Windows and relative-doc boundaries", () => {
+  for (const [value, expected] of [
+    ["docs/guide.md", null],
+    ["", "empty"],
+    ["C:/work/guide.md", "absolute"],
+    ["docs\\guide.md", "characters"],
+    ["docs//guide.md", "segment"],
+    ["docs/COM1.txt", "reserved"],
+    ["docs/guide.", "trailing"],
+  ] as const) {
+    assert.equal(portablePathFailure(value), expected, value);
+  }
+
+  assert.equal(resolvePayloadLink("docs/guide.md", "#section"), "docs/guide.md");
+  assert.equal(resolvePayloadLink("docs/guide.md", "./child.md"), "docs/child.md");
+  assert.equal(resolvePayloadLink("docs/guide.md", "../README.md"), "README.md");
+  assert.equal(resolvePayloadLink("docs/guide.md", "../../outside.md"), null);
+  assert.equal(resolvePayloadLink("docs/guide.md", "https://example.com/guide"), null);
 });
