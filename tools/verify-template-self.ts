@@ -6,17 +6,6 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const allowedModes = new Set(["copy", "merge", "self", "generated"]);
-const textExtensions = new Set([
-  ".d.ts",
-  ".js",
-  ".json",
-  ".jsonl",
-  ".md",
-  ".mjs",
-  ".ts",
-  ".yaml",
-  ".yml",
-]);
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -27,23 +16,13 @@ function git(...args: readonly string[]): string {
 }
 
 function listTextFiles(): readonly string[] {
-  const files: string[] = [];
-  const visit = (directory: string): void => {
-    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-      if (entry.name === ".git" || entry.name === "node_modules") continue;
-      const resolved = path.join(directory, entry.name);
-      if (entry.isDirectory()) visit(resolved);
-      else if (
-        entry.isFile() &&
-        (entry.name === "TEMPLATE_VERSION" ||
-          [...textExtensions].some((extension) => entry.name.endsWith(extension)))
-      ) {
-        files.push(path.relative(root, resolved).split(path.sep).join("/"));
-      }
-    }
-  };
-  visit(root);
-  return files.sort(compare);
+  return git("ls-files", "-z")
+    .split("\0")
+    .filter(Boolean)
+    .filter((relativePath) =>
+      !fs.readFileSync(path.join(root, ...relativePath.split("/"))).includes(0),
+    )
+    .sort(compare);
 }
 
 function gitBlobId(content: Uint8Array): string {
@@ -54,6 +33,13 @@ function gitBlobId(content: Uint8Array): string {
 function isConflictMarker(line: string): boolean {
   return /^(?:<{7}|={7}|>{7})/.test(line);
 }
+
+const textFileSelfTestErrors = ([
+  ["UTF-8", Buffer.from("portable text", "utf8"), true],
+  ["NUL byte", Buffer.from([0x61, 0x00]), false],
+] as const)
+  .filter(([, content, expected]) => !content.includes(0) !== expected)
+  .map(([label]) => `text-file self-test failed: ${label}`);
 
 const conflictMarkerSelfTestErrors = ([
   ["opening", "<<<<<<< HEAD", true],
@@ -131,6 +117,7 @@ for (const [label, pattern] of requiredDirectL0Defaults) {
 
 const boundaryErrors: string[] = [
   ...directL0DefaultErrors,
+  ...textFileSelfTestErrors,
   ...conflictMarkerSelfTestErrors,
 ];
 if (manifest["model-boundary.json"] !== "copy") {

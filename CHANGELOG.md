@@ -44,6 +44,8 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Expanded Template conflict scanning to every tracked UTF-8-safe text file, independent of file
+  extension, with deterministic binary classification checks. PATCH.
 - Extended Template self-verification to reject every standard line-start Git conflict marker and
   added deterministic marker-class self-tests. PATCH.
 - Replaced the copied priorities seed's concrete template identity with the portable `{{NAME}}`
