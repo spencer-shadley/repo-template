@@ -345,3 +345,140 @@ test("verification receipt validator rejects every mutated field with a targeted
     }
   }
 });
+
+function readOutputManifest(): Record<string, unknown> {
+  const golden = readJson<{ readonly manifest: Record<string, unknown> }>(
+    "contracts/adoption-shell-v2/golden/minimal-output.json",
+  );
+  return golden.manifest;
+}
+
+test("materializer output manifest validator rejects every mutated field with a targeted diagnostic", () => {
+  const cases: readonly {
+    readonly name: string;
+    readonly mutate: (manifest: Record<string, unknown>) => void;
+    readonly code: string;
+    readonly pointer: string;
+    readonly recompute: boolean;
+  }[] = [
+    {
+      name: "entryCount not positive",
+      mutate: (m) => (m["entryCount"] = 0),
+      code: "E_COUNT",
+      pointer: "/entryCount",
+      recompute: true,
+    },
+    {
+      name: "entryCount does not match entries",
+      mutate: (m) => (m["entryCount"] = 2),
+      code: "E_ENTRY_COUNT",
+      pointer: "/entryCount",
+      recompute: true,
+    },
+    {
+      name: "migrationRefs non-empty",
+      mutate: (m) => (m["migrationRefs"] = ["extra"]),
+      code: "E_COUNT",
+      pointer: "/migrationRefs",
+      recompute: true,
+    },
+    {
+      name: "selectedBundles id pattern mismatch",
+      mutate: (m) => {
+        m["selectedBundles"] = [
+          { id: "BAD ID!", version: "1.0.0", digest: "0".repeat(64) },
+        ];
+      },
+      code: "E_FORMAT",
+      pointer: "/selectedBundles/0/id",
+      recompute: true,
+    },
+    {
+      name: "selectedBundles version mismatch",
+      mutate: (m) => {
+        m["selectedBundles"] = [
+          { id: "valid-id", version: "not-semver", digest: "0".repeat(64) },
+        ];
+      },
+      code: "E_FORMAT",
+      pointer: "/selectedBundles/0/version",
+      recompute: true,
+    },
+    {
+      name: "entries role unsupported",
+      mutate: (m) => {
+        const rows = m["entries"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no entries");
+        first["role"] = "bogus-role";
+      },
+      code: "E_ROLE",
+      pointer: "/entries/0/role",
+      recompute: true,
+    },
+    {
+      name: "entries mode invalid",
+      mutate: (m) => {
+        const rows = m["entries"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no entries");
+        first["mode"] = "100600";
+      },
+      code: "E_MODE",
+      pointer: "/entries/0/mode",
+      recompute: true,
+    },
+    {
+      name: "entries encoding unsupported",
+      mutate: (m) => {
+        const rows = m["entries"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no entries");
+        first["encoding"] = "latin1";
+      },
+      code: "E_ENCODING",
+      pointer: "/entries/0/encoding",
+      recompute: true,
+    },
+    {
+      name: "entries encoding disagrees with role",
+      mutate: (m) => {
+        const rows = m["entries"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no entries");
+        first["encoding"] = "binary";
+      },
+      code: "E_ENCODING_ROLE",
+      pointer: "/entries/0/encoding",
+      recompute: true,
+    },
+    {
+      name: "manifestDigest mismatch",
+      mutate: (m) => (m["releaseDigest"] = "1".repeat(64)),
+      code: "E_MANIFEST_DIGEST",
+      pointer: "/manifestDigest",
+      recompute: false,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const manifest = readOutputManifest();
+    testCase.mutate(manifest);
+    const { manifestDigest: _digest, ...body } = manifest;
+    const candidate = testCase.recompute
+      ? { ...body, manifestDigest: sha256CanonicalJson(body) }
+      : manifest;
+    const result = validateMaterializerOutputManifestV2(
+      candidate as unknown as MaterializerOutputManifest,
+    );
+    assert.equal(result.ok, false, testCase.name);
+    if (!result.ok) {
+      assert.ok(
+        result.diagnostics.some(
+          (row) => row.code === testCase.code && row.pointer === testCase.pointer,
+        ),
+        `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
+      );
+    }
+  }
+});
