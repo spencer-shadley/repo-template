@@ -8,6 +8,7 @@ import {
   sha256CanonicalJson,
   validateArtifactManifestV2,
   validateMaterializerOutputManifestV2,
+  validateVerificationReceiptV2,
   type MaterializerOutputManifest,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 
@@ -241,6 +242,98 @@ test("artifact manifest validator rejects every mutated field with a targeted di
       ? withRecomputedDigest(body)
       : manifest;
     const result = validateArtifactManifestV2(candidate);
+    assert.equal(result.ok, false, testCase.name);
+    if (!result.ok) {
+      assert.ok(
+        result.diagnostics.some(
+          (row) => row.code === testCase.code && row.pointer === testCase.pointer,
+        ),
+        `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
+      );
+    }
+  }
+});
+
+function readVerificationReceipt(): Record<string, unknown> {
+  return readJson<Record<string, unknown>>(
+    "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
+  );
+}
+
+test("verification receipt validator rejects every mutated field with a targeted diagnostic", () => {
+  const cases: readonly {
+    readonly name: string;
+    readonly mutate: (receipt: Record<string, unknown>) => void;
+    readonly code: string;
+    readonly pointer: string;
+    readonly recompute: boolean;
+  }[] = [
+    {
+      name: "schemaId mismatch",
+      mutate: (r) => (r["schemaId"] = "bogus"),
+      code: "E_CONST",
+      pointer: "/schemaId",
+      recompute: true,
+    },
+    {
+      name: "schemaDigest mismatch",
+      mutate: (r) => (r["schemaDigest"] = "0".repeat(64)),
+      code: "E_SCHEMA_DIGEST",
+      pointer: "/schemaDigest",
+      recompute: true,
+    },
+    {
+      name: "contractId mismatch",
+      mutate: (r) => (r["contractId"] = "bogus/contract"),
+      code: "E_CONST",
+      pointer: "/contractId",
+      recompute: true,
+    },
+    {
+      name: "receiptKind mismatch",
+      mutate: (r) => (r["receiptKind"] = "bogus/kind/v1"),
+      code: "E_CONST",
+      pointer: "/receiptKind",
+      recompute: true,
+    },
+    {
+      name: "digestAlgorithm mismatch",
+      mutate: (r) => (r["digestAlgorithm"] = "bogus-algorithm"),
+      code: "E_CONST",
+      pointer: "/digestAlgorithm",
+      recompute: true,
+    },
+    {
+      name: "independentRunCount not 2",
+      mutate: (r) => (r["independentRunCount"] = 1),
+      code: "E_CONST",
+      pointer: "/independentRunCount",
+      recompute: true,
+    },
+    {
+      name: "result mismatch",
+      mutate: (r) => (r["result"] = "pending"),
+      code: "E_CONST",
+      pointer: "/result",
+      recompute: true,
+    },
+    {
+      name: "receiptDigest mismatch",
+      mutate: (r) => (r["artifactDigest"] = "1".repeat(64)),
+      code: "E_RECEIPT_DIGEST",
+      pointer: "/receiptDigest",
+      recompute: false,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const receipt = readVerificationReceipt();
+    testCase.mutate(receipt);
+    const { receiptDigest: _digest, ...body } = receipt;
+    const candidate = testCase.recompute
+      ? { ...body, receiptDigest: sha256CanonicalJson(body) }
+      : receipt;
+    const result = validateVerificationReceiptV2(candidate);
     assert.equal(result.ok, false, testCase.name);
     if (!result.ok) {
       assert.ok(

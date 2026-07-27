@@ -44,6 +44,9 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Added negative-path regression coverage for `validateVerificationReceiptV2`, asserting a
+  targeted diagnostic for every mutated field (identity constants, receipt-kind/digest-algorithm/
+  independentRunCount/result constants, and the receipt-digest recompute). PATCH.
 - Added negative-path regression coverage for `validateArtifactManifestV2`, asserting a targeted
   diagnostic for every mutated field (identity constants, toolchain, file rows, the 9-schema
   closure, and the manifest-digest recompute). PATCH.
