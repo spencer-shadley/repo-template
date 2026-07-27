@@ -44,6 +44,13 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Fixed `verify:self` to actually invoke `lint-user-surface-leaks.mjs --config
+  .user-surface-lint.json`, not just its `--self-test` fixtures. AGENTS.md's Validation policy and
+  README.md's "User-surface leak lint" section both declare that this exact command runs "in the
+  verify gate," but the real (non-fixture) invocation previously only existed in the advisory,
+  non-blocking `.github/workflows/ci.yml`; `pnpm verify` never ran it. Proven with a real injected
+  violation (fixture `tests/fixtures/user-surface-lint/bad/`) that the gate now catches; reverted
+  before commit. PATCH.
 - Added negative-path regression coverage for `validateMaterializerOutputManifestV2`, asserting a
   targeted diagnostic for entryCount bounds/consistency, migrationRefs, selectedBundles id/version
   format, per-entry role/mode/encoding, and the manifest-digest recompute. PATCH.
