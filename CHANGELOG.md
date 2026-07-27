@@ -44,6 +44,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Fixed `validateMaterializerOutputManifestV2` to enforce the same `bundleId` length/pattern
+  contract on capability-owned output entries that the committed JSON Schema and the release
+  payload-set validator already require; previously any string (including malformed values) was
+  accepted. PATCH.
 - Made documentation-link validation accept every absolute URI scheme. PATCH.
 - Added deterministic artifact-policy regression coverage for forbidden ambient imports and
   sorted findings. PATCH.

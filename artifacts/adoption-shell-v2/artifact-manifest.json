@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "724410dac48e675c116964d76339994778d3530510da46156d15cf6356f319bc",
+  "artifactDigest": "084e48ae935d679a215c6b0f3f3bf70347d5312c6fadcd40186b52379981ae53",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -119,8 +119,8 @@
       "path": "packages/adoption-shell/src/validate-manifests.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "1cc90db96129fa87501bd1d69cb1f9c54b5d382b5cea5681a6ab37bf1074ce95",
-      "bytes": 15711
+      "sha256": "603d2bfffeccd850eda889b62ae867cc96e7edae2c795f503385a4b0e6a6cc5f",
+      "bytes": 15845
     },
     {
       "path": "packages/adoption-shell/src/validate.ts",
@@ -428,8 +428,8 @@
       "path": "validate-manifests.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "caa51982ccdafba822644803f8805a22f13486222fb140fb88f2bd3d7277716c",
-      "bytes": 15408
+      "sha256": "a750ae150ac0855702b2b392efdbbade0243d0220f7385df6150c69753745e48",
+      "bytes": 15576
     },
     {
       "path": "validate.d.ts",
@@ -607,7 +607,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "883e0f035dab7c0adc6fbbf587ec1985e4404f52bc3fd3a3522c1ef6f2ab4454",
+      "sha256": "231f12c51567a966f57ea7de7ff50288b733a57d56d4e6114eb582dbb520e2fd",
       "bytes": 876
     },
     {
@@ -639,5 +639,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "ff355f8ec230a92fd79e9e21b08f5b42184c8fd756a36c08285845bb3c3ed48e"
+  "manifestDigest": "dc3bbdc911de88141ccf593946c1ff5febfaf3f66fd5d4b861de0e2d31b089f6"
 }

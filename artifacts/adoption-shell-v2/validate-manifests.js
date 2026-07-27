@@ -101,8 +101,17 @@ function validateOutputEntry(value, pointer, diagnostics) {
         diagnostics.add("E_ENCODING", `${pointer}/encoding`, "unsupported encoding");
     }
     const generic = value["role"] === "generic-base-text" || value["role"] === "generic-base-binary";
-    if (generic ? value["bundleId"] !== null : typeof value["bundleId"] !== "string") {
-        diagnostics.add("E_BUNDLE_OWNERSHIP", `${pointer}/bundleId`, "bundleId does not agree with the entry role");
+    if (generic) {
+        if (value["bundleId"] !== null) {
+            diagnostics.add("E_BUNDLE_OWNERSHIP", `${pointer}/bundleId`, "generic base entries must use null bundleId");
+        }
+    }
+    else {
+        diagnostics.string(value["bundleId"], `${pointer}/bundleId`, {
+            min: 1,
+            max: 80,
+            pattern: BUNDLE_ID_PATTERN,
+        });
     }
     const expectedEncoding = value["role"] === "generic-base-binary" ? "binary" : "utf-8";
     if (ENTRY_ROLES.has(String(value["role"])) && value["encoding"] !== expectedEncoding) {

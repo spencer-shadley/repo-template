@@ -96,6 +96,7 @@
   "packages/adoption-shell/test/canonical-digest.test.ts": "self",
   "packages/adoption-shell/test/capability-docs-regression.test.ts": "self",
   "packages/adoption-shell/test/delivery-measurement.test.ts": "self",
+  "packages/adoption-shell/test/manifest-validators.test.ts": "self",
   "packages/adoption-shell/test/release-receipt.test.ts": "self",
   "packages/adoption-shell/test/release-closure.test.ts": "self",
   "packages/adoption-shell/test/release-candidate.test.ts": "self",
