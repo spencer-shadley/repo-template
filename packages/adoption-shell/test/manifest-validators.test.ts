@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   sha256CanonicalJson,
+  validateArtifactManifestV2,
   validateMaterializerOutputManifestV2,
   type MaterializerOutputManifest,
 } from "../../../artifacts/adoption-shell-v2/index.js";
@@ -53,5 +54,201 @@ test("capability-owned output entries reject a malformed bundleId", () => {
       ),
       JSON.stringify(result.diagnostics),
     );
+  }
+});
+
+function readArtifactManifest(): Record<string, unknown> {
+  return readJson<Record<string, unknown>>("artifacts/adoption-shell-v2/artifact-manifest.json");
+}
+
+function withRecomputedDigest(body: Record<string, unknown>): Record<string, unknown> {
+  return { ...body, manifestDigest: sha256CanonicalJson(body) };
+}
+
+test("artifact manifest validator rejects every mutated field with a targeted diagnostic", () => {
+  const cases: readonly {
+    readonly name: string;
+    readonly mutate: (manifest: Record<string, unknown>) => void;
+    readonly code: string;
+    readonly pointer: string;
+    readonly recompute: boolean;
+  }[] = [
+    {
+      name: "schemaId mismatch",
+      mutate: (m) => (m["schemaId"] = "bogus"),
+      code: "E_CONST",
+      pointer: "/schemaId",
+      recompute: true,
+    },
+    {
+      name: "schemaDigest mismatch",
+      mutate: (m) => (m["schemaDigest"] = "0".repeat(64)),
+      code: "E_SCHEMA_DIGEST",
+      pointer: "/schemaDigest",
+      recompute: true,
+    },
+    {
+      name: "contractId mismatch",
+      mutate: (m) => (m["contractId"] = "bogus/contract"),
+      code: "E_CONST",
+      pointer: "/contractId",
+      recompute: true,
+    },
+    {
+      name: "contractVersion mismatch",
+      mutate: (m) => (m["contractVersion"] = "9.9.9"),
+      code: "E_CONST",
+      pointer: "/contractVersion",
+      recompute: true,
+    },
+    {
+      name: "digestAlgorithm mismatch",
+      mutate: (m) => (m["digestAlgorithm"] = "bogus-algorithm"),
+      code: "E_CONST",
+      pointer: "/digestAlgorithm",
+      recompute: true,
+    },
+    {
+      name: "artifactDigestAlgorithm mismatch",
+      mutate: (m) => (m["artifactDigestAlgorithm"] = "bogus-algorithm"),
+      code: "E_CONST",
+      pointer: "/artifactDigestAlgorithm",
+      recompute: true,
+    },
+    {
+      name: "toolchain.typescript mismatch",
+      mutate: (m) =>
+        ((m["toolchain"] as Record<string, unknown>)["typescript"] = "0.0.0"),
+      code: "E_CONST",
+      pointer: "/toolchain/typescript",
+      recompute: true,
+    },
+    {
+      name: "toolchain.nodeCompatibility mismatch",
+      mutate: (m) =>
+        ((m["toolchain"] as Record<string, unknown>)["nodeCompatibility"] = ">=0.0.0"),
+      code: "E_CONST",
+      pointer: "/toolchain/nodeCompatibility",
+      recompute: true,
+    },
+    {
+      name: "toolchain.packageManager mismatch",
+      mutate: (m) =>
+        ((m["toolchain"] as Record<string, unknown>)["packageManager"] = "npm@0.0.0"),
+      code: "E_CONST",
+      pointer: "/toolchain/packageManager",
+      recompute: true,
+    },
+    {
+      name: "entrypoint mismatch",
+      mutate: (m) => (m["entrypoint"] = "main.js"),
+      code: "E_CONST",
+      pointer: "/entrypoint",
+      recompute: true,
+    },
+    {
+      name: "validatorExport mismatch",
+      mutate: (m) => (m["validatorExport"] = "bogusExport"),
+      code: "E_CONST",
+      pointer: "/validatorExport",
+      recompute: true,
+    },
+    {
+      name: "runtimeDependencyCount nonzero",
+      mutate: (m) => (m["runtimeDependencyCount"] = 1),
+      code: "E_CONST",
+      pointer: "/runtimeDependencyCount",
+      recompute: true,
+    },
+    {
+      name: "releaseReceiptKind mismatch",
+      mutate: (m) => (m["releaseReceiptKind"] = "bogus/kind/v1"),
+      code: "E_CONST",
+      pointer: "/releaseReceiptKind",
+      recompute: true,
+    },
+    {
+      name: "sources file row bad mode",
+      mutate: (m) => {
+        const rows = m["sources"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no sources rows");
+        first["mode"] = "100600";
+      },
+      code: "E_MODE",
+      pointer: "/sources/0/mode",
+      recompute: true,
+    },
+    {
+      name: "sources file row bytes out of range",
+      mutate: (m) => {
+        const rows = m["sources"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no sources rows");
+        first["bytes"] = 33_554_433;
+      },
+      code: "E_COUNT",
+      pointer: "/sources/0/bytes",
+      recompute: true,
+    },
+    {
+      name: "schemas array wrong length",
+      mutate: (m) => {
+        (m["schemas"] as unknown[]).pop();
+      },
+      code: "E_COUNT",
+      pointer: "/schemas",
+      recompute: true,
+    },
+    {
+      name: "schemas entry id pattern mismatch",
+      mutate: (m) => {
+        const rows = m["schemas"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no schemas rows");
+        first["id"] = "https://example.com/not-a-repo-template-schema.json";
+      },
+      code: "E_FORMAT",
+      pointer: "/schemas/0/id",
+      recompute: true,
+    },
+    {
+      name: "schemas entry version mismatch",
+      mutate: (m) => {
+        const rows = m["schemas"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no schemas rows");
+        first["version"] = "9.9.9";
+      },
+      code: "E_CONST",
+      pointer: "/schemas/0/version",
+      recompute: true,
+    },
+    {
+      name: "manifestDigest mismatch",
+      mutate: (m) => (m["artifactDigest"] = "1".repeat(64)),
+      code: "E_MANIFEST_DIGEST",
+      pointer: "/manifestDigest",
+      recompute: false,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const manifest = readArtifactManifest();
+    testCase.mutate(manifest);
+    const { manifestDigest: _digest, ...body } = manifest;
+    const candidate = testCase.recompute
+      ? withRecomputedDigest(body)
+      : manifest;
+    const result = validateArtifactManifestV2(candidate);
+    assert.equal(result.ok, false, testCase.name);
+    if (!result.ok) {
+      assert.ok(
+        result.diagnostics.some(
+          (row) => row.code === testCase.code && row.pointer === testCase.pointer,
+        ),
+        `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
+      );
+    }
   }
 });

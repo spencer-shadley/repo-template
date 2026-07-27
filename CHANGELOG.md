@@ -44,6 +44,9 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 <!-- behavior changes; breaking ones marked **BREAKING** -->
+- Added negative-path regression coverage for `validateArtifactManifestV2`, asserting a targeted
+  diagnostic for every mutated field (identity constants, toolchain, file rows, the 9-schema
+  closure, and the manifest-digest recompute). PATCH.
 - Fixed `validateMaterializerOutputManifestV2` to enforce the same `bundleId` length/pattern
   contract on capability-owned output entries that the committed JSON Schema and the release
   payload-set validator already require; previously any string (including malformed values) was
