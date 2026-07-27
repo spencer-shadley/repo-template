@@ -106,7 +106,10 @@ test("issue #92 bundle materializes both advertised modes from exact closure", a
       }),
       0,
     );
-    assert.ok(configOutput.join("\n").includes("no user surface configured"));
+    assert.ok(
+      /no user surface configured|explicitly declared none/.test(configOutput.join("\n")),
+      configOutput.join("\n"),
+    );
     const selfTestOutput: string[] = [];
     lintModule.selfTest(ownedTemp, (line) => selfTestOutput.push(line));
     assert.deepEqual(selfTestOutput, ["user-surface-lint: self-test passed"]);

@@ -52,9 +52,18 @@ const PORTABLE_CAPABILITY_PATHS = [
   "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
   "tests/fixtures/user-surface-lint/bad/config.json",
   "tests/fixtures/user-surface-lint/bad/src/messages.js",
+  "tests/fixtures/user-surface-lint/declared-none/config.json",
   "tests/fixtures/user-surface-lint/empty/config.json",
+  "tests/fixtures/user-surface-lint/error-codes/config.json",
+  "tests/fixtures/user-surface-lint/error-codes/src/messages.js",
   "tests/fixtures/user-surface-lint/good/config.json",
   "tests/fixtures/user-surface-lint/good/src/messages.js",
+  "tests/fixtures/user-surface-lint/regex-leak/config.json",
+  "tests/fixtures/user-surface-lint/regex-leak/src/messages.js",
+  "tests/fixtures/user-surface-lint/regex-safe/config.json",
+  "tests/fixtures/user-surface-lint/regex-safe/src/messages.js",
+  "tests/fixtures/user-surface-lint/source-leak/config.json",
+  "tests/fixtures/user-surface-lint/source-leak/src/messages.js",
 ] as const;
 
 function compare(left: string, right: string): number {

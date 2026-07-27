@@ -19,9 +19,18 @@
         "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
         "tests/fixtures/user-surface-lint/bad/config.json",
         "tests/fixtures/user-surface-lint/bad/src/messages.js",
+        "tests/fixtures/user-surface-lint/declared-none/config.json",
         "tests/fixtures/user-surface-lint/empty/config.json",
+        "tests/fixtures/user-surface-lint/error-codes/config.json",
+        "tests/fixtures/user-surface-lint/error-codes/src/messages.js",
         "tests/fixtures/user-surface-lint/good/config.json",
-        "tests/fixtures/user-surface-lint/good/src/messages.js"
+        "tests/fixtures/user-surface-lint/good/src/messages.js",
+        "tests/fixtures/user-surface-lint/regex-leak/config.json",
+        "tests/fixtures/user-surface-lint/regex-leak/src/messages.js",
+        "tests/fixtures/user-surface-lint/regex-safe/config.json",
+        "tests/fixtures/user-surface-lint/regex-safe/src/messages.js",
+        "tests/fixtures/user-surface-lint/source-leak/config.json",
+        "tests/fixtures/user-surface-lint/source-leak/src/messages.js"
       ],
       "goldens": [],
       "modes": [
@@ -43,15 +52,24 @@
             "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
             "tests/fixtures/user-surface-lint/bad/config.json",
             "tests/fixtures/user-surface-lint/bad/src/messages.js",
+            "tests/fixtures/user-surface-lint/declared-none/config.json",
             "tests/fixtures/user-surface-lint/empty/config.json",
+            "tests/fixtures/user-surface-lint/error-codes/config.json",
+            "tests/fixtures/user-surface-lint/error-codes/src/messages.js",
             "tests/fixtures/user-surface-lint/good/config.json",
-            "tests/fixtures/user-surface-lint/good/src/messages.js"
+            "tests/fixtures/user-surface-lint/good/src/messages.js",
+            "tests/fixtures/user-surface-lint/regex-leak/config.json",
+            "tests/fixtures/user-surface-lint/regex-leak/src/messages.js",
+            "tests/fixtures/user-surface-lint/regex-safe/config.json",
+            "tests/fixtures/user-surface-lint/regex-safe/src/messages.js",
+            "tests/fixtures/user-surface-lint/source-leak/config.json",
+            "tests/fixtures/user-surface-lint/source-leak/src/messages.js"
           ]
         }
       ],
       "digestAlgorithm": "sha256-rfc8785-v1",
-      "digest": "9b53952d6ff7ad1a66f026297aabce5c9c742d76840fa871980a3f3637974349"
+      "digest": "8789159231cbc5adb7794f381889ee0943e31675097a050d061993f9d85318e2"
     }
   ],
-  "registryDigest": "dabb315c031ae852a50a7bd6a39d469791ee598e704a8b25d44de8bb0ff7650f"
+  "registryDigest": "dd4f0af823c5cc871fde75a1031b8dea2f3b2e9b8b3df96dfa10cfb3145c6994"
 }

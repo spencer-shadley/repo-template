@@ -7,6 +7,13 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 ## [Unreleased]
 
 ### Fixed
+- Closed the issue #92 capability-closure gap left open by the fail-closed user-surface-lint
+  expansion: every advertised `--self-test` fixture tree (`error-codes`, `source-leak`,
+  `regex-safe`, `regex-leak`, `declared-none`) is now present, classified `copy`, and bound into
+  the materializer capability bundle so a materialized/downstream checkout can run both advertised
+  modes without missing-file exits. Restored exportable `runLint`/`selfTest` for exact-closure
+  smoke tests. MINOR.
+
 - Strengthened the issue #93 portable-docs regression to prove fail-before
   (`E_DOC_BARE_ADR`, `E_DOC_CHECKOUT_LINK`, `E_DOC_ADR_TITLE`) and pass-after
   (titled ADR link + canonical HTTPS fleet catalog with an unrelated local ADR 0003).

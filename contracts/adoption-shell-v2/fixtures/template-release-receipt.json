@@ -36,7 +36,7 @@
     {
       "id": "repo-template/user-surface-lint",
       "version": "2.6.0",
-      "digest": "9b53952d6ff7ad1a66f026297aabce5c9c742d76840fa871980a3f3637974349"
+      "digest": "8789159231cbc5adb7794f381889ee0943e31675097a050d061993f9d85318e2"
     }
   ],
   "materializer": {
@@ -54,5 +54,5 @@
     "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
   },
   "migrationRefs": [],
-  "receiptDigest": "2b60ff59e8ac5b40da1871849eb758a41f18d096dbbf842e5ec351ec3750bd1d"
+  "receiptDigest": "846c81df09ecc037f1394d7b7155a4f0ecfcc7b8271811bf86ef6d357622f016"
 }
