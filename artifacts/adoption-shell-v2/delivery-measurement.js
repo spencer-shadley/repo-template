@@ -228,8 +228,10 @@ function validateClass(value, pointer, diagnostics) {
     }
     const mode = oneOf(value["aggregationMode"], `${pointer}/aggregationMode`, ["segmented", "weighted"], diagnostics);
     if (mode && value["aggregationMode"] === "weighted") {
-        if (!number(value["weight"], `${pointer}/weight`, diagnostics) || value["weight"] <= 0) {
-            diagnostics.add("E_RANGE", `${pointer}/weight`, "weighted class requires positive weight");
+        if (!number(value["weight"], `${pointer}/weight`, diagnostics) ||
+            value["weight"] <= 0 ||
+            value["weight"] > 1000) {
+            diagnostics.add("E_RANGE", `${pointer}/weight`, "weighted class requires a weight greater than 0 and at most 1000");
         }
     }
     else if (mode && value["weight"] !== null) {

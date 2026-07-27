@@ -115,6 +115,33 @@ test("coverage errors remain visible without blocking structurally valid source 
   }
 });
 
+test("declaration rejects a weighted class exceeding the schema's maximum weight", () => {
+  const declaration = clone(
+    readJson<DeliveryDeclarationV1>("delivery-declaration.json"),
+  ) as unknown as {
+    meaningfulClasses: { aggregationMode: string; weight: number | null }[];
+  };
+  const declaredClass = declaration.meaningfulClasses[0];
+  if (declaredClass === undefined) {
+    throw new Error("fixture must declare at least one meaningful class");
+  }
+  declaredClass.aggregationMode = "weighted";
+  declaredClass.weight = 1000;
+  assert.equal(validateDeliveryDeclarationV1(declaration).ok, true);
+
+  declaredClass.weight = 1000.01;
+  const result = validateDeliveryDeclarationV1(declaration);
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.ok(
+      result.diagnostics.some(
+        (row) =>
+          row.pointer === "/meaningfulClasses/0/weight" && row.code === "E_RANGE",
+      ),
+    );
+  }
+});
+
 test("declaration rejects incomplete SLI coverage and proxy drift", () => {
   const declaration = clone(
     readJson<DeliveryDeclarationV1>("delivery-declaration.json"),
