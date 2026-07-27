@@ -10,13 +10,17 @@
     "$schema": {
       "type": "string"
     },
+    "userSurface": {
+      "enum": ["none"],
+      "description": "Explicit opt-out for repositories with no user-facing surface. Set to \"none\" only when \"include\" is intentionally empty; the guard rejects an empty \"include\" without this declaration."
+    },
     "include": {
       "type": "array",
       "items": {
         "type": "string",
         "minLength": 1
       },
-      "description": "Globs for files containing user-visible strings or response messages."
+      "description": "Globs for files containing user-visible strings or response messages. Must be non-empty unless userSurface is explicitly \"none\"."
     },
     "allowlist": {
       "type": "array",

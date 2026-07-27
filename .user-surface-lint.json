@@ -1,5 +1,6 @@
 {
   "$schema": "./.user-surface-lint.schema.json",
+  "userSurface": "none",
   "include": [],
   "allowlist": []
 }

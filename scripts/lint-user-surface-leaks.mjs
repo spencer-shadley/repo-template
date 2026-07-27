@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
-import { pathToFileURL } from 'node:url';
 
 const DEFAULT_CONFIG = '.user-surface-lint.json';
 const SKIP_DIRS = new Set(['.git', 'node_modules', 'vendor', 'dist', 'build', 'coverage']);
@@ -11,7 +10,7 @@ const SKIP_DIRS = new Set(['.git', 'node_modules', 'vendor', 'dist', 'build', 'c
 const RULES = [
   {
     id: 'env-var',
-    description: 'environment-variable-shaped token in user-visible literal',
+    description: 'environment-variable name in user-visible literal',
     pattern: /\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/g,
   },
   {
@@ -36,12 +35,49 @@ const SOURCE_RULES = [
     id: 'internal-error',
     description: 'stack/internal error passthrough to a response',
     pattern:
-      /\b(?:res\.(?:send|json)|reply\.(?:send|code)|new Response)\s*\([^;\n]*(?:err|error)\.stack\b/g,
+      /\b(?:res\.(?:send|json)|reply\.(?:send|code)|new Response)\s*\([^;\n]*\b[A-Za-z_$][\w$]*\.stack\b/g,
   },
 ];
 
-function compare(left, right) {
-  return left < right ? -1 : left > right ? 1 : 0;
+// Exact source references catch arbitrary environment-variable names. These suffixes preserve
+// detection for setup guidance that names a conventional environment variable but reads it elsewhere.
+const HIGH_CONFIDENCE_ENV_VAR_SUFFIXES = [
+  'ACCESS_TOKEN',
+  'API_KEY',
+  'CLIENT_ID',
+  'CLIENT_SECRET',
+  'CONNECTION_STRING',
+  'DATABASE_URI',
+  'DATABASE_URL',
+  'PRIVATE_KEY',
+  'REFRESH_TOKEN',
+  'SIGNING_KEY',
+  'WEBHOOK_SECRET',
+];
+
+const ENV_VAR_REFERENCE_PATTERNS = [
+  /\b(?:process|Bun)\.env(?:\?\.|\.)(?<name>[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)\b/g,
+  /\b(?:process|Bun)\.env\s*\[\s*(['"`])(?<name>[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)\1\s*\]/g,
+  /\bimport\.meta\.env(?:\?\.|\.)(?<name>[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)\b/g,
+  /\b(?:Deno\.env\.get|getenv)\s*\(\s*(['"`])(?<name>[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)\1/g,
+];
+
+function referencedEnvironmentVariables(text) {
+  const names = new Set();
+  for (const pattern of ENV_VAR_REFERENCE_PATTERNS) {
+    pattern.lastIndex = 0;
+    for (const match of text.matchAll(pattern)) names.add(match.groups.name);
+  }
+  return names;
+}
+
+function isEnvironmentVariableLeak(token, referencedNames) {
+  return (
+    referencedNames.has(token) ||
+    HIGH_CONFIDENCE_ENV_VAR_SUFFIXES.some(
+      (suffix) => token === suffix || token.endsWith(`_${suffix}`),
+    )
+  );
 }
 
 function usage() {
@@ -61,6 +97,17 @@ function usage() {
     '    }',
     '  ]',
     '}',
+    '',
+    'A repository with no user-facing surface at all must say so explicitly instead of leaving',
+    '"include" empty:',
+    '{',
+    '  "userSurface": "none",',
+    '  "include": [],',
+    '  "allowlist": []',
+    '}',
+    '',
+    'An empty "include" without "userSurface": "none" is rejected (exit 2): the guard fails closed',
+    'on an unconfigured/undeclared user surface rather than silently passing.',
   ].join('\n');
 }
 
@@ -105,11 +152,20 @@ function readConfig(configPath) {
 
   const include = config.include;
   const allowlist = config.allowlist ?? config.allow ?? [];
+  const userSurface = config.userSurface;
   if (!Array.isArray(include) || include.some((entry) => typeof entry !== 'string')) {
     throw new Error('config.include must be an array of glob strings');
   }
   if (!Array.isArray(allowlist)) {
     throw new Error('config.allowlist must be an array');
+  }
+  if (userSurface !== undefined && userSurface !== 'none') {
+    throw new Error('config.userSurface must be "none" when present');
+  }
+  if (userSurface === 'none' && include.length > 0) {
+    throw new Error(
+      'config.userSurface "none" conflicts with a non-empty config.include; declare one or the other',
+    );
   }
 
   for (const [index, entry] of allowlist.entries()) {
@@ -133,7 +189,7 @@ function readConfig(configPath) {
     }
   }
 
-  return { include, allowlist };
+  return { include, allowlist, userSurface };
 }
 
 function expandBraces(glob) {
@@ -194,7 +250,7 @@ function matchingFiles(root, include) {
     const rel = normalizeRel(path.relative(root, file));
     if (matchers.some((matcher) => matcher.test(rel))) files.push({ abs: file, rel });
   }
-  return files.sort((a, b) => compare(a.rel, b.rel));
+  return files.sort((a, b) => a.rel.localeCompare(b.rel));
 }
 
 function lineForIndex(text, index) {
@@ -203,6 +259,76 @@ function lineForIndex(text, index) {
     if (text.charCodeAt(i) === 10) line += 1;
   }
   return line;
+}
+
+const REGEX_PRECEDING_KEYWORDS = new Set([
+  'return', 'typeof', 'instanceof', 'in', 'of', 'new', 'delete', 'void',
+  'throw', 'case', 'do', 'else', 'yield', 'await', 'default', 'extends',
+]);
+
+// Best-effort division-vs-regex-literal disambiguation. A real JS parser needs full
+// grammar state (e.g. whether a `)` closes an `if`/`while` condition or a call/group
+// expression) to resolve this precisely; this lexer only looks at the previous
+// non-whitespace token, the same pragmatic heuristic lightweight JS tokenizers use
+// (CodeMirror's simple mode, Node's legacy REPL, etc.): an identifier/number/`)`/`]`
+// before `/` means division, everything else (including start-of-file/expression,
+// `{`, `}`, `;`, `,`, operators, and a fixed set of keywords) means a regex literal may
+// start here.
+//
+// Known unresolved case: a regex immediately after a closing `)` used as a statement
+// terminator without braces (e.g. `if (x) /re/.test(y)`) is misclassified as division.
+// `tryReadRegexLiteral`'s single-line bound (below) keeps the blast radius of any such
+// misclassification -- in either direction -- to at most the rest of one line, instead
+// of the unbounded multi-line swallow this replaces.
+function regexAllowedBeforeIndex(text, i) {
+  let j = i - 1;
+  while (j >= 0 && /\s/.test(text[j])) j -= 1;
+  if (j < 0) return true;
+  const prevChar = text[j];
+  if (/[\w$]/.test(prevChar)) {
+    let start = j;
+    while (start >= 0 && /[\w$]/.test(text[start])) start -= 1;
+    const word = text.slice(start + 1, j + 1);
+    return REGEX_PRECEDING_KEYWORDS.has(word);
+  }
+  if (prevChar === ')' || prevChar === ']') return false;
+  return true;
+}
+
+// Attempts to read a regex literal starting at text[i] === '/'. Returns the index just
+// past the literal (including trailing flags) on success, or -1 if no valid literal is
+// found. JS regex literals cannot contain a raw newline, so this never searches past the
+// current line: an unterminated or misclassified literal falls back to treating '/' as
+// an ordinary character rather than risking an unbounded scan.
+function tryReadRegexLiteral(text, i) {
+  const nextNewline = text.indexOf('\n', i);
+  const lineEnd = nextNewline === -1 ? text.length : nextNewline;
+  let inClass = false;
+  let j = i + 1;
+  while (j < lineEnd) {
+    const current = text[j];
+    if (current === '\\') {
+      j += 2;
+      continue;
+    }
+    if (current === '[') {
+      inClass = true;
+      j += 1;
+      continue;
+    }
+    if (current === ']') {
+      inClass = false;
+      j += 1;
+      continue;
+    }
+    if (current === '/' && !inClass) {
+      let end = j + 1;
+      while (end < text.length && /[a-z]/i.test(text[end])) end += 1;
+      return end;
+    }
+    j += 1;
+  }
+  return -1;
 }
 
 function extractStringLiterals(text) {
@@ -221,6 +347,13 @@ function extractStringLiterals(text) {
       const end = text.indexOf('*/', i + 2);
       i = end === -1 ? text.length : end + 2;
       continue;
+    }
+    if (char === '/' && regexAllowedBeforeIndex(text, i)) {
+      const end = tryReadRegexLiteral(text, i);
+      if (end !== -1) {
+        i = end;
+        continue;
+      }
     }
     if (char !== '"' && char !== "'" && char !== '`') {
       i += 1;
@@ -266,10 +399,17 @@ function collectFindings(root, config) {
   const findings = [];
   for (const file of files) {
     const text = fs.readFileSync(file.abs, 'utf8');
+    const referencedEnvVars = referencedEnvironmentVariables(text);
     for (const literal of extractStringLiterals(text)) {
       for (const rule of RULES) {
         rule.pattern.lastIndex = 0;
         for (const match of literal.value.matchAll(rule.pattern)) {
+          if (
+            rule.id === 'env-var' &&
+            !isEnvironmentVariableLeak(match[0], referencedEnvVars)
+          ) {
+            continue;
+          }
           findings.push({
             path: file.rel,
             line: literal.line,
@@ -302,8 +442,21 @@ function runLint({ root, configPath, stdout = console.log, stderr = console.erro
   const config = readConfig(resolvedConfig);
 
   if (config.include.length === 0) {
-    stdout('user-surface-lint: no user surface configured (config.include is empty)');
-    return 0;
+    if (config.userSurface === 'none') {
+      stdout(
+        'user-surface-lint: user surface explicitly declared none (userSurface: "none"); nothing to scan',
+      );
+      return 0;
+    }
+    stderr(
+      [
+        'user-surface-lint: user surface has not been declared.',
+        `Set "include" in ${configPath} to one or more globs covering user-visible strings/responses,`,
+        'or, if this repository truly has no user-facing surface, explicitly opt out with',
+        '"userSurface": "none".',
+      ].join(' '),
+    );
+    return 2;
   }
 
   const { files, findings } = collectFindings(resolvedRoot, config);
@@ -328,12 +481,19 @@ function runLint({ root, configPath, stdout = console.log, stderr = console.erro
   return 1;
 }
 
-function selfTest(root = process.cwd(), stdout = console.log) {
-  const fixtureRoot = path.resolve(root, 'tests/fixtures/user-surface-lint');
+function selfTest() {
+  const fixtureRoot = path.resolve('tests/fixtures/user-surface-lint');
   const cases = [
     {
       name: 'good fixture passes',
       root: path.join(fixtureRoot, 'good'),
+      configPath: 'config.json',
+      wantCode: 0,
+      want: 'no developer/operator leaks found',
+    },
+    {
+      name: 'API error-code keys are not environment-variable leaks',
+      root: path.join(fixtureRoot, 'error-codes'),
       configPath: 'config.json',
       wantCode: 0,
       want: 'no developer/operator leaks found',
@@ -346,6 +506,13 @@ function selfTest(root = process.cwd(), stdout = console.log) {
       want: ['env-var', 'restart the Docker stack', 'absolute-path'],
     },
     {
+      name: 'source fixture catches stack passthrough under any catch-variable binding',
+      root: path.join(fixtureRoot, 'source-leak'),
+      configPath: 'config.json',
+      wantCode: 1,
+      want: ['internal-error', 'err.stack', 'e.stack'],
+    },
+    {
       name: 'allowlisted fixture passes',
       root: path.join(fixtureRoot, 'allowlisted'),
       configPath: 'config.json',
@@ -353,11 +520,32 @@ function selfTest(root = process.cwd(), stdout = console.log) {
       want: 'no developer/operator leaks found',
     },
     {
-      name: 'empty include no-ops explicitly',
-      root: path.join(fixtureRoot, 'empty'),
+      name: "regex literal containing an apostrophe does not open a phantom string",
+      root: path.join(fixtureRoot, 'regex-safe'),
       configPath: 'config.json',
       wantCode: 0,
-      want: 'no user surface configured',
+      want: 'no developer/operator leaks found',
+    },
+    {
+      name: 'a real leak after a regex literal on an earlier line is still caught',
+      root: path.join(fixtureRoot, 'regex-leak'),
+      configPath: 'config.json',
+      wantCode: 1,
+      want: ['env-var', 'FEATURE_GATE'],
+    },
+    {
+      name: 'empty include with no declaration is rejected (fail closed)',
+      root: path.join(fixtureRoot, 'empty'),
+      configPath: 'config.json',
+      wantCode: 2,
+      want: 'user surface has not been declared',
+    },
+    {
+      name: 'explicit userSurface: none opt-out passes',
+      root: path.join(fixtureRoot, 'declared-none'),
+      configPath: 'config.json',
+      wantCode: 0,
+      want: 'explicitly declared',
     },
   ];
 
@@ -380,26 +568,17 @@ function selfTest(root = process.cwd(), stdout = console.log) {
       }
     }
   }
-  stdout('user-surface-lint: self-test passed');
+  console.log('user-surface-lint: self-test passed');
 }
 
-const invokedPath = process.argv[1];
-const invokedAsMain =
-  invokedPath !== undefined &&
-  pathToFileURL(path.resolve(invokedPath)).href === import.meta.url;
-
-if (invokedAsMain) {
-  try {
-    const args = parseArgs(process.argv.slice(2));
-    if (args.selfTest) {
-      selfTest();
-    } else {
-      process.exitCode = runLint({ root: process.cwd(), configPath: args.configPath });
-    }
-  } catch (error) {
-    console.error(`user-surface-lint: ${error.message}`);
-    process.exitCode = 2;
+try {
+  const args = parseArgs(process.argv.slice(2));
+  if (args.selfTest) {
+    selfTest();
+  } else {
+    process.exitCode = runLint({ root: process.cwd(), configPath: args.configPath });
   }
+} catch (error) {
+  console.error(`user-surface-lint: ${error.message}`);
+  process.exitCode = 2;
 }
-
-export { runLint, selfTest };
