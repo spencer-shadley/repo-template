@@ -51,6 +51,18 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
   non-blocking `.github/workflows/ci.yml`; `pnpm verify` never ran it. Proven with a real injected
   violation (fixture `tests/fixtures/user-surface-lint/bad/`) that the gate now catches; reverted
   before commit. PATCH.
+- Added a `template-manifest.json` coherence guard to `tools/verify-template-self.ts`: if either
+  `.user-surface-lint.json` or `.user-surface-lint.schema.json` is declared `"copy"`, then
+  `scripts/lint-user-surface-leaks.mjs` must be declared `"copy"` too, and vice versa — declared
+  config with no declared checker (or a declared checker with no declared config) now fails
+  `pnpm verify`. Motivated by `repo-factory` carrying the synced config/schema with no way to run
+  it, discovered while investigating the `verify:self` fix above. This repo's own manifest was
+  already coherent (verified against two other consuming repos, `agent-review` and
+  `gmail-markdown`, which both have config+checker together) — the gap was specific to that one
+  repo's migration execution, not this repo's sync declaration — but the invariant itself was
+  previously unenforced here, so future drift of this shape would not have been caught. Proven with
+  a real injected violation (manifest checker entry demoted to `"self"`) that the guard now catches
+  under both the prior and current tool; reverted before commit. PATCH.
 - Added negative-path regression coverage for `validateMaterializerOutputManifestV2`, asserting a
   targeted diagnostic for entryCount bounds/consistency, migrationRefs, selectedBundles id/version
   format, per-entry role/mode/encoding, and the manifest-digest recompute. PATCH.

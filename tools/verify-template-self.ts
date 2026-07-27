@@ -115,10 +115,74 @@ for (const [label, pattern] of requiredDirectL0Defaults) {
   }
 }
 
+// Guard against config-without-checker drift (incident: repo-factory received
+// .user-surface-lint.json + .user-surface-lint.schema.json via sync but never
+// received scripts/lint-user-surface-leaks.mjs, so the config traveled as
+// inert configuration with no way to run it). A synced consumer-facing config
+// is meaningless without its consuming tool synced alongside it, and a synced
+// tool is meaningless without the config it reads. Both directions must be
+// declared "copy" together, or neither.
+function userSurfaceLintSyncErrors(m: Record<string, string>): string[] {
+  const configPaths = [".user-surface-lint.json", ".user-surface-lint.schema.json"];
+  const checkerPath = "scripts/lint-user-surface-leaks.mjs";
+  const syncedConfigPaths = configPaths.filter((p) => m[p] === "copy");
+  const checkerSynced = m[checkerPath] === "copy";
+  const errors: string[] = [];
+  if (syncedConfigPaths.length > 0 && !checkerSynced) {
+    errors.push(
+      `user-surface-lint config synced (${syncedConfigPaths.join(", ")}) but ` +
+        `${checkerPath} is not manifest "copy" -- config would be orphaned in consuming repos`,
+    );
+  }
+  if (checkerSynced && syncedConfigPaths.length === 0) {
+    errors.push(
+      `${checkerPath} is manifest "copy" but no user-surface-lint config path is -- ` +
+        `checker would have nothing to read in consuming repos`,
+    );
+  }
+  return errors;
+}
+
+const userSurfaceLintSyncErrors_ = userSurfaceLintSyncErrors(manifest);
+// Self-test: prove the check above actually detects the drift it exists to catch.
+// Built from a synthetic known-good baseline (never from the live `manifest`) so
+// this self-test's own verdict cannot be corrupted by whatever state the real
+// manifest happens to be in -- including the exact broken state it must detect.
+const userSurfaceLintSyncedBaseline: Record<string, string> = {
+  ".user-surface-lint.json": "copy",
+  ".user-surface-lint.schema.json": "copy",
+  "scripts/lint-user-surface-leaks.mjs": "copy",
+};
+const demotedCheckerManifest = {
+  ...userSurfaceLintSyncedBaseline,
+  "scripts/lint-user-surface-leaks.mjs": "self",
+};
+const droppedConfigManifest = {
+  ...userSurfaceLintSyncedBaseline,
+  ".user-surface-lint.json": "self",
+  ".user-surface-lint.schema.json": "self",
+};
+if (userSurfaceLintSyncErrors(userSurfaceLintSyncedBaseline).length !== 0) {
+  userSurfaceLintSyncErrors_.push(
+    "user-surface-lint sync self-test failed: the synced baseline (config+checker both \"copy\") must not itself report an error",
+  );
+}
+if (userSurfaceLintSyncErrors(demotedCheckerManifest).length === 0) {
+  userSurfaceLintSyncErrors_.push(
+    "user-surface-lint sync self-test failed: demoting the checker to \"self\" while config stays \"copy\" was not detected",
+  );
+}
+if (userSurfaceLintSyncErrors(droppedConfigManifest).length === 0) {
+  userSurfaceLintSyncErrors_.push(
+    "user-surface-lint sync self-test failed: demoting the config to \"self\" while the checker stays \"copy\" was not detected",
+  );
+}
+
 const boundaryErrors: string[] = [
   ...directL0DefaultErrors,
   ...textFileSelfTestErrors,
   ...conflictMarkerSelfTestErrors,
+  ...userSurfaceLintSyncErrors_,
 ];
 if (manifest["model-boundary.json"] !== "copy") {
   boundaryErrors.push("model-boundary.json must be manifest copy");
