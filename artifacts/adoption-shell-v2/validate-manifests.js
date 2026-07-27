@@ -279,13 +279,18 @@ export function validateArtifactManifestV2(value) {
             diagnostics.string(row["version"], `${pointer}/version`, {
                 constant: CONTRACT_VERSION,
             });
-            if (validateFileRow({
-                path: row["path"],
-                kind: row["kind"],
-                mode: row["mode"],
-                sha256: row["sha256"],
-                bytes: row["bytes"],
-            }, pointer, diagnostics)) {
+            const fileRow = {
+                path: row["path"], kind: row["kind"], mode: row["mode"],
+                sha256: row["sha256"], bytes: row["bytes"],
+            };
+            if (validateFileRow(fileRow, pointer, diagnostics)) {
+                if (row["mode"] === "100755") {
+                    diagnostics.add("E_MODE", `${pointer}/mode`, "schema files must use mode 100644");
+                }
+                const schemaBytes = Number(row["bytes"]);
+                if (Number.isSafeInteger(schemaBytes) && (schemaBytes < 1 || schemaBytes > 1_048_576)) {
+                    diagnostics.add("E_COUNT", `${pointer}/bytes`, "schema bytes must be 1-1048576");
+                }
                 rows.push(row);
             }
         });

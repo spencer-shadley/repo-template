@@ -226,6 +226,30 @@ test("artifact manifest validator rejects every mutated field with a targeted di
       recompute: true,
     },
     {
+      name: "schemas entry mode is executable, not the required constant",
+      mutate: (m) => {
+        const rows = m["schemas"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no schemas rows");
+        first["mode"] = "100755";
+      },
+      code: "E_MODE",
+      pointer: "/schemas/0/mode",
+      recompute: true,
+    },
+    {
+      name: "schemas entry bytes exceed the schema-file maximum",
+      mutate: (m) => {
+        const rows = m["schemas"] as Record<string, unknown>[];
+        const first = rows[0];
+        if (first === undefined) throw new Error("no schemas rows");
+        first["bytes"] = 1_048_577;
+      },
+      code: "E_COUNT",
+      pointer: "/schemas/0/bytes",
+      recompute: true,
+    },
+    {
       name: "manifestDigest mismatch",
       mutate: (m) => (m["artifactDigest"] = "1".repeat(64)),
       code: "E_MANIFEST_DIGEST",
