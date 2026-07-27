@@ -6,6 +6,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Fixed
+- Strengthened the issue #93 portable-docs regression to prove fail-before
+  (`E_DOC_BARE_ADR`, `E_DOC_CHECKOUT_LINK`, `E_DOC_ADR_TITLE`) and pass-after
+  (titled ADR link + canonical HTTPS fleet catalog with an unrelated local ADR 0003).
+  PATCH.
+
 ### Added
 <!-- new capabilities or files -->
 - **BREAKING:** Added the pure TypeScript `adoption-shell-v2` contract, nine closed schemas,
