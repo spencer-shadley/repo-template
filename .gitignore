@@ -29,3 +29,6 @@ plans/*.paused
 # verdicts are copied into tracked plans/<NNN>.critic.md. Re-ignore file-precise so failed runs
 # don't dirty or wedge the queue (queue-abort-dirty incident).
 .ops/critic/*.md
+
+# local tool state (Serena MCP)
+.serena/
