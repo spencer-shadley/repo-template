@@ -13,7 +13,8 @@
     "build:check": "node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",
     "test": "node --test packages/adoption-shell/test/*.test.ts",
     "verify:artifact": "node tools/artifact-build.ts verify",
-    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node tools/verify-template-self.ts",
+    "verify:semver": "node scripts/validate-semver-changelog.mjs --self-test && node scripts/validate-semver-changelog.mjs",
+    "verify:self": "node scripts/validate-semver-changelog.mjs --self-test && node scripts/validate-semver-changelog.mjs && node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node tools/verify-template-self.ts",
     "verify": "pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self"
   },
   "devDependencies": {

@@ -465,8 +465,8 @@
       "path": ".user-surface-lint.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
-      "bytes": 114
+      "sha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
+      "bytes": 113
     },
     {
       "path": ".user-surface-lint.schema.json",
@@ -521,7 +521,7 @@
       "path": "contracts/adoption-shell-v2/fixtures/negative-inputs.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "81ed87b39b8e004b2a159e0883f1512c027b4429879c0cea845709490b15630d",
+      "sha256": "cd2870aa92d19255f88b1a52f5c2b1313baabb48bdf5caf3380ce84de7c8ca21",
       "bytes": 277044
     },
     {
@@ -542,7 +542,7 @@
       "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "20d071a5ef978798d86c6ef02d7ebb118877fd97218f16fcd0fc968a0394d978",
+      "sha256": "42e8543844a661764f4c0ebef7de9a83aa01a2ea1bd610cffdb4776ef9e35afd",
       "bytes": 42934
     },
     {
@@ -702,5 +702,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "e7eadcc98dcab3627b164c700f9112bb84216f4861781eea0df1c77aa5c6e549"
+  "manifestDigest": "f191b591ae1d66dd9e2ce980fd1d1faad9646cbf578dcf245ea35832bad04555"
 }

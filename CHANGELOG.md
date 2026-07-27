@@ -21,6 +21,7 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 <!-- new capabilities or files -->
+- Added canonical repository SemVer (`VERSION` file), weekly preserved changelog rotation standard (`docs/SEMVER-CHANGELOG-STANDARD.md`), weekly archive path convention (`docs/changelogs/YYYY-Www.md`), and lightweight validator hook (`scripts/validate-semver-changelog.mjs`) for issue #90. MINOR.
 - **BREAKING:** Added the pure TypeScript `adoption-shell-v2` contract, nine closed schemas,
   dependency-free compiled ESM/declarations, authenticated capability registry, deterministic
   fixtures/goldens, negative-effect proofs, and a reproducible artifact manifest. This implements

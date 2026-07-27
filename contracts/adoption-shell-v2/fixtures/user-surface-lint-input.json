@@ -10,7 +10,7 @@
     "contractId": "repo-template/adoption-shell-v2",
     "digestAlgorithm": "sha256-rfc8785-v1",
     "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-    "payloadDigest": "29d24351f5b1b5d693ae30b5f40c0ff51bc2f13284b46f5b208d769a4ec214c5",
+    "payloadDigest": "cad684cc2967efdfc3689e28b889bc95032005d417de04a07e1e2354ef3e744e",
     "entryCount": 20,
     "migrationRefs": [],
     "entries": [
@@ -18,11 +18,11 @@
         "path": ".user-surface-lint.json",
         "kind": "file",
         "mode": "100644",
-        "contentSha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
+        "contentSha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
         "role": "capability-config",
         "encoding": "utf-8",
         "bundleId": "repo-template/user-surface-lint",
-        "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQ0K"
+        "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQo="
       },
       {
         "path": ".user-surface-lint.schema.json",
@@ -215,7 +215,7 @@
         "contentBase64": "ZXhwb3J0IGZ1bmN0aW9uIGhhbmRsZVdpdGhFcnIocmVzKSB7CiAgdHJ5IHsKICAgIHRocm93IG5ldyBFcnJvcignYm9vbScpOwogIH0gY2F0Y2ggKGVycikgewogICAgcmVzLnNlbmQoZXJyLnN0YWNrKTsKICB9Cn0KCmV4cG9ydCBmdW5jdGlvbiBoYW5kbGVXaXRoRShyZXMpIHsKICB0cnkgewogICAgdGhyb3cgbmV3IEVycm9yKCdib29tJyk7CiAgfSBjYXRjaCAoZSkgewogICAgcmVzLmpzb24oZS5zdGFjayk7CiAgfQp9Cg=="
       }
     ],
-    "releaseDigest": "cb55d878dec3b1027b17f2fc835388b798619d37795a5b496275093e3ed850a6"
+    "releaseDigest": "f675e1eef8ad3e32bca706f13b72a6b4ddc86952e356afa918bf51daf7bdecae"
   },
   "capabilities": {
     "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
