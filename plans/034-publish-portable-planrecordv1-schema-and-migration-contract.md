@@ -160,8 +160,8 @@ No e2e — portable schema, validator, fixtures, generated template artifact, an
 no UI, runtime service, or deployment surface.
 
 ```bash
-corepack pnpm install --frozen-lockfile --ignore-scripts &&
-corepack pnpm verify &&
+corepack.cmd pnpm install --frozen-lockfile --ignore-scripts &&
+corepack.cmd pnpm verify &&
 node -e "JSON.parse(require('fs').readFileSync('contracts/plan-record/v1/plan-record.schema.json','utf8')); JSON.parse(require('fs').readFileSync('contracts/plan-record/v1/work-migration-manifest.schema.json','utf8'))" &&
 test "$(tr -d '\r\n ' < TEMPLATE_VERSION)" = "3.0.0"
 ```
@@ -178,6 +178,9 @@ test "$(tr -d '\r\n ' < TEMPLATE_VERSION)" = "3.0.0"
 
 - Stop if the schema cannot represent an existing record without inventing evidence. Add a fixture
   and an explicit migrate/retire reason instead of expanding `Status` with prose.
+- Use the Windows-native `corepack.cmd` launcher because the shared verify runner deliberately
+  disables MSYS argument conversion; the extensionless POSIX Corepack shim otherwise resolves
+  `/c/Program Files/...` as the invalid native path `C:\c\Program Files\...`.
 - Do not call the schema release a fleet migration. Delivery here only creates the immutable
   contract; AO consumption and the canary are separately governed transactions.
 - Rollback is an ordinary revert of the release commit/tag before consumer adoption. After a
