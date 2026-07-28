@@ -2,7 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/034-publish-portable-planrecordv1-schema-and-migration-contract
-- **Status:** hold - critic death (retry: critic-available)
+- **Status:** ready for codex
+- **Requeue-reason:** manual: scrub forbidden supervisor model authority before independent critic retry
 - **Priority:** P1
 - **Issue:** repo-template#97
 - **Effort:** high
@@ -181,3 +182,7 @@ test "$(tr -d '\r\n ' < TEMPLATE_VERSION)" = "3.0.0"
   contract; AO consumption and the canary are separately governed transactions.
 - Rollback is an ordinary revert of the release commit/tag before consumer adoption. After a
   consumer adopts it, rollback follows that consumer's recorded manifest and exact release pin.
+
+## Retry history
+
+- 2026-07-28T22:17:12.965Z manual (manual): scrub forbidden supervisor model authority before independent critic retry
