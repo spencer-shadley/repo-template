@@ -26,6 +26,7 @@ function planPath(value) {
     return (typeof value === "string" &&
         value.startsWith("plans/") &&
         value.endsWith(".md") &&
+        value.slice("plans/".length).indexOf("/") === -1 &&
         portablePathFailure(value) === null);
 }
 function integerAtLeastZero(value) {
@@ -153,6 +154,9 @@ export function validatePlanRecordV1(value) {
     const hasClaim = hasSnapshots && snapshot(snapshotValue["claim"]);
     const hasLand = hasSnapshots && Object.hasOwn(snapshotValue, "land");
     const hasReceipt = Object.hasOwn(value, "receipt");
+    if (Object.hasOwn(value, "supersededBy") &&
+        !(status === "closed" && disposition === "duplicate"))
+        return false;
     if (status === "planned") {
         if (hasSnapshots || hasReceipt || Object.hasOwn(value, "disposition"))
             return false;
@@ -251,6 +255,9 @@ export function classifyPlanRecordV1(value, options = {}) {
 export function planRecordTransitionReasonV1(previous, next) {
     if (previous.enqueuedAt !== next.enqueuedAt)
         return "ENQUEUED_AT_IMMUTABLE";
+    if (previous.enqueueTimeSource !== next.enqueueTimeSource) {
+        return "ENQUEUE_TIME_SOURCE_IMMUTABLE";
+    }
     if (previous.contractSnapshots !== undefined &&
         (next.contractSnapshots === undefined ||
             canonicalizeJson(previous.contractSnapshots.claim) !==

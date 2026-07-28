@@ -18,7 +18,7 @@ export type PlanRecordDecision = Readonly<{
     kind: "archive-receipt-only";
     reasonCode: "ARCHIVE_SEALED";
 }>;
-export type PlanRecordTransitionReasonCode = "ENQUEUED_AT_IMMUTABLE" | "CLAIM_SNAPSHOT_IMMUTABLE" | "LAND_SNAPSHOT_IMMUTABLE";
+export type PlanRecordTransitionReasonCode = "ENQUEUED_AT_IMMUTABLE" | "ENQUEUE_TIME_SOURCE_IMMUTABLE" | "CLAIM_SNAPSHOT_IMMUTABLE" | "LAND_SNAPSHOT_IMMUTABLE";
 export interface PlanRecordV1 {
     readonly schemaVersion: "plan-record/v1";
     readonly project: string;

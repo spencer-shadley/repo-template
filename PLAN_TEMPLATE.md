@@ -14,9 +14,11 @@
 
 Omit optional `Owner`, `Trigger`, `Retry-reason`, and `Superseded-by` lines when they do not apply.
 The enqueuer replaces `enqueuedAt` exactly once when admitting the plan; later writers must preserve
-that timestamp byte-for-byte. Use either `github:owner/repo#N` for an existing accountable issue or
-`plan-host:owner/repo/plans/NNN` when the plan itself composes the work. A plan-host reference is not
-a GitHub issue and creates no issue-closure credit.
+both that timestamp byte-for-byte and its internal `enqueueTimeSource` (`recorded` or
+`file-add-backfill`). A backfilled source cannot later be relabeled as recorded. Use either
+`github:owner/repo#N` for an existing accountable issue or `plan-host:owner/repo/plans/NNN` when the
+plan itself composes the work. A plan-host reference is not a GitHub issue and creates no
+issue-closure credit.
 
 ## Objective
 

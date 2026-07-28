@@ -2,8 +2,10 @@ import { canonicalizeJson } from "./canonical-json.js";
 import { sha256Bytes } from "./digest.js";
 import { portablePathFailure } from "./path-policy.js";
 import { isRecord, SHA256_PATTERN } from "./validation-helpers.js";
+export const ARCHIVE_AGGREGATE_ALGORITHM_V1 = "sha256-framed-path-blob-sha256hex-v1";
 const encoder = new TextEncoder();
 const gitObjectPattern = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
+const repositoryPattern = /^[^/\s]+\/[^/\s]+$/;
 const migrationTargets = {
     LEGACY_READY: "planned",
     LEGACY_ACTIVE: "in-progress",
@@ -29,17 +31,46 @@ function exactKeys(value, allowed, required) {
     return (Object.keys(value).every((key) => allowedSet.has(key)) &&
         required.every((key) => Object.hasOwn(value, key)));
 }
-function planPath(value) {
+function livePlanPath(value) {
     return (typeof value === "string" &&
         value.startsWith("plans/") &&
         value.endsWith(".md") &&
+        value.slice("plans/".length).indexOf("/") === -1 &&
         portablePathFailure(value) === null);
+}
+function archivePlanPath(value) {
+    return typeof value === "string" &&
+        value.startsWith("plans/archive/") &&
+        value.endsWith(".md") &&
+        portablePathFailure(value) === null;
 }
 function sortedUnique(values) {
     return values.every((value, index) => nonEmpty(value) && (index === 0 || String(values[index - 1]) < value));
 }
+function u64(value) {
+    const buffer = new ArrayBuffer(8);
+    new DataView(buffer).setBigUint64(0, BigInt(value), false);
+    return new Uint8Array(buffer);
+}
+function frame(value) {
+    return [u64(value.byteLength), value];
+}
+export function archiveAggregateSha256V1(members) {
+    const ordered = [...members].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
+    const chunks = [];
+    for (const member of ordered) {
+        chunks.push(...frame(encoder.encode(member.path)), ...frame(encoder.encode(member.blobSha256)));
+    }
+    const bytes = new Uint8Array(chunks.reduce((total, chunk) => total + chunk.byteLength, 0));
+    let offset = 0;
+    for (const chunk of chunks) {
+        bytes.set(chunk, offset);
+        offset += chunk.byteLength;
+    }
+    return sha256Bytes(bytes);
+}
 function validDecision(value) {
-    if (!isRecord(value) || !planPath(value["path"]) || !nonEmpty(value["reasonCode"])) {
+    if (!isRecord(value) || !livePlanPath(value["path"]) || !nonEmpty(value["reasonCode"])) {
         return false;
     }
     if (value["decision"] === "migrate") {
@@ -84,11 +115,31 @@ function liveInventoryCloses(value, decisions) {
 }
 function archiveInventoryCloses(value) {
     if (!isRecord(value) ||
-        !exactKeys(value, ["count", "aggregateSha256", "dispositions"], ["count", "aggregateSha256", "dispositions"]) ||
+        !exactKeys(value, [
+            "repository", "count", "aggregateAlgorithm", "aggregateSha256",
+            "members", "dispositions",
+        ], [
+            "repository", "count", "aggregateAlgorithm", "aggregateSha256",
+            "members", "dispositions",
+        ]) ||
+        typeof value["repository"] !== "string" ||
+        !repositoryPattern.test(value["repository"]) ||
         !integerAtLeastZero(value["count"]) ||
+        value["aggregateAlgorithm"] !== ARCHIVE_AGGREGATE_ALGORITHM_V1 ||
         typeof value["aggregateSha256"] !== "string" ||
         !SHA256_PATTERN.test(value["aggregateSha256"]) ||
+        !Array.isArray(value["members"]) ||
         !Array.isArray(value["dispositions"]))
+        return false;
+    const members = value["members"];
+    if (!members.every((member) => isRecord(member) &&
+        exactKeys(member, ["path", "blobSha256"], ["path", "blobSha256"]) &&
+        archivePlanPath(member["path"]) &&
+        typeof member["blobSha256"] === "string" &&
+        SHA256_PATTERN.test(member["blobSha256"])) ||
+        !sortedUnique(members.map((member) => String(member["path"]))) ||
+        Number(value["count"]) !== members.length ||
+        value["aggregateSha256"] !== archiveAggregateSha256V1(members))
         return false;
     let dispositionCount = 0;
     for (const row of value["dispositions"]) {
@@ -116,6 +167,11 @@ function validStringLists(value) {
         value["verification"].length > 0 &&
         sortedUnique(value["verification"]));
 }
+function changedPathsClose(value, decisions) {
+    const changedPaths = value["changedPaths"];
+    return changedPaths.length === decisions.length &&
+        changedPaths.every((path, index) => path === decisions[index]?.path);
+}
 function validManifestBody(value) {
     if (!isRecord(value))
         return false;
@@ -135,7 +191,8 @@ function validManifestBody(value) {
     if (!sortedUnique(decisions.map((row) => row.path)) ||
         !liveInventoryCloses(value["liveCounts"], decisions) ||
         !archiveInventoryCloses(value["archive"]) ||
-        !validStringLists(value))
+        !validStringLists(value) ||
+        !changedPathsClose(value, decisions))
         return false;
     const canary = value["canary"];
     return (isRecord(canary) &&
@@ -166,10 +223,11 @@ export function createWorkMigrationManifestV1(input) {
         throw new TypeError("unclassifiedCount must be zero");
     const decisions = [...input.decisions].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
     const dispositions = [...input.archive.dispositions].sort((left, right) => left.decision < right.decision ? -1 : left.decision > right.decision ? 1 : 0);
+    const members = [...input.archive.members].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
     const body = {
         ...input,
         decisions,
-        archive: { ...input.archive, dispositions },
+        archive: { ...input.archive, members, dispositions },
         changedPaths: [...input.changedPaths].sort(),
         verification: [...input.verification].sort(),
     };

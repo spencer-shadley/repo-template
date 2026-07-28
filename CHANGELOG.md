@@ -9,6 +9,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 ## [3.0.0] - 2026-07-28
 
 ### Fixed
+- Closed the final PlanRecordV1 review gaps: supersession is duplicate-only in schema/runtime,
+  enqueue timestamp provenance is immutable, live migration decisions cannot target archives,
+  apply paths close exactly over live decisions, and repository-bound archive receipts enumerate
+  every member and independently recompute the documented length-framed aggregate. Generated
+  parity probes now cover blank strings, unsafe integers, strict RFC3339 timestamps, and portable
+  Windows paths beyond the committed fixture corpus. MAJOR.
 - Closed PlanRecordV1 pre-release review gaps: legacy migration now requires complete evidence and
   records an explicit target status; manifests close over exact live/archive counts and hashes;
   claim/land/deploy evidence is lifecycle- and disposition-conditional; plan-host zero and unordered

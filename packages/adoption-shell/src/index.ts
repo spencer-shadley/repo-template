@@ -111,10 +111,13 @@ export type {
   RetireReasonCode,
 } from "./plan-record-v1.ts";
 export {
+  ARCHIVE_AGGREGATE_ALGORITHM_V1,
+  archiveAggregateSha256V1,
   createWorkMigrationManifestV1,
   validateWorkMigrationManifestV1,
 } from "./work-migration-manifest-v1.ts";
 export type {
+  ArchiveMemberV1,
   WorkMigrationDecisionV1,
   WorkMigrationManifestV1,
 } from "./work-migration-manifest-v1.ts";

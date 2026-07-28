@@ -5,13 +5,19 @@
   "decisions": [{ "path": "plans/001-example.md", "decision": "migrate", "targetStatus": "planned", "reasonCode": "LEGACY_READY" }],
   "liveCounts": { "before": 1, "migrate": 1, "retire": 0, "after": 1 },
   "archive": {
-    "count": 714,
-    "aggregateSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "repository": "spencer-shadley/gmail-markdown",
+    "count": 2,
+    "aggregateAlgorithm": "sha256-framed-path-blob-sha256hex-v1",
+    "aggregateSha256": "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72",
+    "members": [
+      { "path": "plans/archive/001.md", "blobSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+      { "path": "plans/archive/002.md", "blobSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" }
+    ],
     "dispositions": [{
       "decision": "archive-receipt-only",
       "reasonCode": "ARCHIVE_SEALED",
-      "count": 714,
-      "aggregateSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      "count": 2,
+      "aggregateSha256": "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72"
     }]
   },
   "changedPaths": ["plans/001-example.md"],
@@ -19,5 +25,5 @@
   "canary": { "repository": "gmail-markdown", "state": "pending" },
   "rollbackRef": "refs/tags/v2.6.0",
   "unclassifiedCount": 0,
-  "manifestSha256": "c54a0f3ded8107436c844d2d523020c972aee0c2a43cf7053b9e87a95c3d3b87"
+  "manifestSha256": "b8e884395c2bfc7124353de64d8d3f4f035cf2fe32a0e98532de4f673fb41c5a"
 }

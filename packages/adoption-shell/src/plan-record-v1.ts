@@ -35,6 +35,7 @@ export type PlanRecordDecision =
   | Readonly<{ kind: "archive-receipt-only"; reasonCode: "ARCHIVE_SEALED" }>;
 export type PlanRecordTransitionReasonCode =
   | "ENQUEUED_AT_IMMUTABLE"
+  | "ENQUEUE_TIME_SOURCE_IMMUTABLE"
   | "CLAIM_SNAPSHOT_IMMUTABLE"
   | "LAND_SNAPSHOT_IMMUTABLE";
 
@@ -93,6 +94,7 @@ function planPath(value: unknown): value is string {
     typeof value === "string" &&
     value.startsWith("plans/") &&
     value.endsWith(".md") &&
+    value.slice("plans/".length).indexOf("/") === -1 &&
     portablePathFailure(value) === null
   );
 }
@@ -251,6 +253,10 @@ export function validatePlanRecordV1(value: unknown): value is PlanRecordV1 {
   const hasClaim = hasSnapshots && snapshot(snapshotValue["claim"]);
   const hasLand = hasSnapshots && Object.hasOwn(snapshotValue, "land");
   const hasReceipt = Object.hasOwn(value, "receipt");
+  if (
+    Object.hasOwn(value, "supersededBy") &&
+    !(status === "closed" && disposition === "duplicate")
+  ) return false;
 
   if (status === "planned") {
     if (hasSnapshots || hasReceipt || Object.hasOwn(value, "disposition")) return false;
@@ -359,6 +365,9 @@ export function planRecordTransitionReasonV1(
   next: PlanRecordV1,
 ): PlanRecordTransitionReasonCode | null {
   if (previous.enqueuedAt !== next.enqueuedAt) return "ENQUEUED_AT_IMMUTABLE";
+  if (previous.enqueueTimeSource !== next.enqueueTimeSource) {
+    return "ENQUEUE_TIME_SOURCE_IMMUTABLE";
+  }
   if (
     previous.contractSnapshots !== undefined &&
     (

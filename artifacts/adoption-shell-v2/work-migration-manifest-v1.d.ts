@@ -9,6 +9,11 @@ export type WorkMigrationDecisionV1 = Readonly<{
     decision: "retire";
     reasonCode: RetireReasonCode;
 }>;
+export declare const ARCHIVE_AGGREGATE_ALGORITHM_V1: "sha256-framed-path-blob-sha256hex-v1";
+export interface ArchiveMemberV1 {
+    readonly path: string;
+    readonly blobSha256: string;
+}
 export interface WorkMigrationManifestV1 {
     readonly schemaVersion: "work-migration-manifest/v1";
     readonly source: Readonly<{
@@ -27,8 +32,11 @@ export interface WorkMigrationManifestV1 {
         after: number;
     }>;
     readonly archive: Readonly<{
+        repository: string;
         count: number;
+        aggregateAlgorithm: typeof ARCHIVE_AGGREGATE_ALGORITHM_V1;
         aggregateSha256: string;
+        members: readonly Readonly<ArchiveMemberV1>[];
         dispositions: readonly Readonly<{
             decision: "archive-receipt-only";
             reasonCode: "ARCHIVE_SEALED";
@@ -46,5 +54,6 @@ export interface WorkMigrationManifestV1 {
     readonly unclassifiedCount: 0;
     readonly manifestSha256: string;
 }
+export declare function archiveAggregateSha256V1(members: readonly Readonly<ArchiveMemberV1>[]): string;
 export declare function validateWorkMigrationManifestV1(value: unknown): value is WorkMigrationManifestV1;
 export declare function createWorkMigrationManifestV1(input: Omit<WorkMigrationManifestV1, "manifestSha256">): WorkMigrationManifestV1;

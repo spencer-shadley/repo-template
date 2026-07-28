@@ -15,6 +15,8 @@ import {
   type PlanRecordV1,
 } from "../src/plan-record-v1.ts";
 import {
+  ARCHIVE_AGGREGATE_ALGORITHM_V1,
+  archiveAggregateSha256V1,
   createWorkMigrationManifestV1,
   validateWorkMigrationManifestV1,
 } from "../src/work-migration-manifest-v1.ts";
@@ -83,13 +85,19 @@ function manifestInput() {
     ],
     liveCounts: { before: 2, migrate: 1, retire: 1, after: 1 },
     archive: {
-      count: 7,
-      aggregateSha256: "d".repeat(64),
+      repository: "acme/demo",
+      count: 2,
+      aggregateAlgorithm: ARCHIVE_AGGREGATE_ALGORITHM_V1,
+      aggregateSha256: "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72",
+      members: [
+        { path: "plans/archive/002.md", blobSha256: "b".repeat(64) },
+        { path: "plans/archive/001.md", blobSha256: "a".repeat(64) },
+      ],
       dispositions: [{
         decision: "archive-receipt-only" as const,
         reasonCode: "ARCHIVE_SEALED" as const,
-        count: 7,
-        aggregateSha256: "d".repeat(64),
+        count: 2,
+        aggregateSha256: "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72",
       }],
     },
     changedPaths: ["plans/002.md", "plans/001.md"],
@@ -134,6 +142,37 @@ test("plan-host zero and unordered unique effects are valid; duplicate effects a
   const duplicate = fixture("duplicate-effect-class").record;
   assert.equal(validatePlanRecordSchema(duplicate), false);
   assert.equal(validatePlanRecordV1(duplicate), false);
+});
+
+test("generated primitive cases keep PlanRecord schema and runtime in parity", () => {
+  const planned = validRecord("planned-auto-github-no-claim");
+  const completed = validRecord("closed-completed-deployed");
+  const invalidCases: readonly [string, unknown][] = [
+    ["blank project", { ...planned, project: " \t" }],
+    ["blank title", { ...planned, title: "\n" }],
+    ["blank rationale", { ...planned, risk: { ...planned.risk, rationale: " " } }],
+    ["blank effect class", { ...planned, risk: { ...planned.risk, effectClasses: ["repo-write", " "] } }],
+    ["unsafe plan number", { ...planned, planNumber: Number.MAX_SAFE_INTEGER + 1 }],
+    ["unsafe issue number", {
+      ...planned,
+      issue: { kind: "github", repository: "acme/demo", number: Number.MAX_SAFE_INTEGER + 1 },
+    }],
+    ["leap second", { ...planned, enqueuedAt: "2026-07-28T23:59:60Z" }],
+    ["deployment leap second", {
+      ...completed,
+      receipt: { ...completed.receipt!, deployedAt: "2026-07-28T23:59:60Z" },
+    }],
+    ["invalid calendar day", { ...planned, enqueuedAt: "2026-02-30T00:00:00Z" }],
+    ["windows reserved path", { ...planned, sourcePath: "plans/CON.md" }],
+    ["nested live path", { ...planned, sourcePath: "plans/nested/001.md" }],
+  ];
+  for (const [name, candidate] of invalidCases) {
+    assert.equal(validatePlanRecordV1(candidate), false, `${name}: runtime`);
+    assert.equal(validatePlanRecordSchema(candidate), false, `${name}: schema`);
+  }
+  const offsetTimestamp = { ...planned, enqueuedAt: "2026-07-28T23:59:59.123+14:00" };
+  assert.equal(validatePlanRecordV1(offsetTimestamp), true);
+  assert.equal(validatePlanRecordSchema(offsetTimestamp), true, JSON.stringify(validatePlanRecordSchema.errors));
 });
 
 test("classifies complete legacy evidence with explicit target status and fails closed otherwise", () => {
@@ -195,14 +234,39 @@ test("claim, receipt, disposition, and supersession evidence is lifecycle-condit
   ]) {
     assert.equal(validatePlanRecordV1(fixture(name).record), false, name);
   }
+
+  const duplicate = validRecord("closed-duplicate-no-invented-receipt");
+  for (const status of ["planned", "in-progress", "implemented", "held-authority"] as const) {
+    const base = validRecord(
+      status === "planned"
+        ? "planned-auto-github-no-claim"
+        : status === "in-progress"
+          ? "in-progress-human-plan-host-zero-unsorted-effects"
+          : status === "implemented"
+            ? "implemented-landed"
+            : "held-authority-trigger",
+    );
+    const candidate = { ...base, supersededBy: duplicate.supersededBy };
+    assert.equal(validatePlanRecordV1(candidate), false, `${status} runtime supersession`);
+    assert.equal(validatePlanRecordSchema(candidate), false, `${status} schema supersession`);
+  }
 });
 
-test("admitted enqueue time and existing claim/land snapshots are immutable", () => {
+test("admitted enqueue time/source and existing claim/land snapshots are immutable", () => {
   const planned = validRecord("planned-auto-github-no-claim");
   const active = validRecord("in-progress-human-plan-host-zero-unsorted-effects");
   const implemented = validRecord("implemented-landed");
   assert.equal(planRecordTransitionReasonV1(planned, planned), null);
   assert.equal(planRecordTransitionReasonV1(planned, { ...planned, enqueuedAt: "2026-07-29T00:00:00Z" }), "ENQUEUED_AT_IMMUTABLE");
+  assert.equal(planRecordTransitionReasonV1(planned, {
+    ...planned,
+    enqueueTimeSource: "file-add-backfill",
+  }), "ENQUEUE_TIME_SOURCE_IMMUTABLE");
+  const backfilled = validRecord("in-progress-human-plan-host-zero-unsorted-effects");
+  assert.equal(planRecordTransitionReasonV1(backfilled, {
+    ...backfilled,
+    enqueueTimeSource: "recorded",
+  }), "ENQUEUE_TIME_SOURCE_IMMUTABLE");
   assert.equal(planRecordTransitionReasonV1(active, {
     ...active,
     contractSnapshots: {
@@ -230,6 +294,10 @@ test("a second dry run is byte-identical and schema-valid", () => {
 
 test("manifest closes live inventory and archive disposition counts/hashes", () => {
   const input = manifestInput();
+  assert.equal(
+    archiveAggregateSha256V1(input.archive.members),
+    "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72",
+  );
   assert.throws(
     () => createWorkMigrationManifestV1({
       ...input,
@@ -250,7 +318,7 @@ test("manifest closes live inventory and archive disposition counts/hashes", () 
       ...input,
       archive: {
         ...input.archive,
-        dispositions: [{ ...input.archive.dispositions[0]!, count: 6 }],
+        dispositions: [{ ...input.archive.dispositions[0]!, count: 1 }],
       },
     }),
     /input is invalid/,
@@ -268,9 +336,29 @@ test("manifest closes live inventory and archive disposition counts/hashes", () 
     }),
     /input is invalid/,
   );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      archive: {
+        ...input.archive,
+        repository: " ",
+      },
+    }),
+    /input is invalid/,
+  );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      archive: {
+        ...input.archive,
+        members: [{ ...input.archive.members[0]!, blobSha256: "f".repeat(64) }],
+      },
+    }),
+    /input is invalid/,
+  );
 });
 
-test("manifest rejects unclassified rows, path duplication, and target/reason mismatch", () => {
+test("manifest rejects unclassified rows, archive live targets, apply-set drift, and target/reason mismatch", () => {
   const input = manifestInput();
   assert.throws(
     () => createWorkMigrationManifestV1({ unclassifiedCount: 1 } as never),
@@ -280,6 +368,33 @@ test("manifest rejects unclassified rows, path duplication, and target/reason mi
     () => createWorkMigrationManifestV1({
       ...input,
       changedPaths: ["plans/001.md", "plans/001.md"],
+    }),
+    /input is invalid/,
+  );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      decisions: [{
+        path: "plans/archive/001.md",
+        decision: "retire" as const,
+        reasonCode: "INVALID_V1" as const,
+      }],
+      liveCounts: { before: 1, migrate: 0, retire: 1, after: 0 },
+      changedPaths: ["plans/archive/001.md"],
+    }),
+    /input is invalid/,
+  );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      changedPaths: ["plans/001.md"],
+    }),
+    /input is invalid/,
+  );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      changedPaths: ["plans/001.md", "plans/002.md", "plans/999.md"],
     }),
     /input is invalid/,
   );
@@ -307,4 +422,47 @@ test("manifest rejects unclassified rows, path duplication, and target/reason mi
   };
   assert.equal(validateMigrationManifestSchema(structurallyWrong), false);
   assert.equal(validateWorkMigrationManifestV1(structurallyWrong), false);
+});
+
+test("generated primitive cases keep manifest schema and runtime fail-closed", () => {
+  const manifest = createWorkMigrationManifestV1(manifestInput());
+  const invalidCases: readonly [string, unknown][] = [
+    ["blank verification", { ...manifest, verification: [" "] }],
+    ["unsafe live count", {
+      ...manifest,
+      liveCounts: { ...manifest.liveCounts, before: Number.MAX_SAFE_INTEGER + 1 },
+    }],
+    ["unsafe archive count", {
+      ...manifest,
+      archive: { ...manifest.archive, count: Number.MAX_SAFE_INTEGER + 1 },
+    }],
+    ["blank archive repository", {
+      ...manifest,
+      archive: { ...manifest.archive, repository: " " },
+    }],
+    ["windows reserved archive member", {
+      ...manifest,
+      archive: {
+        ...manifest.archive,
+        members: [
+          { ...manifest.archive.members[0]!, path: "plans/archive/CON.md" },
+          manifest.archive.members[1]!,
+        ],
+      },
+    }],
+    ["trailing-dot archive segment", {
+      ...manifest,
+      archive: {
+        ...manifest.archive,
+        members: [
+          { ...manifest.archive.members[0]!, path: "plans/archive/bad./001.md" },
+          manifest.archive.members[1]!,
+        ],
+      },
+    }],
+  ];
+  for (const [name, candidate] of invalidCases) {
+    assert.equal(validateWorkMigrationManifestV1(candidate), false, `${name}: runtime`);
+    assert.equal(validateMigrationManifestSchema(candidate), false, `${name}: schema`);
+  }
 });
