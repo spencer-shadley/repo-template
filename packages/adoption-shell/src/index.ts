@@ -96,7 +96,9 @@ export type {
 export { materializeAdoptionShellV2 } from "./materialize.ts";
 export {
   classifyPlanRecordV1,
+  isPlanBodyPathV1,
   planRecordTransitionReasonV1,
+  PLAN_BODY_BASENAME_PATTERN_SOURCE,
   PLAN_RECORD_SCHEMA_VERSION,
   PLAN_RECORD_STATUSES,
   validatePlanRecordV1,

@@ -1,6 +1,6 @@
 import { canonicalizeJson } from "./canonical-json.js";
 import { sha256Bytes } from "./digest.js";
-import { portablePathFailure } from "./path-policy.js";
+import { isPlanBodyPathV1 } from "./plan-record-v1.js";
 import { isRecord, SHA256_PATTERN } from "./validation-helpers.js";
 export const ARCHIVE_AGGREGATE_ALGORITHM_V1 = "sha256-framed-path-blob-sha256hex-v1";
 const encoder = new TextEncoder();
@@ -32,17 +32,10 @@ function exactKeys(value, allowed, required) {
         required.every((key) => Object.hasOwn(value, key)));
 }
 function livePlanPath(value) {
-    return (typeof value === "string" &&
-        value.startsWith("plans/") &&
-        value.endsWith(".md") &&
-        value.slice("plans/".length).indexOf("/") === -1 &&
-        portablePathFailure(value) === null);
+    return isPlanBodyPathV1(value, "live");
 }
 function archivePlanPath(value) {
-    return typeof value === "string" &&
-        value.startsWith("plans/archive/") &&
-        value.endsWith(".md") &&
-        portablePathFailure(value) === null;
+    return isPlanBodyPathV1(value, "archive");
 }
 function sortedUnique(values) {
     return values.every((value, index) => nonEmpty(value) && (index === 0 || String(values[index - 1]) < value));
@@ -162,7 +155,7 @@ function archiveInventoryCloses(value) {
 function validStringLists(value) {
     return (Array.isArray(value["changedPaths"]) &&
         sortedUnique(value["changedPaths"]) &&
-        value["changedPaths"].every((path) => typeof path === "string" && portablePathFailure(path) === null) &&
+        value["changedPaths"].every((path) => livePlanPath(path)) &&
         Array.isArray(value["verification"]) &&
         value["verification"].length > 0 &&
         sortedUnique(value["verification"]));

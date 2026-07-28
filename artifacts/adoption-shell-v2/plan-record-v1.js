@@ -2,6 +2,7 @@ import { canonicalizeJson } from "./canonical-json.js";
 import { portablePathFailure } from "./path-policy.js";
 import { isRecord, SHA256_PATTERN } from "./validation-helpers.js";
 export const PLAN_RECORD_SCHEMA_VERSION = "plan-record/v1";
+export const PLAN_BODY_BASENAME_PATTERN_SOURCE = "^(?!.*\\.(?:[Ll][Oo][Gg]|[Rr][Ee][Ss][Uu][Ll][Tt]|[Cc][Rr][Ii][Tt][Ii][Cc]|[Ff][Ee][Ee][Dd][Bb][Aa][Cc][Kk]|[Dd][Ee][Aa][Dd][Ll][Ee][Tt][Tt][Ee][Rr])\\.md$)[0-9]{3,}-[A-Za-z0-9._@()+,=-]+\\.md$";
 export const PLAN_RECORD_STATUSES = [
     "planned",
     "in-progress",
@@ -10,6 +11,7 @@ export const PLAN_RECORD_STATUSES = [
     "held-authority",
 ];
 const statuses = new Set(PLAN_RECORD_STATUSES);
+const planBodyBasenamePattern = new RegExp(PLAN_BODY_BASENAME_PATTERN_SOURCE);
 const repositoryPattern = /^[^/\s]+\/[^/\s]+$/;
 const gitObjectPattern = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
 const migrationTargets = {
@@ -22,12 +24,14 @@ const migrationTargets = {
 function nonEmpty(value) {
     return typeof value === "string" && value.trim().length > 0;
 }
-function planPath(value) {
-    return (typeof value === "string" &&
-        value.startsWith("plans/") &&
-        value.endsWith(".md") &&
-        value.slice("plans/".length).indexOf("/") === -1 &&
-        portablePathFailure(value) === null);
+export function isPlanBodyPathV1(value, location) {
+    if (typeof value !== "string" || portablePathFailure(value) !== null)
+        return false;
+    const prefix = location === "live" ? "plans/" : "plans/archive/";
+    if (!value.startsWith(prefix))
+        return false;
+    const basename = value.slice(prefix.length);
+    return !basename.includes("/") && planBodyBasenamePattern.test(basename);
 }
 function integerAtLeastZero(value) {
     return Number.isSafeInteger(value) && Number(value) >= 0;
@@ -128,7 +132,7 @@ export function validatePlanRecordV1(value) {
         !repositoryPattern.test(value["repository"]) ||
         !integerAtLeastZero(value["planNumber"]) ||
         !nonEmpty(value["title"]) ||
-        !planPath(value["sourcePath"]) ||
+        !isPlanBodyPathV1(value["sourcePath"], "live") ||
         typeof value["status"] !== "string" ||
         !statuses.has(value["status"]) ||
         !reference(value["issue"]) ||

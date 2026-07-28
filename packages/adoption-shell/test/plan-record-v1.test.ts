@@ -72,12 +72,12 @@ function manifestInput() {
     schemaRelease: { version: "3.0.0", digest: "c".repeat(64) },
     decisions: [
       {
-        path: "plans/002.md",
+        path: "plans/002-example.md",
         decision: "retire" as const,
         reasonCode: "AMBIGUOUS_STATUS" as const,
       },
       {
-        path: "plans/001.md",
+        path: "plans/001-example.md",
         decision: "migrate" as const,
         targetStatus: "planned" as const,
         reasonCode: "LEGACY_READY" as const,
@@ -88,19 +88,19 @@ function manifestInput() {
       repository: "acme/demo",
       count: 2,
       aggregateAlgorithm: ARCHIVE_AGGREGATE_ALGORITHM_V1,
-      aggregateSha256: "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72",
+      aggregateSha256: "9aa25de33c106f8f315432e33f97504b8aa73248703d238152b7560b091e0dfb",
       members: [
-        { path: "plans/archive/002.md", blobSha256: "b".repeat(64) },
-        { path: "plans/archive/001.md", blobSha256: "a".repeat(64) },
+        { path: "plans/archive/002-example.md", blobSha256: "b".repeat(64) },
+        { path: "plans/archive/001-example.md", blobSha256: "a".repeat(64) },
       ],
       dispositions: [{
         decision: "archive-receipt-only" as const,
         reasonCode: "ARCHIVE_SEALED" as const,
         count: 2,
-        aggregateSha256: "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72",
+        aggregateSha256: "9aa25de33c106f8f315432e33f97504b8aa73248703d238152b7560b091e0dfb",
       }],
     },
-    changedPaths: ["plans/002.md", "plans/001.md"],
+    changedPaths: ["plans/002-example.md", "plans/001-example.md"],
     verification: ["schema", "fixtures"],
     canary: { repository: "gmail-markdown", state: "pending" as const },
     rollbackRef: "refs/tags/v2.6.0",
@@ -287,7 +287,7 @@ test("a second dry run is byte-identical and schema-valid", () => {
   const first = createWorkMigrationManifestV1(input);
   const second = createWorkMigrationManifestV1(input);
   assert.equal(canonicalizeJson(first), canonicalizeJson(second));
-  assert.deepEqual(first.decisions.map((row) => row.path), ["plans/001.md", "plans/002.md"]);
+  assert.deepEqual(first.decisions.map((row) => row.path), ["plans/001-example.md", "plans/002-example.md"]);
   assert.equal(validateWorkMigrationManifestV1(first), true);
   assert.equal(validateMigrationManifestSchema(first), true, JSON.stringify(validateMigrationManifestSchema.errors));
 });
@@ -296,7 +296,7 @@ test("manifest closes live inventory and archive disposition counts/hashes", () 
   const input = manifestInput();
   assert.equal(
     archiveAggregateSha256V1(input.archive.members),
-    "60bfa54efb5175bf6cf622649058b290b8520fe4f96a71d9186843fc8c16df72",
+    "9aa25de33c106f8f315432e33f97504b8aa73248703d238152b7560b091e0dfb",
   );
   assert.throws(
     () => createWorkMigrationManifestV1({
@@ -367,7 +367,7 @@ test("manifest rejects unclassified rows, archive live targets, apply-set drift,
   assert.throws(
     () => createWorkMigrationManifestV1({
       ...input,
-      changedPaths: ["plans/001.md", "plans/001.md"],
+      changedPaths: ["plans/001-example.md", "plans/001-example.md"],
     }),
     /input is invalid/,
   );
@@ -375,26 +375,26 @@ test("manifest rejects unclassified rows, archive live targets, apply-set drift,
     () => createWorkMigrationManifestV1({
       ...input,
       decisions: [{
-        path: "plans/archive/001.md",
+        path: "plans/archive/001-example.md",
         decision: "retire" as const,
         reasonCode: "INVALID_V1" as const,
       }],
       liveCounts: { before: 1, migrate: 0, retire: 1, after: 0 },
-      changedPaths: ["plans/archive/001.md"],
+      changedPaths: ["plans/archive/001-example.md"],
     }),
     /input is invalid/,
   );
   assert.throws(
     () => createWorkMigrationManifestV1({
       ...input,
-      changedPaths: ["plans/001.md"],
+      changedPaths: ["plans/001-example.md"],
     }),
     /input is invalid/,
   );
   assert.throws(
     () => createWorkMigrationManifestV1({
       ...input,
-      changedPaths: ["plans/001.md", "plans/002.md", "plans/999.md"],
+      changedPaths: ["plans/001-example.md", "plans/002-example.md", "plans/999.md"],
     }),
     /input is invalid/,
   );
@@ -402,7 +402,7 @@ test("manifest rejects unclassified rows, archive live targets, apply-set drift,
     () => createWorkMigrationManifestV1({
       ...input,
       decisions: [{
-        path: "plans/001.md",
+        path: "plans/001-example.md",
         decision: "migrate" as const,
         targetStatus: "closed" as const,
         reasonCode: "LEGACY_READY" as const,
@@ -414,7 +414,7 @@ test("manifest rejects unclassified rows, archive live targets, apply-set drift,
   const structurallyWrong = {
     ...createWorkMigrationManifestV1(input),
     decisions: [{
-      path: "plans/001.md",
+      path: "plans/001-example.md",
       decision: "migrate",
       targetStatus: "closed",
       reasonCode: "LEGACY_READY",

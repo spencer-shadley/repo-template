@@ -1,6 +1,6 @@
 import { canonicalizeJson } from "./canonical-json.ts";
 import { sha256Bytes } from "./digest.ts";
-import { portablePathFailure } from "./path-policy.ts";
+import { isPlanBodyPathV1 } from "./plan-record-v1.ts";
 import type {
   MigrateReasonCode,
   PlanRecordStatus,
@@ -102,20 +102,11 @@ function exactKeys(
 }
 
 function livePlanPath(value: unknown): value is string {
-  return (
-    typeof value === "string" &&
-    value.startsWith("plans/") &&
-    value.endsWith(".md") &&
-    value.slice("plans/".length).indexOf("/") === -1 &&
-    portablePathFailure(value) === null
-  );
+  return isPlanBodyPathV1(value, "live");
 }
 
 function archivePlanPath(value: unknown): value is string {
-  return typeof value === "string" &&
-    value.startsWith("plans/archive/") &&
-    value.endsWith(".md") &&
-    portablePathFailure(value) === null;
+  return isPlanBodyPathV1(value, "archive");
 }
 
 function sortedUnique(values: readonly string[]): boolean {
@@ -294,7 +285,7 @@ function validStringLists(value: Record<string, unknown>): boolean {
     Array.isArray(value["changedPaths"]) &&
     sortedUnique(value["changedPaths"] as readonly string[]) &&
     (value["changedPaths"] as readonly unknown[]).every((path) =>
-      typeof path === "string" && portablePathFailure(path) === null) &&
+      livePlanPath(path)) &&
     Array.isArray(value["verification"]) &&
     value["verification"].length > 0 &&
     sortedUnique(value["verification"] as readonly string[])

@@ -1,4 +1,5 @@
 export declare const PLAN_RECORD_SCHEMA_VERSION: "plan-record/v1";
+export declare const PLAN_BODY_BASENAME_PATTERN_SOURCE: "^(?!.*\\.(?:[Ll][Oo][Gg]|[Rr][Ee][Ss][Uu][Ll][Tt]|[Cc][Rr][Ii][Tt][Ii][Cc]|[Ff][Ee][Ee][Dd][Bb][Aa][Cc][Kk]|[Dd][Ee][Aa][Dd][Ll][Ee][Tt][Tt][Ee][Rr])\\.md$)[0-9]{3,}-[A-Za-z0-9._@()+,=-]+\\.md$";
 export declare const PLAN_RECORD_STATUSES: readonly ["planned", "in-progress", "implemented", "closed", "held-authority"];
 export type PlanRecordStatus = (typeof PLAN_RECORD_STATUSES)[number];
 export type MigrateReasonCode = "LEGACY_READY" | "LEGACY_ACTIVE" | "LEGACY_IMPLEMENTED" | "LEGACY_CLOSED" | "LEGACY_HELD_COMPLETE";
@@ -67,6 +68,7 @@ export interface PlanRecordV1 {
         }>;
     }>;
 }
+export declare function isPlanBodyPathV1(value: unknown, location: "live" | "archive"): value is string;
 export declare function validatePlanRecordV1(value: unknown): value is PlanRecordV1;
 export declare function classifyPlanRecordV1(value: unknown, options?: Readonly<{
     archive?: boolean;
