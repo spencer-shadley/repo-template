@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/034-publish-portable-planrecordv1-schema-and-migration-contract
-- **Status:** ready for codex
+- **Status:** stalled - env: Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\c\Program Files\nodejs\node_modules\corepack\dist\corepack.js' imported from C:\Users\Spencer\AppData\Local\agent-orchestrator\
 - **Requeue-reason:** manual: scrub forbidden supervisor model authority before independent critic retry
 - **Priority:** P1
 - **Issue:** repo-template#97
