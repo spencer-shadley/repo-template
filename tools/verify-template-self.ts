@@ -184,6 +184,33 @@ const boundaryErrors: string[] = [
   ...conflictMarkerSelfTestErrors,
   ...userSurfaceLintSyncErrors_,
 ];
+const planRecordManifestModes: Readonly<Record<string, string>> = {
+  "PLAN_TEMPLATE.md": "copy",
+  "contracts/plan-record/v1/fixtures/classification-cases.json": "self",
+  "contracts/plan-record/v1/plan-record.example.json": "self",
+  "contracts/plan-record/v1/plan-record.schema.json": "self",
+  "contracts/plan-record/v1/work-migration-manifest.example.json": "self",
+  "contracts/plan-record/v1/work-migration-manifest.schema.json": "self",
+  "packages/adoption-shell/src/plan-record-v1.ts": "self",
+  "packages/adoption-shell/test/plan-record-v1.test.ts": "self",
+};
+for (const [file, mode] of Object.entries(planRecordManifestModes)) {
+  if (manifest[file] !== mode) {
+    boundaryErrors.push(`PlanRecordV1 manifest mode must be ${mode}: ${file}`);
+  }
+}
+const planTemplate = fs.readFileSync(path.join(root, "PLAN_TEMPLATE.md"), "utf8");
+for (const required of [
+  "**Status:** `planned`",
+  "**Issue:**",
+  "**enqueuedAt:**",
+  "**Tier:**",
+  "PlanRecordV1 adapter mapping",
+]) {
+  if (!planTemplate.includes(required)) {
+    boundaryErrors.push(`PLAN_TEMPLATE.md missing canonical adapter field: ${required}`);
+  }
+}
 if (manifest["model-boundary.json"] !== "copy") {
   boundaryErrors.push("model-boundary.json must be manifest copy");
 }
@@ -238,9 +265,10 @@ const issueTemplate = fs.readFileSync(
 if (gitBlobId(issueTemplate) !== "1383ad89b6bdccc6369c490d27a8326fa05f49cc") {
   boundaryErrors.push("predecessor issue template bytes changed");
 }
-const headVersion = git("show", "HEAD:TEMPLATE_VERSION");
 const workingVersion = fs.readFileSync(path.join(root, "TEMPLATE_VERSION"), "utf8");
-if (headVersion !== workingVersion) boundaryErrors.push("TEMPLATE_VERSION changed");
+if (workingVersion.trim() !== "3.0.0") {
+  boundaryErrors.push("TEMPLATE_VERSION must publish PlanRecordV1 structural release 3.0.0");
+}
 
 if (process.argv.includes("--direct-l0-defaults")) {
   if (directL0DefaultErrors.length > 0) {

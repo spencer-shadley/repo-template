@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "4fa6f043788a6492f84ede2ef469414957a4aa0241c91b878c1269569bb5a1e1",
+  "artifactDigest": "5f38cc90b7f8f645d1385b7f8415a84747bf1a22bcb17dd8d5033ad3f9c90d88",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "27e48f42d9343b3ef1f6ae054ffb833797e389f872fa83eeab91ba0dba3c28b6",
-      "bytes": 2402
+      "sha256": "fcc4620cea384e04fae6440d11ca0dd7ea19a7694411acfb5e4469dae212d343",
+      "bytes": 2826
     },
     {
       "path": "packages/adoption-shell/src/materialize.ts",
@@ -86,6 +86,13 @@
       "mode": "100644",
       "sha256": "d71c5c2e29bf5201a37f374aa35edb67b7609bead755751b129230fd57e1d2a0",
       "bytes": 2241
+    },
+    {
+      "path": "packages/adoption-shell/src/plan-record-v1.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "c8bd12408da1e5c7ddd02a49ce0bca9a483f85def0f5a6304c7fa56badfb364d",
+      "bytes": 15242
     },
     {
       "path": "packages/adoption-shell/src/release-candidate.ts",
@@ -323,15 +330,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2fedc2cec9569b9799365a51107f3dc0bdcea7e7b972eefc09d631bd976250f1",
-      "bytes": 2266
+      "sha256": "3de61de32dcbcbeaaa7b06afb9c0e84b6ab20a5f336bcb89aa942509e7106a11",
+      "bytes": 2664
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7508cfebdd440fff569cbc250cd974fc15e1939dbbeeb8047b30c06730c79e01",
-      "bytes": 1614
+      "sha256": "72a0b471ae2213b1ddb1f86c7a509d24dce54a40b1069d682ee1be449e806e33",
+      "bytes": 1841
     },
     {
       "path": "materialize.d.ts",
@@ -360,6 +367,20 @@
       "mode": "100644",
       "sha256": "29bd993c73704d8599bee6b9dbab7e26418edf6d9e7d1aba905bd536665084a8",
       "bytes": 2247
+    },
+    {
+      "path": "plan-record-v1.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e310a70d10f7a7231688578669d666d107ca3b733af7f499f7a5d207a7191a48",
+      "bytes": 3701
+    },
+    {
+      "path": "plan-record-v1.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "be55b52ac473e830bbf70535f8eda5709bb650624029ef0d19f23834714815f5",
+      "bytes": 12707
     },
     {
       "path": "release-candidate.d.ts",
@@ -465,8 +486,8 @@
       "path": ".user-surface-lint.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
-      "bytes": 114
+      "sha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
+      "bytes": 113
     },
     {
       "path": ".user-surface-lint.schema.json",
@@ -474,6 +495,13 @@
       "mode": "100644",
       "sha256": "aed413cc52f12b1c59dde372af328d4d2eb3c3380bb41c6b00bb99656ae2f0ab",
       "bytes": 1710
+    },
+    {
+      "path": "PLAN_TEMPLATE.md",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "aa1acd2c9ab93f4352823455c23d49de532372b8ad34d6ca428ad2b5a0151148",
+      "bytes": 2150
     },
     {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -521,7 +549,7 @@
       "path": "contracts/adoption-shell-v2/fixtures/negative-inputs.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "81ed87b39b8e004b2a159e0883f1512c027b4429879c0cea845709490b15630d",
+      "sha256": "cd2870aa92d19255f88b1a52f5c2b1313baabb48bdf5caf3380ce84de7c8ca21",
       "bytes": 277044
     },
     {
@@ -542,8 +570,50 @@
       "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "20d071a5ef978798d86c6ef02d7ebb118877fd97218f16fcd0fc968a0394d978",
+      "sha256": "42e8543844a661764f4c0ebef7de9a83aa01a2ea1bd610cffdb4776ef9e35afd",
       "bytes": 42934
+    },
+    {
+      "path": "contracts/plan-record/v1/fixtures/classification-cases.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a1407ccf7a6f16c9637bb09c5f88472c9f52124670f6e65007fdd336c485237a",
+      "bytes": 7712
+    },
+    {
+      "path": "contracts/plan-record/v1/plan-record.example.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "51ec3723b579e5f630d4958adb71917b33a1529e768c74a090ebb98d15d69c44",
+      "bytes": 1011
+    },
+    {
+      "path": "contracts/plan-record/v1/plan-record.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "93e3f5fe76f2f5a5ffd9c6264f05f889d043dd7e5695b81b718c17fff4fe33d1",
+      "bytes": 4880
+    },
+    {
+      "path": "contracts/plan-record/v1/work-migration-manifest.example.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e65802390affdc8656e978d58201bc72b66f19d284211ea338b1ade314492fde",
+      "bytes": 824
+    },
+    {
+      "path": "contracts/plan-record/v1/work-migration-manifest.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "ea42a33f257bdb28ab46259bcafff74a8b017a3a4c8604ed5718c2d8e32edfb9",
+      "bytes": 2971
+    },
+    {
+      "path": "plans/drafts/000-smoke.md",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2cb304998bcb704d0054243f96a83b4128104a6bf6c9f8311782f3049372603f",
+      "bytes": 795
     },
     {
       "path": "scripts/lint-user-surface-leaks.mjs",
@@ -670,7 +740,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "021ea157a583e261814f625cdc9c12930f1d453cdd113c5195202d870655ff96",
+      "sha256": "e57da2eee746a233c5317943b17c8e053b306a6adc05e5c60d1b9326a619dd59",
       "bytes": 876
     },
     {
@@ -702,5 +772,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "e7eadcc98dcab3627b164c700f9112bb84216f4861781eea0df1c77aa5c6e549"
+  "manifestDigest": "45960d7e5e191e12902d90cfadc5cb4bfb5aba4dab3474399022a66f56e4f1a8"
 }

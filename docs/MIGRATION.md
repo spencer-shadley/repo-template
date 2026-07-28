@@ -114,6 +114,49 @@ Block the fleet rollout immediately, open a P1 issue against repo-template with 
 incident or verify evidence, then choose one recovery path before retrying: revert the canary
 migration PR, or hotfix the template/canary and rerun the canary window from the beginning.
 
+## PlanRecordV1 no-grandfather migration
+
+Template `3.0.0` replaces open-ended plan status prose with the portable contract in
+`contracts/plan-record/v1/`. This is a no-grandfather migration: inventory every top-level live
+`plans/*.md` record and give it exactly one `migrate` or `retire` decision. Halt before apply when
+any row is unclassified. Do not add another stored status to accommodate legacy prose.
+
+Run the pure classifier offline first and persist a
+`work-migration-manifest/v1` dry-run receipt. A second run over identical source bytes must produce
+the identical canonical manifest and digest. The manifest records the exact source commit/tree,
+schema release digest, per-path stable reason, archive aggregate, changed paths, verification,
+canary state, rollback ref, and `unclassifiedCount: 0`. Record exact before/after counts; apply only
+the manifest's sorted path set. Rollback is an ordinary revert to the recorded ref.
+
+Map evidence as follows:
+
+- ready, draft, stalled, or parked work becomes `planned` only when the record and repository
+  evidence identify the work and any retry/authority trigger completely; otherwise retire it for
+  explicit disposition;
+- active or implementing work becomes `in-progress`;
+- landed work becomes `implemented` with a landed commit receipt and claim/land snapshots;
+- shipped or resolved work becomes `closed` with a deployed receipt, deployment time, snapshots,
+  and `completed | duplicate | not-planned | invalid` disposition;
+- held work becomes `held-authority` only with a separate, finite `trigger`;
+- unknown or ambiguous values retire fail-closed; never guess from prose.
+
+For an already admitted record, preserve `enqueuedAt`. For historical records without one, derive
+the timestamp from the file-add commit and mark `enqueueTimeSource: file-add-backfill`; do not use
+mtime, current time, or a later edit. Link an existing real GitHub issue only when it already owns
+the work. Otherwise use a typed `plan-host` reference for live migration. That composition reference
+does not manufacture an issue, a fix, or issue-closure credit.
+
+Archives are sealed and read-only even when an archived plan's prose disagrees with current terminal
+semantics. Do not rewrite archive plan bodies and do not bulk-create archive housekeeping issues.
+Emit one content-addressed aggregate receipt per repository containing the archive count, byte hash,
+and migration dispositions; classifier output for those files is `archive-receipt-only` with stable
+reason `ARCHIVE_SEALED`.
+
+Adopt major `3.0.0` through the `gmail-markdown` canary first. Its verify surface remains the
+smallest applicable managed leaf surface at this release. Do not begin fleet rollout until its
+migration merges, verifies, and satisfies the major-version observation gate above. AO runtime
+adaptation and corpus mutation belong to `agent-orchestrator#2814`, not to this template release.
+
 ## Enrollment proof
 
 Finish migration by running the smoke plan at `plans/drafts/000-smoke.md`. The smoke plan proves the

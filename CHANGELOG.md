@@ -6,6 +6,8 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-07-28
+
 ### Fixed
 - Closed the issue #92 capability-closure gap left open by the fail-closed user-surface-lint
   expansion: every advertised `--self-test` fixture tree (`error-codes`, `source-leak`,
@@ -21,6 +23,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 <!-- new capabilities or files -->
+- **BREAKING:** Published strict portable `PlanRecordV1` and `WorkMigrationManifestV1` schemas,
+  examples, fixtures, pure validators/classifier, immutable transition checks, canonical
+  `PLAN_TEMPLATE.md` adapter, and the no-grandfather migration contract. Sealed archives produce
+  one aggregate receipt and no issue storm. `gmail-markdown` remains the smallest applicable leaf
+  canary; fleet rollout waits for its major-version observation gate. Runtime consumption and corpus
+  mutation remain owned by `agent-orchestrator#2814`. MAJOR.
 - **BREAKING:** Added the pure TypeScript `adoption-shell-v2` contract, nine closed schemas,
   dependency-free compiled ESM/declarations, authenticated capability registry, deterministic
   fixtures/goldens, negative-effect proofs, and a reproducible artifact manifest. This implements

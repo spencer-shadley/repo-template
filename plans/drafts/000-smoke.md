@@ -1,7 +1,10 @@
 # Plan 000: enrollment smoke
 
 - **Project:** {{PROJECT_NAME}}
-- **Status:** ready for codex
+- **Repository:** {{OWNER}}/{{REPOSITORY}}
+- **Status:** planned
+- **Issue:** plan-host:{{OWNER}}/{{REPOSITORY}}/plans/000
+- **enqueuedAt:** {{ENQUEUED_AT_RFC3339}}
 - **Priority:** P1
 - **Effort:** low
 
@@ -26,5 +29,6 @@ Prove this repo is correctly enrolled in the autonomous loop before real work en
 
 ## Risk
 
-Tier: `auto` if the repo's autonomy policy allows marker-file changes; otherwise run one-off as
-human tier.
+- **Tier:** auto
+- **Rationale:** Local enrollment marker only; use `human` if local policy protects this path.
+- **Effect-classes:** repo-write

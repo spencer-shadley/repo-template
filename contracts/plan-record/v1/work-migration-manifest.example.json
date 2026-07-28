@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "work-migration-manifest/v1",
+  "source": { "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+  "schemaRelease": { "version": "3.0.0", "digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" },
+  "decisions": [{ "path": "plans/001-example.md", "decision": "migrate", "reasonCode": "LEGACY_READY" }],
+  "archive": { "count": 714, "aggregateSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd" },
+  "changedPaths": ["plans/001-example.md"],
+  "verification": ["fixture-validation"],
+  "canary": { "repository": "gmail-markdown", "state": "pending" },
+  "rollbackRef": "refs/tags/v2.6.0",
+  "unclassifiedCount": 0,
+  "manifestSha256": "250b8aee0f8ff80ea041dd374ecab58498537d0d6ce6044da2d2f6bceaafdf63"
+}

@@ -23,6 +23,7 @@ audit, the autonomous loop) rely on these paths.
 | `.user-surface-lint.schema.json` | schema for the user-surface leak lint config |
 | `scripts/lint-user-surface-leaks.mjs` | deterministic lint preventing developer/operator internals in user-visible literals |
 | `plans/QUEUE.md` | the autonomous work queue (`## Pending` = auto-merge lane) |
+| `PLAN_TEMPLATE.md` | canonical plan header and Markdown-to-`PlanRecordV1` adapter |
 | `plans/archive/` | archived completed plan specs/results/logs |
 | `plans/drafts/000-smoke.md` | first enrollment-proof plan for new repos |
 | `TODO.md` | one-shot setup survey (deleted once setup completes) |
