@@ -2,8 +2,8 @@
 
 - **Project:** repo-template
 - **Branch:** feat/034-publish-portable-planrecordv1-schema-and-migration-contract
-- **Status:** stalled - env: Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'C:\c\Program Files\nodejs\node_modules\corepack\dist\corepack.js' imported from C:\Users\Spencer\AppData\Local\agent-orchestrator\
-- **Requeue-reason:** manual: scrub forbidden supervisor model authority before independent critic retry
+- **Status:** ready for codex
+- **Requeue-reason:** verify-failed: use Windows-native corepack.cmd under the shared no-path-conversion verify environment
 - **Priority:** P1
 - **Issue:** repo-template#97
 - **Effort:** high
@@ -188,4 +188,6 @@ test "$(tr -d '\r\n ' < TEMPLATE_VERSION)" = "3.0.0"
 
 ## Retry history
 
+
+- 2026-07-28T22:29:10.196Z verify-failed (manual): use Windows-native corepack.cmd under the shared no-path-conversion verify environment
 - 2026-07-28T22:17:12.965Z manual (manual): scrub forbidden supervisor model authority before independent critic retry
