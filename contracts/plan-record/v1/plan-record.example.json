@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "plan-record/v1",
+  "project": "repo-template",
+  "repository": "spencer-shadley/repo-template",
+  "planNumber": 34,
+  "title": "Publish portable PlanRecordV1 schema and migration contract",
+  "sourcePath": "plans/034-publish-portable-planrecordv1-schema-and-migration-contract.md",
+  "status": "implemented",
+  "issue": { "kind": "github", "repository": "spencer-shadley/repo-template", "number": 97 },
+  "enqueuedAt": "2026-07-28T22:06:00Z",
+  "enqueueTimeSource": "recorded",
+  "risk": { "tier": "human", "rationale": "Breaking portable lifecycle contract.", "effectClasses": ["contract", "migration"] },
+  "owner": "repo-template",
+  "contractSnapshots": {
+    "claim": { "algorithm": "sha256", "digest": "1111111111111111111111111111111111111111111111111111111111111111" },
+    "land": { "algorithm": "sha256", "digest": "2222222222222222222222222222222222222222222222222222222222222222" }
+  },
+  "receipt": { "kind": "landed", "commit": "3333333333333333333333333333333333333333333333333333333333333333" }
+}

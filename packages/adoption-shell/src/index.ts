@@ -94,3 +94,16 @@ export type {
   DeliveryEventV1,
 } from "./delivery-measurement-contract.ts";
 export { materializeAdoptionShellV2 } from "./materialize.ts";
+export {
+  classifyPlanRecordV1,
+  createWorkMigrationManifestV1,
+  PLAN_RECORD_SCHEMA_VERSION,
+  PLAN_RECORD_STATUSES,
+} from "./plan-record-v1.ts";
+export type {
+  LegacyReasonCode,
+  PlanRecordDecision,
+  PlanRecordStatus,
+  PlanRecordV1,
+  WorkMigrationManifestV1,
+} from "./plan-record-v1.ts";
