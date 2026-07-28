@@ -1,167 +1,310 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import test from "node:test";
 
+import { Ajv2020 } from "ajv/dist/2020.js";
+import type { AnySchema } from "ajv";
+import type { FormatsPlugin } from "ajv-formats";
+
+import { canonicalizeJson } from "../src/canonical-json.ts";
 import {
   classifyPlanRecordV1,
-  createWorkMigrationManifestV1,
   planRecordTransitionReasonV1,
   validatePlanRecordV1,
-  validateWorkMigrationManifestV1,
+  type PlanRecordV1,
 } from "../src/plan-record-v1.ts";
-import { canonicalizeJson } from "../src/canonical-json.ts";
+import {
+  createWorkMigrationManifestV1,
+  validateWorkMigrationManifestV1,
+} from "../src/work-migration-manifest-v1.ts";
 
-const cases = JSON.parse(fs.readFileSync(
-  new URL("../../../contracts/plan-record/v1/fixtures/classification-cases.json", import.meta.url),
-  "utf8",
-)) as readonly Readonly<{
-  name: string;
-  decision: string;
-  reasonCode?: string;
-  archive?: boolean;
-  record: unknown;
-}>[];
+interface ClassificationFixture {
+  readonly name: string;
+  readonly decision: string;
+  readonly targetStatus?: string;
+  readonly reasonCode?: string;
+  readonly archive?: boolean;
+  readonly record: unknown;
+}
 
-const planRecordExample = JSON.parse(fs.readFileSync(
-  new URL("../../../contracts/plan-record/v1/plan-record.example.json", import.meta.url),
-  "utf8",
-)) as unknown;
-const migrationManifestExample = JSON.parse(fs.readFileSync(
-  new URL(
-    "../../../contracts/plan-record/v1/work-migration-manifest.example.json",
-    import.meta.url,
-  ),
-  "utf8",
-)) as unknown;
+const contract = (name: string): URL =>
+  new URL(`../../../contracts/plan-record/v1/${name}`, import.meta.url);
+const parse = (name: string): unknown =>
+  JSON.parse(fs.readFileSync(contract(name), "utf8")) as unknown;
 
-test("published examples validate against the pure contract", () => {
-  assert.equal(validatePlanRecordV1(planRecordExample), true);
-  assert.equal(validateWorkMigrationManifestV1(migrationManifestExample), true);
+const cases = parse("fixtures/classification-cases.json") as readonly ClassificationFixture[];
+const planRecordSchema = parse("plan-record.schema.json") as AnySchema;
+const migrationManifestSchema = parse("work-migration-manifest.schema.json") as AnySchema;
+const planRecordExample = parse("plan-record.example.json");
+const migrationManifestExample = parse("work-migration-manifest.example.json");
+
+const require = createRequire(import.meta.url);
+const addFormats = require("ajv-formats") as FormatsPlugin;
+const ajv = new Ajv2020({
+  allErrors: true,
+  strictSchema: true,
+  strictTypes: false,
+  strictRequired: false,
 });
+addFormats(ajv);
+const validatePlanRecordSchema = ajv.compile(planRecordSchema);
+const validateMigrationManifestSchema = ajv.compile(migrationManifestSchema);
 
-test("classifies every portable, legacy, malformed, overlay, and archive fixture", () => {
-  for (const fixture of cases) {
-    const result = classifyPlanRecordV1(
-      fixture.record,
-      fixture.archive === undefined ? {} : { archive: fixture.archive },
-    );
-    assert.equal(result.kind, fixture.decision, fixture.name);
-    if ("reasonCode" in result) assert.equal(result.reasonCode, fixture.reasonCode, fixture.name);
-  }
-});
+function fixture(name: string): ClassificationFixture {
+  const found = cases.find((row) => row.name === name);
+  if (found === undefined) throw new Error(`missing fixture: ${name}`);
+  return found;
+}
 
-test("a second dry run is byte-identical and input order does not affect the manifest", () => {
-  const input = {
+function validRecord(name: string): PlanRecordV1 {
+  const record = fixture(name).record;
+  if (!validatePlanRecordV1(record)) throw new Error(`fixture is not valid: ${name}`);
+  return record;
+}
+
+function manifestInput() {
+  return {
     schemaVersion: "work-migration-manifest/v1" as const,
-    source: { commit: "a".repeat(64), tree: "b".repeat(64) },
+    source: { commit: "a".repeat(40), tree: "b".repeat(40) },
     schemaRelease: { version: "3.0.0", digest: "c".repeat(64) },
     decisions: [
-      { path: "plans/002.md", decision: "retire" as const, reasonCode: "AMBIGUOUS_STATUS" as const },
-      { path: "plans/001.md", decision: "migrate" as const, reasonCode: "LEGACY_READY" as const },
+      {
+        path: "plans/002.md",
+        decision: "retire" as const,
+        reasonCode: "AMBIGUOUS_STATUS" as const,
+      },
+      {
+        path: "plans/001.md",
+        decision: "migrate" as const,
+        targetStatus: "planned" as const,
+        reasonCode: "LEGACY_READY" as const,
+      },
     ],
-    archive: { count: 7, aggregateSha256: "d".repeat(64) },
+    liveCounts: { before: 2, migrate: 1, retire: 1, after: 1 },
+    archive: {
+      count: 7,
+      aggregateSha256: "d".repeat(64),
+      dispositions: [{
+        decision: "archive-receipt-only" as const,
+        reasonCode: "ARCHIVE_SEALED" as const,
+        count: 7,
+        aggregateSha256: "d".repeat(64),
+      }],
+    },
     changedPaths: ["plans/002.md", "plans/001.md"],
     verification: ["schema", "fixtures"],
     canary: { repository: "gmail-markdown", state: "pending" as const },
     rollbackRef: "refs/tags/v2.6.0",
     unclassifiedCount: 0 as const,
   };
+}
+
+test("published schemas pass the draft 2020-12 meta-schema and validate examples", () => {
+  assert.equal(ajv.validateSchema(planRecordSchema), true, JSON.stringify(ajv.errors));
+  assert.equal(ajv.validateSchema(migrationManifestSchema), true, JSON.stringify(ajv.errors));
+  assert.equal(validatePlanRecordSchema(planRecordExample), true, JSON.stringify(validatePlanRecordSchema.errors));
+  assert.equal(
+    validateMigrationManifestSchema(migrationManifestExample),
+    true,
+    JSON.stringify(validateMigrationManifestSchema.errors),
+  );
+  assert.equal(validatePlanRecordV1(planRecordExample), true);
+  assert.equal(validateWorkMigrationManifestV1(migrationManifestExample), true);
+});
+
+test("schema and runtime agree for every v1 positive and negative fixture", () => {
+  for (const row of cases) {
+    if (
+      row.record === null ||
+      typeof row.record !== "object" ||
+      (row.record as Record<string, unknown>)["schemaVersion"] !== "plan-record/v1"
+    ) continue;
+    const runtime = validatePlanRecordV1(row.record);
+    const schema = validatePlanRecordSchema(row.record);
+    assert.equal(schema, runtime, `${row.name}: ${JSON.stringify(validatePlanRecordSchema.errors)}`);
+    assert.equal(runtime, row.decision === "valid-v1", row.name);
+  }
+});
+
+test("plan-host zero and unordered unique effects are valid; duplicate effects are not", () => {
+  const record = fixture("in-progress-human-plan-host-zero-unsorted-effects").record;
+  assert.equal(validatePlanRecordSchema(record), true, JSON.stringify(validatePlanRecordSchema.errors));
+  assert.equal(validatePlanRecordV1(record), true);
+  const duplicate = fixture("duplicate-effect-class").record;
+  assert.equal(validatePlanRecordSchema(duplicate), false);
+  assert.equal(validatePlanRecordV1(duplicate), false);
+});
+
+test("classifies complete legacy evidence with explicit target status and fails closed otherwise", () => {
+  for (const row of cases) {
+    const result = classifyPlanRecordV1(
+      row.record,
+      row.archive === undefined ? {} : { archive: row.archive },
+    );
+    assert.equal(result.kind, row.decision, row.name);
+    if ("reasonCode" in result) assert.equal(result.reasonCode, row.reasonCode, row.name);
+    if ("targetStatus" in result) assert.equal(result.targetStatus, row.targetStatus, row.name);
+  }
+  for (const name of [
+    "bare-ready-incomplete",
+    "bare-draft-incomplete",
+    "bare-stalled-incomplete",
+    "bare-parked-incomplete",
+    "bare-held-incomplete",
+  ]) {
+    assert.deepEqual(classifyPlanRecordV1(fixture(name).record), {
+      kind: "retire",
+      reasonCode: "INCOMPLETE_EVIDENCE",
+    });
+  }
+});
+
+test("landed and shipped legacy evidence retain distinct targets and reason codes", () => {
+  assert.deepEqual(classifyPlanRecordV1(fixture("legacy-landed-complete").record), {
+    kind: "migrate",
+    targetStatus: "implemented",
+    reasonCode: "LEGACY_IMPLEMENTED",
+  });
+  assert.deepEqual(classifyPlanRecordV1(fixture("legacy-shipped-complete").record), {
+    kind: "migrate",
+    targetStatus: "closed",
+    reasonCode: "LEGACY_CLOSED",
+  });
+});
+
+test("claim, receipt, disposition, and supersession evidence is lifecycle-conditional", () => {
+  for (const name of [
+    "planned-auto-github-no-claim",
+    "in-progress-human-plan-host-zero-unsorted-effects",
+    "implemented-landed",
+    "closed-completed-deployed",
+    "closed-duplicate-no-invented-receipt",
+    "closed-not-planned-no-invented-receipt",
+    "closed-invalid-with-claim-only",
+    "held-authority-trigger",
+  ]) {
+    assert.equal(validatePlanRecordV1(fixture(name).record), true, name);
+  }
+  for (const name of [
+    "planned-with-premature-claim",
+    "in-progress-missing-claim",
+    "closed-completed-missing-deploy",
+    "closed-duplicate-invented-deploy",
+    "superseded-nonduplicate",
+  ]) {
+    assert.equal(validatePlanRecordV1(fixture(name).record), false, name);
+  }
+});
+
+test("admitted enqueue time and existing claim/land snapshots are immutable", () => {
+  const planned = validRecord("planned-auto-github-no-claim");
+  const active = validRecord("in-progress-human-plan-host-zero-unsorted-effects");
+  const implemented = validRecord("implemented-landed");
+  assert.equal(planRecordTransitionReasonV1(planned, planned), null);
+  assert.equal(planRecordTransitionReasonV1(planned, { ...planned, enqueuedAt: "2026-07-29T00:00:00Z" }), "ENQUEUED_AT_IMMUTABLE");
+  assert.equal(planRecordTransitionReasonV1(active, {
+    ...active,
+    contractSnapshots: {
+      claim: { algorithm: "sha256", digest: "f".repeat(64) },
+    },
+  }), "CLAIM_SNAPSHOT_IMMUTABLE");
+  assert.equal(planRecordTransitionReasonV1(implemented, {
+    ...implemented,
+    contractSnapshots: {
+      claim: implemented.contractSnapshots!.claim,
+      land: { algorithm: "sha256", digest: "e".repeat(64) },
+    },
+  }), "LAND_SNAPSHOT_IMMUTABLE");
+});
+
+test("a second dry run is byte-identical and schema-valid", () => {
+  const input = manifestInput();
   const first = createWorkMigrationManifestV1(input);
   const second = createWorkMigrationManifestV1(input);
   assert.equal(canonicalizeJson(first), canonicalizeJson(second));
   assert.deepEqual(first.decisions.map((row) => row.path), ["plans/001.md", "plans/002.md"]);
   assert.equal(validateWorkMigrationManifestV1(first), true);
+  assert.equal(validateMigrationManifestSchema(first), true, JSON.stringify(validateMigrationManifestSchema.errors));
 });
 
-test("manifest creation halts on an unclassified row", () => {
+test("manifest closes live inventory and archive disposition counts/hashes", () => {
+  const input = manifestInput();
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      decisions: [],
+      liveCounts: { before: 1, migrate: 0, retire: 0, after: 0 },
+    }),
+    /input is invalid/,
+  );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      liveCounts: { before: 2, migrate: 0, retire: 1, after: 0 },
+    }),
+    /input is invalid/,
+  );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      archive: {
+        ...input.archive,
+        dispositions: [{ ...input.archive.dispositions[0]!, count: 6 }],
+      },
+    }),
+    /input is invalid/,
+  );
+  assert.throws(
+    () => createWorkMigrationManifestV1({
+      ...input,
+      archive: {
+        ...input.archive,
+        dispositions: [{
+          ...input.archive.dispositions[0]!,
+          aggregateSha256: "e".repeat(64),
+        }],
+      },
+    }),
+    /input is invalid/,
+  );
+});
+
+test("manifest rejects unclassified rows, path duplication, and target/reason mismatch", () => {
+  const input = manifestInput();
   assert.throws(
     () => createWorkMigrationManifestV1({ unclassifiedCount: 1 } as never),
     /unclassifiedCount must be zero/,
   );
-});
-
-test("admitted enqueue time and claim/land snapshots are immutable", () => {
-  const record = cases.find((fixture) => fixture.name === "implemented-landed")?.record;
-  assert.equal(validatePlanRecordV1(record), true);
-  if (!validatePlanRecordV1(record)) throw new Error("fixture must be a valid record");
-  assert.equal(planRecordTransitionReasonV1(record, record), null);
-  assert.equal(
-    planRecordTransitionReasonV1(record, { ...record, enqueuedAt: "2026-07-29T00:00:00Z" }),
-    "ENQUEUED_AT_IMMUTABLE",
-  );
-  assert.equal(
-    planRecordTransitionReasonV1(record, {
-      ...record,
-      contractSnapshots: {
-        ...record.contractSnapshots,
-        claim: { algorithm: "sha256", digest: "f".repeat(64) },
-      },
-    }),
-    "CLAIM_SNAPSHOT_IMMUTABLE",
-  );
-  assert.equal(
-    planRecordTransitionReasonV1(record, {
-      ...record,
-      contractSnapshots: {
-        ...record.contractSnapshots,
-        land: { algorithm: "sha256", digest: "e".repeat(64) },
-      },
-    }),
-    "LAND_SNAPSHOT_IMMUTABLE",
-  );
-  assert.equal(
-    planRecordTransitionReasonV1(record, {
-      ...record,
-      contractSnapshots: { claim: record.contractSnapshots.claim },
-    } as never),
-    "LAND_SNAPSHOT_IMMUTABLE",
-  );
-});
-
-test("manifest validator rejects digest drift, duplicate paths, and reason/decision mismatch", () => {
-  const base = {
-    schemaVersion: "work-migration-manifest/v1" as const,
-    source: { commit: "a".repeat(40), tree: "b".repeat(40) },
-    schemaRelease: { version: "3.0.0", digest: "c".repeat(64) },
-    decisions: [
-      { path: "plans/001.md", decision: "migrate" as const, reasonCode: "LEGACY_READY" as const },
-    ],
-    archive: { count: 7, aggregateSha256: "d".repeat(64) },
-    changedPaths: ["plans/001.md"],
-    verification: ["fixture-validation"],
-    canary: { repository: "gmail-markdown", state: "pending" as const },
-    rollbackRef: "refs/tags/v2.6.0",
-    unclassifiedCount: 0 as const,
-  };
-  const valid = createWorkMigrationManifestV1(base);
-  assert.equal(validateWorkMigrationManifestV1({ ...valid, manifestSha256: "0".repeat(64) }), false);
   assert.throws(
     () => createWorkMigrationManifestV1({
-      ...base,
+      ...input,
       changedPaths: ["plans/001.md", "plans/001.md"],
     }),
     /input is invalid/,
   );
   assert.throws(
     () => createWorkMigrationManifestV1({
-      ...base,
-      decisions: [{
-        path: "plans/../001.md",
-        decision: "migrate" as const,
-        reasonCode: "LEGACY_READY" as const,
-      }],
-    }),
-    /input is invalid/,
-  );
-  assert.throws(
-    () => createWorkMigrationManifestV1({
-      ...base,
+      ...input,
       decisions: [{
         path: "plans/001.md",
-        decision: "retire" as const,
+        decision: "migrate" as const,
+        targetStatus: "closed" as const,
         reasonCode: "LEGACY_READY" as const,
       }],
+      liveCounts: { before: 1, migrate: 1, retire: 0, after: 1 },
     }),
     /input is invalid/,
   );
+  const structurallyWrong = {
+    ...createWorkMigrationManifestV1(input),
+    decisions: [{
+      path: "plans/001.md",
+      decision: "migrate",
+      targetStatus: "closed",
+      reasonCode: "LEGACY_READY",
+    }],
+  };
+  assert.equal(validateMigrationManifestSchema(structurallyWrong), false);
+  assert.equal(validateWorkMigrationManifestV1(structurallyWrong), false);
 });

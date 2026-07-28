@@ -456,6 +456,8 @@ function verifyPackage(): void {
   ) as Record<string, unknown>;
   const expectedDev = {
     "@types/node": "24.13.3",
+    ajv: "8.17.1",
+    "ajv-formats": "3.0.1",
     typescript: "7.0.2",
   };
   if (

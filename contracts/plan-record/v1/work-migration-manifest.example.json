@@ -2,12 +2,22 @@
   "schemaVersion": "work-migration-manifest/v1",
   "source": { "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "tree": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
   "schemaRelease": { "version": "3.0.0", "digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" },
-  "decisions": [{ "path": "plans/001-example.md", "decision": "migrate", "reasonCode": "LEGACY_READY" }],
-  "archive": { "count": 714, "aggregateSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd" },
+  "decisions": [{ "path": "plans/001-example.md", "decision": "migrate", "targetStatus": "planned", "reasonCode": "LEGACY_READY" }],
+  "liveCounts": { "before": 1, "migrate": 1, "retire": 0, "after": 1 },
+  "archive": {
+    "count": 714,
+    "aggregateSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "dispositions": [{
+      "decision": "archive-receipt-only",
+      "reasonCode": "ARCHIVE_SEALED",
+      "count": 714,
+      "aggregateSha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }]
+  },
   "changedPaths": ["plans/001-example.md"],
-  "verification": ["fixture-validation"],
+  "verification": ["fixture-validation", "json-schema-draft-2020-12"],
   "canary": { "repository": "gmail-markdown", "state": "pending" },
   "rollbackRef": "refs/tags/v2.6.0",
   "unclassifiedCount": 0,
-  "manifestSha256": "250b8aee0f8ff80ea041dd374ecab58498537d0d6ce6044da2d2f6bceaafdf63"
+  "manifestSha256": "c54a0f3ded8107436c844d2d523020c972aee0c2a43cf7053b9e87a95c3d3b87"
 }

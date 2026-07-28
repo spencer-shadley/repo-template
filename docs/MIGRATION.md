@@ -124,21 +124,29 @@ any row is unclassified. Do not add another stored status to accommodate legacy 
 Run the pure classifier offline first and persist a
 `work-migration-manifest/v1` dry-run receipt. A second run over identical source bytes must produce
 the identical canonical manifest and digest. The manifest records the exact source commit/tree,
-schema release digest, per-path stable reason, archive aggregate, changed paths, verification,
-canary state, rollback ref, and `unclassifiedCount: 0`. Record exact before/after counts; apply only
-the manifest's sorted path set. Rollback is an ordinary revert to the recorded ref.
+schema release digest, per-path stable reason and explicit target status, exact live
+before/migrate/retire/after counts, archive aggregate plus disposition count/hash, changed paths,
+verification, canary state, rollback ref, and `unclassifiedCount: 0`. Its decisions must close
+exactly over the declared live-before inventory; a nonzero source count with an empty decision list
+is invalid. Record exact before/after counts; apply only the manifest's sorted path set. Rollback is
+an ordinary revert to the recorded ref.
 
 Map evidence as follows:
 
-- ready, draft, stalled, or parked work becomes `planned` only when the record and repository
-  evidence identify the work and any retry/authority trigger completely; otherwise retire it for
-  explicit disposition;
-- active or implementing work becomes `in-progress`;
-- landed work becomes `implemented` with a landed commit receipt and claim/land snapshots;
-- shipped or resolved work becomes `closed` with a deployed receipt, deployment time, snapshots,
-  and `completed | duplicate | not-planned | invalid` disposition;
+- ready work becomes `planned` only when identity, risk, issue, and enqueue evidence are complete;
+  draft additionally needs its exit trigger, and stalled/parked work needs both structured
+  `retryReason` and finite `trigger`; incomplete evidence retires as `INCOMPLETE_EVIDENCE`;
+- active or implementing work becomes `in-progress` with reason `LEGACY_ACTIVE` and a claim
+  snapshot;
+- landed or implemented work becomes `implemented` with reason `LEGACY_IMPLEMENTED`, a landed
+  commit receipt, and claim/land snapshots;
+- shipped or resolved work becomes `closed` with reason `LEGACY_CLOSED`, a deployed receipt,
+  deployment time, claim/land snapshots, and `completed` disposition;
+- legacy closed work with `duplicate | not-planned | invalid` disposition remains `closed` without
+  invented land/deploy evidence; `supersededBy` is valid only for `duplicate`;
 - held work becomes `held-authority` only with a separate, finite `trigger`;
-- unknown or ambiguous values retire fail-closed; never guess from prose.
+- unknown or ambiguous values (including bare `done`) retire fail-closed; never guess whether prose
+  means merely landed or actually shipped.
 
 For an already admitted record, preserve `enqueuedAt`. For historical records without one, derive
 the timestamp from the file-add commit and mark `enqueueTimeSource: file-add-backfill`; do not use

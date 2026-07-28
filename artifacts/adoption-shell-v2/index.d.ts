@@ -13,5 +13,7 @@ export { validateDeliveryDeclarationV1, validateDeliveryEventV1, } from "./deliv
 export { DELIVERY_ANTI_GAMING_EXCLUSIONS, DELIVERY_COVERAGE_FIELDS, DELIVERY_MEASUREMENT_CONTRACT_ID, DELIVERY_SLI_IDS, DELIVERY_STAGES, } from "./delivery-measurement-contract.ts";
 export type { DeliveryDeclarationV1, DeliveryEventV1, } from "./delivery-measurement-contract.ts";
 export { materializeAdoptionShellV2 } from "./materialize.ts";
-export { classifyPlanRecordV1, createWorkMigrationManifestV1, planRecordTransitionReasonV1, PLAN_RECORD_SCHEMA_VERSION, PLAN_RECORD_STATUSES, validatePlanRecordV1, validateWorkMigrationManifestV1, } from "./plan-record-v1.ts";
-export type { LegacyReasonCode, PlanRecordDecision, PlanRecordStatus, PlanRecordTransitionReasonCode, PlanRecordV1, WorkMigrationManifestV1, } from "./plan-record-v1.ts";
+export { classifyPlanRecordV1, planRecordTransitionReasonV1, PLAN_RECORD_SCHEMA_VERSION, PLAN_RECORD_STATUSES, validatePlanRecordV1, } from "./plan-record-v1.ts";
+export type { LegacyReasonCode, MigrateReasonCode, PlanRecordDecision, PlanRecordStatus, PlanRecordTransitionReasonCode, PlanRecordV1, RetireReasonCode, } from "./plan-record-v1.ts";
+export { createWorkMigrationManifestV1, validateWorkMigrationManifestV1, } from "./work-migration-manifest-v1.ts";
+export type { WorkMigrationDecisionV1, WorkMigrationManifestV1, } from "./work-migration-manifest-v1.ts";

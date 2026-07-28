@@ -1,5 +1,4 @@
 import { canonicalizeJson } from "./canonical-json.ts";
-import { sha256Bytes } from "./digest.ts";
 import { portablePathFailure } from "./path-policy.ts";
 import { isRecord, SHA256_PATTERN } from "./validation-helpers.ts";
 
@@ -13,20 +12,27 @@ export const PLAN_RECORD_STATUSES = [
 ] as const;
 
 export type PlanRecordStatus = (typeof PLAN_RECORD_STATUSES)[number];
-export type PlanRecordDecision =
-  | Readonly<{ kind: "valid-v1"; record: PlanRecordV1 }>
-  | Readonly<{ kind: "migrate"; reasonCode: LegacyReasonCode }>
-  | Readonly<{ kind: "retire"; reasonCode: LegacyReasonCode }>
-  | Readonly<{ kind: "archive-receipt-only"; reasonCode: "ARCHIVE_SEALED" }>;
-
-export type LegacyReasonCode =
+export type MigrateReasonCode =
   | "LEGACY_READY"
   | "LEGACY_ACTIVE"
-  | "LEGACY_TERMINAL"
-  | "LEGACY_HELD_COMPLETE"
+  | "LEGACY_IMPLEMENTED"
+  | "LEGACY_CLOSED"
+  | "LEGACY_HELD_COMPLETE";
+export type RetireReasonCode =
+  | "INCOMPLETE_EVIDENCE"
   | "AMBIGUOUS_STATUS"
   | "INVALID_V1"
   | "UNCLASSIFIED_INPUT";
+export type LegacyReasonCode = MigrateReasonCode | RetireReasonCode;
+export type PlanRecordDecision =
+  | Readonly<{ kind: "valid-v1"; record: PlanRecordV1 }>
+  | Readonly<{
+    kind: "migrate";
+    targetStatus: PlanRecordStatus;
+    reasonCode: MigrateReasonCode;
+  }>
+  | Readonly<{ kind: "retire"; reasonCode: RetireReasonCode }>
+  | Readonly<{ kind: "archive-receipt-only"; reasonCode: "ARCHIVE_SEALED" }>;
 export type PlanRecordTransitionReasonCode =
   | "ENQUEUED_AT_IMMUTABLE"
   | "CLAIM_SNAPSHOT_IMMUTABLE"
@@ -61,24 +67,22 @@ export interface PlanRecordV1 {
     commit: string;
     deployedAt?: string;
   }>;
-  readonly contractSnapshots: Readonly<{
+  readonly contractSnapshots?: Readonly<{
     claim: Readonly<{ algorithm: "sha256"; digest: string }>;
     land?: Readonly<{ algorithm: "sha256"; digest: string }>;
   }>;
 }
 
-const encoder = new TextEncoder();
 const statuses = new Set<string>(PLAN_RECORD_STATUSES);
-const legacyReady = new Set([
-  "ready", "ready for codex", "draft", "draft for critic",
-  "stall", "stalled", "park", "parked",
-]);
-const legacyActive = new Set(["active", "implementing", "in progress"]);
-const legacyTerminal = new Set([
-  "done", "implemented", "landed", "closed", "shipped", "resolved",
-]);
 const repositoryPattern = /^[^/\s]+\/[^/\s]+$/;
 const gitObjectPattern = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
+const migrationTargets: Readonly<Record<MigrateReasonCode, PlanRecordStatus>> = {
+  LEGACY_READY: "planned",
+  LEGACY_ACTIVE: "in-progress",
+  LEGACY_IMPLEMENTED: "implemented",
+  LEGACY_CLOSED: "closed",
+  LEGACY_HELD_COMPLETE: "held-authority",
+};
 
 function nonEmpty(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
@@ -90,6 +94,22 @@ function planPath(value: unknown): value is string {
     value.startsWith("plans/") &&
     value.endsWith(".md") &&
     portablePathFailure(value) === null
+  );
+}
+
+function integerAtLeastZero(value: unknown): boolean {
+  return Number.isSafeInteger(value) && Number(value) >= 0;
+}
+
+function exactKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  required: readonly string[],
+): boolean {
+  const allowedSet = new Set(allowed);
+  return (
+    Object.keys(value).every((key) => allowedSet.has(key)) &&
+    required.every((key) => Object.hasOwn(value, key))
   );
 }
 
@@ -123,86 +143,182 @@ function reference(value: unknown): boolean {
     !repositoryPattern.test(value["repository"])
   ) return false;
   if (value["kind"] === "github") {
-    return Object.keys(value).length === 3 &&
+    return exactKeys(value, ["kind", "repository", "number"], ["kind", "repository", "number"]) &&
       Number.isSafeInteger(value["number"]) && Number(value["number"]) > 0;
   }
   return value["kind"] === "plan-host" &&
-    Object.keys(value).length === 3 &&
-    Number.isSafeInteger(value["planNumber"]) && Number(value["planNumber"]) > 0;
+    exactKeys(
+      value,
+      ["kind", "repository", "planNumber"],
+      ["kind", "repository", "planNumber"],
+    ) &&
+    integerAtLeastZero(value["planNumber"]);
+}
+
+function planReference(value: unknown): boolean {
+  return isRecord(value) &&
+    exactKeys(value, ["repository", "planNumber"], ["repository", "planNumber"]) &&
+    typeof value["repository"] === "string" &&
+    repositoryPattern.test(value["repository"]) &&
+    integerAtLeastZero(value["planNumber"]);
 }
 
 function snapshot(value: unknown): boolean {
-  return isRecord(value) && Object.keys(value).length === 2 &&
+  return isRecord(value) &&
+    exactKeys(value, ["algorithm", "digest"], ["algorithm", "digest"]) &&
     value["algorithm"] === "sha256" &&
-    typeof value["digest"] === "string" && SHA256_PATTERN.test(value["digest"]);
+    typeof value["digest"] === "string" &&
+    SHA256_PATTERN.test(value["digest"]);
+}
+
+function risk(value: unknown): boolean {
+  return isRecord(value) &&
+    exactKeys(
+      value,
+      ["tier", "rationale", "effectClasses"],
+      ["tier", "rationale", "effectClasses"],
+    ) &&
+    ["auto", "human"].includes(String(value["tier"])) &&
+    nonEmpty(value["rationale"]) &&
+    Array.isArray(value["effectClasses"]) &&
+    value["effectClasses"].length > 0 &&
+    value["effectClasses"].every(nonEmpty) &&
+    new Set(value["effectClasses"]).size === value["effectClasses"].length;
+}
+
+function snapshots(value: unknown): boolean {
+  return isRecord(value) &&
+    exactKeys(value, ["claim", "land"], ["claim"]) &&
+    snapshot(value["claim"]) &&
+    (!Object.hasOwn(value, "land") || snapshot(value["land"]));
+}
+
+function receipt(value: unknown): value is Record<string, unknown> {
+  return isRecord(value) &&
+    exactKeys(value, ["kind", "commit", "deployedAt"], ["kind", "commit"]) &&
+    ["landed", "deployed"].includes(String(value["kind"])) &&
+    typeof value["commit"] === "string" &&
+    gitObjectPattern.test(value["commit"]) &&
+    (!Object.hasOwn(value, "deployedAt") || rfc3339(value["deployedAt"]));
 }
 
 export function validatePlanRecordV1(value: unknown): value is PlanRecordV1 {
   if (!isRecord(value)) return false;
-  const allowed = new Set([
-    "schemaVersion", "project", "repository", "planNumber", "title", "sourcePath",
-    "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk", "owner", "trigger",
-    "retryReason", "supersededBy", "disposition", "receipt", "contractSnapshots",
-  ]);
-  if (Object.keys(value).some((key) => !allowed.has(key))) return false;
+  if (!exactKeys(
+    value,
+    [
+      "schemaVersion", "project", "repository", "planNumber", "title", "sourcePath",
+      "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk", "owner", "trigger",
+      "retryReason", "supersededBy", "disposition", "receipt", "contractSnapshots",
+    ],
+    [
+      "schemaVersion", "project", "repository", "planNumber", "title", "sourcePath",
+      "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk",
+    ],
+  )) return false;
   if (
     value["schemaVersion"] !== PLAN_RECORD_SCHEMA_VERSION ||
-    !nonEmpty(value["project"]) || typeof value["repository"] !== "string" ||
+    !nonEmpty(value["project"]) ||
+    typeof value["repository"] !== "string" ||
     !repositoryPattern.test(value["repository"]) ||
-    !Number.isSafeInteger(value["planNumber"]) || Number(value["planNumber"]) < 0 ||
-    !nonEmpty(value["title"]) || !planPath(value["sourcePath"]) ||
-    typeof value["status"] !== "string" || !statuses.has(value["status"]) ||
-    !reference(value["issue"]) || !rfc3339(value["enqueuedAt"]) ||
-    !["recorded", "file-add-backfill"].includes(String(value["enqueueTimeSource"]))
-  ) return false;
-
-  const risk = value["risk"];
-  if (!isRecord(risk) || Object.keys(risk).some((key) =>
-    !["tier", "rationale", "effectClasses"].includes(key)) ||
-    !["auto", "human"].includes(String(risk["tier"])) || !nonEmpty(risk["rationale"]) ||
-    !Array.isArray(risk["effectClasses"]) || risk["effectClasses"].length === 0 ||
-    !risk["effectClasses"].every(nonEmpty) ||
-    [...risk["effectClasses"]].sort().join("\0") !== risk["effectClasses"].join("\0") ||
-    new Set(risk["effectClasses"]).size !== risk["effectClasses"].length
+    !integerAtLeastZero(value["planNumber"]) ||
+    !nonEmpty(value["title"]) ||
+    !planPath(value["sourcePath"]) ||
+    typeof value["status"] !== "string" ||
+    !statuses.has(value["status"]) ||
+    !reference(value["issue"]) ||
+    !rfc3339(value["enqueuedAt"]) ||
+    !["recorded", "file-add-backfill"].includes(String(value["enqueueTimeSource"])) ||
+    !risk(value["risk"])
   ) return false;
 
   for (const key of ["owner", "trigger", "retryReason"] as const) {
-    if (key in value && !nonEmpty(value[key])) return false;
+    if (Object.hasOwn(value, key) && !nonEmpty(value[key])) return false;
   }
-  if ("supersededBy" in value && !reference({
-    ...(isRecord(value["supersededBy"]) ? value["supersededBy"] : {}),
-    kind: "plan-host",
-  })) return false;
-
-  const snapshots = value["contractSnapshots"];
-  if (!isRecord(snapshots) || !snapshot(snapshots["claim"]) ||
-    Object.keys(snapshots).some((key) => !["claim", "land"].includes(key))) return false;
-  const needsLand = value["status"] === "implemented" || value["status"] === "closed";
-  if (needsLand !== ("land" in snapshots) || ("land" in snapshots && !snapshot(snapshots["land"]))) {
+  if (Object.hasOwn(value, "supersededBy") && !planReference(value["supersededBy"])) {
     return false;
   }
+  if (
+    Object.hasOwn(value, "contractSnapshots") &&
+    !snapshots(value["contractSnapshots"])
+  ) return false;
 
-  const receipt = value["receipt"];
-  if (needsLand) {
-    if (!isRecord(receipt) || !["landed", "deployed"].includes(String(receipt["kind"])) ||
-      typeof receipt["commit"] !== "string" || !gitObjectPattern.test(receipt["commit"]) ||
-      Object.keys(receipt).some((key) => !["kind", "commit", "deployedAt"].includes(key))) return false;
+  const status = value["status"];
+  const disposition = value["disposition"];
+  const snapshotValue = value["contractSnapshots"];
+  const receiptValue = value["receipt"];
+  const hasSnapshots = isRecord(snapshotValue);
+  const hasClaim = hasSnapshots && snapshot(snapshotValue["claim"]);
+  const hasLand = hasSnapshots && Object.hasOwn(snapshotValue, "land");
+  const hasReceipt = Object.hasOwn(value, "receipt");
+
+  if (status === "planned") {
+    if (hasSnapshots || hasReceipt || Object.hasOwn(value, "disposition")) return false;
+  } else if (status === "in-progress") {
+    if (!hasClaim || hasLand || hasReceipt || Object.hasOwn(value, "disposition")) return false;
+  } else if (status === "implemented") {
     if (
-      value["status"] === "implemented" &&
-      (receipt["kind"] !== "landed" || "deployedAt" in receipt)
+      !hasClaim || !hasLand ||
+      !receipt(receiptValue) ||
+      receiptValue["kind"] !== "landed" ||
+      Object.hasOwn(receiptValue, "deployedAt") ||
+      Object.hasOwn(value, "disposition")
     ) return false;
-    if (value["status"] === "closed" &&
-      (receipt["kind"] !== "deployed" || !rfc3339(receipt["deployedAt"]))) return false;
-  } else if ("receipt" in value) return false;
-
-  if (value["status"] === "closed") {
-    if (!["completed", "duplicate", "not-planned", "invalid"].includes(String(value["disposition"]))) {
+  } else if (status === "closed") {
+    if (!["completed", "duplicate", "not-planned", "invalid"].includes(String(disposition))) {
       return false;
     }
-  } else if ("disposition" in value) return false;
-  if (value["status"] === "held-authority" && !nonEmpty(value["trigger"])) return false;
-  if ("supersededBy" in value && value["status"] !== "closed") return false;
+    if (disposition === "completed") {
+      if (
+        !hasClaim || !hasLand ||
+        !receipt(receiptValue) ||
+        receiptValue["kind"] !== "deployed" ||
+        !rfc3339(receiptValue["deployedAt"]) ||
+        Object.hasOwn(value, "supersededBy")
+      ) return false;
+    } else if (hasLand || hasReceipt) {
+      return false;
+    }
+    if (Object.hasOwn(value, "supersededBy") && disposition !== "duplicate") return false;
+  } else {
+    if (!nonEmpty(value["trigger"]) || hasLand || hasReceipt ||
+      Object.hasOwn(value, "disposition") || Object.hasOwn(value, "supersededBy")) return false;
+  }
   return true;
+}
+
+function legacyCandidate(
+  value: Record<string, unknown>,
+  targetStatus: PlanRecordStatus,
+): Record<string, unknown> {
+  const candidate = { ...value };
+  delete candidate["Status"];
+  delete candidate["status"];
+  delete candidate["schemaVersion"];
+  return {
+    ...candidate,
+    schemaVersion: PLAN_RECORD_SCHEMA_VERSION,
+    status: targetStatus,
+  };
+}
+
+function migrationDecision(
+  value: Record<string, unknown>,
+  normalizedStatus: string,
+  targetStatus: PlanRecordStatus,
+  reasonCode: MigrateReasonCode,
+): PlanRecordDecision {
+  const candidate = legacyCandidate(value, targetStatus);
+  const stalledOrParked = ["stall", "stalled", "park", "parked"].includes(normalizedStatus);
+  const draft = ["draft", "draft for critic"].includes(normalizedStatus);
+  if (
+    !validatePlanRecordV1(candidate) ||
+    (stalledOrParked && (!nonEmpty(value["retryReason"]) || !nonEmpty(value["trigger"]))) ||
+    (draft && !nonEmpty(value["trigger"]))
+  ) {
+    return { kind: "retire", reasonCode: "INCOMPLETE_EVIDENCE" };
+  }
+  return { kind: "migrate", targetStatus, reasonCode };
 }
 
 export function classifyPlanRecordV1(
@@ -220,11 +336,20 @@ export function classifyPlanRecordV1(
   const rawStatus = value["status"] ?? value["Status"];
   if (!nonEmpty(rawStatus)) return { kind: "retire", reasonCode: "UNCLASSIFIED_INPUT" };
   const normalized = rawStatus.trim().toLowerCase().replaceAll("-", " ");
-  if (legacyReady.has(normalized)) return { kind: "migrate", reasonCode: "LEGACY_READY" };
-  if (legacyActive.has(normalized)) return { kind: "migrate", reasonCode: "LEGACY_ACTIVE" };
-  if (legacyTerminal.has(normalized)) return { kind: "migrate", reasonCode: "LEGACY_TERMINAL" };
-  if (["held", "held authority"].includes(normalized) && nonEmpty(value["trigger"])) {
-    return { kind: "migrate", reasonCode: "LEGACY_HELD_COMPLETE" };
+  if (["ready", "ready for codex", "draft", "draft for critic", "stall", "stalled", "park", "parked"].includes(normalized)) {
+    return migrationDecision(value, normalized, "planned", "LEGACY_READY");
+  }
+  if (["active", "implementing", "in progress"].includes(normalized)) {
+    return migrationDecision(value, normalized, "in-progress", "LEGACY_ACTIVE");
+  }
+  if (["implemented", "landed"].includes(normalized)) {
+    return migrationDecision(value, normalized, "implemented", "LEGACY_IMPLEMENTED");
+  }
+  if (["closed", "shipped", "resolved"].includes(normalized)) {
+    return migrationDecision(value, normalized, "closed", "LEGACY_CLOSED");
+  }
+  if (["held", "held authority"].includes(normalized)) {
+    return migrationDecision(value, normalized, "held-authority", "LEGACY_HELD_COMPLETE");
   }
   return { kind: "retire", reasonCode: "AMBIGUOUS_STATUS" };
 }
@@ -235,143 +360,20 @@ export function planRecordTransitionReasonV1(
 ): PlanRecordTransitionReasonCode | null {
   if (previous.enqueuedAt !== next.enqueuedAt) return "ENQUEUED_AT_IMMUTABLE";
   if (
-    canonicalizeJson(previous.contractSnapshots.claim) !==
-    canonicalizeJson(next.contractSnapshots.claim)
+    previous.contractSnapshots !== undefined &&
+    (
+      next.contractSnapshots === undefined ||
+      canonicalizeJson(previous.contractSnapshots.claim) !==
+      canonicalizeJson(next.contractSnapshots.claim)
+    )
   ) return "CLAIM_SNAPSHOT_IMMUTABLE";
   if (
-    previous.contractSnapshots.land !== undefined &&
+    previous.contractSnapshots?.land !== undefined &&
     (
-      next.contractSnapshots.land === undefined ||
+      next.contractSnapshots?.land === undefined ||
       canonicalizeJson(previous.contractSnapshots.land) !==
       canonicalizeJson(next.contractSnapshots.land)
     )
   ) return "LAND_SNAPSHOT_IMMUTABLE";
   return null;
-}
-
-export interface WorkMigrationManifestV1 {
-  readonly schemaVersion: "work-migration-manifest/v1";
-  readonly source: Readonly<{ commit: string; tree: string }>;
-  readonly schemaRelease: Readonly<{ version: string; digest: string }>;
-  readonly decisions: readonly Readonly<{
-    path: string;
-    decision: "migrate" | "retire";
-    reasonCode: LegacyReasonCode;
-  }>[];
-  readonly archive: Readonly<{ count: number; aggregateSha256: string }>;
-  readonly changedPaths: readonly string[];
-  readonly verification: readonly string[];
-  readonly canary: Readonly<{ repository: string; state: "pending" | "green" | "red" }>;
-  readonly rollbackRef: string;
-  readonly unclassifiedCount: 0;
-  readonly manifestSha256: string;
-}
-
-const migrateReasons = new Set<LegacyReasonCode>([
-  "LEGACY_READY", "LEGACY_ACTIVE", "LEGACY_TERMINAL", "LEGACY_HELD_COMPLETE",
-]);
-const retireReasons = new Set<LegacyReasonCode>([
-  "AMBIGUOUS_STATUS", "INVALID_V1", "UNCLASSIFIED_INPUT",
-]);
-
-function sortedUnique(values: readonly string[]): boolean {
-  return values.every((value, index) =>
-    nonEmpty(value) && (index === 0 || String(values[index - 1]) < value));
-}
-
-function validManifestBody(
-  value: unknown,
-): value is Omit<WorkMigrationManifestV1, "manifestSha256"> {
-  if (!isRecord(value)) return false;
-  const allowed = new Set([
-    "schemaVersion", "source", "schemaRelease", "decisions", "archive",
-    "changedPaths", "verification", "canary", "rollbackRef", "unclassifiedCount",
-  ]);
-  if (Object.keys(value).some((key) => !allowed.has(key))) return false;
-  if (value["schemaVersion"] !== "work-migration-manifest/v1") return false;
-  const source = value["source"];
-  if (
-    !isRecord(source) || Object.keys(source).length !== 2 ||
-    typeof source["commit"] !== "string" || !gitObjectPattern.test(source["commit"]) ||
-    typeof source["tree"] !== "string" || !gitObjectPattern.test(source["tree"])
-  ) return false;
-  const release = value["schemaRelease"];
-  if (
-    !isRecord(release) || Object.keys(release).length !== 2 ||
-    release["version"] !== "3.0.0" ||
-    typeof release["digest"] !== "string" || !SHA256_PATTERN.test(release["digest"])
-  ) return false;
-  const decisions = value["decisions"];
-  if (!Array.isArray(decisions)) return false;
-  const decisionPaths: string[] = [];
-  for (const row of decisions) {
-    if (
-      !isRecord(row) || Object.keys(row).length !== 3 ||
-      !planPath(row["path"]) ||
-      !["migrate", "retire"].includes(String(row["decision"])) ||
-      !nonEmpty(row["reasonCode"])
-    ) return false;
-    const decision = row["decision"];
-    const reason = row["reasonCode"] as LegacyReasonCode;
-    if (
-      (decision === "migrate" && !migrateReasons.has(reason)) ||
-      (decision === "retire" && !retireReasons.has(reason))
-    ) return false;
-    decisionPaths.push(row["path"]);
-  }
-  if (!sortedUnique(decisionPaths)) return false;
-  const archive = value["archive"];
-  if (
-    !isRecord(archive) || Object.keys(archive).length !== 2 ||
-    !Number.isSafeInteger(archive["count"]) || Number(archive["count"]) < 0 ||
-    typeof archive["aggregateSha256"] !== "string" ||
-    !SHA256_PATTERN.test(archive["aggregateSha256"])
-  ) return false;
-  if (
-    !Array.isArray(value["changedPaths"]) ||
-    !sortedUnique(value["changedPaths"] as readonly string[]) ||
-    !(value["changedPaths"] as readonly unknown[]).every((path) =>
-      typeof path === "string" && portablePathFailure(path) === null) ||
-    !Array.isArray(value["verification"]) ||
-    value["verification"].length === 0 ||
-    !sortedUnique(value["verification"] as readonly string[])
-  ) return false;
-  const canary = value["canary"];
-  if (
-    !isRecord(canary) || Object.keys(canary).length !== 2 ||
-    canary["repository"] !== "gmail-markdown" ||
-    !["pending", "green", "red"].includes(String(canary["state"]))
-  ) return false;
-  return nonEmpty(value["rollbackRef"]) && value["unclassifiedCount"] === 0;
-}
-
-export function validateWorkMigrationManifestV1(
-  value: unknown,
-): value is WorkMigrationManifestV1 {
-  if (!isRecord(value) || Object.keys(value).length !== 11) return false;
-  const { manifestSha256, ...body } = value;
-  return (
-    typeof manifestSha256 === "string" &&
-    SHA256_PATTERN.test(manifestSha256) &&
-    validManifestBody(body) &&
-    manifestSha256 === sha256Bytes(encoder.encode(canonicalizeJson(body)))
-  );
-}
-
-export function createWorkMigrationManifestV1(
-  input: Omit<WorkMigrationManifestV1, "manifestSha256">,
-): WorkMigrationManifestV1 {
-  if (input.unclassifiedCount !== 0) throw new TypeError("unclassifiedCount must be zero");
-  const decisions = [...input.decisions].sort((a, b) =>
-    a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
-  const changedPaths = [...input.changedPaths].sort();
-  const verification = [...input.verification].sort();
-  const body = { ...input, decisions, changedPaths, verification };
-  if (!validManifestBody(body)) {
-    throw new TypeError("work migration manifest input is invalid");
-  }
-  return {
-    ...body,
-    manifestSha256: sha256Bytes(encoder.encode(canonicalizeJson(body))),
-  };
 }

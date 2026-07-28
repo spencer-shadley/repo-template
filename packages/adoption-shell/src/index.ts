@@ -96,18 +96,25 @@ export type {
 export { materializeAdoptionShellV2 } from "./materialize.ts";
 export {
   classifyPlanRecordV1,
-  createWorkMigrationManifestV1,
   planRecordTransitionReasonV1,
   PLAN_RECORD_SCHEMA_VERSION,
   PLAN_RECORD_STATUSES,
   validatePlanRecordV1,
-  validateWorkMigrationManifestV1,
 } from "./plan-record-v1.ts";
 export type {
   LegacyReasonCode,
+  MigrateReasonCode,
   PlanRecordDecision,
   PlanRecordStatus,
   PlanRecordTransitionReasonCode,
   PlanRecordV1,
-  WorkMigrationManifestV1,
+  RetireReasonCode,
 } from "./plan-record-v1.ts";
+export {
+  createWorkMigrationManifestV1,
+  validateWorkMigrationManifestV1,
+} from "./work-migration-manifest-v1.ts";
+export type {
+  WorkMigrationDecisionV1,
+  WorkMigrationManifestV1,
+} from "./work-migration-manifest-v1.ts";

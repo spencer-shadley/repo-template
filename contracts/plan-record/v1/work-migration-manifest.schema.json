@@ -4,28 +4,158 @@
   "title": "WorkMigrationManifestV1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "source", "schemaRelease", "decisions", "archive", "changedPaths", "verification", "canary", "rollbackRef", "unclassifiedCount", "manifestSha256"],
+  "required": ["schemaVersion", "source", "schemaRelease", "decisions", "liveCounts", "archive", "changedPaths", "verification", "canary", "rollbackRef", "unclassifiedCount", "manifestSha256"],
   "properties": {
     "schemaVersion": { "const": "work-migration-manifest/v1" },
-    "source": { "$ref": "#/$defs/gitSource" },
-    "schemaRelease": { "type": "object", "additionalProperties": false, "required": ["version", "digest"], "properties": { "version": { "const": "3.0.0" }, "digest": { "$ref": "#/$defs/sha256" } } },
-    "decisions": { "type": "array", "items": { "oneOf": [
-      { "type": "object", "additionalProperties": false, "required": ["path", "decision", "reasonCode"], "properties": { "path": { "$ref": "#/$defs/planPath" }, "decision": { "const": "migrate" }, "reasonCode": { "enum": ["LEGACY_READY", "LEGACY_ACTIVE", "LEGACY_TERMINAL", "LEGACY_HELD_COMPLETE"] } } },
-      { "type": "object", "additionalProperties": false, "required": ["path", "decision", "reasonCode"], "properties": { "path": { "$ref": "#/$defs/planPath" }, "decision": { "const": "retire" }, "reasonCode": { "enum": ["AMBIGUOUS_STATUS", "INVALID_V1", "UNCLASSIFIED_INPUT"] } } }
-    ] } },
-    "archive": { "type": "object", "additionalProperties": false, "required": ["count", "aggregateSha256"], "properties": { "count": { "type": "integer", "minimum": 0 }, "aggregateSha256": { "$ref": "#/$defs/sha256" } } },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree"],
+      "properties": {
+        "commit": { "$ref": "#/$defs/gitObjectId" },
+        "tree": { "$ref": "#/$defs/gitObjectId" }
+      }
+    },
+    "schemaRelease": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "digest"],
+      "properties": {
+        "version": { "const": "3.0.0" },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "decisions": { "type": "array", "items": { "$ref": "#/$defs/decision" } },
+    "liveCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["before", "migrate", "retire", "after"],
+      "properties": {
+        "before": { "type": "integer", "minimum": 0 },
+        "migrate": { "type": "integer", "minimum": 0 },
+        "retire": { "type": "integer", "minimum": 0 },
+        "after": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "aggregateSha256", "dispositions"],
+      "properties": {
+        "count": { "type": "integer", "minimum": 0 },
+        "aggregateSha256": { "$ref": "#/$defs/sha256" },
+        "dispositions": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["decision", "reasonCode", "count", "aggregateSha256"],
+            "properties": {
+              "decision": { "const": "archive-receipt-only" },
+              "reasonCode": { "const": "ARCHIVE_SEALED" },
+              "count": { "type": "integer", "minimum": 1 },
+              "aggregateSha256": { "$ref": "#/$defs/sha256" }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "count": { "const": 0 } }, "required": ["count"] },
+          "then": { "properties": { "dispositions": { "maxItems": 0 } } },
+          "else": { "properties": { "dispositions": { "minItems": 1 } } }
+        }
+      ]
+    },
     "changedPaths": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/path" } },
     "verification": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
-    "canary": { "type": "object", "additionalProperties": false, "required": ["repository", "state"], "properties": { "repository": { "const": "gmail-markdown" }, "state": { "enum": ["pending", "green", "red"] } } },
+    "canary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "state"],
+      "properties": {
+        "repository": { "const": "gmail-markdown" },
+        "state": { "enum": ["pending", "green", "red"] }
+      }
+    },
     "rollbackRef": { "type": "string", "minLength": 1 },
     "unclassifiedCount": { "const": 0 },
     "manifestSha256": { "$ref": "#/$defs/sha256" }
   },
   "$defs": {
     "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "gitObjectId": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
     "path": { "type": "string", "maxLength": 240, "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*\\/\\.{1,2}(?:/|$))[A-Za-z0-9._@()+,=-]+(?:/[A-Za-z0-9._@()+,=-]+)*$" },
     "planPath": { "type": "string", "maxLength": 240, "pattern": "^plans/(?!\\.{1,2}(?:/|$))(?!.*\\/\\.{1,2}(?:/|$))[A-Za-z0-9._@()+,=-]+(?:/[A-Za-z0-9._@()+,=-]+)*\\.md$" },
-    "gitObjectId": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
-    "gitSource": { "type": "object", "additionalProperties": false, "required": ["commit", "tree"], "properties": { "commit": { "$ref": "#/$defs/gitObjectId" }, "tree": { "$ref": "#/$defs/gitObjectId" } } }
+    "decision": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "decision", "targetStatus", "reasonCode"],
+          "properties": {
+            "path": { "$ref": "#/$defs/planPath" },
+            "decision": { "const": "migrate" },
+            "targetStatus": { "const": "planned" },
+            "reasonCode": { "const": "LEGACY_READY" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "decision", "targetStatus", "reasonCode"],
+          "properties": {
+            "path": { "$ref": "#/$defs/planPath" },
+            "decision": { "const": "migrate" },
+            "targetStatus": { "const": "in-progress" },
+            "reasonCode": { "const": "LEGACY_ACTIVE" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "decision", "targetStatus", "reasonCode"],
+          "properties": {
+            "path": { "$ref": "#/$defs/planPath" },
+            "decision": { "const": "migrate" },
+            "targetStatus": { "const": "implemented" },
+            "reasonCode": { "const": "LEGACY_IMPLEMENTED" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "decision", "targetStatus", "reasonCode"],
+          "properties": {
+            "path": { "$ref": "#/$defs/planPath" },
+            "decision": { "const": "migrate" },
+            "targetStatus": { "const": "closed" },
+            "reasonCode": { "const": "LEGACY_CLOSED" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "decision", "targetStatus", "reasonCode"],
+          "properties": {
+            "path": { "$ref": "#/$defs/planPath" },
+            "decision": { "const": "migrate" },
+            "targetStatus": { "const": "held-authority" },
+            "reasonCode": { "const": "LEGACY_HELD_COMPLETE" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "decision", "reasonCode"],
+          "properties": {
+            "path": { "$ref": "#/$defs/planPath" },
+            "decision": { "const": "retire" },
+            "reasonCode": { "enum": ["INCOMPLETE_EVIDENCE", "AMBIGUOUS_STATUS", "INVALID_V1", "UNCLASSIFIED_INPUT"] }
+          }
+        }
+      ]
+    }
   }
 }

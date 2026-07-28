@@ -9,6 +9,11 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 ## [3.0.0] - 2026-07-28
 
 ### Fixed
+- Closed PlanRecordV1 pre-release review gaps: legacy migration now requires complete evidence and
+  records an explicit target status; manifests close over exact live/archive counts and hashes;
+  claim/land/deploy evidence is lifecycle- and disposition-conditional; plan-host zero and unordered
+  unique effect arrays align across schema/runtime; both published schemas now execute through
+  draft-2020-12 meta-schema and example verification. MAJOR.
 - Closed the issue #92 capability-closure gap left open by the fail-closed user-surface-lint
   expansion: every advertised `--self-test` fixture tree (`error-codes`, `source-leak`,
   `regex-safe`, `regex-leak`, `declared-none`) is now present, classified `copy`, and bound into

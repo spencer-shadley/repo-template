@@ -57,5 +57,8 @@ The Markdown header is a compatibility adapter, not a second lifecycle schema:
 | `Risk` (`Tier`, `Rationale`, `Effect-classes`) | the single structured `risk` object |
 
 `blocked`, `stale`, `queued`, and `eligible` are computed overlays and must never be stored in
-`Status`. `implemented` requires a landed receipt and claim/land snapshots. `closed` additionally
-requires a deployed receipt and terminal disposition.
+`Status`. Pre-claim `planned` records carry no contract snapshot; `in-progress` starts the immutable
+claim snapshot. `implemented` requires claim/land snapshots and a landed receipt. `closed` always
+requires a disposition: `completed` requires claim/land snapshots and a deployed receipt, while
+`duplicate`, `not-planned`, and `invalid` must not invent land/deploy evidence. `Superseded-by` is
+valid only with the `duplicate` disposition.

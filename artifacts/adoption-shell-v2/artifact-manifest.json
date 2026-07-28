@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "5f38cc90b7f8f645d1385b7f8415a84747bf1a22bcb17dd8d5033ad3f9c90d88",
+  "artifactDigest": "b609a1960192c00484357608e3b055b1928c88e61b140e4810375758a701dcfd",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "fcc4620cea384e04fae6440d11ca0dd7ea19a7694411acfb5e4469dae212d343",
-      "bytes": 2826
+      "sha256": "d93d50af462f317fcbc067cf3890a6e1f5bcd4a6b3aa52e95ed7045b164f804b",
+      "bytes": 3001
     },
     {
       "path": "packages/adoption-shell/src/materialize.ts",
@@ -91,8 +91,8 @@
       "path": "packages/adoption-shell/src/plan-record-v1.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "c8bd12408da1e5c7ddd02a49ce0bca9a483f85def0f5a6304c7fa56badfb364d",
-      "bytes": 15242
+      "sha256": "280936faebc862668a0341efaa374a2c4c7c6a2fca2fea4eae489086a1a78b55",
+      "bytes": 13689
     },
     {
       "path": "packages/adoption-shell/src/release-candidate.ts",
@@ -142,6 +142,13 @@
       "mode": "100644",
       "sha256": "3945e13e40fe1f50e4e6ca41e4526412d12c71b6647a4de0295b05cbb9bcca1f",
       "bytes": 4492
+    },
+    {
+      "path": "packages/adoption-shell/src/work-migration-manifest-v1.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "9d2c9e600b5b134488f00d30a6bb9057c59e32a4317511e1fee7422b4379bc61",
+      "bytes": 9822
     }
   ],
   "schemas": [
@@ -330,15 +337,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "3de61de32dcbcbeaaa7b06afb9c0e84b6ab20a5f336bcb89aa942509e7106a11",
-      "bytes": 2664
+      "sha256": "80380bad897925112919cd5369ec95f55a73c7513b5c64fef2974fedfd4d1fc3",
+      "bytes": 2833
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "72a0b471ae2213b1ddb1f86c7a509d24dce54a40b1069d682ee1be449e806e33",
-      "bytes": 1841
+      "sha256": "770d99f1f594ef57d505703771052dcee2e5713894113617a56b47b638e35f59",
+      "bytes": 1892
     },
     {
       "path": "materialize.d.ts",
@@ -372,15 +379,15 @@
       "path": "plan-record-v1.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e310a70d10f7a7231688578669d666d107ca3b733af7f499f7a5d207a7191a48",
-      "bytes": 3701
+      "sha256": "712b01d042d580127d602e4e62bed4c51a0d2b70dff2205530dc1eb2a59878a7",
+      "bytes": 2795
     },
     {
       "path": "plan-record-v1.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "be55b52ac473e830bbf70535f8eda5709bb650624029ef0d19f23834714815f5",
-      "bytes": 12707
+      "sha256": "0f2acda1a2d931e4da314de982aa7078e68c7f469e509a239afa13b13a495b64",
+      "bytes": 11501
     },
     {
       "path": "release-candidate.d.ts",
@@ -479,6 +486,20 @@
       "mode": "100644",
       "sha256": "7fa3374381bb70274f3268f2e1bad91f32d446d7e4efa084f825bb35e612aa59",
       "bytes": 4137
+    },
+    {
+      "path": "work-migration-manifest-v1.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "edcb07cf7f3b13e0497708dd2d2b83115b7c9a494935438483315383a6789d72",
+      "bytes": 1700
+    },
+    {
+      "path": "work-migration-manifest-v1.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "1d3adf99bc32398975ee27bcb86bcb6c4090fd1d66703fccbbff44a1179a58b2",
+      "bytes": 7886
     }
   ],
   "fixtures": [
@@ -500,8 +521,8 @@
       "path": "PLAN_TEMPLATE.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "aa1acd2c9ab93f4352823455c23d49de532372b8ad34d6ca428ad2b5a0151148",
-      "bytes": 2150
+      "sha256": "901d654be4ba11abf629e9ed373cc9cd3c746ab67bd27902c415a938026381bc",
+      "bytes": 2437
     },
     {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -577,8 +598,8 @@
       "path": "contracts/plan-record/v1/fixtures/classification-cases.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a1407ccf7a6f16c9637bb09c5f88472c9f52124670f6e65007fdd336c485237a",
-      "bytes": 7712
+      "sha256": "2553c72859e5cf8e5740aafcd7dd6579c51caed6c8c0587907611d6ad3f3383c",
+      "bytes": 14874
     },
     {
       "path": "contracts/plan-record/v1/plan-record.example.json",
@@ -591,22 +612,22 @@
       "path": "contracts/plan-record/v1/plan-record.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "93e3f5fe76f2f5a5ffd9c6264f05f889d043dd7e5695b81b718c17fff4fe33d1",
-      "bytes": 4880
+      "sha256": "869007c22f209fd3196375e1f773ac5b61643159d12d6d025c0bddf9b61f6a44",
+      "bytes": 6834
     },
     {
       "path": "contracts/plan-record/v1/work-migration-manifest.example.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e65802390affdc8656e978d58201bc72b66f19d284211ea338b1ade314492fde",
-      "bytes": 824
+      "sha256": "0308851be17563bb2ea6fa475761cca7fcee58397f2f64de5117562661e8c9e6",
+      "bytes": 1185
     },
     {
       "path": "contracts/plan-record/v1/work-migration-manifest.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "ea42a33f257bdb28ab46259bcafff74a8b017a3a4c8604ed5718c2d8e32edfb9",
-      "bytes": 2971
+      "sha256": "e6dcf9fb71f75471125fe616aac9dc639de03c21e94f78a06c0fff1d7f474ed8",
+      "bytes": 6334
     },
     {
       "path": "plans/drafts/000-smoke.md",
@@ -740,7 +761,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e57da2eee746a233c5317943b17c8e053b306a6adc05e5c60d1b9326a619dd59",
+      "sha256": "a777017400d17a5caa1250c6d73fb945e0f312df054619ef97e96bd41103002d",
       "bytes": 876
     },
     {
@@ -772,5 +793,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "45960d7e5e191e12902d90cfadc5cb4bfb5aba4dab3474399022a66f56e4f1a8"
+  "manifestDigest": "bc72f36e85beeeed3ec15a1464fbb5233f7bd3e828446818852b28b0f4eea24c"
 }

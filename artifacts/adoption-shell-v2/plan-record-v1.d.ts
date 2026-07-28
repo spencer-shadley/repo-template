@@ -1,20 +1,23 @@
 export declare const PLAN_RECORD_SCHEMA_VERSION: "plan-record/v1";
 export declare const PLAN_RECORD_STATUSES: readonly ["planned", "in-progress", "implemented", "closed", "held-authority"];
 export type PlanRecordStatus = (typeof PLAN_RECORD_STATUSES)[number];
+export type MigrateReasonCode = "LEGACY_READY" | "LEGACY_ACTIVE" | "LEGACY_IMPLEMENTED" | "LEGACY_CLOSED" | "LEGACY_HELD_COMPLETE";
+export type RetireReasonCode = "INCOMPLETE_EVIDENCE" | "AMBIGUOUS_STATUS" | "INVALID_V1" | "UNCLASSIFIED_INPUT";
+export type LegacyReasonCode = MigrateReasonCode | RetireReasonCode;
 export type PlanRecordDecision = Readonly<{
     kind: "valid-v1";
     record: PlanRecordV1;
 }> | Readonly<{
     kind: "migrate";
-    reasonCode: LegacyReasonCode;
+    targetStatus: PlanRecordStatus;
+    reasonCode: MigrateReasonCode;
 }> | Readonly<{
     kind: "retire";
-    reasonCode: LegacyReasonCode;
+    reasonCode: RetireReasonCode;
 }> | Readonly<{
     kind: "archive-receipt-only";
     reasonCode: "ARCHIVE_SEALED";
 }>;
-export type LegacyReasonCode = "LEGACY_READY" | "LEGACY_ACTIVE" | "LEGACY_TERMINAL" | "LEGACY_HELD_COMPLETE" | "AMBIGUOUS_STATUS" | "INVALID_V1" | "UNCLASSIFIED_INPUT";
 export type PlanRecordTransitionReasonCode = "ENQUEUED_AT_IMMUTABLE" | "CLAIM_SNAPSHOT_IMMUTABLE" | "LAND_SNAPSHOT_IMMUTABLE";
 export interface PlanRecordV1 {
     readonly schemaVersion: "plan-record/v1";
@@ -53,7 +56,7 @@ export interface PlanRecordV1 {
         commit: string;
         deployedAt?: string;
     }>;
-    readonly contractSnapshots: Readonly<{
+    readonly contractSnapshots?: Readonly<{
         claim: Readonly<{
             algorithm: "sha256";
             digest: string;
@@ -69,34 +72,3 @@ export declare function classifyPlanRecordV1(value: unknown, options?: Readonly<
     archive?: boolean;
 }>): PlanRecordDecision;
 export declare function planRecordTransitionReasonV1(previous: PlanRecordV1, next: PlanRecordV1): PlanRecordTransitionReasonCode | null;
-export interface WorkMigrationManifestV1 {
-    readonly schemaVersion: "work-migration-manifest/v1";
-    readonly source: Readonly<{
-        commit: string;
-        tree: string;
-    }>;
-    readonly schemaRelease: Readonly<{
-        version: string;
-        digest: string;
-    }>;
-    readonly decisions: readonly Readonly<{
-        path: string;
-        decision: "migrate" | "retire";
-        reasonCode: LegacyReasonCode;
-    }>[];
-    readonly archive: Readonly<{
-        count: number;
-        aggregateSha256: string;
-    }>;
-    readonly changedPaths: readonly string[];
-    readonly verification: readonly string[];
-    readonly canary: Readonly<{
-        repository: string;
-        state: "pending" | "green" | "red";
-    }>;
-    readonly rollbackRef: string;
-    readonly unclassifiedCount: 0;
-    readonly manifestSha256: string;
-}
-export declare function validateWorkMigrationManifestV1(value: unknown): value is WorkMigrationManifestV1;
-export declare function createWorkMigrationManifestV1(input: Omit<WorkMigrationManifestV1, "manifestSha256">): WorkMigrationManifestV1;

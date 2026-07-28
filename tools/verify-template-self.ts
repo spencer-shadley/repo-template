@@ -192,6 +192,7 @@ const planRecordManifestModes: Readonly<Record<string, string>> = {
   "contracts/plan-record/v1/work-migration-manifest.example.json": "self",
   "contracts/plan-record/v1/work-migration-manifest.schema.json": "self",
   "packages/adoption-shell/src/plan-record-v1.ts": "self",
+  "packages/adoption-shell/src/work-migration-manifest-v1.ts": "self",
   "packages/adoption-shell/test/plan-record-v1.test.ts": "self",
 };
 for (const [file, mode] of Object.entries(planRecordManifestModes)) {
