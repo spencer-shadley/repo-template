@@ -2,11 +2,84 @@
 
 - **Project:** repo-template
 - **Branch:** feat/034-publish-portable-planrecordv1-schema-and-migration-contract
-- **Status:** ready for codex
+- **Status:** hold - terminal R3 repair exhausted; retry:manual owner:repo-template-97 by:2026-07-30
 - **Requeue-reason:** verify-failed: use Windows-native corepack.cmd under the shared no-path-conversion verify environment
 - **Priority:** P1
 - **Issue:** repo-template#97
 - **Effort:** high
+
+## Exit contract — attempt 034-R3
+
+- **attemptId:** `034-R3`
+- **candidatePr:** [#98](https://github.com/spencer-shadley/repo-template/pull/98)
+- **candidateHead:** `3b96d25e768c09d5ec53aaba7dc0ebf7e6062dac` is the preserved
+  substantive source head at R3 entry. The plan-only control successor pushed to the same PR is the
+  exact head that must be reviewed and is bound by the PR review receipt.
+- **currentBase:** `4ed1eb5ef676894df4991c85047eb7fdad93ed5e`
+- **reviewDeadlineAt:** `2026-07-29T05:15:00Z`
+- **deadlineAt:** `2026-07-29T06:00:00Z`
+- **maxRepairRounds:** `1`
+- **repairRoundsUsed:** `1/1` — exhausted
+- **Blocking review receipt:** exact head
+  [`1b0a4e50b8675b78c0455ecc9895cd1b5fb2e53a`](https://github.com/spencer-shadley/repo-template/commit/1b0a4e50b8675b78c0455ecc9895cd1b5fb2e53a)
+  received terminal `BLOCK` in
+  [review 4803862406](https://github.com/spencer-shadley/repo-template/pull/98#pullrequestreview-4803862406).
+  Repair `1/1` is limited to the three compiled inline findings:
+  [future schema fail-closed](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878990),
+  [landed-commit tag receipt](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878993),
+  and [manifest scope cleanup](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878996).
+  No second repair is authorized.
+- **Repair `1/1` verification chronology:** fresh
+  `corepack.cmd pnpm install --frozen-lockfile --ignore-scripts` completed; typecheck,
+  reproducible build/check, artifact verification, and `55/55` tests passed. A temporary
+  pre-commit trial that removed the nine manifest classifications requested by finding 3670878996
+  then made unchanged mandatory template self-verification exit `1` on those exact nine
+  pre-existing tracked files. The removal was therefore reverted before commit: keeping their
+  non-behavioral manifest bookkeeping is required to avoid a candidate regression, and none of
+  their file contents changed. The final fresh aggregate Verify result is bound to the exact PR
+  repair head in its review receipt; this plan does not predict or overclaim that later result.
+- **Candidate receipt:** substantive commits
+  `905f312705ced036f13129809dbb67033de0646c`,
+  `a10e0817e9bf349742de9b8350268151e3fa9034`,
+  `80e1dcf8f0266c04baf217426d1e6f3e78fd594f`, and
+  `3b96d25e768c09d5ec53aaba7dc0ebf7e6062dac` are preserved. The approved Windows-native
+  `corepack.cmd pnpm verify` gate passed `54/54`, including typecheck, reproducible build, artifact
+  verification, and template self-check; R3 does not rerun or overclaim a new full-suite receipt
+  for this plan-only control amendment.
+- **Success exit:** fresh Windows-native `corepack.cmd` Verify evidence passes on repair `1/1`; the
+  repaired successor is pushed to PR #98 by `reviewDeadlineAt`; an independent reviewer reviews
+  that exact PR head directly on GitHub and records a scope-bound terminal `APPROVE`; that exact
+  approved head squash-merges; only after merge, an annotated `v3.0.0` tag is created on the exact
+  landed squash commit, pushed, and read back from origin; and an immutable release receipt binds
+  the PR head, landed commit, tag object/target, verification, and readback before `deadlineAt`.
+- **Review cycle:** the four existing substantive commits and every local or pre-PR review are
+  advisory evidence only. Review 4803862406 compiled the complete blocking set on exact head
+  `1b0a4e50b8675b78c0455ecc9895cd1b5fb2e53a`; the responding implementer commit/push consumes
+  repair `1/1`, after which only exact-head re-review on PR #98 is permitted.
+- **Blocking findings:** only an unmet approved acceptance criterion, a candidate-introduced or
+  worsened regression, candidate scope escape or drive-by work, or a materially false
+  safety/verification/acceptance claim may block. Every unrelated, pre-existing, or newly desired
+  finding is scope creep: conserve it as a governed GitHub issue with evidence, owner, priority, and
+  dedupe receipt. Such a finding cannot expand this plan or PR, consume a repair round, delay
+  approval, or extend either deadline.
+- **Terminal failure:** the first observation at or after `deadlineAt`; no exact-head terminal
+  review by `reviewDeadlineAt`; origin/base movement or writer-custody collision; invalidation of
+  the existing `corepack.cmd` gate evidence by a substantive candidate change; inability to publish
+  or review the exact PR head; a permitted repair that does not restore the approved acceptance
+  contract; failure after merge to create, push, or read back annotated tag `v3.0.0` on the exact
+  landed squash commit or to record its immutable release receipt; or any block after exhaustion of
+  repair `1/1`. TTL is failure and is never extended. The tag must not be created before merge.
+- **Failure conservation:** stop mutation; preserve the PR, branch, exact head/tree, four substantive
+  commits, plan-control commit, gate and review evidence, and the unchanged paused-human-review
+  sentinel. Atomically retain Plan 034 outside `plans/QUEUE.md` in a tracked §22-valid terminal hold
+  owned by `repo-template#97` with a live manual revisit trigger, record the terminal receipt, and
+  release all writer/review/merge/tag custody. If merge landed but tag publication failed, preserve
+  the exact untagged landed commit and tag failure/readback evidence; never move or synthesize the
+  tag after TTL. R3 and its review lineage may not resume unchanged.
+- **Effect boundary:** repair commit, same-branch push, PR metadata/replies, exact-head PR review,
+  squash merge, and only after merge one annotated `v3.0.0` tag on that exact landed commit plus
+  its push/readback/immutable release receipt. No new PR, source executor, branch reset, candidate
+  discard, queue drain, runtime/deployment effect, pause removal, or external issue is authorized.
 
 ## Approval provenance
 
@@ -191,3 +264,58 @@ test "$(tr -d '\r\n ' < TEMPLATE_VERSION)" = "3.0.0"
 
 - 2026-07-28T22:29:10.196Z verify-failed (manual): use Windows-native corepack.cmd under the shared no-path-conversion verify environment
 - 2026-07-28T22:17:12.965Z manual (manual): scrub forbidden supervisor model authority before independent critic retry
+
+## Terminal failure receipt — attempt 034-R3
+
+- **attemptId:** `034-R3`
+- **terminalOutcome:** `FAILURE` — exact-head review blocked after repair `1/1`; no second source
+  repair is authorized.
+- **observedAt:** `2026-07-29T04:18:21Z`
+- **reviewDeadlineAt:** `2026-07-29T05:15:00Z`
+- **deadlineAt:** `2026-07-29T06:00:00Z`
+- **controlReadyDeadlineAt:** `2026-07-29T05:30:00Z`
+- **conservationDeadlineAt:** `2026-07-29T06:00:00Z`; this TTL is immutable and cannot be
+  extended.
+- **currentBase:** `4ed1eb5ef676894df4991c85047eb7fdad93ed5e`
+- **blockedPr:** [#98](https://github.com/spencer-shadley/repo-template/pull/98)
+- **blockedHead:** `e38d81bfff0d0f278597b50e41424651909408da`
+- **blockedTree:** `b7c1799efe6101c46e18629c337d9bef36e2dacd`
+- **terminalReview:** exact-head
+  [review 4803919796](https://github.com/spencer-shadley/repo-template/pull/98#pullrequestreview-4803919796)
+  returned terminal `BLOCK` because the new `UNKNOWN_SCHEMA_VERSION` retirement reason is absent
+  from `WorkMigrationManifestV1` runtime validation, generated runtime, and JSON Schema; the
+  classifier-to-manifest integration repro therefore throws instead of producing a valid
+  migrate-or-retire manifest row.
+- **Review lineage:** the first exact-head review was
+  [4803862406](https://github.com/spencer-shadley/repo-template/pull/98#pullrequestreview-4803862406).
+  Its compiled inline findings were
+  [future-version fail-closed](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878990),
+  [post-merge tag receipt](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878993),
+  and [manifest differential](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878996).
+  Repair `1/1` produced the blocked head above; the exact-head re-review's remaining integration
+  blocker is
+  [discussion 3670924380](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670924380).
+- **Verification caveat:** fresh Windows-native install and full Verify passed `55/55`, typecheck,
+  reproducible build/check, artifact verification, user-surface checks, and template self-check on
+  the blocked head. The suite lacks the classifier-to-`WorkMigrationManifestV1` integration case,
+  so that green receipt does not prove the failed accepted integration contract.
+- **Repair disposition:** repair `1/1` is consumed and exhausted. The new integration blocker
+  requires a separately re-grounded attempt with a new exit contract; R3 and its review lineage
+  may not resume or expand.
+- **Effects:** no merge, `v3.0.0` tag creation or push, release publication, runtime, deployment,
+  queue execution, source reset, or candidate discard occurred. PR #98 remains open and the remote
+  branch `feat/034-publish-portable-planrecordv1-schema-and-migration-contract` remains preserved at
+  exact head `e38d81bfff0d0f278597b50e41424651909408da` with all source, gate, review, and reply evidence.
+- **Conserved destination:** parser-valid manual owner `repo-template-97`;
+  [repo-template#97](https://github.com/spencer-shadley/repo-template/issues/97) is the §22 issue
+  successor, due `2026-07-30`. The terminal receipt is posted there and on PR #98 without closing
+  the issue or blocked PR.
+- **Queue disposition:** the exact Plan 034 row is removed atomically with this tracked terminal
+  receipt; no queue executor is started.
+- **Pause disposition:** the ignored canonical `plans/034.paused` paused-human-review sentinel is
+  preserved byte-for-byte and remains in force through the terminal control merge. This control
+  transaction does not edit or remove it; post-merge pause release requires the coordinator's
+  landed-control readback.
+- **Control scope/custody:** only this Plan 034 body and `plans/QUEUE.md` may differ from
+  `origin/master`. The control writer stops after the two-path commit, push, ready PR publication,
+  and immutable comments, then releases all writer/commit/push/PR-metadata custody.
