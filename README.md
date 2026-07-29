@@ -52,6 +52,12 @@ configured.
 
 Workspace context: use `docs/MIGRATION.md` when applying this living template to an existing repo.
 
+Generic create-only consumers use the content-addressed inert contract at
+`release/inert-seed-manifest.json` and `release/release-payload-set.json`, not every portable row in
+the raw overlay map. This preserves the pre-custody ban on local issue-template and workflow
+authority, leaves raw Template-self documents for an explicit portable projection, and keeps the
+complete post-custody Template structure available to overlay tools.
+
 Model-backed flows are declared by capability, not by vendor. If this repo serves or configures model
 tasks, update `model-boundary.json` during adoption with the gateway or adapter registry it owns,
 the provider-specific adapter/catalog/config paths it legitimately contains, and the owning role for

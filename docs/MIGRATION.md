@@ -4,6 +4,14 @@ Use this when overlaying repo-template onto an existing repository. Migration is
 directory copy: existing operational truth wins, template structure fills gaps, and every intentional
 divergence is anchored so later drift sweeps do not re-file known skips.
 
+The raw overlay map and the create-only release payload are deliberately different contracts.
+`template-manifest.json` remains the complete post-custody overlay map. Generic new-repository
+materialization uses `release/inert-seed-manifest.json` plus
+`release/release-payload-set.json`; it excludes local issue templates and workflows until the
+Factory-owned transaction has acquired repository custody, and excludes raw Template-self documents
+until they receive a portable projection. Consumers must not derive that payload by filtering the
+raw map themselves.
+
 ## Overlay algorithm
 
 1. Read `template-manifest.json` from the template commit being adopted.
