@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -14,6 +14,18 @@ function compare(left: string, right: string): number {
 
 function git(...args: readonly string[]): string {
   return execFileSync("git", args, { cwd: root, encoding: "utf8" });
+}
+
+function isIgnored(relativePath: string): boolean {
+  const result = spawnSync(
+    "git",
+    ["check-ignore", "--no-index", "--quiet", "--", relativePath],
+    { cwd: root, encoding: "utf8" },
+  );
+  if (result.error) throw result.error;
+  if (result.status === 0) return true;
+  if (result.status === 1) return false;
+  throw new Error(`git check-ignore failed for ${relativePath}: ${result.stderr.trim()}`);
 }
 
 function listTextFiles(): readonly string[] {
@@ -116,6 +128,21 @@ const portableManifestClosureSelfTestErrors = [
     : "portable manifest closure self-test failed: orphan copy path was not rejected",
 ].filter((error): error is string => error !== undefined);
 const portableManifestClosure = portableManifestClosureErrors(manifest, trackedFiles);
+const opsReadme = fs.readFileSync(path.join(root, ".ops", "README.md"), "utf8");
+const opsPolicyErrors = [
+  isIgnored(".ops/README.md")
+    ? ".ops/README.md must remain tracked and clone-deliverable"
+    : undefined,
+  isIgnored(".ops/incidents.jsonl")
+    ? ".ops/incidents.jsonl must remain trackable under the binding AGENTS policy"
+    : undefined,
+  !isIgnored(".ops/concurrency-capture.jsonl")
+    ? ".ops/concurrency-capture.jsonl must remain ignored as transient capture state"
+    : undefined,
+  !opsReadme.includes("../agent-orchestrator/lib/incident-log.mjs")
+    ? ".ops/README.md must use the documented sibling incident-log helper path"
+    : undefined,
+].filter((error): error is string => error !== undefined);
 
 const templateAgents = fs.readFileSync(path.join(root, "AGENTS.md"), "utf8");
 const requiredDirectL0Defaults = [
@@ -324,6 +351,7 @@ if (process.argv.includes("--direct-l0-defaults")) {
   invalid.length > 0 ||
   portableManifestClosureSelfTestErrors.length > 0 ||
   portableManifestClosure.length > 0 ||
+  opsPolicyErrors.length > 0 ||
   boundaryErrors.length > 0
 ) {
   if (conflicts.length > 0) console.error("conflict markers:", conflicts);
@@ -335,6 +363,7 @@ if (process.argv.includes("--direct-l0-defaults")) {
   if (portableManifestClosure.length > 0) {
     console.error("portable manifest paths absent from tracked tree:", portableManifestClosure);
   }
+  if (opsPolicyErrors.length > 0) console.error(".ops policy:", opsPolicyErrors);
   if (boundaryErrors.length > 0) console.error("template boundary:", boundaryErrors);
   process.exitCode = 1;
 }

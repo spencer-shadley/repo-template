@@ -10,11 +10,11 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Fixed
 
-- Restored the clone-deliverable `.ops/README.md` schema note while keeping runtime `.ops` streams
-  ignored, and added a release-tree closure gate that rejects every portable `copy` or `merge`
-  manifest path absent from tracked candidate bytes. The immutable `v3.0.0` tag remains unchanged;
-  new consumers must use corrected `v3.0.1` and retain the existing canary-first rollout gate.
-  PATCH. Fixes #97.
+- Restored the clone-deliverable `.ops/README.md` schema note, preserved the binding tracked-incident
+  policy with file-precise transient ignores, and added release-tree and `.ops` policy gates that
+  reject portable `copy`/`merge` paths absent from tracked candidate bytes or future ignore/helper
+  drift. The immutable `v3.0.0` tag remains unchanged; new consumers must use corrected `v3.0.1`
+  and retain the existing canary-first rollout gate. PATCH. Fixes #97.
 
 ## [3.0.0] - 2026-07-28
 
