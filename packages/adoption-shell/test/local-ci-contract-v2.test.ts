@@ -63,42 +63,57 @@ test("all negative V2 contract fixtures fail validation with stable reason codes
   }
 });
 
-test("Model Gateway V1 legacy shape migrates deterministically without field guessing", () => {
+test("Model Gateway V1 legacy shape is rejected rather than guessing closed V2 evidence", () => {
   const legacyData = readJsonFixture("legacy-model-gateway-v1.json");
   const rawBytes = fs.readFileSync(path.join(fixturesDir, "legacy-model-gateway-v1.json"));
   const disposition = classifyAndMigrateLegacyLocalCiV1(legacyData, rawBytes);
 
-  assert.equal(disposition.disposition, "migrated");
+  assert.equal(disposition.disposition, "rejected");
   assert.equal(disposition.legacyLineage, "model-gateway-v1");
   assert.notEqual(disposition.sourceBlobSha256, "");
-  assert.ok(disposition.contract);
-  if (disposition.contract) {
-    assert.equal(disposition.contract.commands.length, 3);
-    assert.equal(disposition.contract.commands[0]?.executable, "pnpm");
-    assert.equal(disposition.contract.commands[0]?.args[0], "lint");
-    assert.equal(disposition.contract.commands[2]?.isAuthoritativeGate, true);
-    assert.equal(disposition.contract.environment.runtime.name, "node");
-    assert.equal(disposition.contract.environment.runtime.versionConstraint, "24.16.0");
-    assert.equal(disposition.contract.effects.credentialsAccess, false);
-    assert.equal(disposition.contract.effects.networkProviderAccess, false);
-  }
+  assert.equal(disposition.reasonCode, "INCOMPLETE_LEGACY_EVIDENCE");
+  assert.equal(disposition.contract, undefined);
 });
 
-test("Repo Factory V1 legacy shape migrates deterministically without field guessing", () => {
+test("Repo Factory V1 legacy shape is rejected rather than guessing closed V2 evidence", () => {
   const legacyData = readJsonFixture("legacy-repo-factory-v1.json");
   const rawBytes = fs.readFileSync(path.join(fixturesDir, "legacy-repo-factory-v1.json"));
   const disposition = classifyAndMigrateLegacyLocalCiV1(legacyData, rawBytes);
 
-  assert.equal(disposition.disposition, "migrated");
+  assert.equal(disposition.disposition, "rejected");
   assert.equal(disposition.legacyLineage, "repo-factory-v1");
   assert.notEqual(disposition.sourceBlobSha256, "");
-  assert.ok(disposition.contract);
-  if (disposition.contract) {
-    assert.equal(disposition.contract.commands.length, 4);
-    assert.equal(disposition.contract.commands[0]?.id, "verify");
-    assert.equal(disposition.contract.commands[0]?.isAuthoritativeGate, true);
-    assert.equal(disposition.contract.effects.networkProviderAccess, false);
+  assert.equal(disposition.reasonCode, "INCOMPLETE_LEGACY_EVIDENCE");
+  assert.equal(disposition.contract, undefined);
+});
+
+test("runtime validation rejects every adversarial schema-parity probe", () => {
+  const base: any = readJsonFixture("valid-local-ci-v2.json");
+  const cases: readonly [string, (value: any) => void, string][] = [
+    ["non-string command argument", (v) => { v.commands[0].args = [42]; }, "E_TYPE"],
+    ["non-integer expected exit", (v) => { v.commands[0].expectedExitCode = 0.5; }, "E_TYPE"],
+    ["non-string environment item", (v) => { v.environment.requiredEnvVars = [42]; }, "E_TYPE"],
+    ["duplicate environment item", (v) => { v.environment.supportedPlatforms = ["linux", "linux"]; }, "E_DUPLICATE"],
+    ["duplicate command order", (v) => { v.commands[1].order = v.commands[0].order; }, "E_DUPLICATE_COMMAND_ORDER"],
+    ["invalid repository grammar", (v) => { v.repository = "not-a-repository"; }, "E_FORMAT"],
+  ];
+  for (const [name, mutate, code] of cases) {
+    const value = structuredClone(base);
+    mutate(value);
+    const result = validateLocalCiContractV2(value);
+    assert.equal(result.ok, false, name);
+    if (!result.ok) assert.equal(result.diagnostics.some((d) => d.code === code), true, name);
   }
+});
+
+test("legacy boolean-like strings and missing effects never coerce into a migrated contract", () => {
+  const legacy: any = readJsonFixture("legacy-model-gateway-v1.json");
+  legacy.effects.credentials = "false";
+  delete legacy.effects.spend;
+  const result = classifyAndMigrateLegacyLocalCiV1(legacy);
+  assert.equal(result.disposition, "rejected");
+  assert.equal(result.reasonCode, "INCOMPLETE_LEGACY_EVIDENCE");
+  assert.equal(result.contract, undefined);
 });
 
 test("invalid/malformed legacy shapes fail closed with non-routable disposition", () => {
@@ -107,7 +122,7 @@ test("invalid/malformed legacy shapes fail closed with non-routable disposition"
 
   assert.equal(disposition.disposition, "rejected");
   assert.equal(disposition.legacyLineage, "model-gateway-v1");
-  assert.equal(disposition.reasonCode, "UNSUPPORTED_LEGACY_SHAPE");
+  assert.equal(disposition.reasonCode, "INCOMPLETE_LEGACY_EVIDENCE");
   assert.equal(disposition.contract, undefined);
 });
 

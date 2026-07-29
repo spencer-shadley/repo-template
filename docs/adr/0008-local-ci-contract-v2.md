@@ -19,7 +19,7 @@ Define and publish `LocalCiContractV2` as the single portable, machine-readable 
    - **Environment:** Complete runtime/package-manager specifications, supported platform/architecture constraints, required environment variables/credentials, and explicit network expectations (`offline-only`, `local-loopback`, `outbound-allowed`).
    - **Effects Vocabulary:** Strictly closed boolean vocabulary covering credentials access, network access, provider spend, external mutation, registration, schedules, deployment, consumer binding, and serving authority. Unknown or extra fields fail validation.
 3. **Legacy Lineage Migration & Non-Routable Fail-Closed:**
-   - Pure offline validator `classifyAndMigrateLegacyLocalCiV1` handles both legacy V1 lineages (`model-gateway-v1` and `repo-factory-v1`) by mapping them deterministically to valid V2 contracts without heuristic field guessing.
+   - Pure offline validator `classifyAndMigrateLegacyLocalCiV1` identifies both legacy V1 lineages (`model-gateway-v1` and `repo-factory-v1`) but rejects them with `INCOMPLETE_LEGACY_EVIDENCE` unless a consumer supplies an independently authenticated complete V2 declaration; it never guesses fields or coerces effects.
    - Any unknown, missing, malformed, duplicate, or conflicting declaration yields a typed reason code and a **non-routable** disposition while preserving the source blob SHA-256 digest.
 
 ## Consequences

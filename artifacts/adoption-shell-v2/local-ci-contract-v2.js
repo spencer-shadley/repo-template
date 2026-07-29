@@ -9,6 +9,19 @@ const SHELLS = new Set(["pwsh", "cmd", "bash", "sh", "none"]);
 const FAILURE_DISPOSITIONS = new Set(["fail-gate", "warning", "non-routable"]);
 const NETWORK_EXPECTATIONS = new Set(["offline-only", "local-loopback", "outbound-allowed"]);
 const COMMAND_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
+function stringArray(value, pointer, min, max, diagnostics) {
+    if (!diagnostics.array(value, pointer, min, max))
+        return;
+    const seen = new Set();
+    value.forEach((item, index) => {
+        if (!diagnostics.string(item, `${pointer}/${index}`, { min: 1 }))
+            return;
+        if (seen.has(item))
+            diagnostics.add("E_DUPLICATE", `${pointer}/${index}`, `duplicate value: ${item}`);
+        else
+            seen.add(item);
+    });
+}
 function finish(value, diagnostics) {
     const sorted = diagnostics.sorted();
     return sorted.length === 0 ? { ok: true, value } : { ok: false, diagnostics: sorted };
@@ -21,11 +34,12 @@ export function validateLocalCiContractV2(value) {
     diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_CONTRACT_V2_SCHEMA_ID });
     diagnostics.string(value["schemaVersion"], "/schemaVersion", { constant: LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION });
     diagnostics.string(value["contractId"], "/contractId", { constant: LOCAL_CI_CONTRACT_V2_ID });
-    diagnostics.string(value["repository"], "/repository", { min: 1 });
+    diagnostics.string(value["repository"], "/repository", { min: 1, pattern: /^[^/]+\/[^/]+$/ });
     diagnostics.string(value["canonicalBranch"], "/canonicalBranch", { min: 1 });
     const commandsRaw = value["commands"];
     if (diagnostics.array(commandsRaw, "/commands", 1, 256)) {
         const seenIds = new Set();
+        const seenOrders = new Set();
         let hasAuthoritativeGate = false;
         commandsRaw.forEach((cmd, idx) => {
             const ptr = `/commands/${idx}`;
@@ -40,7 +54,7 @@ export function validateLocalCiContractV2(value) {
                 }
                 diagnostics.string(cmd["name"], `${ptr}/name`, { min: 1 });
                 diagnostics.string(cmd["executable"], `${ptr}/executable`, { min: 1 });
-                diagnostics.array(cmd["args"], `${ptr}/args`, 0, 256);
+                stringArray(cmd["args"], `${ptr}/args`, 0, 256, diagnostics);
                 const shellStr = cmd["shell"];
                 if (diagnostics.string(shellStr, `${ptr}/shell`) && !SHELLS.has(shellStr))
                     diagnostics.add("E_ENUM", `${ptr}/shell`, "unsupported shell");
@@ -51,7 +65,11 @@ export function validateLocalCiContractV2(value) {
                 const order = cmd["order"];
                 if (typeof order !== "number" || !Number.isInteger(order) || order < 0)
                     diagnostics.add("E_TYPE", `${ptr}/order`, "expected non-negative integer");
-                if (typeof cmd["expectedExitCode"] !== "number")
+                else if (seenOrders.has(order))
+                    diagnostics.add("E_DUPLICATE_COMMAND_ORDER", `${ptr}/order`, `duplicate command order: ${order}`);
+                else
+                    seenOrders.add(order);
+                if (typeof cmd["expectedExitCode"] !== "number" || !Number.isInteger(cmd["expectedExitCode"]))
                     diagnostics.add("E_TYPE", `${ptr}/expectedExitCode`, "expected integer");
                 if (typeof cmd["isAuthoritativeGate"] !== "boolean")
                     diagnostics.add("E_TYPE", `${ptr}/isAuthoritativeGate`, "expected boolean");
@@ -78,10 +96,10 @@ export function validateLocalCiContractV2(value) {
             diagnostics.string(pm["name"], "/environment/packageManager/name", { min: 1 });
             diagnostics.string(pm["version"], "/environment/packageManager/version", { min: 1 });
         }
-        diagnostics.array(envRaw["supportedPlatforms"], "/environment/supportedPlatforms", 1, 32);
-        diagnostics.array(envRaw["supportedArchitectures"], "/environment/supportedArchitectures", 1, 32);
-        diagnostics.array(envRaw["requiredEnvVars"], "/environment/requiredEnvVars", 0, 256);
-        diagnostics.array(envRaw["requiredCredentials"], "/environment/requiredCredentials", 0, 256);
+        stringArray(envRaw["supportedPlatforms"], "/environment/supportedPlatforms", 1, 32, diagnostics);
+        stringArray(envRaw["supportedArchitectures"], "/environment/supportedArchitectures", 1, 32, diagnostics);
+        stringArray(envRaw["requiredEnvVars"], "/environment/requiredEnvVars", 0, 256, diagnostics);
+        stringArray(envRaw["requiredCredentials"], "/environment/requiredCredentials", 0, 256, diagnostics);
         const netExp = envRaw["networkExpectation"];
         if (diagnostics.string(netExp, "/environment/networkExpectation") && !NETWORK_EXPECTATIONS.has(netExp))
             diagnostics.add("E_ENUM", "/environment/networkExpectation", "unsupported network expectation");
@@ -105,89 +123,10 @@ export function classifyAndMigrateLegacyLocalCiV1(rawInput, sourceBlob) {
     if (!isRecord(rawInput))
         return { disposition: "rejected", legacyLineage: "unknown", sourceBlobSha256, reasonCode: "MALFORMED_INPUT", diagnostics: v2Result.diagnostics };
     if ("checks" in rawInput && "runtime" in rawInput) {
-        const checks = rawInput["checks"];
-        const runtimeStr = rawInput["runtime"];
-        const eff = rawInput["effects"];
-        if (Array.isArray(checks) && typeof runtimeStr === "string" && isRecord(eff)) {
-            const commands = [];
-            let validChecks = true;
-            checks.forEach((chk, idx) => {
-                if (isRecord(chk) && typeof chk["id"] === "string" && typeof chk["command"] === "string") {
-                    const parts = chk["command"].trim().split(/\s+/);
-                    commands.push({
-                        id: chk["id"], name: chk["id"], executable: parts[0] ?? "echo", args: parts.slice(1),
-                        shell: "none", cwd: ".", timeoutSeconds: 300, order: idx, expectedExitCode: 0,
-                        isAuthoritativeGate: idx === checks.length - 1, failureDisposition: "fail-gate",
-                    });
-                }
-                else {
-                    validChecks = false;
-                }
-            });
-            if (validChecks && commands.length > 0) {
-                const candidate = {
-                    schemaId: LOCAL_CI_CONTRACT_V2_SCHEMA_ID, schemaVersion: LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION, contractId: LOCAL_CI_CONTRACT_V2_ID,
-                    repository: typeof rawInput["repository"] === "string" ? rawInput["repository"] : "migrated/model-gateway",
-                    canonicalBranch: typeof rawInput["canonicalBranch"] === "string" ? rawInput["canonicalBranch"] : "main",
-                    commands,
-                    environment: {
-                        runtime: { name: runtimeStr.includes("@") ? runtimeStr.split("@")[0] : "node", versionConstraint: runtimeStr.includes("@") ? runtimeStr.split("@")[1] : runtimeStr },
-                        packageManager: { name: "pnpm", version: "11.17.0" },
-                        supportedPlatforms: ["win32", "linux", "darwin"], supportedArchitectures: ["x64", "arm64"],
-                        requiredEnvVars: [], requiredCredentials: [], networkExpectation: eff["network"] === true ? "outbound-allowed" : "offline-only",
-                    },
-                    effects: {
-                        credentialsAccess: Boolean(eff["credentials"]), networkProviderAccess: Boolean(eff["network"]), providerSpend: Boolean(eff["spend"]),
-                        externalMutation: Boolean(eff["externalMutation"]), registrationMutation: false, schedulesMutation: false,
-                        deploymentMutation: false, consumerBindingMutation: false, servingAuthorityMutation: false,
-                    },
-                };
-                const migratedVal = validateLocalCiContractV2(candidate);
-                if (migratedVal.ok)
-                    return { disposition: "migrated", legacyLineage: "model-gateway-v1", sourceBlobSha256, contract: migratedVal.value };
-            }
-        }
-        return { disposition: "rejected", legacyLineage: "model-gateway-v1", sourceBlobSha256, reasonCode: "UNSUPPORTED_LEGACY_SHAPE" };
+        return { disposition: "rejected", legacyLineage: "model-gateway-v1", sourceBlobSha256, reasonCode: "INCOMPLETE_LEGACY_EVIDENCE" };
     }
     if ("entrypoint" in rawInput && "gates" in rawInput) {
-        const entrypoint = rawInput["entrypoint"];
-        const gates = rawInput["gates"];
-        const flags = rawInput["flags"];
-        if (typeof entrypoint === "string" && Array.isArray(gates) && isRecord(flags)) {
-            const parts = entrypoint.trim().split(/\s+/);
-            const commands = [{
-                    id: "verify", name: "verify", executable: parts[0] ?? "pnpm", args: parts.slice(1),
-                    shell: "none", cwd: ".", timeoutSeconds: 600, order: 0, expectedExitCode: 0, isAuthoritativeGate: true, failureDisposition: "fail-gate",
-                }];
-            gates.forEach((gateName, idx) => {
-                if (typeof gateName === "string" && gateName !== "verify") {
-                    commands.push({
-                        id: gateName, name: gateName, executable: "pnpm", args: [gateName],
-                        shell: "none", cwd: ".", timeoutSeconds: 300, order: idx + 1, expectedExitCode: 0, isAuthoritativeGate: false, failureDisposition: "fail-gate",
-                    });
-                }
-            });
-            const candidate = {
-                schemaId: LOCAL_CI_CONTRACT_V2_SCHEMA_ID, schemaVersion: LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION, contractId: LOCAL_CI_CONTRACT_V2_ID,
-                repository: typeof rawInput["repository"] === "string" ? rawInput["repository"] : "migrated/repo-factory",
-                canonicalBranch: typeof rawInput["canonicalBranch"] === "string" ? rawInput["canonicalBranch"] : "main",
-                commands,
-                environment: {
-                    runtime: { name: "node", versionConstraint: ">=24.16.0 <25" },
-                    packageManager: { name: "pnpm", version: "11.17.0" },
-                    supportedPlatforms: ["win32", "linux", "darwin"], supportedArchitectures: ["x64", "arm64"],
-                    requiredEnvVars: [], requiredCredentials: [], networkExpectation: flags["allowNetwork"] === true ? "outbound-allowed" : "offline-only",
-                },
-                effects: {
-                    credentialsAccess: false, networkProviderAccess: Boolean(flags["allowNetwork"]), providerSpend: Boolean(flags["allowSpend"]),
-                    externalMutation: false, registrationMutation: false, schedulesMutation: false, deploymentMutation: false, consumerBindingMutation: false, servingAuthorityMutation: false,
-                },
-            };
-            const migratedVal = validateLocalCiContractV2(candidate);
-            if (migratedVal.ok)
-                return { disposition: "migrated", legacyLineage: "repo-factory-v1", sourceBlobSha256, contract: migratedVal.value };
-        }
-        return { disposition: "rejected", legacyLineage: "repo-factory-v1", sourceBlobSha256, reasonCode: "UNSUPPORTED_LEGACY_SHAPE" };
+        return { disposition: "rejected", legacyLineage: "repo-factory-v1", sourceBlobSha256, reasonCode: "INCOMPLETE_LEGACY_EVIDENCE" };
     }
     return { disposition: "rejected", legacyLineage: "unknown", sourceBlobSha256, reasonCode: "NON_ROUTABLE_DECLARATION", diagnostics: v2Result.diagnostics };
 }

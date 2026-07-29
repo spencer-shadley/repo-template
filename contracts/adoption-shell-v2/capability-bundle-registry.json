@@ -6,6 +6,54 @@
   "digestAlgorithm": "sha256-rfc8785-v1",
   "bundles": [
     {
+      "id": "repo-template/local-ci-contract-v2",
+      "version": "2.0.0",
+      "dependencies": [],
+      "artifacts": [
+        "artifacts/adoption-shell-v2/local-ci-contract-v2.d.ts",
+        "artifacts/adoption-shell-v2/local-ci-contract-v2.js",
+        "contracts/local-ci/v2/local-ci-contract-v2.schema.json"
+      ],
+      "fixtures": [
+        "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
+        "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
+        "contracts/local-ci/v2/fixtures/invalid-incomplete-env.json",
+        "contracts/local-ci/v2/fixtures/invalid-malformed.json",
+        "contracts/local-ci/v2/fixtures/invalid-missing-field.json",
+        "contracts/local-ci/v2/fixtures/invalid-no-authoritative-gate.json",
+        "contracts/local-ci/v2/fixtures/invalid-unsupported-version.json",
+        "contracts/local-ci/v2/fixtures/legacy-invalid-v1.json",
+        "contracts/local-ci/v2/fixtures/legacy-model-gateway-v1.json",
+        "contracts/local-ci/v2/fixtures/legacy-repo-factory-v1.json",
+        "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json"
+      ],
+      "goldens": [],
+      "modes": [
+        {
+          "id": "validate",
+          "entrypoint": "artifacts/adoption-shell-v2/local-ci-contract-v2.js",
+          "requiredPaths": [
+            "artifacts/adoption-shell-v2/local-ci-contract-v2.d.ts",
+            "artifacts/adoption-shell-v2/local-ci-contract-v2.js",
+            "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
+            "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
+            "contracts/local-ci/v2/fixtures/invalid-incomplete-env.json",
+            "contracts/local-ci/v2/fixtures/invalid-malformed.json",
+            "contracts/local-ci/v2/fixtures/invalid-missing-field.json",
+            "contracts/local-ci/v2/fixtures/invalid-no-authoritative-gate.json",
+            "contracts/local-ci/v2/fixtures/invalid-unsupported-version.json",
+            "contracts/local-ci/v2/fixtures/legacy-invalid-v1.json",
+            "contracts/local-ci/v2/fixtures/legacy-model-gateway-v1.json",
+            "contracts/local-ci/v2/fixtures/legacy-repo-factory-v1.json",
+            "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json",
+            "contracts/local-ci/v2/local-ci-contract-v2.schema.json"
+          ]
+        }
+      ],
+      "digestAlgorithm": "sha256-rfc8785-v1",
+      "digest": "12e6604b74413263039d55b4705e4d0e1cc3b854d7aead900d91cd9cef093e60"
+    },
+    {
       "id": "repo-template/user-surface-lint",
       "version": "2.6.0",
       "dependencies": [],
@@ -71,5 +119,5 @@
       "digest": "8789159231cbc5adb7794f381889ee0943e31675097a050d061993f9d85318e2"
     }
   ],
-  "registryDigest": "dd4f0af823c5cc871fde75a1031b8dea2f3b2e9b8b3df96dfa10cfb3145c6994"
+  "registryDigest": "d76b6cc46101988907e26c40eb400d076b0d6de298ac05c1512d0f5938995993"
 }
