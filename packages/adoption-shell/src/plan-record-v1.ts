@@ -24,6 +24,7 @@ export type RetireReasonCode =
   | "INCOMPLETE_EVIDENCE"
   | "AMBIGUOUS_STATUS"
   | "INVALID_V1"
+  | "UNKNOWN_SCHEMA_VERSION"
   | "UNCLASSIFIED_INPUT";
 export type LegacyReasonCode = MigrateReasonCode | RetireReasonCode;
 export type PlanRecordDecision =
@@ -340,8 +341,14 @@ export function classifyPlanRecordV1(
   }
   if (validatePlanRecordV1(value)) return { kind: "valid-v1", record: value };
   if (!isRecord(value)) return { kind: "retire", reasonCode: "UNCLASSIFIED_INPUT" };
-  if (value["schemaVersion"] === PLAN_RECORD_SCHEMA_VERSION) {
-    return { kind: "retire", reasonCode: "INVALID_V1" };
+  if (Object.hasOwn(value, "schemaVersion")) {
+    return {
+      kind: "retire",
+      reasonCode:
+        value["schemaVersion"] === PLAN_RECORD_SCHEMA_VERSION
+          ? "INVALID_V1"
+          : "UNKNOWN_SCHEMA_VERSION",
+    };
   }
   const rawStatus = value["status"] ?? value["Status"];
   if (!nonEmpty(rawStatus)) return { kind: "retire", reasonCode: "UNCLASSIFIED_INPUT" };

@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "cc0aaa20379524b5d72ba2f1e776d8b7aae0b88d8298554a59416d5821a98715",
+  "artifactDigest": "17c7e8db0b8938d7a388a891f8c54341fb76d18f5f8c7bf34be9b3d47dd0b8e9",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -91,8 +91,8 @@
       "path": "packages/adoption-shell/src/plan-record-v1.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "cf2cba52d2d887d177d77d6d13babadba9cd94e59ff9bfec188add1d4aecf7e6",
-      "bytes": 14539
+      "sha256": "a54d29d59294862ff627d084417fe2c9c62077ab01537af19cee17b9d2c17226",
+      "bytes": 14680
     },
     {
       "path": "packages/adoption-shell/src/release-candidate.ts",
@@ -379,15 +379,15 @@
       "path": "plan-record-v1.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7c7b11d4effb7fd379da7207e01c6e10b4b7f9215f24152661b9ae61eecad8ff",
-      "bytes": 3187
+      "sha256": "848c5442741a27057b402898b6f970b88ab8169d10e3d2b124c539c29d5daae0",
+      "bytes": 3214
     },
     {
       "path": "plan-record-v1.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "335855477b32b51433707b1c023dd5af0b7c2bf26c5b50c56c36fc82b6879de8",
-      "bytes": 12311
+      "sha256": "79b5751c887a10041cca952a27c95684b4d24cf8737cfb5e67004fd1fcd02dfc",
+      "bytes": 12443
     },
     {
       "path": "release-candidate.d.ts",
@@ -598,8 +598,8 @@
       "path": "contracts/plan-record/v1/fixtures/classification-cases.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "710e92fbd0f143be451f2d51f4d26c3a2c42cef847fbb22b49622fd2b8bb1d7c",
-      "bytes": 15034
+      "sha256": "9454c9687768884050e98f8425d7830dbb2666ac4ee21df457f31609510d17a3",
+      "bytes": 15896
     },
     {
       "path": "contracts/plan-record/v1/plan-record.example.json",
@@ -761,7 +761,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6af1fb387eba86bf2b44cafe16b088954152114ddd497fcd1c5c356d43387feb",
+      "sha256": "40d5b1396f731448fc08915be1a9918eec015fdd3797551a16f1ffeb6718f581",
       "bytes": 876
     },
     {
@@ -793,5 +793,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "45493cce12c80e8bae38a247071329ad301ab3f006614c4018dea1825ff36e39"
+  "manifestDigest": "9d779723823dbe44840a04817676ecccbf8c20a168565308c78e74b2b7ef2b24"
 }

@@ -3,7 +3,7 @@ export declare const PLAN_BODY_BASENAME_PATTERN_SOURCE: "^(?!.*\\.(?:[Ll][Oo][Gg
 export declare const PLAN_RECORD_STATUSES: readonly ["planned", "in-progress", "implemented", "closed", "held-authority"];
 export type PlanRecordStatus = (typeof PLAN_RECORD_STATUSES)[number];
 export type MigrateReasonCode = "LEGACY_READY" | "LEGACY_ACTIVE" | "LEGACY_IMPLEMENTED" | "LEGACY_CLOSED" | "LEGACY_HELD_COMPLETE";
-export type RetireReasonCode = "INCOMPLETE_EVIDENCE" | "AMBIGUOUS_STATUS" | "INVALID_V1" | "UNCLASSIFIED_INPUT";
+export type RetireReasonCode = "INCOMPLETE_EVIDENCE" | "AMBIGUOUS_STATUS" | "INVALID_V1" | "UNKNOWN_SCHEMA_VERSION" | "UNCLASSIFIED_INPUT";
 export type LegacyReasonCode = MigrateReasonCode | RetireReasonCode;
 export type PlanRecordDecision = Readonly<{
     kind: "valid-v1";

@@ -212,6 +212,21 @@ test("landed and shipped legacy evidence retain distinct targets and reason code
   });
 });
 
+test("fails closed on explicit future schema versions and migrates only absent versions", () => {
+  const future = fixture("future-schema-version").record as Record<string, unknown>;
+  assert.deepEqual(classifyPlanRecordV1(future), {
+    kind: "retire",
+    reasonCode: "UNKNOWN_SCHEMA_VERSION",
+  });
+  const legacy = { ...future };
+  delete legacy["schemaVersion"];
+  assert.deepEqual(classifyPlanRecordV1(legacy), {
+    kind: "migrate",
+    targetStatus: "implemented",
+    reasonCode: "LEGACY_IMPLEMENTED",
+  });
+});
+
 test("claim, receipt, disposition, and supersession evidence is lifecycle-conditional", () => {
   for (const name of [
     "planned-auto-github-no-claim",
