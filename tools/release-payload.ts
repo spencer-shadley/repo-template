@@ -54,14 +54,10 @@ function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function gitText(object: string): string {
-  return execFileSync("git", ["cat-file", "blob", object], {
-    cwd: root,
-    encoding: "utf8",
-  });
-}
-
-function gitTree(): ReadonlyMap<string, { readonly mode: string; readonly object: string }> {
+function gitTreeAndBlobs(): {
+  readonly tree: ReadonlyMap<string, { readonly mode: string; readonly object: string }>;
+  readonly blobs: ReadonlyMap<string, Buffer>;
+} {
   const rows = execFileSync("git", ["ls-tree", "-rz", "HEAD"], {
     cwd: root,
     encoding: "utf8",
@@ -79,7 +75,35 @@ function gitTree(): ReadonlyMap<string, { readonly mode: string; readonly object
       object: match[2],
     });
   }
-  return result;
+  const objects = [...new Set([...result.values()].map((entry) => entry.object))];
+  const output = Buffer.from(
+    execFileSync("git", ["cat-file", "--batch"], {
+      cwd: root,
+      input: `${objects.join("\n")}\n`,
+      maxBuffer: 64 * 1024 * 1024,
+    }),
+  );
+  const blobs = new Map<string, Buffer>();
+  let offset = 0;
+  for (const expectedObject of objects) {
+    const headerEnd = output.indexOf(0x0a, offset);
+    if (headerEnd < 0) throw new Error("truncated git cat-file batch header");
+    const header = output.subarray(offset, headerEnd).toString("ascii");
+    const match = /^([0-9a-f]+) blob ([0-9]+)$/.exec(header);
+    if (!match?.[1] || !match[2] || match[1] !== expectedObject) {
+      throw new Error(`unexpected git cat-file batch header: ${header}`);
+    }
+    const size = Number(match[2]);
+    const contentStart = headerEnd + 1;
+    const contentEnd = contentStart + size;
+    if (output[contentEnd] !== 0x0a) {
+      throw new Error(`truncated git cat-file batch content: ${expectedObject}`);
+    }
+    blobs.set(expectedObject, Buffer.from(output.subarray(contentStart, contentEnd)));
+    offset = contentEnd + 1;
+  }
+  if (offset !== output.length) throw new Error("unexpected trailing git cat-file batch output");
+  return { tree: result, blobs };
 }
 
 function classifyExcluded(pathValue: string): ExcludedRow["reason"] | null {
@@ -99,11 +123,11 @@ function construct(): {
   readonly selection: Record<string, unknown>;
   readonly payload: Record<string, unknown>;
 } {
-  const tree = gitTree();
+  const { tree, blobs } = gitTreeAndBlobs();
   const templateManifestRow = tree.get("template-manifest.json");
   if (!templateManifestRow) throw new Error("HEAD lacks template-manifest.json");
   const templateManifest = JSON.parse(
-    gitText(templateManifestRow.object),
+    blobs.get(templateManifestRow.object)?.toString("utf8") ?? "",
   ) as Record<string, unknown>;
   const inventory: InventoryRow[] = [];
   const excluded: ExcludedRow[] = [];
@@ -128,9 +152,8 @@ function construct(): {
     if (!tracked || (gitMode !== "100644" && gitMode !== "100755")) {
       throw new Error(`selected path lacks a regular tracked Git mode: ${pathValue}`);
     }
-    const content = Buffer.from(
-      execFileSync("git", ["cat-file", "blob", tracked.object], { cwd: root }),
-    );
+    const content = blobs.get(tracked.object);
+    if (!content) throw new Error(`selected path lacks batched Git bytes: ${pathValue}`);
     const contentSha256 = createHash("sha256").update(content).digest("hex");
     const encoding = content.includes(0) ? "binary" : "utf-8";
     inventory.push({
