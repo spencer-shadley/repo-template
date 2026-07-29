@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -19,6 +20,19 @@ function readJson<T>(relativePath: string): T {
   return JSON.parse(
     fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
   ) as T;
+}
+
+function headBlob(relativePath: string): Buffer {
+  return Buffer.from(
+    execFileSync("git", ["show", `HEAD:${relativePath}`], { cwd: root }),
+  );
+}
+
+function headMode(relativePath: string): string {
+  return execFileSync("git", ["ls-tree", "HEAD", "--", relativePath], {
+    cwd: root,
+    encoding: "utf8",
+  }).slice(0, 6);
 }
 
 test("released inert seed closes over exactly its selected safe bytes", () => {
@@ -42,7 +56,8 @@ test("released inert seed closes over exactly its selected safe bytes", () => {
   for (const [index, row] of selection.entries.entries()) {
     const entry = payload.entries[index];
     assert.ok(entry);
-    const content = fs.readFileSync(path.join(root, ...row.path.split("/")));
+    const content = headBlob(row.path);
+    assert.equal(row.gitMode, headMode(row.path));
     assert.equal(row.gitMode, entry.mode);
     assert.equal(row.contentSha256, entry.contentSha256);
     assert.equal(row.bytes, content.byteLength);

@@ -54,25 +54,30 @@ function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function readJson(relativePath: string): Record<string, unknown> {
-  return JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8")) as Record<
-    string,
-    unknown
-  >;
+function gitText(object: string): string {
+  return execFileSync("git", ["cat-file", "blob", object], {
+    cwd: root,
+    encoding: "utf8",
+  });
 }
 
-function gitModes(): ReadonlyMap<string, string> {
-  const rows = execFileSync("git", ["ls-files", "--stage", "-z"], {
+function gitTree(): ReadonlyMap<string, { readonly mode: string; readonly object: string }> {
+  const rows = execFileSync("git", ["ls-tree", "-rz", "HEAD"], {
     cwd: root,
     encoding: "utf8",
   })
     .split("\0")
     .filter(Boolean);
-  const result = new Map<string, string>();
+  const result = new Map<string, { readonly mode: string; readonly object: string }>();
   for (const row of rows) {
-    const match = /^(\d{6}) [0-9a-f]+ \d+\t(.+)$/.exec(row);
-    if (!match?.[1] || !match[2]) throw new Error(`unexpected git index row: ${row}`);
-    result.set(match[2].replaceAll("\\", "/"), match[1]);
+    const match = /^(\d{6}) blob ([0-9a-f]+)\t(.+)$/.exec(row);
+    if (!match?.[1] || !match[2] || !match[3]) {
+      throw new Error(`unexpected Git tree row: ${row}`);
+    }
+    result.set(match[3].replaceAll("\\", "/"), {
+      mode: match[1],
+      object: match[2],
+    });
   }
   return result;
 }
@@ -94,8 +99,12 @@ function construct(): {
   readonly selection: Record<string, unknown>;
   readonly payload: Record<string, unknown>;
 } {
-  const templateManifest = readJson("template-manifest.json");
-  const modes = gitModes();
+  const tree = gitTree();
+  const templateManifestRow = tree.get("template-manifest.json");
+  if (!templateManifestRow) throw new Error("HEAD lacks template-manifest.json");
+  const templateManifest = JSON.parse(
+    gitText(templateManifestRow.object),
+  ) as Record<string, unknown>;
   const inventory: InventoryRow[] = [];
   const excluded: ExcludedRow[] = [];
   const drafts: ReleasePayloadEntryDraftV2[] = [];
@@ -114,11 +123,14 @@ function construct(): {
     if (portableFailure !== null) {
       throw new Error(`portable template path rejected (${portableFailure}): ${pathValue}`);
     }
-    const gitMode = modes.get(pathValue);
-    if (gitMode !== "100644" && gitMode !== "100755") {
+    const tracked = tree.get(pathValue);
+    const gitMode = tracked?.mode;
+    if (!tracked || (gitMode !== "100644" && gitMode !== "100755")) {
       throw new Error(`selected path lacks a regular tracked Git mode: ${pathValue}`);
     }
-    const content = fs.readFileSync(path.join(root, ...pathValue.split("/")));
+    const content = Buffer.from(
+      execFileSync("git", ["cat-file", "blob", tracked.object], { cwd: root }),
+    );
     const contentSha256 = createHash("sha256").update(content).digest("hex");
     const encoding = content.includes(0) ? "binary" : "utf-8";
     inventory.push({
