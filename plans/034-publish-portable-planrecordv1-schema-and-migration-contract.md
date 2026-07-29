@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/034-publish-portable-planrecordv1-schema-and-migration-contract
-- **Status:** hold - terminal R3 repair exhausted; retry:manual owner:repo-template#97 by:2026-07-30
+- **Status:** hold - terminal R3 repair exhausted; retry:manual owner:repo-template-97 by:2026-07-30
 - **Requeue-reason:** verify-failed: use Windows-native corepack.cmd under the shared no-path-conversion verify environment
 - **Priority:** P1
 - **Issue:** repo-template#97
@@ -306,9 +306,10 @@ test "$(tr -d '\r\n ' < TEMPLATE_VERSION)" = "3.0.0"
   queue execution, source reset, or candidate discard occurred. PR #98 remains open and the remote
   branch `feat/034-publish-portable-planrecordv1-schema-and-migration-contract` remains preserved at
   exact head `e38d81bfff0d0f278597b50e41424651909408da` with all source, gate, review, and reply evidence.
-- **Conserved destination:** [repo-template#97](https://github.com/spencer-shadley/repo-template/issues/97)
-  is the §22 successor and manual revisit owner, due `2026-07-30`. The terminal receipt is posted
-  there and on PR #98 without closing the issue or blocked PR.
+- **Conserved destination:** parser-valid manual owner `repo-template-97`;
+  [repo-template#97](https://github.com/spencer-shadley/repo-template/issues/97) is the §22 issue
+  successor, due `2026-07-30`. The terminal receipt is posted there and on PR #98 without closing
+  the issue or blocked PR.
 - **Queue disposition:** the exact Plan 034 row is removed atomically with this tracked terminal
   receipt; no queue executor is started.
 - **Pause disposition:** the ignored canonical `plans/034.paused` paused-human-review sentinel is
