@@ -32,8 +32,8 @@ plans/*.paused
 # local tool state (Serena MCP)
 .serena/
 
-# .ops is machine-local operational churn, never tracked (agent-orchestrator#2314).
-# Continuous ops writes into a TRACKED dir left the worktree permanently dirty, and
-# drains refuse to run against a dirty tree - the system's own observability blocked
-# its execution. Files remain on disk; history is preserved.
-.ops/
+# .ops runtime streams are machine-local operational churn (agent-orchestrator#2314).
+# Keep only the static schema note tracked; continuous ops writes must not dirty the
+# worktree and block drains.
+.ops/*
+!.ops/README.md

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const allowedModes = new Set(["copy", "merge", "self", "generated"]);
+const portableModes = new Set(["copy", "merge"]);
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -28,6 +29,17 @@ function listTextFiles(): readonly string[] {
 function gitBlobId(content: Uint8Array): string {
   const header = Buffer.from(`blob ${content.byteLength}\0`, "utf8");
   return createHash("sha1").update(header).update(content).digest("hex");
+}
+
+function portableManifestClosureErrors(
+  candidateManifest: Readonly<Record<string, string>>,
+  trackedFiles: readonly string[],
+): string[] {
+  const tracked = new Set(trackedFiles);
+  return Object.entries(candidateManifest)
+    .filter(([file, mode]) => portableModes.has(mode) && !tracked.has(file))
+    .map(([file, mode]) => `${mode}:${file}`)
+    .sort(compare);
 }
 
 function isConflictMarker(line: string): boolean {
@@ -64,6 +76,10 @@ for (const relativePath of listTextFiles()) {
 const manifest = JSON.parse(
   fs.readFileSync(path.join(root, "template-manifest.json"), "utf8"),
 ) as Record<string, string>;
+const trackedFiles = git("ls-files", "-z")
+  .split("\0")
+  .filter(Boolean)
+  .map((entry) => entry.replaceAll("\\", "/"));
 const candidateFiles = git("ls-files", "--cached", "--others", "--exclude-standard")
   .trim()
   .split(/\r?\n/)
@@ -78,6 +94,28 @@ const missing = candidateFiles.filter(
 const invalid = Object.entries(manifest)
   .filter(([, mode]) => !allowedModes.has(mode))
   .map(([file, mode]) => `${file}:${mode}`);
+const portableManifestClosureSelfTestErrors = [
+  portableManifestClosureErrors(
+    {
+      "copy.md": "copy",
+      "merge.md": "merge",
+      "self.md": "self",
+      "generated.md": "generated",
+    },
+    ["copy.md", "merge.md"],
+  ).length === 0
+    ? undefined
+    : "portable manifest closure self-test failed: complete portable tree was rejected",
+  JSON.stringify(
+    portableManifestClosureErrors(
+      { "copy.md": "copy", "merge.md": "merge", "self.md": "self" },
+      ["merge.md"],
+    ),
+  ) === JSON.stringify(["copy:copy.md"])
+    ? undefined
+    : "portable manifest closure self-test failed: orphan copy path was not rejected",
+].filter((error): error is string => error !== undefined);
+const portableManifestClosure = portableManifestClosureErrors(manifest, trackedFiles);
 
 const templateAgents = fs.readFileSync(path.join(root, "AGENTS.md"), "utf8");
 const requiredDirectL0Defaults = [
@@ -267,8 +305,8 @@ if (gitBlobId(issueTemplate) !== "1383ad89b6bdccc6369c490d27a8326fa05f49cc") {
   boundaryErrors.push("predecessor issue template bytes changed");
 }
 const workingVersion = fs.readFileSync(path.join(root, "TEMPLATE_VERSION"), "utf8");
-if (workingVersion.trim() !== "3.0.0") {
-  boundaryErrors.push("TEMPLATE_VERSION must publish PlanRecordV1 structural release 3.0.0");
+if (workingVersion.trim() !== "3.0.1") {
+  boundaryErrors.push("TEMPLATE_VERSION must publish corrected PlanRecordV1 release 3.0.1");
 }
 
 if (process.argv.includes("--direct-l0-defaults")) {
@@ -284,11 +322,19 @@ if (process.argv.includes("--direct-l0-defaults")) {
   conflicts.length > 0 ||
   missing.length > 0 ||
   invalid.length > 0 ||
+  portableManifestClosureSelfTestErrors.length > 0 ||
+  portableManifestClosure.length > 0 ||
   boundaryErrors.length > 0
 ) {
   if (conflicts.length > 0) console.error("conflict markers:", conflicts);
   if (missing.length > 0) console.error("unmanifested:", missing);
   if (invalid.length > 0) console.error("invalid manifest modes:", invalid);
+  if (portableManifestClosureSelfTestErrors.length > 0) {
+    console.error("portable manifest closure self-test:", portableManifestClosureSelfTestErrors);
+  }
+  if (portableManifestClosure.length > 0) {
+    console.error("portable manifest paths absent from tracked tree:", portableManifestClosure);
+  }
   if (boundaryErrors.length > 0) console.error("template boundary:", boundaryErrors);
   process.exitCode = 1;
 }
