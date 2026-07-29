@@ -6,6 +6,14 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Fixed
+
+- Replaced the critical-path 24-hour major-upgrade canary wait with an evidence-denominated exit:
+  predeclared changed-behavior exposure classes, at least three independent post-merge executions
+  including a fresh-process or restart-equivalent run, deterministic replay or synthesis when
+  natural traffic is sparse, and an absolute TTL that can fail but never prove readiness. PATCH.
+  Fixes #97.
+
 ## [3.0.1] - 2026-07-29
 
 ### Fixed
