@@ -20,7 +20,8 @@ plans/*.paused
 # Guard against future blanket ignores swallowing it. File-precise transient re-ignores (e.g. the
 # critic rule below) may still follow this block; blanket `.ops/` or `.ops/**` ignores remain forbidden.
 # Parent-directory ignore rules can still hide .ops before this file is read; fix those at the parent.
-
+!.ops/
+!.ops/**
 .ops/concurrency-capture.jsonl
 .ops/freeze-expired.notify
 
@@ -31,9 +32,3 @@ plans/*.paused
 
 # local tool state (Serena MCP)
 .serena/
-
-# .ops is machine-local operational churn, never tracked (agent-orchestrator#2314).
-# Continuous ops writes into a TRACKED dir left the worktree permanently dirty, and
-# drains refuse to run against a dirty tree - the system's own observability blocked
-# its execution. Files remain on disk; history is preserved.
-.ops/
