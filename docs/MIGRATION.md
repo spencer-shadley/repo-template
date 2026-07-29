@@ -100,19 +100,22 @@ rule, helper, or artifact introduced or changed by the template bump. Incidents 
 do not block the rollout, but record the skip rationale in the rollout notes.
 
 The fleet rollout waits until the canary is green. Green means the canary migration PR merged, its
-verify gate passed, and the observation window completed cleanly: at least three consecutive drain
-cycles, spanning at least 24 hours after the merge, with no verify failures and no
-migration-attributed `.ops/incidents.jsonl` lines by the attribution rule above. A single clean
-five-minute drain cycle, including the first run after a restart, is never enough to satisfy this
-gate.
+verify gate passed, and its predeclared exposure set completed cleanly. The exposure set must cover
+every behavior class changed by the migration and include at least three independent post-merge
+executions, including one fresh-process or restart-equivalent execution, with no verify failures and
+no migration-attributed `.ops/incidents.jsonl` lines by the attribution rule above. Natural traffic
+is not required: when it is sparse, run deterministic replay or synthetic fixtures immediately.
+The canary becomes green as soon as the evidence set is complete. Elapsed calendar time never proves
+readiness and never keeps a complete canary on the critical path; wall-clock is only an absolute
+terminal-failure TTL. One clean drain execution is never enough to satisfy the gate.
 
 ### If the canary goes red
 
-Red uses the same observation window and attribution rule as green: any canary verify failure or
-migration-attributed `.ops/incidents.jsonl` line before the window closes makes the canary red.
+Red uses the same exposure set and attribution rule as green: any canary verify failure or
+migration-attributed `.ops/incidents.jsonl` line while completing that set makes the canary red.
 Block the fleet rollout immediately, open a P1 issue against repo-template with the canary PR and
 incident or verify evidence, then choose one recovery path before retrying: revert the canary
-migration PR, or hotfix the template/canary and rerun the canary window from the beginning.
+migration PR, or hotfix the template/canary and rerun the complete exposure set from the beginning.
 
 ## PlanRecordV1 no-grandfather migration
 
