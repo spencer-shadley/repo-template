@@ -267,8 +267,8 @@ if (gitBlobId(issueTemplate) !== "1383ad89b6bdccc6369c490d27a8326fa05f49cc") {
   boundaryErrors.push("predecessor issue template bytes changed");
 }
 const workingVersion = fs.readFileSync(path.join(root, "TEMPLATE_VERSION"), "utf8");
-if (workingVersion.trim() !== "3.0.0") {
-  boundaryErrors.push("TEMPLATE_VERSION must publish PlanRecordV1 structural release 3.0.0");
+if (workingVersion.trim() !== "3.0.1") {
+  boundaryErrors.push("TEMPLATE_VERSION must publish corrected PlanRecordV1 structural release 3.0.1");
 }
 
 if (process.argv.includes("--direct-l0-defaults")) {

@@ -1,8 +1,8 @@
 # Plan 034: Publish portable PlanRecordV1 schema and migration contract
 
 - **Project:** repo-template
-- **Branch:** codex/issue-97-planrecordv1-release
-- **Status:** implementing - fresh R4 issue-authorized release candidate; not queued
+- **Branch:** fix/planrecordv1-3.0.1
+- **Status:** implementing - post-merge fix-forward repair 1/1; not queued
 - **Priority:** P1
 - **Issue:** repo-template#97
 - **Effort:** high
@@ -13,15 +13,15 @@
 - **Authority:** [repo-template#97](https://github.com/spencer-shadley/repo-template/issues/97)
   remains the accountable P1 owner. R4 is a fresh candidate transaction from current
   `origin/master`; it does not reopen or resume R3, PR #98, or any exhausted Plan 034 repair cycle.
-- **currentBase:** `657b75df86d8f999fbd8fb942acd211211763f47`
+- **currentBase:** `08dc5105a168c552d3dfd74ea99ff85aa0a6d40f`
 - **salvageSource:** closed-unmerged PR #98 exact head
   `e38d81bfff0d0f278597b50e41424651909408da`; only its reviewed non-control 32-path source surface
   is replayed. Every retained Plan 034 worktree and branch remains immutable recovery evidence.
-- **candidateBranch:** `codex/issue-97-planrecordv1-release`
+- **candidateBranch:** `fix/planrecordv1-3.0.1`
 - **readyPrDeadlineAt:** `2026-07-29T07:00:00Z`
 - **deadlineAt:** `2026-07-29T07:45:00Z`
 - **maxRepairRounds:** `1`
-- **repairRoundsUsed:** `0/1`
+- **repairRoundsUsed:** `1/1`
 - **Success exit for this transaction:** the exact 32-path candidate fixes
   `UNKNOWN_SCHEMA_VERSION` through classifier output, TypeScript manifest construction and
   validation, JSON Schema validation, generated artifact validation, and a focused integration
@@ -76,6 +76,33 @@
   `plans/034-publish-portable-planrecordv1-schema-and-migration-contract.md`;
   `plans/drafts/000-smoke.md`; `pnpm-lock.yaml`; `template-manifest.json`;
   `tools/artifact-build.ts`; `tools/verify-template-self.ts`. `plans/QUEUE.md` is forbidden.
+
+## Post-merge correction transaction — 034-R4 repair 1/1
+
+- PR #100 was merged at uncorrected head
+  `bff5b969fa945ed23d40a8369b95846322d9e84f` as
+  `08dc5105a168c552d3dfd74ea99ff85aa0a6d40f` and annotated tag `v3.0.0` was published after
+  blocking exact-head reviews had identified the missing adoption-skill drift disclosure. That
+  merge/tag occurred outside the later exclusive repair handoff. The tag is immutable and is not
+  moved or deleted; no consumer or canary adopted it.
+- **Repair `1/1` scope:** prepare `3.0.1` from exact landed base `08dc5105...`; clarify that plan
+  inventory uses `isPlanBodyPathV1` (the reported queue/index/sidecar false-positive class is
+  disproved by source, generated runtime, both schemas, focused tests, and an exact-tree replay);
+  classify the JSON Schema as structural-only; make the exact-release TypeScript/generated
+  `validateWorkMigrationManifestV1` normative for semantic admission; and add re-signed adversarial
+  coverage for decision/apply-set drift and duplicate archive member paths.
+- **Adoption-tool sync verification:** DRIFT — both
+  `C:\code\.claude\skills\adopt-project\SKILL.md` and
+  `C:\code\.agents\skills\queue-adopt-project\SKILL.md` still name AO's legacy plan template. This
+  Repo Template repair does not edit Code-owned skills. `spencer-shadley/code#613` is the
+  accountable follow-up after the corrected release/canary gate.
+- **Success:** one ready fix-forward PR from exact current master, full Windows-native verify,
+  exact-head PR-native review with zero remaining scoped blockers, and squash merge of that same
+  head before `2026-07-29T07:45:00Z`. The corrected annotated tag and canary remain separately
+  governed effects and are not authorized by the merge handoff.
+- **Failure:** any scoped finding after this single repair, candidate regression, provenance
+  mismatch, or the immutable TTL at `2026-07-29T07:45:00Z` terminally stops the transaction. No
+  second repair or TTL extension is permitted.
 
 ## Preserved terminal receipt — attempt 034-R3
 
@@ -264,6 +291,8 @@ issues.
 
 - No mutation of any consumer repository, live plan corpus, archive, queue, GitHub issue, schedule,
   or runtime state.
+- No adoption-skill mutation; `spencer-shadley/code#613` owns synchronizing both surfaced skill
+  copies after the corrected release/canary gate.
 - No AO parser/enqueuer/drain implementation or AO corpus rewrite; `agent-orchestrator#2814` owns
   that consumer transaction after this immutable release.
 - No runtime-signal containment, drift-writer migration, or historical issue consolidation; AO

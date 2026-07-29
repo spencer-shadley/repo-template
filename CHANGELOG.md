@@ -6,6 +6,18 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+## [3.0.1] - 2026-07-28
+
+### Fixed
+
+- Classified the WorkMigrationManifest JSON Schema as structural-only and made the exact-release
+  TypeScript/generated validator normative for semantic admission. Adversarial re-signed fixtures
+  now prove bare AJV cannot authorize decision/apply-set drift or duplicate archive member paths.
+  Migration guidance explicitly excludes queue indexes and transient sidecars from plan-body
+  inventory, blocks the uncanaried `3.0.0` tag, and directs the canary to corrected `3.0.1`. PATCH.
+- Conserved the adoption-skill lifecycle drift under `spencer-shadley/code#613`; the external Code
+  skill repair remains separate and cannot expand this Repo Template correction. PATCH.
+
 ## [3.0.0] - 2026-07-28
 
 ### Fixed

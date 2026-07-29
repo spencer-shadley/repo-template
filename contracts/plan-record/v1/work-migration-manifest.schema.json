@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://spencer-shadley.github.io/repo-template/contracts/plan-record/v1/work-migration-manifest.schema.json",
   "title": "WorkMigrationManifestV1",
+  "$comment": "This Draft 2020-12 schema validates portable structure only. Full semantic admission MUST also pass validateWorkMigrationManifestV1 from the exact released TypeScript or generated artifact; bare JSON Schema validation cannot prove decisions-to-changedPaths projection equality, unique archive member paths, count closure, or digest recomputation.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "source", "schemaRelease", "decisions", "liveCounts", "archive", "changedPaths", "verification", "canary", "rollbackRef", "unclassifiedCount", "manifestSha256"],

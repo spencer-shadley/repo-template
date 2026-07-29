@@ -116,10 +116,13 @@ migration PR, or hotfix the template/canary and rerun the canary window from the
 
 ## PlanRecordV1 no-grandfather migration
 
-Template `3.0.0` replaces open-ended plan status prose with the portable contract in
-`contracts/plan-record/v1/`. This is a no-grandfather migration: inventory every top-level live
-`plans/*.md` record and give it exactly one `migrate` or `retire` decision. Halt before apply when
-any row is unclassified. Do not add another stored status to accommodate legacy prose.
+Template `3.0.1` supersedes the uncanaried `3.0.0` contract and replaces open-ended plan status
+prose with the portable contract in `contracts/plan-record/v1/`. This is a no-grandfather migration:
+inventory every top-level live path for which `isPlanBodyPathV1(path, "live")` returns true and give
+it exactly one `migrate` or `retire` decision. `plans/QUEUE.md`, `plans/README.md`, and
+`.log.md`/`.result.md`/`.critic.md`/`.feedback.md`/`.deadletter.md` sidecars are not plan bodies.
+Halt before apply when any row is unclassified. Do not add another stored status to accommodate
+legacy prose.
 
 Run the pure classifier offline first and persist a
 `work-migration-manifest/v1` dry-run receipt. A second run over identical source bytes must produce
@@ -133,6 +136,15 @@ is invalid. Every live decision path is a top-level `plans/*.md` path, never an 
 invalid. The archive receipt is inline, so it does not add a generated apply path. Record exact
 before/after counts; apply only that closed path set. Rollback is an ordinary revert to the recorded
 ref.
+
+The published Draft 2020-12 JSON Schema is the portable **structural** gate, not full admission.
+JSON Schema cannot express arbitrary equality between `decisions[].path` and `changedPaths`, unique
+archive-member paths when their blob digests differ, count closure, or digest recomputation. After
+structural validation, every consumer **must** call `validateWorkMigrationManifestV1` from the exact
+released TypeScript or generated artifact. That validator is normative for semantic closure; bare
+AJV success never authorizes apply. The validator rejects a re-signed decision/apply-set mismatch
+and re-signed duplicate archive paths even though a standards-compliant structural validator accepts
+their individual fields.
 
 Map evidence as follows:
 
@@ -169,10 +181,11 @@ preceded by an unsigned 64-bit big-endian byte length. SHA-256 of those concaten
 aggregate. Count, membership, ordering, and aggregate must independently recompute; archive bodies
 remain untouched.
 
-Adopt major `3.0.0` through the `gmail-markdown` canary first. Its verify surface remains the
-smallest applicable managed leaf surface at this release. Do not begin fleet rollout until its
-migration merges, verifies, and satisfies the major-version observation gate above. AO runtime
-adaptation and corpus mutation belong to `agent-orchestrator#2814`, not to this template release.
+Adopt corrected release `3.0.1` through the `gmail-markdown` canary first; do not canary the
+superseded `3.0.0` tag. Its verify surface remains the smallest applicable managed leaf surface at
+this release. Do not begin fleet rollout until its migration merges, verifies, and satisfies the
+major-version observation gate above. AO runtime adaptation and corpus mutation belong to
+`agent-orchestrator#2814`, not to this template release.
 
 ## Enrollment proof
 

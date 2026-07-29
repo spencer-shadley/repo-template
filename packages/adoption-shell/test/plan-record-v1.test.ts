@@ -8,6 +8,7 @@ import type { AnySchema } from "ajv";
 import type { FormatsPlugin } from "ajv-formats";
 
 import { canonicalizeJson } from "../src/canonical-json.ts";
+import { sha256Bytes } from "../src/digest.ts";
 import {
   classifyPlanRecordV1,
   planRecordTransitionReasonV1,
@@ -57,6 +58,7 @@ const ajv = new Ajv2020({
 addFormats(ajv);
 const validatePlanRecordSchema = ajv.compile(planRecordSchema);
 const validateMigrationManifestSchema = ajv.compile(migrationManifestSchema);
+const encoder = new TextEncoder();
 
 function fixture(name: string): ClassificationFixture {
   const found = cases.find((row) => row.name === name);
@@ -110,6 +112,14 @@ function manifestInput() {
     canary: { repository: "gmail-markdown", state: "pending" as const },
     rollbackRef: "refs/tags/v2.6.0",
     unclassifiedCount: 0 as const,
+  };
+}
+
+function signManifest(candidate: Record<string, unknown>): Record<string, unknown> {
+  const { manifestSha256: _discarded, ...body } = candidate;
+  return {
+    ...body,
+    manifestSha256: sha256Bytes(encoder.encode(canonicalizeJson(body))),
   };
 }
 
@@ -476,6 +486,45 @@ test("manifest rejects unclassified rows, archive live targets, apply-set drift,
   };
   assert.equal(validateMigrationManifestSchema(structurallyWrong), false);
   assert.equal(validateWorkMigrationManifestV1(structurallyWrong), false);
+});
+
+test("manifest JSON Schema is structural; normative runtimes enforce cross-field closure", () => {
+  const manifest = createWorkMigrationManifestV1(manifestInput());
+  assert.equal(validateMigrationManifestSchema(manifest), true);
+  assert.equal(validateWorkMigrationManifestV1(manifest), true);
+  assert.equal(validateGeneratedWorkMigrationManifestV1(manifest), true);
+
+  const changedPathMismatch = signManifest({
+    ...manifest,
+    changedPaths: ["plans/999-other.md"],
+  });
+  assert.equal(validateMigrationManifestSchema(changedPathMismatch), true);
+  assert.equal(validateWorkMigrationManifestV1(changedPathMismatch), false);
+  assert.equal(validateGeneratedWorkMigrationManifestV1(changedPathMismatch), false);
+
+  const duplicateMembers = [
+    manifest.archive.members[0]!,
+    {
+      ...manifest.archive.members[1]!,
+      path: manifest.archive.members[0]!.path,
+    },
+  ];
+  const aggregateSha256 = archiveAggregateSha256V1(duplicateMembers);
+  const duplicateArchivePath = signManifest({
+    ...manifest,
+    archive: {
+      ...manifest.archive,
+      members: duplicateMembers,
+      aggregateSha256,
+      dispositions: [{
+        ...manifest.archive.dispositions[0]!,
+        aggregateSha256,
+      }],
+    },
+  });
+  assert.equal(validateMigrationManifestSchema(duplicateArchivePath), true);
+  assert.equal(validateWorkMigrationManifestV1(duplicateArchivePath), false);
+  assert.equal(validateGeneratedWorkMigrationManifestV1(duplicateArchivePath), false);
 });
 
 test("generated primitive cases keep manifest schema and runtime fail-closed", () => {

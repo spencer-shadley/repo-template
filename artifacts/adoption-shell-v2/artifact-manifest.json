@@ -626,8 +626,8 @@
       "path": "contracts/plan-record/v1/work-migration-manifest.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "21c9ff37fa68238c33c619a30d0b6a9263960b7205e465919c166aa34a0ada50",
-      "bytes": 8159
+      "sha256": "e1ca7bf548dbfac323df9e6211b30e9cc230d8dbf951100f5c557967009adccb",
+      "bytes": 8523
     },
     {
       "path": "plans/drafts/000-smoke.md",
@@ -793,5 +793,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "9b7e708df9a1bc48515f23751de15096b7c539e2dfa37e6722e830c5526c7c13"
+  "manifestDigest": "20d10d53c28780fe435020b9715428f96a55384d5afc21d4d246d5579948a20c"
 }
