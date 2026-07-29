@@ -189,3 +189,18 @@ adaptation and corpus mutation belong to `agent-orchestrator#2814`, not to this 
 
 Finish migration by running the smoke plan at `plans/drafts/000-smoke.md`. The smoke plan proves the
 repo can enter the queue, run the expected lightweight checks, and archive cleanly.
+
+## LocalCiContractV2 migration and rollback
+
+`LocalCiContractV2` standardizes machine-readable local CI contracts across the fleet:
+
+1. **Migration path:**
+   - Repositories migrating from legacy V1 shapes (`model-gateway-v1` or `repo-factory-v1`) use `classifyAndMigrateLegacyLocalCiV1(rawInput, sourceBlob)`.
+   - Migration is pure and deterministic: legacy fields translate to closed V2 command, environment, and effect fields without heuristic field guessing.
+   - The source blob SHA-256 digest is retained in the disposition receipt for auditability.
+   - If a legacy contract is incomplete, malformed, or contradictory, the migrator returns `disposition: "rejected"` with a typed reason code, causing the consumer to fail closed as **non-routable**.
+
+2. **Rollback path:**
+   - Because `LocalCiContractV2` is a producer-side schema release and does not mutate consumer repositories directly, rollback of candidate adoption in a consumer repository requires reverting the consumer's adoption commit to its pre-migration state.
+   - Candidate contract versions remain immutable; new candidate identities are issued for repairs rather than mutating existing release receipts or tags.
+

@@ -17,3 +17,5 @@ export { classifyPlanRecordV1, isPlanBodyPathV1, planRecordTransitionReasonV1, P
 export type { LegacyReasonCode, MigrateReasonCode, PlanRecordDecision, PlanRecordStatus, PlanRecordTransitionReasonCode, PlanRecordV1, RetireReasonCode, } from "./plan-record-v1.ts";
 export { ARCHIVE_AGGREGATE_ALGORITHM_V1, archiveAggregateSha256V1, createWorkMigrationManifestV1, validateWorkMigrationManifestV1, } from "./work-migration-manifest-v1.ts";
 export type { ArchiveMemberV1, WorkMigrationDecisionV1, WorkMigrationManifestV1, } from "./work-migration-manifest-v1.ts";
+export { LOCAL_CI_CONTRACT_V2_ID, LOCAL_CI_CONTRACT_V2_SCHEMA_ID, LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION, classifyAndMigrateLegacyLocalCiV1, validateLocalCiContractV2, } from "./local-ci-contract-v2.ts";
+export type { LegacyLineageKind, LegacyLocalCiDisposition, LocalCiCommandV2, LocalCiContractV2, LocalCiEffectsV2, LocalCiEnvironmentV2, LocalCiFailureDisposition, LocalCiNetworkExpectation, LocalCiPackageManagerConstraint, LocalCiRuntimeConstraint, LocalCiShell, } from "./local-ci-contract-v2.ts";

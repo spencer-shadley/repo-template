@@ -18,6 +18,7 @@ audit, the autonomous loop) rely on these paths.
 | `docs/OBSERVABILITY.md` | what we log/measure and where to look |
 | `.ops/README.md` | incident stream schema and append rules |
 | `.ops/incidents.jsonl` | machine incident stream (appears lazily; append-only; weekly-rotated) |
+| `contracts/local-ci/v2/` | versioned machine-readable LocalCiContractV2 schema and fixtures |
 | `model-boundary.json` | machine-readable model boundary: gateway, provider-specific exceptions, owner |
 | `.user-surface-lint.json` | configured user-facing source globs and justified allowlist for developer-leak lint |
 | `.user-surface-lint.schema.json` | schema for the user-surface leak lint config |

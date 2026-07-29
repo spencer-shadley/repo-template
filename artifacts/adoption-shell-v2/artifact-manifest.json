@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "1fcf9731a57316e042174c35c4861925b95b3d3a2c16ee39c4eabafcab62a5c1",
+  "artifactDigest": "65e17781265b195b8899a4d05a74997e1ffe19b0d4a8086f883ff50c60661f05",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -35,8 +35,8 @@
       "path": "packages/adoption-shell/src/contract.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "94dfff2455dc27ac7a243304757ae7fcfcdce91b0afa432f8f3aa6ab8cdb3e54",
-      "bytes": 10199
+      "sha256": "a9b1b7147a1ea8440d3127f0e96885adc0e9fbca2debc759c2902f8398c35e9a",
+      "bytes": 10395
     },
     {
       "path": "packages/adoption-shell/src/delivery-measurement-contract.ts",
@@ -70,8 +70,15 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "82a4aa89b45a70a3ede426e4c5b313df2e4e732744a3ade0e39981c5abad7ba6",
-      "bytes": 3139
+      "sha256": "df1df3759663071b0d76e870f7498d25c5ccc1a55c6eb9bcf88bf4bf221f3115",
+      "bytes": 3672
+    },
+    {
+      "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "26a2fb51e19465f9670b360d4864ab8cbc924bdccca68fa06e1141763d7ae122",
+      "bytes": 15110
     },
     {
       "path": "packages/adoption-shell/src/materialize.ts",
@@ -267,15 +274,15 @@
       "path": "contract.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d5c35cbcdacbf2fe70cf0462f918c1dd7556f3a2b378d4d9de980909c3fcacbc",
-      "bytes": 10515
+      "sha256": "f3d932821459c7beb67d73596eb4fccd3331e00982d648f14f67487b277db141",
+      "bytes": 10729
     },
     {
       "path": "contract.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "265fb3ab7d4ead53b48d05587edca64074922304ddfc23beeb255768e6af6e4d",
-      "bytes": 2911
+      "sha256": "d7b7219f10e68553e7f4a7c1ab79db4b620ec73d62d90f9c29bb0bbb1eb405f9",
+      "bytes": 3107
     },
     {
       "path": "delivery-measurement-contract.d.ts",
@@ -337,15 +344,29 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7bfab679cff542080c721917f07d416a85ac7ae727a52456d37d752864d5b024",
-      "bytes": 2961
+      "sha256": "15f4736b8379e8e84477e896d0bdf9988a79f64194cbc4caf6e0eec1f32f907e",
+      "bytes": 3461
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "527c5e1d1fc47aa0ac8b6eae1ff63647a90fa65d42ed5415d7505e5877f3b4c5",
-      "bytes": 2003
+      "sha256": "f19a64beba493025110a864ac51bb82bcb3cc112e13a41fe371afc4ffcafe824",
+      "bytes": 2204
+    },
+    {
+      "path": "local-ci-contract-v2.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a89c2e89cabe1b1f9ef78d6305652b5ff0377a066321d0b37042e266a1c81b85",
+      "bytes": 3190
+    },
+    {
+      "path": "local-ci-contract-v2.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f1c5ed5bd2d8d42a237f8da8c41ce79f19571c5d3116e60e370b4cfeb7a11a9f",
+      "bytes": 13539
     },
     {
       "path": "materialize.d.ts",
@@ -595,6 +616,90 @@
       "bytes": 42934
     },
     {
+      "path": "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "5b07afd38c5fcc3cad8157f53acaa2e249bacec1ce0754d16643e70c3e7c9f89",
+      "bytes": 1634
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "0102ff79a8d3ab38ca7526df10aa6af4e17a8a0bd4aa0eaeaf7c89966b16a656",
+      "bytes": 1340
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-incomplete-env.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "014495f864f4022152b701c88728b344a6282ee83ebf7094e3f20e353857e685",
+      "bytes": 1228
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-malformed.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "4eca61b85dcb2249c8e4c657bb09ed8e07723a0445e25367648cac0e7ffda967",
+      "bytes": 336
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-missing-field.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "71c6a1e1a68768cc0757942431f6a1e5f1a3a0bb400659c4a6d8653bd20a80f5",
+      "bytes": 967
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-no-authoritative-gate.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e71995700eaebcfc0371a1be457d8d11c830ade90bc132e4b6e38f5c3a9eb30f",
+      "bytes": 1301
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-unsupported-version.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "11859e45edc531ecc5019d10fd7b0cfd94c8cfaf7b0546ea6ef92fa565f58b94",
+      "bytes": 1308
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/legacy-invalid-v1.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "c22e2b6468355d31d2be9beca0f2a45f695854cc0ea906ffc6b452f638c06d64",
+      "bytes": 91
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/legacy-model-gateway-v1.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "8c91ca5d1e47b60691cc5222d372594f13cda09764770c51b3414a1428b36dc1",
+      "bytes": 364
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/legacy-repo-factory-v1.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "c8a15bace6b2749bdb632c0b88c1f18b6fe858cb1ff610b6bc46d57837132690",
+      "bytes": 175
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "82d976e5d4aa7ca9b86db812a2dfec3e2d7e2610a9f7e9efd6fb4765d4332da2",
+      "bytes": 2001
+    },
+    {
+      "path": "contracts/local-ci/v2/local-ci-contract-v2.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a8f34f07e1598f80e4294a2250c4bb34a5dcc22ec57a017ef42b82a19815d63f",
+      "bytes": 5565
+    },
+    {
       "path": "contracts/plan-record/v1/fixtures/classification-cases.json",
       "kind": "file",
       "mode": "100644",
@@ -761,7 +866,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "5a9b460efef4cf6808229f187c7769b1bf6887298165451fb5672f328c7a076f",
+      "sha256": "e167e5d75dca1b935e46aad16002a3c5d1c24de531a659b4a4a682002054c28d",
       "bytes": 876
     },
     {
@@ -793,5 +898,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "9b7e708df9a1bc48515f23751de15096b7c539e2dfa37e6722e830c5526c7c13"
+  "manifestDigest": "4b6ff731cdd6a0c28fdffbb7225273e4289ca77bafcc465fcf16f8fa5862c6cf"
 }
