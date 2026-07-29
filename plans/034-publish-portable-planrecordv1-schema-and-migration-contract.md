@@ -2,11 +2,59 @@
 
 - **Project:** repo-template
 - **Branch:** feat/034-publish-portable-planrecordv1-schema-and-migration-contract
-- **Status:** ready for codex
+- **Status:** hold - PR #98 exact-head review; retry:review-result owner:root by:2026-07-29T06:00:00Z
 - **Requeue-reason:** verify-failed: use Windows-native corepack.cmd under the shared no-path-conversion verify environment
 - **Priority:** P1
 - **Issue:** repo-template#97
 - **Effort:** high
+
+## Exit contract — attempt 034-R3
+
+- **attemptId:** `034-R3`
+- **candidatePr:** [#98](https://github.com/spencer-shadley/repo-template/pull/98)
+- **candidateHead:** `3b96d25e768c09d5ec53aaba7dc0ebf7e6062dac` is the preserved
+  substantive source head at R3 entry. The plan-only control successor pushed to the same PR is the
+  exact head that must be reviewed and is bound by the PR review receipt.
+- **currentBase:** `4ed1eb5ef676894df4991c85047eb7fdad93ed5e`
+- **reviewDeadlineAt:** `2026-07-29T05:15:00Z`
+- **deadlineAt:** `2026-07-29T06:00:00Z`
+- **maxRepairRounds:** `1`
+- **repairRoundsUsed:** `0/1`
+- **Candidate receipt:** substantive commits
+  `905f312705ced036f13129809dbb67033de0646c`,
+  `a10e0817e9bf349742de9b8350268151e3fa9034`,
+  `80e1dcf8f0266c04baf217426d1e6f3e78fd594f`, and
+  `3b96d25e768c09d5ec53aaba7dc0ebf7e6062dac` are preserved. The approved Windows-native
+  `corepack.cmd pnpm verify` gate passed `54/54`, including typecheck, reproducible build, artifact
+  verification, and template self-check; R3 does not rerun or overclaim a new full-suite receipt
+  for this plan-only control amendment.
+- **Success exit:** the existing Windows-native `corepack.cmd` Verify gate evidence remains valid
+  for the unchanged substantive candidate; the plan-only control successor is pushed to PR #98 by
+  `reviewDeadlineAt`; an independent reviewer reviews that exact PR head directly on GitHub and
+  records a scope-bound terminal `APPROVE`; and that exact approved head merges by `deadlineAt`.
+- **Review cycle:** the four existing substantive commits and every local or pre-PR review are
+  advisory evidence only. R3 begins at repair `0/1` and requires independent exact-head review on
+  PR #98; any permitted repair is one implementer commit/push responding to the compiled blocking
+  findings on that head, followed by exact-head re-review on the PR.
+- **Blocking findings:** only an unmet approved acceptance criterion, a candidate-introduced or
+  worsened regression, candidate scope escape or drive-by work, or a materially false
+  safety/verification/acceptance claim may block. Every unrelated, pre-existing, or newly desired
+  finding is scope creep: conserve it as a governed GitHub issue with evidence, owner, priority, and
+  dedupe receipt. Such a finding cannot expand this plan or PR, consume a repair round, delay
+  approval, or extend either deadline.
+- **Terminal failure:** the first observation at or after `deadlineAt`; no exact-head terminal
+  review by `reviewDeadlineAt`; origin/base movement or writer-custody collision; invalidation of
+  the existing `corepack.cmd` gate evidence by a substantive candidate change; inability to publish
+  or review the exact PR head; a permitted repair that does not restore the approved acceptance
+  contract; or exhaustion of repair `1/1`. TTL is failure and is never extended.
+- **Failure conservation:** stop mutation; preserve the PR, branch, exact head/tree, four substantive
+  commits, plan-control commit, gate and review evidence, and the unchanged paused-human-review
+  sentinel. Atomically retain Plan 034 outside `plans/QUEUE.md` in a tracked §22-valid terminal hold
+  owned by `repo-template#97` with a live manual revisit trigger, record the terminal receipt, and
+  release all writer/review/merge custody. R3 and its review lineage may not resume unchanged.
+- **Effect boundary:** plan-control commit, same-branch push, PR metadata refresh, exact-head PR
+  review, and merge only. No new PR, source executor, branch reset, candidate discard, queue drain,
+  runtime/deployment effect, pause removal, or external issue is part of this control amendment.
 
 ## Approval provenance
 
