@@ -1635,7 +1635,7 @@
         "contractId": "repo-template/adoption-shell-v2",
         "digestAlgorithm": "sha256-rfc8785-v1",
         "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-        "payloadDigest": "9a0cee80d3c6a8da3cf1e67d53e70d1599df6ab1cb17c19deafcb48513e9b44a",
+        "payloadDigest": "85dc253d8d3b00091da981828dc557795708eef5a981634b3858e388d3d7d1ad",
         "entryCount": 19,
         "migrationRefs": [],
         "entries": [
@@ -1643,11 +1643,11 @@
             "path": ".user-surface-lint.json",
             "kind": "file",
             "mode": "100644",
-            "contentSha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
+            "contentSha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
             "role": "capability-config",
             "encoding": "utf-8",
             "bundleId": "repo-template/user-surface-lint",
-            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQ0K"
+            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQo="
           },
           {
             "path": ".user-surface-lint.schema.json",
@@ -1830,7 +1830,7 @@
             "contentBase64": "ZXhwb3J0IGZ1bmN0aW9uIGhhbmRsZVdpdGhFcnIocmVzKSB7CiAgdHJ5IHsKICAgIHRocm93IG5ldyBFcnJvcignYm9vbScpOwogIH0gY2F0Y2ggKGVycikgewogICAgcmVzLnNlbmQoZXJyLnN0YWNrKTsKICB9Cn0KCmV4cG9ydCBmdW5jdGlvbiBoYW5kbGVXaXRoRShyZXMpIHsKICB0cnkgewogICAgdGhyb3cgbmV3IEVycm9yKCdib29tJyk7CiAgfSBjYXRjaCAoZSkgewogICAgcmVzLmpzb24oZS5zdGFjayk7CiAgfQp9Cg=="
           }
         ],
-        "releaseDigest": "fde0ab8aa2acaadc1a7c23a059cbc04aaa14e1db1c01a534aafe097836f2c50f"
+        "releaseDigest": "3fd9d951a8a74e5fb864cbf2cd37740f9368724fbe6dbc6079a137294e18f12d"
       },
       "capabilities": {
         "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
@@ -1938,7 +1938,7 @@
         "contractId": "repo-template/adoption-shell-v2",
         "digestAlgorithm": "sha256-rfc8785-v1",
         "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-        "payloadDigest": "764347cb9481e1e974c4abb7fe3e79481d7a11056c1f8c85c90af24e5e3a4fcf",
+        "payloadDigest": "0c544b12afb78817697db7ee376cff75d871272c834b5c14e700f6310783ecd4",
         "entryCount": 19,
         "migrationRefs": [],
         "entries": [
@@ -1946,11 +1946,11 @@
             "path": ".user-surface-lint.json",
             "kind": "file",
             "mode": "100644",
-            "contentSha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
+            "contentSha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
             "role": "capability-config",
             "encoding": "utf-8",
             "bundleId": "repo-template/user-surface-lint",
-            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQ0K"
+            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQo="
           },
           {
             "path": ".user-surface-lint.schema.json",
@@ -2133,7 +2133,7 @@
             "contentBase64": "ZXhwb3J0IGZ1bmN0aW9uIGhhbmRsZVdpdGhFcnIocmVzKSB7CiAgdHJ5IHsKICAgIHRocm93IG5ldyBFcnJvcignYm9vbScpOwogIH0gY2F0Y2ggKGVycikgewogICAgcmVzLnNlbmQoZXJyLnN0YWNrKTsKICB9Cn0KCmV4cG9ydCBmdW5jdGlvbiBoYW5kbGVXaXRoRShyZXMpIHsKICB0cnkgewogICAgdGhyb3cgbmV3IEVycm9yKCdib29tJyk7CiAgfSBjYXRjaCAoZSkgewogICAgcmVzLmpzb24oZS5zdGFjayk7CiAgfQp9Cg=="
           }
         ],
-        "releaseDigest": "fbbbea83754f0049ece5ddda0995d75f5c2b6a7956e491805335d2375aaedc7a"
+        "releaseDigest": "a6731b4ff87902d2206f0fd23b36149b4b399ad9290a8d498ac928fb473b8842"
       },
       "capabilities": {
         "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
@@ -2241,7 +2241,7 @@
         "contractId": "repo-template/adoption-shell-v2",
         "digestAlgorithm": "sha256-rfc8785-v1",
         "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-        "payloadDigest": "525c1bb1ba1562f47fb7fbdcca05a8d77dc134dc1520f92eafd9a077dca95d75",
+        "payloadDigest": "5fbaac3ff36d00d410d42582b9f8b9580c463090ad24910af755bd6ce37d9e8f",
         "entryCount": 19,
         "migrationRefs": [],
         "entries": [
@@ -2249,11 +2249,11 @@
             "path": ".user-surface-lint.json",
             "kind": "file",
             "mode": "100644",
-            "contentSha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
+            "contentSha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
             "role": "capability-config",
             "encoding": "utf-8",
             "bundleId": "repo-template/user-surface-lint",
-            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQ0K"
+            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQo="
           },
           {
             "path": ".user-surface-lint.schema.json",
@@ -2436,7 +2436,7 @@
             "contentBase64": "ZXhwb3J0IGZ1bmN0aW9uIGhhbmRsZVdpdGhFcnIocmVzKSB7CiAgdHJ5IHsKICAgIHRocm93IG5ldyBFcnJvcignYm9vbScpOwogIH0gY2F0Y2ggKGVycikgewogICAgcmVzLnNlbmQoZXJyLnN0YWNrKTsKICB9Cn0KCmV4cG9ydCBmdW5jdGlvbiBoYW5kbGVXaXRoRShyZXMpIHsKICB0cnkgewogICAgdGhyb3cgbmV3IEVycm9yKCdib29tJyk7CiAgfSBjYXRjaCAoZSkgewogICAgcmVzLmpzb24oZS5zdGFjayk7CiAgfQp9Cg=="
           }
         ],
-        "releaseDigest": "0c47326d435ad55b233fbc9e73f3840695692f130f9b93e808656f2e8d01b49c"
+        "releaseDigest": "fca5b75c45e7ebdafed03ccdd100cd4978a2f712a79ee3ced17649532a421675"
       },
       "capabilities": {
         "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
@@ -2654,7 +2654,7 @@
         "contractId": "repo-template/adoption-shell-v2",
         "digestAlgorithm": "sha256-rfc8785-v1",
         "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-        "payloadDigest": "29d24351f5b1b5d693ae30b5f40c0ff51bc2f13284b46f5b208d769a4ec214c5",
+        "payloadDigest": "cad684cc2967efdfc3689e28b889bc95032005d417de04a07e1e2354ef3e744e",
         "entryCount": 20,
         "migrationRefs": [],
         "entries": [
@@ -2662,11 +2662,11 @@
             "path": ".user-surface-lint.json",
             "kind": "file",
             "mode": "100644",
-            "contentSha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
+            "contentSha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
             "role": "capability-config",
             "encoding": "utf-8",
             "bundleId": "repo-template/user-surface-lint",
-            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQ0K"
+            "contentBase64": "ewogICIkc2NoZW1hIjogIi4vLnVzZXItc3VyZmFjZS1saW50LnNjaGVtYS5qc29uIiwKICAidXNlclN1cmZhY2UiOiAibm9uZSIsCiAgImluY2x1ZGUiOiBbXSwKICAiYWxsb3dsaXN0IjogW10KfQo="
           },
           {
             "path": ".user-surface-lint.schema.json",
@@ -2859,7 +2859,7 @@
             "contentBase64": "ZXhwb3J0IGZ1bmN0aW9uIGhhbmRsZVdpdGhFcnIocmVzKSB7CiAgdHJ5IHsKICAgIHRocm93IG5ldyBFcnJvcignYm9vbScpOwogIH0gY2F0Y2ggKGVycikgewogICAgcmVzLnNlbmQoZXJyLnN0YWNrKTsKICB9Cn0KCmV4cG9ydCBmdW5jdGlvbiBoYW5kbGVXaXRoRShyZXMpIHsKICB0cnkgewogICAgdGhyb3cgbmV3IEVycm9yKCdib29tJyk7CiAgfSBjYXRjaCAoZSkgewogICAgcmVzLmpzb24oZS5zdGFjayk7CiAgfQp9Cg=="
           }
         ],
-        "releaseDigest": "cb55d878dec3b1027b17f2fc835388b798619d37795a5b496275093e3ed850a6"
+        "releaseDigest": "f675e1eef8ad3e32bca706f13b72a6b4ddc86952e356afa918bf51daf7bdecae"
       },
       "capabilities": {
         "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",

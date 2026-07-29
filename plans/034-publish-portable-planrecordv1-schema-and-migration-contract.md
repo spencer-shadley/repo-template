@@ -1,14 +1,83 @@
 # Plan 034: Publish portable PlanRecordV1 schema and migration contract
 
 - **Project:** repo-template
-- **Branch:** feat/034-publish-portable-planrecordv1-schema-and-migration-contract
-- **Status:** hold - terminal R3 repair exhausted; retry:manual owner:repo-template-97 by:2026-07-30
-- **Requeue-reason:** verify-failed: use Windows-native corepack.cmd under the shared no-path-conversion verify environment
+- **Branch:** codex/issue-97-planrecordv1-release
+- **Status:** implementing - fresh R4 issue-authorized release candidate; not queued
 - **Priority:** P1
 - **Issue:** repo-template#97
 - **Effort:** high
 
-## Exit contract — attempt 034-R3
+## Exit contract — attempt 034-R4
+
+- **attemptId:** `034-R4`
+- **Authority:** [repo-template#97](https://github.com/spencer-shadley/repo-template/issues/97)
+  remains the accountable P1 owner. R4 is a fresh candidate transaction from current
+  `origin/master`; it does not reopen or resume R3, PR #98, or any exhausted Plan 034 repair cycle.
+- **currentBase:** `657b75df86d8f999fbd8fb942acd211211763f47`
+- **salvageSource:** closed-unmerged PR #98 exact head
+  `e38d81bfff0d0f278597b50e41424651909408da`; only its reviewed non-control 32-path source surface
+  is replayed. Every retained Plan 034 worktree and branch remains immutable recovery evidence.
+- **candidateBranch:** `codex/issue-97-planrecordv1-release`
+- **readyPrDeadlineAt:** `2026-07-29T07:00:00Z`
+- **deadlineAt:** `2026-07-29T07:45:00Z`
+- **maxRepairRounds:** `1`
+- **repairRoundsUsed:** `0/1`
+- **Success exit for this transaction:** the exact 32-path candidate fixes
+  `UNKNOWN_SCHEMA_VERSION` through classifier output, TypeScript manifest construction and
+  validation, JSON Schema validation, generated artifact validation, and a focused integration
+  test; a deterministic second run and full Windows-native `corepack.cmd pnpm verify` pass; the
+  candidate is committed and pushed from the exact current base; and a ready PR records exact
+  base/head/tree/check/no-effect receipts by `readyPrDeadlineAt`. The writer then stops for
+  independent exact-head PR review without merging or tagging.
+- **Review cycle:** `implement → verify → commit → push → ready PR → independent exact-head PR
+  review → at most one compiled repair commit/push → exact-head re-review`. Findings live directly
+  on the PR, inline where useful. R4 has one repair round total; multiple findings or reviewers on
+  one exact head compile into that single round.
+- **Blocking findings:** only an unmet approved acceptance criterion, a candidate-introduced or
+  worsened regression, candidate scope escape or drive-by work, or a materially false
+  safety/verification/acceptance claim may block. Unrelated, pre-existing, or newly desired work is
+  scope creep and becomes a separately governed issue or advisory; it cannot expand this
+  candidate, consume a repair round, delay approval, or extend either deadline.
+- **Terminal failure:** the first observation at or after `deadlineAt`; no ready PR by
+  `readyPrDeadlineAt`; default-branch movement or writer collision before push; any changed path
+  outside the exact allowlist; failure of focused acceptance, deterministic generation, or full
+  Verify; inability to push/open the exact ready PR; a permitted repair that fails to restore the
+  acceptance contract; or any blocking finding after repair `1/1`. TTL is terminal and is never
+  extended.
+- **Failure conservation:** stop mutation and preserve the exact base, branch, head/tree, diff,
+  checks, PR if opened, and retained predecessor worktrees. Issue #97 remains the live §22 owner
+  with the terminal receipt and a new attempt requires explicit fresh re-grounding; no queue row,
+  merge, tag, or source reset is synthesized.
+- **Effect boundary:** one fresh isolated worktree, repo-local source/test/generated/doc changes,
+  one commit, branch push, and ready-PR metadata. External runtime effects are zero. No merge, tag,
+  release publication, canary, AO consumer/corpus work, fleet import, activation, cutover, queue
+  mutation, breaker change, or consumer-repo mutation is authorized. Version `3.0.0` is prepared
+  only; issue #97 stays open until the separately governed canary exists.
+- **Exact path allowlist (32):** `CHANGELOG.md`; `PLAN_TEMPLATE.md`; `README.md`;
+  `TEMPLATE_VERSION`; `artifacts/adoption-shell-v2/artifact-manifest.json`;
+  `artifacts/adoption-shell-v2/index.d.ts`; `artifacts/adoption-shell-v2/index.js`;
+  `artifacts/adoption-shell-v2/plan-record-v1.d.ts`;
+  `artifacts/adoption-shell-v2/plan-record-v1.js`;
+  `artifacts/adoption-shell-v2/work-migration-manifest-v1.d.ts`;
+  `artifacts/adoption-shell-v2/work-migration-manifest-v1.js`;
+  `contracts/adoption-shell-v2/fixtures/negative-inputs.json`;
+  `contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json`;
+  `contracts/adoption-shell-v2/golden/deterministic-receipt.json`;
+  `contracts/plan-record/v1/fixtures/classification-cases.json`;
+  `contracts/plan-record/v1/plan-record.example.json`;
+  `contracts/plan-record/v1/plan-record.schema.json`;
+  `contracts/plan-record/v1/work-migration-manifest.example.json`;
+  `contracts/plan-record/v1/work-migration-manifest.schema.json`; `docs/MIGRATION.md`;
+  `package.json`; `packages/adoption-shell/src/index.ts`;
+  `packages/adoption-shell/src/plan-record-v1.ts`;
+  `packages/adoption-shell/src/work-migration-manifest-v1.ts`;
+  `packages/adoption-shell/test/plan-body-paths-v1.test.ts`;
+  `packages/adoption-shell/test/plan-record-v1.test.ts`;
+  `plans/034-publish-portable-planrecordv1-schema-and-migration-contract.md`;
+  `plans/drafts/000-smoke.md`; `pnpm-lock.yaml`; `template-manifest.json`;
+  `tools/artifact-build.ts`; `tools/verify-template-self.ts`. `plans/QUEUE.md` is forbidden.
+
+## Preserved terminal receipt — attempt 034-R3
 
 - **attemptId:** `034-R3`
 - **candidatePr:** [#98](https://github.com/spencer-shadley/repo-template/pull/98)
@@ -264,58 +333,3 @@ test "$(tr -d '\r\n ' < TEMPLATE_VERSION)" = "3.0.0"
 
 - 2026-07-28T22:29:10.196Z verify-failed (manual): use Windows-native corepack.cmd under the shared no-path-conversion verify environment
 - 2026-07-28T22:17:12.965Z manual (manual): scrub forbidden supervisor model authority before independent critic retry
-
-## Terminal failure receipt — attempt 034-R3
-
-- **attemptId:** `034-R3`
-- **terminalOutcome:** `FAILURE` — exact-head review blocked after repair `1/1`; no second source
-  repair is authorized.
-- **observedAt:** `2026-07-29T04:18:21Z`
-- **reviewDeadlineAt:** `2026-07-29T05:15:00Z`
-- **deadlineAt:** `2026-07-29T06:00:00Z`
-- **controlReadyDeadlineAt:** `2026-07-29T05:30:00Z`
-- **conservationDeadlineAt:** `2026-07-29T06:00:00Z`; this TTL is immutable and cannot be
-  extended.
-- **currentBase:** `4ed1eb5ef676894df4991c85047eb7fdad93ed5e`
-- **blockedPr:** [#98](https://github.com/spencer-shadley/repo-template/pull/98)
-- **blockedHead:** `e38d81bfff0d0f278597b50e41424651909408da`
-- **blockedTree:** `b7c1799efe6101c46e18629c337d9bef36e2dacd`
-- **terminalReview:** exact-head
-  [review 4803919796](https://github.com/spencer-shadley/repo-template/pull/98#pullrequestreview-4803919796)
-  returned terminal `BLOCK` because the new `UNKNOWN_SCHEMA_VERSION` retirement reason is absent
-  from `WorkMigrationManifestV1` runtime validation, generated runtime, and JSON Schema; the
-  classifier-to-manifest integration repro therefore throws instead of producing a valid
-  migrate-or-retire manifest row.
-- **Review lineage:** the first exact-head review was
-  [4803862406](https://github.com/spencer-shadley/repo-template/pull/98#pullrequestreview-4803862406).
-  Its compiled inline findings were
-  [future-version fail-closed](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878990),
-  [post-merge tag receipt](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878993),
-  and [manifest differential](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670878996).
-  Repair `1/1` produced the blocked head above; the exact-head re-review's remaining integration
-  blocker is
-  [discussion 3670924380](https://github.com/spencer-shadley/repo-template/pull/98#discussion_r3670924380).
-- **Verification caveat:** fresh Windows-native install and full Verify passed `55/55`, typecheck,
-  reproducible build/check, artifact verification, user-surface checks, and template self-check on
-  the blocked head. The suite lacks the classifier-to-`WorkMigrationManifestV1` integration case,
-  so that green receipt does not prove the failed accepted integration contract.
-- **Repair disposition:** repair `1/1` is consumed and exhausted. The new integration blocker
-  requires a separately re-grounded attempt with a new exit contract; R3 and its review lineage
-  may not resume or expand.
-- **Effects:** no merge, `v3.0.0` tag creation or push, release publication, runtime, deployment,
-  queue execution, source reset, or candidate discard occurred. PR #98 remains open and the remote
-  branch `feat/034-publish-portable-planrecordv1-schema-and-migration-contract` remains preserved at
-  exact head `e38d81bfff0d0f278597b50e41424651909408da` with all source, gate, review, and reply evidence.
-- **Conserved destination:** parser-valid manual owner `repo-template-97`;
-  [repo-template#97](https://github.com/spencer-shadley/repo-template/issues/97) is the §22 issue
-  successor, due `2026-07-30`. The terminal receipt is posted there and on PR #98 without closing
-  the issue or blocked PR.
-- **Queue disposition:** the exact Plan 034 row is removed atomically with this tracked terminal
-  receipt; no queue executor is started.
-- **Pause disposition:** the ignored canonical `plans/034.paused` paused-human-review sentinel is
-  preserved byte-for-byte and remains in force through the terminal control merge. This control
-  transaction does not edit or remove it; post-merge pause release requires the coordinator's
-  landed-control readback.
-- **Control scope/custody:** only this Plan 034 body and `plans/QUEUE.md` may differ from
-  `origin/master`. The control writer stops after the two-path commit, push, ready PR publication,
-  and immutable comments, then releases all writer/commit/push/PR-metadata custody.
