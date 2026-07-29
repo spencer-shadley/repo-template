@@ -114,6 +114,66 @@ Block the fleet rollout immediately, open a P1 issue against repo-template with 
 incident or verify evidence, then choose one recovery path before retrying: revert the canary
 migration PR, or hotfix the template/canary and rerun the canary window from the beginning.
 
+## PlanRecordV1 no-grandfather migration
+
+Template `3.0.0` replaces open-ended plan status prose with the portable contract in
+`contracts/plan-record/v1/`. This is a no-grandfather migration: inventory every top-level live
+`plans/*.md` record and give it exactly one `migrate` or `retire` decision. Halt before apply when
+any row is unclassified. Do not add another stored status to accommodate legacy prose.
+
+Run the pure classifier offline first and persist a
+`work-migration-manifest/v1` dry-run receipt. A second run over identical source bytes must produce
+the identical canonical manifest and digest. The manifest records the exact source commit/tree,
+schema release digest, per-path stable reason and explicit target status, exact live
+before/migrate/retire/after counts, a repository-bound archive member receipt, changed paths,
+verification, canary state, rollback ref, and `unclassifiedCount: 0`. Its decisions must close
+exactly over the declared live-before inventory; a nonzero source count with an empty decision list
+is invalid. Every live decision path is a top-level `plans/*.md` path, never an archive path.
+`changedPaths` is the sorted exact set of those decision paths: omitted and unrelated paths are
+invalid. The archive receipt is inline, so it does not add a generated apply path. Record exact
+before/after counts; apply only that closed path set. Rollback is an ordinary revert to the recorded
+ref.
+
+Map evidence as follows:
+
+- ready work becomes `planned` only when identity, risk, issue, and enqueue evidence are complete;
+  draft additionally needs its exit trigger, and stalled/parked work needs both structured
+  `retryReason` and finite `trigger`; incomplete evidence retires as `INCOMPLETE_EVIDENCE`;
+- active or implementing work becomes `in-progress` with reason `LEGACY_ACTIVE` and a claim
+  snapshot;
+- landed or implemented work becomes `implemented` with reason `LEGACY_IMPLEMENTED`, a landed
+  commit receipt, and claim/land snapshots;
+- shipped or resolved work becomes `closed` with reason `LEGACY_CLOSED`, a deployed receipt,
+  deployment time, claim/land snapshots, and `completed` disposition;
+- legacy closed work with `duplicate | not-planned | invalid` disposition remains `closed` without
+  invented land/deploy evidence; `supersededBy` is valid only for `duplicate`;
+- held work becomes `held-authority` only with a separate, finite `trigger`;
+- unknown or ambiguous values (including bare `done`) retire fail-closed; never guess whether prose
+  means merely landed or actually shipped.
+
+For an already admitted record, preserve both `enqueuedAt` and `enqueueTimeSource`. For historical
+records without a timestamp, derive it from the file-add commit and mark
+`enqueueTimeSource: file-add-backfill`; neither field may later be rewritten (including changing a
+backfill source to `recorded`). Do not use mtime, current time, or a later edit. Link an existing real
+GitHub issue only when it already owns the work. Otherwise use a typed `plan-host` reference for live
+migration. That composition reference does not manufacture an issue, a fix, or issue-closure credit.
+
+Archives are sealed and read-only even when an archived plan's prose disagrees with current terminal
+semantics. Do not rewrite archive plan bodies and do not bulk-create archive housekeeping issues.
+Emit one content-addressed aggregate receipt per repository containing the repository identity,
+archive count, sorted exact member rows (`path`, Git blob SHA-256), aggregate algorithm/hash, and
+migration dispositions; classifier output for those files is `archive-receipt-only` with stable
+reason `ARCHIVE_SEALED`. `sha256-framed-path-blob-sha256hex-v1` sorts member rows by ordinal path,
+then for each row concatenates the UTF-8 path and its 64-character lowercase blob-hash string, each
+preceded by an unsigned 64-bit big-endian byte length. SHA-256 of those concatenated frames is the
+aggregate. Count, membership, ordering, and aggregate must independently recompute; archive bodies
+remain untouched.
+
+Adopt major `3.0.0` through the `gmail-markdown` canary first. Its verify surface remains the
+smallest applicable managed leaf surface at this release. Do not begin fleet rollout until its
+migration merges, verifies, and satisfies the major-version observation gate above. AO runtime
+adaptation and corpus mutation belong to `agent-orchestrator#2814`, not to this template release.
+
 ## Enrollment proof
 
 Finish migration by running the smoke plan at `plans/drafts/000-smoke.md`. The smoke plan proves the

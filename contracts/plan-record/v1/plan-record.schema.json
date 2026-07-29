@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spencer-shadley.github.io/repo-template/contracts/plan-record/v1/plan-record.schema.json",
+  "title": "PlanRecordV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "project", "repository", "planNumber", "title", "sourcePath", "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk"],
+  "properties": {
+    "schemaVersion": { "const": "plan-record/v1" },
+    "project": { "$ref": "#/$defs/nonBlank" },
+    "repository": { "$ref": "#/$defs/repository" },
+    "planNumber": { "$ref": "#/$defs/nonnegativeSafeInteger" },
+    "title": { "$ref": "#/$defs/nonBlank" },
+    "sourcePath": { "$ref": "#/$defs/planPath" },
+    "status": { "enum": ["planned", "in-progress", "implemented", "closed", "held-authority"] },
+    "issue": { "$ref": "#/$defs/issue" },
+    "enqueuedAt": { "$ref": "#/$defs/rfc3339" },
+    "enqueueTimeSource": { "enum": ["recorded", "file-add-backfill"] },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tier", "rationale", "effectClasses"],
+      "properties": {
+        "tier": { "enum": ["auto", "human"] },
+        "rationale": { "$ref": "#/$defs/nonBlank" },
+        "effectClasses": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonBlank" } }
+      }
+    },
+    "owner": { "$ref": "#/$defs/nonBlank" },
+    "trigger": { "$ref": "#/$defs/nonBlank" },
+    "retryReason": { "$ref": "#/$defs/nonBlank" },
+    "supersededBy": { "$ref": "#/$defs/planReference" },
+    "disposition": { "enum": ["completed", "duplicate", "not-planned", "invalid"] },
+    "receipt": { "$ref": "#/$defs/receipt" },
+    "contractSnapshots": { "$ref": "#/$defs/snapshots" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "planned" } }, "required": ["status"] },
+      "then": { "not": { "anyOf": [{ "required": ["contractSnapshots"] }, { "required": ["receipt"] }, { "required": ["disposition"] }, { "required": ["supersededBy"] }] } }
+    },
+    {
+      "if": { "properties": { "status": { "const": "in-progress" } }, "required": ["status"] },
+      "then": {
+        "required": ["contractSnapshots"],
+        "properties": { "contractSnapshots": { "not": { "required": ["land"] } } },
+        "not": { "anyOf": [{ "required": ["receipt"] }, { "required": ["disposition"] }, { "required": ["supersededBy"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "implemented" } }, "required": ["status"] },
+      "then": {
+        "required": ["contractSnapshots", "receipt"],
+        "properties": {
+          "contractSnapshots": { "required": ["claim", "land"] },
+          "receipt": {
+            "properties": { "kind": { "const": "landed" } },
+            "not": { "required": ["deployedAt"] }
+          }
+        },
+        "not": { "anyOf": [{ "required": ["disposition"] }, { "required": ["supersededBy"] }] }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "closed" } }, "required": ["status"] },
+      "then": {
+        "required": ["disposition"],
+        "allOf": [
+          {
+            "if": { "properties": { "disposition": { "const": "completed" } }, "required": ["disposition"] },
+            "then": {
+              "required": ["contractSnapshots", "receipt"],
+              "properties": {
+                "contractSnapshots": { "required": ["claim", "land"] },
+                "receipt": {
+                  "required": ["kind", "commit", "deployedAt"],
+                  "properties": { "kind": { "const": "deployed" } }
+                }
+              },
+              "not": { "required": ["supersededBy"] }
+            },
+            "else": {
+              "not": { "required": ["receipt"] },
+              "properties": { "contractSnapshots": { "not": { "required": ["land"] } } }
+            }
+          },
+          {
+            "if": { "properties": { "disposition": { "const": "duplicate" } }, "required": ["disposition"] },
+            "else": { "not": { "required": ["supersededBy"] } }
+          }
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "held-authority" } }, "required": ["status"] },
+      "then": {
+        "required": ["trigger"],
+        "properties": { "contractSnapshots": { "not": { "required": ["land"] } } },
+        "not": { "anyOf": [{ "required": ["receipt"] }, { "required": ["disposition"] }, { "required": ["supersededBy"] }] }
+      }
+    }
+  ],
+  "$defs": {
+    "nonBlank": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "nonnegativeSafeInteger": { "type": "integer", "minimum": 0, "maximum": 9007199254740991 },
+    "positiveSafeInteger": { "type": "integer", "minimum": 1, "maximum": 9007199254740991 },
+    "rfc3339": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])T(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|[+-](?:[01]\\d|2[0-3]):[0-5]\\d)$"
+    },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "gitObjectId": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "repository": { "type": "string", "pattern": "^[^/\\s]+/[^/\\s]+$" },
+    "path": {
+      "type": "string",
+      "maxLength": 240,
+      "pattern": "^(?!.*(?:^|/)(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9]|[Ll][Pp][Tt][1-9])(?:\\.[^/]*)?(?:/|$))(?!.*(?:^|/)[^/]*\\.(?:/|$))(?!\\.{1,2}(?:/|$))(?!.*\\/\\.{1,2}(?:/|$))[A-Za-z0-9._@()+,=-]+(?:/[A-Za-z0-9._@()+,=-]+)*$"
+    },
+    "planBodyPath": {
+      "allOf": [
+        { "$ref": "#/$defs/path" },
+        {
+          "pattern": "^plans/(?:archive/)?(?![^/]*\\.(?:[Ll][Oo][Gg]|[Rr][Ee][Ss][Uu][Ll][Tt]|[Cc][Rr][Ii][Tt][Ii][Cc]|[Ff][Ee][Ee][Dd][Bb][Aa][Cc][Kk]|[Dd][Ee][Aa][Dd][Ll][Ee][Tt][Tt][Ee][Rr])\\.md$)[0-9]{3,}-[A-Za-z0-9._@()+,=-]+\\.md$"
+        }
+      ]
+    },
+    "planPath": {
+      "allOf": [
+        { "$ref": "#/$defs/planBodyPath" },
+        { "pattern": "^plans/[0-9]{3,}-" }
+      ]
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "digest"],
+      "properties": {
+        "algorithm": { "const": "sha256" },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "snapshots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim"],
+      "properties": {
+        "claim": { "$ref": "#/$defs/snapshot" },
+        "land": { "$ref": "#/$defs/snapshot" }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "commit"],
+      "properties": {
+        "kind": { "enum": ["landed", "deployed"] },
+        "commit": { "$ref": "#/$defs/gitObjectId" },
+        "deployedAt": { "$ref": "#/$defs/rfc3339" }
+      }
+    },
+    "planReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "planNumber"],
+      "properties": {
+        "repository": { "$ref": "#/$defs/repository" },
+        "planNumber": { "$ref": "#/$defs/nonnegativeSafeInteger" }
+      }
+    },
+    "issue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "repository", "number"],
+          "properties": {
+            "kind": { "const": "github" },
+            "repository": { "$ref": "#/$defs/repository" },
+            "number": { "$ref": "#/$defs/positiveSafeInteger" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "repository", "planNumber"],
+          "properties": {
+            "kind": { "const": "plan-host" },
+            "repository": { "$ref": "#/$defs/repository" },
+            "planNumber": { "$ref": "#/$defs/nonnegativeSafeInteger" }
+          }
+        }
+      ]
+    }
+  }
+}

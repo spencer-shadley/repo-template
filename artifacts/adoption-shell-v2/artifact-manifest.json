@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "4fa6f043788a6492f84ede2ef469414957a4aa0241c91b878c1269569bb5a1e1",
+  "artifactDigest": "1fcf9731a57316e042174c35c4861925b95b3d3a2c16ee39c4eabafcab62a5c1",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "27e48f42d9343b3ef1f6ae054ffb833797e389f872fa83eeab91ba0dba3c28b6",
-      "bytes": 2402
+      "sha256": "82a4aa89b45a70a3ede426e4c5b313df2e4e732744a3ade0e39981c5abad7ba6",
+      "bytes": 3139
     },
     {
       "path": "packages/adoption-shell/src/materialize.ts",
@@ -86,6 +86,13 @@
       "mode": "100644",
       "sha256": "d71c5c2e29bf5201a37f374aa35edb67b7609bead755751b129230fd57e1d2a0",
       "bytes": 2241
+    },
+    {
+      "path": "packages/adoption-shell/src/plan-record-v1.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a54d29d59294862ff627d084417fe2c9c62077ab01537af19cee17b9d2c17226",
+      "bytes": 14680
     },
     {
       "path": "packages/adoption-shell/src/release-candidate.ts",
@@ -135,6 +142,13 @@
       "mode": "100644",
       "sha256": "3945e13e40fe1f50e4e6ca41e4526412d12c71b6647a4de0295b05cbb9bcca1f",
       "bytes": 4492
+    },
+    {
+      "path": "packages/adoption-shell/src/work-migration-manifest-v1.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "455c3620c15ff69fb303ed7985fb771c9ffbafed91a9d29ecf26b18ef8194b88",
+      "bytes": 12574
     }
   ],
   "schemas": [
@@ -323,15 +337,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2fedc2cec9569b9799365a51107f3dc0bdcea7e7b972eefc09d631bd976250f1",
-      "bytes": 2266
+      "sha256": "7bfab679cff542080c721917f07d416a85ac7ae727a52456d37d752864d5b024",
+      "bytes": 2961
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7508cfebdd440fff569cbc250cd974fc15e1939dbbeeb8047b30c06730c79e01",
-      "bytes": 1614
+      "sha256": "527c5e1d1fc47aa0ac8b6eae1ff63647a90fa65d42ed5415d7505e5877f3b4c5",
+      "bytes": 2003
     },
     {
       "path": "materialize.d.ts",
@@ -360,6 +374,20 @@
       "mode": "100644",
       "sha256": "29bd993c73704d8599bee6b9dbab7e26418edf6d9e7d1aba905bd536665084a8",
       "bytes": 2247
+    },
+    {
+      "path": "plan-record-v1.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "848c5442741a27057b402898b6f970b88ab8169d10e3d2b124c539c29d5daae0",
+      "bytes": 3214
+    },
+    {
+      "path": "plan-record-v1.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "79b5751c887a10041cca952a27c95684b4d24cf8737cfb5e67004fd1fcd02dfc",
+      "bytes": 12443
     },
     {
       "path": "release-candidate.d.ts",
@@ -458,6 +486,20 @@
       "mode": "100644",
       "sha256": "7fa3374381bb70274f3268f2e1bad91f32d446d7e4efa084f825bb35e612aa59",
       "bytes": 4137
+    },
+    {
+      "path": "work-migration-manifest-v1.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "3d21ee67dd752c141d2b283721e57301509ef3554c4bef0ab7654dd760ffccf3",
+      "bytes": 2145
+    },
+    {
+      "path": "work-migration-manifest-v1.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2863ad25895519e27bd9151376f77c83786dc8aa5f94b01b16bc98efa269224e",
+      "bytes": 10161
     }
   ],
   "fixtures": [
@@ -465,8 +507,8 @@
       "path": ".user-surface-lint.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "89d4c95400be975456f8a1b8818d96c842166668a8573b5192cc0b7723c89e1a",
-      "bytes": 114
+      "sha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
+      "bytes": 113
     },
     {
       "path": ".user-surface-lint.schema.json",
@@ -474,6 +516,13 @@
       "mode": "100644",
       "sha256": "aed413cc52f12b1c59dde372af328d4d2eb3c3380bb41c6b00bb99656ae2f0ab",
       "bytes": 1710
+    },
+    {
+      "path": "PLAN_TEMPLATE.md",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "104adce00691032399500452a650b72a1744b1ac00646283bf822e32b1ab45c6",
+      "bytes": 2574
     },
     {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -521,7 +570,7 @@
       "path": "contracts/adoption-shell-v2/fixtures/negative-inputs.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "81ed87b39b8e004b2a159e0883f1512c027b4429879c0cea845709490b15630d",
+      "sha256": "cd2870aa92d19255f88b1a52f5c2b1313baabb48bdf5caf3380ce84de7c8ca21",
       "bytes": 277044
     },
     {
@@ -542,8 +591,50 @@
       "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "20d071a5ef978798d86c6ef02d7ebb118877fd97218f16fcd0fc968a0394d978",
+      "sha256": "42e8543844a661764f4c0ebef7de9a83aa01a2ea1bd610cffdb4776ef9e35afd",
       "bytes": 42934
+    },
+    {
+      "path": "contracts/plan-record/v1/fixtures/classification-cases.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "9454c9687768884050e98f8425d7830dbb2666ac4ee21df457f31609510d17a3",
+      "bytes": 15896
+    },
+    {
+      "path": "contracts/plan-record/v1/plan-record.example.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "51ec3723b579e5f630d4958adb71917b33a1529e768c74a090ebb98d15d69c44",
+      "bytes": 1011
+    },
+    {
+      "path": "contracts/plan-record/v1/plan-record.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "8c7dce411f960b9dd54a9bc5ff1c47063cc079fae770dcf9b702b4729ad131aa",
+      "bytes": 7937
+    },
+    {
+      "path": "contracts/plan-record/v1/work-migration-manifest.example.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "736e4c380d287567efba2bbdfeea90f2cb750735d666e25ad4c1fe5b32e637e5",
+      "bytes": 1586
+    },
+    {
+      "path": "contracts/plan-record/v1/work-migration-manifest.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "21c9ff37fa68238c33c619a30d0b6a9263960b7205e465919c166aa34a0ada50",
+      "bytes": 8159
+    },
+    {
+      "path": "plans/drafts/000-smoke.md",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2cb304998bcb704d0054243f96a83b4128104a6bf6c9f8311782f3049372603f",
+      "bytes": 795
     },
     {
       "path": "scripts/lint-user-surface-leaks.mjs",
@@ -670,7 +761,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "021ea157a583e261814f625cdc9c12930f1d453cdd113c5195202d870655ff96",
+      "sha256": "5a9b460efef4cf6808229f187c7769b1bf6887298165451fb5672f328c7a076f",
       "bytes": 876
     },
     {
@@ -702,5 +793,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "e7eadcc98dcab3627b164c700f9112bb84216f4861781eea0df1c77aa5c6e549"
+  "manifestDigest": "9b7e708df9a1bc48515f23751de15096b7c539e2dfa37e6722e830c5526c7c13"
 }

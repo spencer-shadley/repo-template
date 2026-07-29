@@ -6,7 +6,21 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-07-28
+
 ### Fixed
+- Closed the final PlanRecordV1 review gaps: supersession is duplicate-only in schema/runtime,
+  enqueue timestamp provenance is immutable, live migration decisions cannot target archives,
+  apply paths close exactly over live decisions, and repository-bound archive receipts enumerate
+  every member and independently recompute the documented length-framed aggregate. Generated
+  parity probes now cover blank strings, unsafe integers, strict RFC3339 timestamps, and portable
+  Windows paths beyond the committed fixture corpus. Future-schema classifier retire decisions
+  remain valid through source runtime, JSON Schema, and generated manifest validation. MAJOR.
+- Closed PlanRecordV1 pre-release review gaps: legacy migration now requires complete evidence and
+  records an explicit target status; manifests close over exact live/archive counts and hashes;
+  claim/land/deploy evidence is lifecycle- and disposition-conditional; plan-host zero and unordered
+  unique effect arrays align across schema/runtime; both published schemas now execute through
+  draft-2020-12 meta-schema and example verification. MAJOR.
 - Closed the issue #92 capability-closure gap left open by the fail-closed user-surface-lint
   expansion: every advertised `--self-test` fixture tree (`error-codes`, `source-leak`,
   `regex-safe`, `regex-leak`, `declared-none`) is now present, classified `copy`, and bound into
@@ -21,6 +35,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 <!-- new capabilities or files -->
+- **BREAKING:** Published strict portable `PlanRecordV1` and `WorkMigrationManifestV1` schemas,
+  examples, fixtures, pure validators/classifier, immutable transition checks, canonical
+  `PLAN_TEMPLATE.md` adapter, and the no-grandfather migration contract. Sealed archives produce
+  one aggregate receipt and no issue storm. `gmail-markdown` remains the smallest applicable leaf
+  canary; fleet rollout waits for its major-version observation gate. Runtime consumption and corpus
+  mutation remain owned by `agent-orchestrator#2814`. MAJOR.
 - **BREAKING:** Added the pure TypeScript `adoption-shell-v2` contract, nine closed schemas,
   dependency-free compiled ESM/declarations, authenticated capability registry, deterministic
   fixtures/goldens, negative-effect proofs, and a reproducible artifact manifest. This implements

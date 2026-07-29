@@ -65,6 +65,15 @@ const PORTABLE_CAPABILITY_PATHS = [
   "tests/fixtures/user-surface-lint/source-leak/config.json",
   "tests/fixtures/user-surface-lint/source-leak/src/messages.js",
 ] as const;
+const PLAN_RECORD_ARTIFACT_PATHS = [
+  "PLAN_TEMPLATE.md",
+  "contracts/plan-record/v1/fixtures/classification-cases.json",
+  "contracts/plan-record/v1/plan-record.example.json",
+  "contracts/plan-record/v1/plan-record.schema.json",
+  "contracts/plan-record/v1/work-migration-manifest.example.json",
+  "contracts/plan-record/v1/work-migration-manifest.schema.json",
+  "plans/drafts/000-smoke.md",
+] as const;
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -207,9 +216,10 @@ function fixtureRows(
       `${contractPrefix}/${relativePath}`,
     ),
   );
-  const portableClosure = PORTABLE_CAPABILITY_PATHS.map((relativePath) =>
-    closureRow(root, relativePath),
-  );
+  const portableClosure = [
+    ...PORTABLE_CAPABILITY_PATHS,
+    ...PLAN_RECORD_ARTIFACT_PATHS,
+  ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
     compare(left.path, right.path),
   );
@@ -446,6 +456,8 @@ function verifyPackage(): void {
   ) as Record<string, unknown>;
   const expectedDev = {
     "@types/node": "24.13.3",
+    ajv: "8.17.1",
+    "ajv-formats": "3.0.1",
     typescript: "7.0.2",
   };
   if (
