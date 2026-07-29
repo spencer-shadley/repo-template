@@ -74,6 +74,20 @@ const PLAN_RECORD_ARTIFACT_PATHS = [
   "contracts/plan-record/v1/work-migration-manifest.schema.json",
   "plans/drafts/000-smoke.md",
 ] as const;
+const LOCAL_CI_V2_ARTIFACT_PATHS = [
+  "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
+  "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
+  "contracts/local-ci/v2/fixtures/invalid-incomplete-env.json",
+  "contracts/local-ci/v2/fixtures/invalid-malformed.json",
+  "contracts/local-ci/v2/fixtures/invalid-missing-field.json",
+  "contracts/local-ci/v2/fixtures/invalid-no-authoritative-gate.json",
+  "contracts/local-ci/v2/fixtures/invalid-unsupported-version.json",
+  "contracts/local-ci/v2/fixtures/legacy-invalid-v1.json",
+  "contracts/local-ci/v2/fixtures/legacy-model-gateway-v1.json",
+  "contracts/local-ci/v2/fixtures/legacy-repo-factory-v1.json",
+  "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json",
+  "contracts/local-ci/v2/local-ci-contract-v2.schema.json",
+] as const;
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -219,6 +233,7 @@ function fixtureRows(
   const portableClosure = [
     ...PORTABLE_CAPABILITY_PATHS,
     ...PLAN_RECORD_ARTIFACT_PATHS,
+    ...LOCAL_CI_V2_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
     compare(left.path, right.path),

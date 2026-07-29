@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "34d28cc46ae7c3877e8b3944f1dd2f058747b28a3fe8a8bc454845276f2bf327",
+  "inventoryDigest": "21d895f52cc918e796fbf8e152e9b9d9b41d8179cbfda78c2e0cd5d63b1ca003",
   "entryCount": 38,
   "excludedCount": 10,
   "entries": [
@@ -47,8 +47,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "e70fd7b8e63385791a396b543b4ca470a780b0b6d402be8ac69508b02d47199f",
-      "bytes": 4628
+      "contentSha256": "757e2bb347191251a6672811441b5d05418dcc15e49fbad5951a52811b83bd56",
+      "bytes": 4724
     },
     {
       "path": "SECURITY.md",
@@ -82,8 +82,8 @@
       "path": "docs/MIGRATION.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "bfdc9a008a2f729f81dc10c281eaee65f0d984a1b525c371e8d9ec233594794d",
-      "bytes": 12062
+      "contentSha256": "a34db8eeb3e9416666cfe954c25c1162e8c3678874790ac6222a81285bed390b",
+      "bytes": 13252
     },
     {
       "path": "docs/OBSERVABILITY.md",
@@ -327,5 +327,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "6fa3f66a19787b2758cf24867771d1e776758d09c9caab8e019bf2c7e05e1ab9"
+  "manifestDigest": "1a09979b21f3003bcf23da83260e6f1fd36391033ce9f4eb434d9324fa2b4cd8"
 }

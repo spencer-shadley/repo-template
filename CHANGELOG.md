@@ -6,6 +6,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Added
+
+- Introduced `LocalCiContractV2`: a versioned machine-readable local-CI contract schema (`contracts/local-ci/v2/local-ci-contract-v2.schema.json`), pure offline validator, deterministically mapped legacy V1 migrators (`model-gateway-v1` and `repo-factory-v1`), positive/negative fixtures, and ADR-0008. MAJOR. Fixes #102.
+
 ## [3.1.0] - 2026-07-29
 
 ### Fixed

@@ -1,0 +1,10 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/local-ci-v2/local-ci-contract-v2.schema.json",
+  "schemaVersion": "2.0.0",
+  "contractId": "repo-template/local-ci-v2",
+  "repository": "invalid-repo-format",
+  "canonicalBranch": "master",
+  "commands": "not-an-array",
+  "environment": "not-an-object",
+  "effects": "not-an-object"
+}

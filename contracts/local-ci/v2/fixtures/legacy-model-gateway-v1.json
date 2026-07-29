@@ -1,0 +1,23 @@
+{
+  "runtime": "node@24.16.0",
+  "checks": [
+    {
+      "id": "lint",
+      "command": "pnpm lint"
+    },
+    {
+      "id": "typecheck",
+      "command": "pnpm typecheck"
+    },
+    {
+      "id": "test",
+      "command": "pnpm test"
+    }
+  ],
+  "effects": {
+    "credentials": false,
+    "network": false,
+    "spend": false,
+    "externalMutation": false
+  }
+}
