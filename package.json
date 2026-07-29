@@ -12,8 +12,10 @@
     "build": "node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "build:check": "node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",
     "test": "node --test packages/adoption-shell/test/*.test.ts",
+    "release:payload": "node tools/release-payload.ts write",
+    "release:payload:check": "node tools/release-payload.ts check",
     "verify:artifact": "node tools/artifact-build.ts verify",
-    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node tools/verify-template-self.ts",
+    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node tools/verify-template-self.ts && pnpm release:payload:check",
     "verify": "pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self"
   },
   "devDependencies": {

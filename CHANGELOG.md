@@ -6,8 +6,15 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-07-29
+
 ### Fixed
 
+- Separated the complete raw overlay manifest from a content-addressed inert-seed release manifest
+  and payload set. The exact released materializer now accepts every selected path while local issue
+  templates and workflows remain explicit pre-custody exclusions. Added deterministic
+  path/mode/content/inventory closure, explicit raw-document projection exclusions, and a
+  disposable in-memory consumer proof. MINOR. Fixes #105.
 - Replaced the critical-path 24-hour major-upgrade canary wait with an evidence-denominated exit:
   predeclared changed-behavior exposure classes, at least three independent post-merge executions
   including a fresh-process or restart-equivalent run, deterministic replay or synthesis when

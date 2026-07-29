@@ -1,0 +1,331 @@
+{
+  "contractId": "repo-template/inert-seed-manifest/v1",
+  "schemaVersion": 1,
+  "purpose": "inert-pre-custody-seed",
+  "payloadSetPath": "release/release-payload-set.json",
+  "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
+  "inventoryDigest": "34d28cc46ae7c3877e8b3944f1dd2f058747b28a3fe8a8bc454845276f2bf327",
+  "entryCount": 38,
+  "excludedCount": 10,
+  "entries": [
+    {
+      "path": ".gitignore",
+      "templateMode": "merge",
+      "gitMode": "100644",
+      "contentSha256": "b1012d9c2719a5ed6a1d871a09077b44aea9d6a86b7fb097a6dc9b56cda186c2",
+      "bytes": 1116
+    },
+    {
+      "path": ".template-sync.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "70300c80e6731c7488413f2d985cd282160dbd95bb863b91a233a551b74633f8",
+      "bytes": 744
+    },
+    {
+      "path": ".user-surface-lint.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "1428eb5134050886a5d307cbf49cac67fe0e4ec7760b7183ac4f0a26b0d36343",
+      "bytes": 113
+    },
+    {
+      "path": ".user-surface-lint.schema.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "aed413cc52f12b1c59dde372af328d4d2eb3c3380bb41c6b00bb99656ae2f0ab",
+      "bytes": 1710
+    },
+    {
+      "path": "PLAN_TEMPLATE.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "104adce00691032399500452a650b72a1744b1ac00646283bf822e32b1ab45c6",
+      "bytes": 2574
+    },
+    {
+      "path": "README.md",
+      "templateMode": "merge",
+      "gitMode": "100644",
+      "contentSha256": "e70fd7b8e63385791a396b543b4ca470a780b0b6d402be8ac69508b02d47199f",
+      "bytes": 4628
+    },
+    {
+      "path": "SECURITY.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "398001bb63e8baa27a7a4f2b73e4b5986b0498928f9be22a72aff2734cf82260",
+      "bytes": 1208
+    },
+    {
+      "path": "TODO.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "bd392e627454dfcf544f8b51b4e6ec4097c8fdec0143560f9f19621ada7a84be",
+      "bytes": 1090
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "fb03edbc12c4b26839b7b62df0ed379ecc3ebd40f7173065d4a12f648a695000",
+      "bytes": 2503
+    },
+    {
+      "path": "docs/INCIDENTS.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "ef204daa888a5ec8ef91d7df3e729edbfac0a74bca07a3617714b6b2adbb64da",
+      "bytes": 625
+    },
+    {
+      "path": "docs/MIGRATION.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "bfdc9a008a2f729f81dc10c281eaee65f0d984a1b525c371e8d9ec233594794d",
+      "bytes": 12062
+    },
+    {
+      "path": "docs/OBSERVABILITY.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "38969531fc62d3638db81f367ffebdbc11da6fc71519e8e920bc8e2cb6a7c060",
+      "bytes": 442
+    },
+    {
+      "path": "docs/QUEUE-ENROLLMENT.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "97f7a8bc1e073b230702cc2a1bdeab21308e74cd960fadcefe425599583927a1",
+      "bytes": 2167
+    },
+    {
+      "path": "docs/adr/0000-template.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "43bbb209b46a6f9984bceeacec97420c1d52a883c5a8f224a24919e503986e4a",
+      "bytes": 768
+    },
+    {
+      "path": "docs/adr/0001-design-philosophies.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "6ed6622bed292ba64fc4dd98a2b25b32ae31ec16fd26c9d9c17168f29f4dac35",
+      "bytes": 3424
+    },
+    {
+      "path": "docs/adr/0002-verify-gate-contract.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "615b147365d2986e8f7b3388adf33e5977faf48767bbb8c3ac690dd5308032c7",
+      "bytes": 1351
+    },
+    {
+      "path": "docs/adr/0003-file-format-selection.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "fb0df22bddab21a132efb8c85ce1a9e7db15a2c17012ada53c92621d8f11bbf6",
+      "bytes": 3511
+    },
+    {
+      "path": "docs/adr/0004-when-to-use-a-real-database.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "6f93f999d6175f7e7f439cc6a41992dbf10ccb2960253f3b608e9f64e634df3a",
+      "bytes": 3234
+    },
+    {
+      "path": "docs/adr/0005-git-conventions.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "3ea9c04f505bfacead380b0725f59d1e5d928675dc6a29fb07b7dffb85b319a3",
+      "bytes": 1784
+    },
+    {
+      "path": "model-boundary.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "b3b5439ba0072bde6454e6ef780dfdb6d7d1342b691bb03cfbce1203977255d1",
+      "bytes": 422
+    },
+    {
+      "path": "plans/drafts/000-smoke.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "2cb304998bcb704d0054243f96a83b4128104a6bf6c9f8311782f3049372603f",
+      "bytes": 795
+    },
+    {
+      "path": "scripts/lint-user-surface-leaks.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "91e2786a19a994e3c4b5c540574d0c48ec6079da4fdc37c6a346e5060956f061",
+      "bytes": 18834
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "32427eb383d4ebd1c1848ef59026ac5457986eb546fede234823f735d69dca4b",
+      "bytes": 484
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "d0cb6d033f643c740f442761b2bef24b6b6362f642b3de6ca36c0d0a26f9a3a2",
+      "bytes": 148
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/bad/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/bad/src/messages.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "33260da2ae7e27562929d524c402836f7e6e616fb9135bbdfe328bb1d4c1ba4c",
+      "bytes": 167
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/declared-none/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "2cd72caf609f174a0944256e5954be3703063c58cddd75e6b8956f00cb8e01c3",
+      "bytes": 64
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/empty/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "4fdb8ebe6d036db4c31cda25967cb9333aabe9b7007e2452ada45d406197cb61",
+      "bytes": 39
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/error-codes/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/error-codes/src/messages.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "30a17c14d32e7c160bc64d617c2dfe76b07e400f38e50208f23629b867eece62",
+      "bytes": 126
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/good/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/good/src/messages.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "e2736ce772da5d778ffde14b0185d25e88ed985a9cab0f474428abda41b1117a",
+      "bytes": 144
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/regex-leak/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/regex-leak/src/messages.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "9f275864aad59139a871024e4ca25c8e637d33a4693f62a6bc762998bcdaf745",
+      "bytes": 160
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/regex-safe/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/regex-safe/src/messages.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "5cbab68b7b63f4533ede62918c7aa5a2987a81e992466f41b761253510c6ab7c",
+      "bytes": 123
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/source-leak/config.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "db4bfe1ab6ed4cd050b7356de93857ae51757eb62ff3215af48df1e48773b66a",
+      "bytes": 60
+    },
+    {
+      "path": "tests/fixtures/user-surface-lint/source-leak/src/messages.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "0581ed5bda4d6709142b209b81fe28525391af83d5b30b71a440f1cf959cfe1d",
+      "bytes": 241
+    }
+  ],
+  "excluded": [
+    {
+      "path": ".github/ISSUE_TEMPLATE/task.md",
+      "templateMode": "copy",
+      "reason": "no-local-issue-template-override"
+    },
+    {
+      "path": ".github/pull_request_template.md",
+      "templateMode": "copy",
+      "reason": "requires-portable-document-projection"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "templateMode": "copy",
+      "reason": "no-pre-custody-workflow"
+    },
+    {
+      "path": ".ops/README.md",
+      "templateMode": "copy",
+      "reason": "requires-portable-document-projection"
+    },
+    {
+      "path": "AGENTS.md",
+      "templateMode": "merge",
+      "reason": "requires-portable-document-projection"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "templateMode": "merge",
+      "reason": "requires-portable-document-projection"
+    },
+    {
+      "path": "CLAUDE.md",
+      "templateMode": "copy",
+      "reason": "requires-portable-document-projection"
+    },
+    {
+      "path": "GEMINI.md",
+      "templateMode": "copy",
+      "reason": "requires-portable-document-projection"
+    },
+    {
+      "path": "PRIORITIES.md",
+      "templateMode": "copy",
+      "reason": "requires-portable-document-projection"
+    },
+    {
+      "path": "docs/RUNBOOK.md",
+      "templateMode": "copy",
+      "reason": "requires-portable-document-projection"
+    }
+  ],
+  "manifestDigest": "6fa3f66a19787b2758cf24867771d1e776758d09c9caab8e019bf2c7e05e1ab9"
+}
