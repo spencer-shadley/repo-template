@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "65e17781265b195b8899a4d05a74997e1ffe19b0d4a8086f883ff50c60661f05",
+  "artifactDigest": "f020d534625244055498da21397d1964dbcbd6756ad6e0299bd8a7c8c8ba3634",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,15 +70,15 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "df1df3759663071b0d76e870f7498d25c5ccc1a55c6eb9bcf88bf4bf221f3115",
-      "bytes": 3672
+      "sha256": "6f32ddfcbad614e90d64963119a40e34829f443a0c7c1da65f64ae969ccd09e8",
+      "bytes": 3671
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "26a2fb51e19465f9670b360d4864ab8cbc924bdccca68fa06e1141763d7ae122",
-      "bytes": 15110
+      "sha256": "b3d7de348323c6fee695e0f722c35780186a3e440494f76ab843c81b5c91aaef",
+      "bytes": 11016
     },
     {
       "path": "packages/adoption-shell/src/materialize.ts",
@@ -365,8 +365,8 @@
       "path": "local-ci-contract-v2.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f1c5ed5bd2d8d42a237f8da8c41ce79f19571c5d3116e60e370b4cfeb7a11a9f",
-      "bytes": 13539
+      "sha256": "2bf5eec40b4f0832b9b3f4b41ed160f78e23b53adb71d76c7321c567f5133849",
+      "bytes": 8873
     },
     {
       "path": "materialize.d.ts",
@@ -549,8 +549,8 @@
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "adbb149c2d5d0fb6dc6e11e1dff7858889aa96f2443e6867c70724e817ce979d",
-      "bytes": 3594
+      "sha256": "a9fc51f2346c4eb47e7d99b8c477bb9bebfce04f52c1251474d54fd7a6f83da8",
+      "bytes": 6095
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/delivery-declaration.json",
@@ -866,7 +866,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e167e5d75dca1b935e46aad16002a3c5d1c24de531a659b4a4a682002054c28d",
+      "sha256": "6abbcb764df3948f50792cd3cb8cc43a6e68b0ffde28ed1a4cb2e6a90c87f386",
       "bytes": 876
     },
     {
@@ -898,5 +898,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "4b6ff731cdd6a0c28fdffbb7225273e4289ca77bafcc465fcf16f8fa5862c6cf"
+  "manifestDigest": "6c24f82ac2f587dcef11da19d114085d414b9774ffd66a27c76c36707fb87e15"
 }

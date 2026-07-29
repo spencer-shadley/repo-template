@@ -4,8 +4,8 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "21d895f52cc918e796fbf8e152e9b9d9b41d8179cbfda78c2e0cd5d63b1ca003",
-  "entryCount": 38,
+  "inventoryDigest": "09c0709adcbb75d5d0a39e7d33cc95a1232a3954f83287e39c3bdf7f5eafedfb",
+  "entryCount": 52,
   "excludedCount": 10,
   "entries": [
     {
@@ -65,6 +65,104 @@
       "bytes": 1090
     },
     {
+      "path": "artifacts/adoption-shell-v2/local-ci-contract-v2.d.ts",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "a89c2e89cabe1b1f9ef78d6305652b5ff0377a066321d0b37042e266a1c81b85",
+      "bytes": 3190
+    },
+    {
+      "path": "artifacts/adoption-shell-v2/local-ci-contract-v2.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "2bf5eec40b4f0832b9b3f4b41ed160f78e23b53adb71d76c7321c567f5133849",
+      "bytes": 8873
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "5b07afd38c5fcc3cad8157f53acaa2e249bacec1ce0754d16643e70c3e7c9f89",
+      "bytes": 1634
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "0102ff79a8d3ab38ca7526df10aa6af4e17a8a0bd4aa0eaeaf7c89966b16a656",
+      "bytes": 1340
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-incomplete-env.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "014495f864f4022152b701c88728b344a6282ee83ebf7094e3f20e353857e685",
+      "bytes": 1228
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-malformed.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "4eca61b85dcb2249c8e4c657bb09ed8e07723a0445e25367648cac0e7ffda967",
+      "bytes": 336
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-missing-field.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "71c6a1e1a68768cc0757942431f6a1e5f1a3a0bb400659c4a6d8653bd20a80f5",
+      "bytes": 967
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-no-authoritative-gate.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "e71995700eaebcfc0371a1be457d8d11c830ade90bc132e4b6e38f5c3a9eb30f",
+      "bytes": 1301
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/invalid-unsupported-version.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "11859e45edc531ecc5019d10fd7b0cfd94c8cfaf7b0546ea6ef92fa565f58b94",
+      "bytes": 1308
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/legacy-invalid-v1.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "c22e2b6468355d31d2be9beca0f2a45f695854cc0ea906ffc6b452f638c06d64",
+      "bytes": 91
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/legacy-model-gateway-v1.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "8c91ca5d1e47b60691cc5222d372594f13cda09764770c51b3414a1428b36dc1",
+      "bytes": 364
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/legacy-repo-factory-v1.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "c8a15bace6b2749bdb632c0b88c1f18b6fe858cb1ff610b6bc46d57837132690",
+      "bytes": 175
+    },
+    {
+      "path": "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "82d976e5d4aa7ca9b86db812a2dfec3e2d7e2610a9f7e9efd6fb4765d4332da2",
+      "bytes": 2001
+    },
+    {
+      "path": "contracts/local-ci/v2/local-ci-contract-v2.schema.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "a8f34f07e1598f80e4294a2250c4bb34a5dcc22ec57a017ef42b82a19815d63f",
+      "bytes": 5565
+    },
+    {
       "path": "docs/ARCHITECTURE.md",
       "templateMode": "copy",
       "gitMode": "100644",
@@ -82,8 +180,8 @@
       "path": "docs/MIGRATION.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "a34db8eeb3e9416666cfe954c25c1162e8c3678874790ac6222a81285bed390b",
-      "bytes": 13252
+      "contentSha256": "1286149a170178970185d02c9f5c2cc1524bc26c625b09b748965b058e1a81a6",
+      "bytes": 13374
     },
     {
       "path": "docs/OBSERVABILITY.md",
@@ -327,5 +425,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "1a09979b21f3003bcf23da83260e6f1fd36391033ce9f4eb434d9324fa2b4cd8"
+  "manifestDigest": "5df06662e7bca8f5e4bc1269cf528e0969f8a2eeddd87a3d63beea2d2832e536"
 }

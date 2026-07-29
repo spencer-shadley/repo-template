@@ -143,4 +143,3 @@ export type {
   LocalCiRuntimeConstraint,
   LocalCiShell,
 } from "./local-ci-contract-v2.ts";
-

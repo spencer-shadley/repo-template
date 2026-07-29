@@ -404,6 +404,35 @@ const lintBundle = bundle({
   ],
 });
 const lintRegistry = registry([lintBundle]);
+const localCiId = "repo-template/local-ci-contract-v2";
+const localCiArtifacts = [
+  "artifacts/adoption-shell-v2/local-ci-contract-v2.d.ts",
+  "artifacts/adoption-shell-v2/local-ci-contract-v2.js",
+  "contracts/local-ci/v2/local-ci-contract-v2.schema.json",
+];
+const localCiFixtures = [
+  "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
+  "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
+  "contracts/local-ci/v2/fixtures/invalid-incomplete-env.json",
+  "contracts/local-ci/v2/fixtures/invalid-malformed.json",
+  "contracts/local-ci/v2/fixtures/invalid-missing-field.json",
+  "contracts/local-ci/v2/fixtures/invalid-no-authoritative-gate.json",
+  "contracts/local-ci/v2/fixtures/invalid-unsupported-version.json",
+  "contracts/local-ci/v2/fixtures/legacy-invalid-v1.json",
+  "contracts/local-ci/v2/fixtures/legacy-model-gateway-v1.json",
+  "contracts/local-ci/v2/fixtures/legacy-repo-factory-v1.json",
+  "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json",
+];
+const localCiBundle = bundle({
+  id: localCiId,
+  version: "2.0.0",
+  dependencies: [],
+  artifacts: localCiArtifacts,
+  fixtures: localCiFixtures,
+  goldens: [],
+  modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v2.js", requiredPaths: [...localCiArtifacts, ...localCiFixtures].sort() }],
+});
+const portableCapabilityRegistry = registry([lintBundle, localCiBundle]);
 const lintInput = input(
   release([
     baseEntry,
@@ -857,7 +886,7 @@ export function generateContractFixtures(
     templateReleaseReceiptFixture(),
   );
   writeJson(path.join(fixtureRoot, "negative-inputs.json"), negativeFixtures());
-  writeJson(path.join(contractRoot, "capability-bundle-registry.json"), lintRegistry);
+  writeJson(path.join(contractRoot, "capability-bundle-registry.json"), portableCapabilityRegistry);
   writeJson(path.join(goldenRoot, "rfc8785-vectors.json"), rfc8785Vectors);
   writeJson(path.join(goldenRoot, "user-surface-lint-modes.json"), {
     bundle: reference(lintBundle),
