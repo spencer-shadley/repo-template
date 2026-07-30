@@ -4,9 +4,8 @@
   "contractId": "repo-template/local-ci-v2",
   "repository": "spencer-shadley/repo-template",
   "canonicalBranch": "master",
-  "commands": [
-    {
-      "id": "lint",
+  "commands": {
+    "lint": {
       "name": "lint",
       "executable": "pnpm",
       "args": [
@@ -15,13 +14,10 @@
       "shell": "none",
       "cwd": ".",
       "timeoutSeconds": 300,
-      "order": 0,
       "expectedExitCode": 0,
-      "isAuthoritativeGate": false,
       "failureDisposition": "fail-gate"
     },
-    {
-      "id": "typecheck",
+    "typecheck": {
       "name": "typecheck",
       "executable": "pnpm",
       "args": [
@@ -30,13 +26,10 @@
       "shell": "none",
       "cwd": ".",
       "timeoutSeconds": 300,
-      "order": 1,
       "expectedExitCode": 0,
-      "isAuthoritativeGate": false,
       "failureDisposition": "fail-gate"
     },
-    {
-      "id": "verify",
+    "authoritative-gate": {
       "name": "verify",
       "executable": "pnpm",
       "args": [
@@ -45,12 +38,10 @@
       "shell": "none",
       "cwd": ".",
       "timeoutSeconds": 600,
-      "order": 2,
       "expectedExitCode": 0,
-      "isAuthoritativeGate": true,
       "failureDisposition": "fail-gate"
     }
-  ],
+  },
   "environment": {
     "runtime": {
       "name": "node",

@@ -6,17 +6,19 @@ export type LocalCiShell = "pwsh" | "cmd" | "bash" | "sh" | "none";
 export type LocalCiFailureDisposition = "fail-gate" | "warning" | "non-routable";
 export type LocalCiNetworkExpectation = "offline-only" | "local-loopback" | "outbound-allowed";
 export interface LocalCiCommandV2 {
-    readonly id: string;
     readonly name: string;
     readonly executable: string;
     readonly args: readonly string[];
     readonly shell: LocalCiShell;
     readonly cwd: string;
     readonly timeoutSeconds: number;
-    readonly order: number;
     readonly expectedExitCode: number;
-    readonly isAuthoritativeGate: boolean;
     readonly failureDisposition: LocalCiFailureDisposition;
+}
+export interface OrderedLocalCiCommandV2 extends LocalCiCommandV2 {
+    readonly id: string;
+    readonly order: number;
+    readonly isAuthoritativeGate: boolean;
 }
 export interface LocalCiRuntimeConstraint {
     readonly name: string;
@@ -52,7 +54,7 @@ export interface LocalCiContractV2 {
     readonly contractId: typeof LOCAL_CI_CONTRACT_V2_ID;
     readonly repository: string;
     readonly canonicalBranch: string;
-    readonly commands: readonly LocalCiCommandV2[];
+    readonly commands: Readonly<Record<string, LocalCiCommandV2>>;
     readonly environment: LocalCiEnvironmentV2;
     readonly effects: LocalCiEffectsV2;
 }
@@ -65,5 +67,6 @@ export interface LegacyLocalCiDisposition {
     readonly contract?: LocalCiContractV2;
     readonly diagnostics?: readonly Diagnostic[];
 }
+export declare function orderedLocalCiCommands(contract: LocalCiContractV2): readonly OrderedLocalCiCommandV2[];
 export declare function validateLocalCiContractV2(value: unknown): ValidationResult<LocalCiContractV2>;
 export declare function classifyAndMigrateLegacyLocalCiV1(rawInput: unknown, sourceBlob?: Uint8Array | string): LegacyLocalCiDisposition;

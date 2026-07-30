@@ -15,7 +15,7 @@ Define and publish `LocalCiContractV2` as the single portable, machine-readable 
 
 1. **Contract & Schema Authority:** Published at `contracts/local-ci/v2/local-ci-contract-v2.schema.json` with schema ID `https://schemas.repo-template.dev/local-ci-v2/local-ci-contract-v2.schema.json` and contract ID `repo-template/local-ci-v2`.
 2. **Explicit Semantics:**
-   - **Commands:** Explicit array of commands with stable `id`, human `name`, `executable`, `args`, `shell`, `cwd`, `timeoutSeconds`, `order`, `expectedExitCode`, `isAuthoritativeGate`, and `failureDisposition`. At least one command must be designated as `isAuthoritativeGate: true`.
+   - **Commands:** A closed object keyed by stable command identity. The reserved, required `authoritative-gate` key is always executed last; all other keys execute first in lexical key order. Each command declares `name`, `executable`, non-empty `args`, `shell`, `cwd`, `timeoutSeconds`, `expectedExitCode`, and `failureDisposition`. This structural form makes command identity, ordering, and the single authoritative gate portable and equally enforceable by the published JSON Schema and runtime validator.
    - **Environment:** Complete runtime/package-manager specifications, supported platform/architecture constraints, required environment variables/credentials, and explicit network expectations (`offline-only`, `local-loopback`, `outbound-allowed`).
    - **Effects Vocabulary:** Strictly closed boolean vocabulary covering credentials access, network access, provider spend, external mutation, registration, schedules, deployment, consumer binding, and serving authority. Unknown or extra fields fail validation.
 3. **Legacy Lineage Migration & Non-Routable Fail-Closed:**

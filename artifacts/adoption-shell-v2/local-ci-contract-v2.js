@@ -26,6 +26,26 @@ function finish(value, diagnostics) {
     const sorted = diagnostics.sorted();
     return sorted.length === 0 ? { ok: true, value } : { ok: false, diagnostics: sorted };
 }
+export function orderedLocalCiCommands(contract) {
+    const preflight = Object.entries(contract.commands)
+        .filter(([id]) => id !== "authoritative-gate")
+        .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+        .map(([id, command], order) => ({
+        ...command,
+        id,
+        order,
+        isAuthoritativeGate: false,
+    }));
+    return [
+        ...preflight,
+        {
+            ...contract.commands["authoritative-gate"],
+            id: "authoritative-gate",
+            order: preflight.length,
+            isAuthoritativeGate: true,
+        },
+    ];
+}
 export function validateLocalCiContractV2(value) {
     const diagnostics = new Diagnostics();
     const fields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
@@ -37,21 +57,37 @@ export function validateLocalCiContractV2(value) {
     diagnostics.string(value["repository"], "/repository", { min: 1, pattern: /^[^/]+\/[^/]+$/ });
     diagnostics.string(value["canonicalBranch"], "/canonicalBranch", { min: 1 });
     const commandsRaw = value["commands"];
-    if (diagnostics.array(commandsRaw, "/commands", 1, 256)) {
-        const seenIds = new Set();
-        const seenOrders = new Set();
-        let hasAuthoritativeGate = false;
-        commandsRaw.forEach((cmd, idx) => {
-            const ptr = `/commands/${idx}`;
-            const cmdFields = ["id", "name", "executable", "args", "shell", "cwd", "timeoutSeconds", "order", "expectedExitCode", "isAuthoritativeGate", "failureDisposition"];
-            if (diagnostics.object(cmd, ptr, cmdFields, cmdFields)) {
-                const idStr = cmd["id"];
-                if (diagnostics.string(idStr, `${ptr}/id`, { min: 1, pattern: COMMAND_ID_PATTERN })) {
-                    if (seenIds.has(idStr))
-                        diagnostics.add("E_DUPLICATE_COMMAND_ID", `${ptr}/id`, `duplicate command id: ${idStr}`);
-                    else
-                        seenIds.add(idStr);
-                }
+    if (!isRecord(commandsRaw)) {
+        diagnostics.add("E_TYPE", "/commands", "expected object");
+    }
+    else {
+        const commandIds = Object.keys(commandsRaw).sort();
+        if (commandIds.length === 0) {
+            diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
+        }
+        if (commandIds.length > 256) {
+            diagnostics.add("E_LENGTH", "/commands", "expected at most 256 commands");
+        }
+        if (!Object.hasOwn(commandsRaw, "authoritative-gate")) {
+            diagnostics.add("E_NO_AUTHORITATIVE_GATE", "/commands/authoritative-gate", "required authoritative gate is missing");
+        }
+        for (const id of commandIds) {
+            const cmd = commandsRaw[id];
+            const ptr = `/commands/${id}`;
+            if (!COMMAND_ID_PATTERN.test(id)) {
+                diagnostics.add("E_FORMAT", ptr, "invalid command id");
+            }
+            const closedFields = [
+                "name",
+                "executable",
+                "args",
+                "shell",
+                "cwd",
+                "timeoutSeconds",
+                "expectedExitCode",
+                "failureDisposition",
+            ];
+            if (diagnostics.object(cmd, ptr, closedFields, closedFields)) {
                 diagnostics.string(cmd["name"], `${ptr}/name`, { min: 1 });
                 diagnostics.string(cmd["executable"], `${ptr}/executable`, { min: 1 });
                 stringArray(cmd["args"], `${ptr}/args`, 0, 256, diagnostics);
@@ -62,26 +98,13 @@ export function validateLocalCiContractV2(value) {
                 const timeout = cmd["timeoutSeconds"];
                 if (typeof timeout !== "number" || !Number.isInteger(timeout) || timeout < 1)
                     diagnostics.add("E_TYPE", `${ptr}/timeoutSeconds`, "expected positive integer");
-                const order = cmd["order"];
-                if (typeof order !== "number" || !Number.isInteger(order) || order < 0)
-                    diagnostics.add("E_TYPE", `${ptr}/order`, "expected non-negative integer");
-                else if (seenOrders.has(order))
-                    diagnostics.add("E_DUPLICATE_COMMAND_ORDER", `${ptr}/order`, `duplicate command order: ${order}`);
-                else
-                    seenOrders.add(order);
                 if (typeof cmd["expectedExitCode"] !== "number" || !Number.isInteger(cmd["expectedExitCode"]))
                     diagnostics.add("E_TYPE", `${ptr}/expectedExitCode`, "expected integer");
-                if (typeof cmd["isAuthoritativeGate"] !== "boolean")
-                    diagnostics.add("E_TYPE", `${ptr}/isAuthoritativeGate`, "expected boolean");
-                else if (cmd["isAuthoritativeGate"])
-                    hasAuthoritativeGate = true;
                 const disp = cmd["failureDisposition"];
                 if (diagnostics.string(disp, `${ptr}/failureDisposition`) && !FAILURE_DISPOSITIONS.has(disp))
                     diagnostics.add("E_ENUM", `${ptr}/failureDisposition`, "unsupported failure disposition");
             }
-        });
-        if (!hasAuthoritativeGate)
-            diagnostics.add("E_NO_AUTHORITATIVE_GATE", "/commands", "at least one command must be marked as isAuthoritativeGate");
+        }
     }
     const envRaw = value["environment"];
     const envFields = ["runtime", "packageManager", "supportedPlatforms", "supportedArchitectures", "requiredEnvVars", "requiredCredentials", "networkExpectation"];

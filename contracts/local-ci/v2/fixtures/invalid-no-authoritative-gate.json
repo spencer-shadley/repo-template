@@ -4,9 +4,8 @@
   "contractId": "repo-template/local-ci-v2",
   "repository": "spencer-shadley/repo-template",
   "canonicalBranch": "master",
-  "commands": [
-    {
-      "id": "lint",
+  "commands": {
+    "lint": {
       "name": "lint",
       "executable": "pnpm",
       "args": [
@@ -15,12 +14,10 @@
       "shell": "none",
       "cwd": ".",
       "timeoutSeconds": 300,
-      "order": 0,
       "expectedExitCode": 0,
-      "isAuthoritativeGate": false,
       "failureDisposition": "warning"
     }
-  ],
+  },
   "environment": {
     "runtime": {
       "name": "node",

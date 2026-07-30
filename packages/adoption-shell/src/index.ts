@@ -128,6 +128,7 @@ export {
   LOCAL_CI_CONTRACT_V2_SCHEMA_ID,
   LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION,
   classifyAndMigrateLegacyLocalCiV1,
+  orderedLocalCiCommands,
   validateLocalCiContractV2,
 } from "./local-ci-contract-v2.ts";
 export type {
@@ -139,6 +140,7 @@ export type {
   LocalCiEnvironmentV2,
   LocalCiFailureDisposition,
   LocalCiNetworkExpectation,
+  OrderedLocalCiCommandV2,
   LocalCiPackageManagerConstraint,
   LocalCiRuntimeConstraint,
   LocalCiShell,

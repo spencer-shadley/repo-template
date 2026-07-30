@@ -4,6 +4,58 @@
   "title": "LocalCiContractV2",
   "type": "object",
   "additionalProperties": false,
+  "$defs": {
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "executable",
+        "args",
+        "shell",
+        "cwd",
+        "timeoutSeconds",
+        "expectedExitCode",
+        "failureDisposition"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "executable": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "shell": {
+          "enum": ["pwsh", "cmd", "bash", "sh", "none"]
+        },
+        "cwd": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expectedExitCode": {
+          "type": "integer"
+        },
+        "failureDisposition": {
+          "enum": ["fail-gate", "warning", "non-routable"]
+        }
+      }
+    }
+  },
   "required": [
     "schemaId",
     "schemaVersion",
@@ -34,69 +86,22 @@
       "minLength": 1
     },
     "commands": {
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "id",
-          "name",
-          "executable",
-          "args",
-          "shell",
-          "cwd",
-          "timeoutSeconds",
-          "order",
-          "expectedExitCode",
-          "isAuthoritativeGate",
-          "failureDisposition"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^[a-zA-Z0-9_-]+$"
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "executable": {
-            "type": "string",
-            "minLength": 1
-          },
-          "args": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "shell": {
-            "enum": ["pwsh", "cmd", "bash", "sh", "none"]
-          },
-          "cwd": {
-            "type": "string",
-            "minLength": 1
-          },
-          "timeoutSeconds": {
-            "type": "integer",
-            "minimum": 1
-          },
-          "order": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "expectedExitCode": {
-            "type": "integer"
-          },
-          "isAuthoritativeGate": {
-            "type": "boolean"
-          },
-          "failureDisposition": {
-            "enum": ["fail-gate", "warning", "non-routable"]
-          }
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 256,
+      "additionalProperties": false,
+      "required": ["authoritative-gate"],
+      "propertyNames": {
+        "pattern": "^[a-zA-Z0-9_-]+$"
+      },
+      "properties": {
+        "authoritative-gate": {
+          "$ref": "#/$defs/command"
+        }
+      },
+      "patternProperties": {
+        "^(?!authoritative-gate$)[a-zA-Z0-9_-]+$": {
+          "$ref": "#/$defs/command"
         }
       }
     },
@@ -146,6 +151,7 @@
         "supportedPlatforms": {
           "type": "array",
           "minItems": 1,
+          "maxItems": 32,
           "uniqueItems": true,
           "items": {
             "type": "string",
@@ -155,6 +161,7 @@
         "supportedArchitectures": {
           "type": "array",
           "minItems": 1,
+          "maxItems": 32,
           "uniqueItems": true,
           "items": {
             "type": "string",
@@ -163,6 +170,7 @@
         },
         "requiredEnvVars": {
           "type": "array",
+          "maxItems": 256,
           "uniqueItems": true,
           "items": {
             "type": "string",
@@ -171,6 +179,7 @@
         },
         "requiredCredentials": {
           "type": "array",
+          "maxItems": 256,
           "uniqueItems": true,
           "items": {
             "type": "string",
