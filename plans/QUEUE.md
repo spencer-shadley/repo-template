@@ -4,3 +4,4 @@ RISK-TIERED repo: only docs/config `auto` plans belong in `## Pending`; executab
 cross-repository `human` plans are enqueued with `--no-queue` and use the one-off governed lane.
 
 ## Pending
+- 035 P1 repo-template-product-sli-contract-plan retry:manual hold:critic-death retry:critic-available

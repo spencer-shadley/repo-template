@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "plan-critic-dead-letter",
+  "state": "hold",
+  "project": "repo-template",
+  "plan": "035",
+  "planFile": "plans/035-repo-template-product-sli-contract-plan.md",
+  "draftHash": "57d4df7db3755973",
+  "cause": "critic-death",
+  "criticStatus": "UNAVAILABLE",
+  "reason": "credit governor is conserving all lane at 96% usage",
+  "attemptedRound": 1,
+  "retryTrigger": "critic-available",
+  "retryOwner": "manager",
+  "queueOnResolve": true,
+  "retryAction": "node agent-orchestrator/enqueue-plan.mjs repo-template plans/035-repo-template-product-sli-contract-plan.md --existing",
+  "createdAt": "2026-07-30T04:15:26.387Z"
+}
