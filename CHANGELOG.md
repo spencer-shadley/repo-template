@@ -9,6 +9,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 ### Added
 
 - Introduced `LocalCiContractV2`: a versioned machine-readable local-CI contract schema (`contracts/local-ci/v2/local-ci-contract-v2.schema.json`), pure offline validator, fail-closed legacy V1 dispositions (`model-gateway-v1` and `repo-factory-v1`), positive/negative fixtures, and ADR-0008. MAJOR. Refs #102; this source candidate cannot close it before the separate canaries and release receipt.
+- Added an optional closed `releaseEvidence` envelope to immutable Template release receipts,
+  binding exact review, content-addressed canary receipts, named passed checks, deterministic
+  producer-tag readback, and correct-forward supersession evidence while retaining compatibility
+  with existing receipts. MINOR. Refs #102.
 
 ## [3.1.0] - 2026-07-29
 

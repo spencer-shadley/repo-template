@@ -1,7 +1,7 @@
 {
   "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json",
   "schemaVersion": "2.0.0",
-  "schemaDigest": "1fced1e7f8519cdcc10310c1e82f786b2f16260a0067653b5744d7ff5c39d149",
+  "schemaDigest": "56640de35655e7eb92953cbb27a2c247f6dbf775584671d6cd052458791b7da7",
   "contractId": "repo-template/adoption-shell-v2",
   "receiptKind": "repo-template/release-receipt/v1",
   "publicationState": "candidate",
@@ -53,6 +53,36 @@
     "runtimeCompatibility": ">=24.16.0 <25",
     "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
   },
+  "releaseEvidence": {
+    "review": {
+      "subject": "producer-commit",
+      "url": "https://github.com/spencer-shadley/repo-template/pull/111#pullrequestreview-4815250857",
+      "result": "approved"
+    },
+    "canaryReceipts": {
+      "model-gateway-v1": {
+        "url": "https://github.com/spencer-shadley/model-gateway/issues/21#issuecomment-5120000001",
+        "receiptSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "repo-factory-v1": {
+        "url": "https://github.com/spencer-shadley/repo-factory/issues/1#issuecomment-5120000002",
+        "receiptSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    },
+    "checks": {
+      "repo-template-verify": {
+        "command": "corepack.cmd pnpm verify",
+        "result": "passed"
+      }
+    },
+    "publicationReadback": {
+      "kind": "producer-tag-ref/v1"
+    },
+    "rollback": {
+      "disposition": "immutable-correct-forward",
+      "supersession": "new-semver-only"
+    }
+  },
   "migrationRefs": [],
-  "receiptDigest": "846c81df09ecc037f1394d7b7155a4f0ecfcc7b8271811bf86ef6d357622f016"
+  "receiptDigest": "9717cc06d922bbed303a591f3e0a0725eedabccf629e7ce5dfc0a88417c1a6e7"
 }

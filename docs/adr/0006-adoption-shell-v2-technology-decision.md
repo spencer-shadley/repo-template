@@ -132,6 +132,14 @@ message-body digest stay outside the canonical body to avoid a self-cycle. The r
 to the exact landed commit and tree even before publication, contains no ambient-clock field in its
 aggregate digest, and names the explicit receipt-digest algorithm.
 
+When a release requires canary evidence, the optional closed `releaseEvidence` envelope binds the
+review of the existing `producer.commit`, content-addressed canonical canary receipt URLs, named
+commands with passed results, and immutable correct-forward/supersession policy. Its
+`producer-tag-ref/v1` readback role resolves deterministically to
+`refs/tags/${producer.tag}` without duplicating a mutable timestamp or tag identity inside the
+canonical body. Older receipts without this optional envelope remain valid; a release whose own
+acceptance requires canaries must include it.
+
 ## Technology and exact mutable versions
 
 The 2026-07-24 bootstrap resolution selected:

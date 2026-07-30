@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "6431c30ee5ee1b1acaec5cb1f44e2e3e3c40b99da70b40ac8eaf2f3b4a19c4c4",
+  "artifactDigest": "813d2b6cbb36de40533a8882662ed2fa3e4bc104500544c68f7bea0a5c22fe90",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -35,8 +35,8 @@
       "path": "packages/adoption-shell/src/contract.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a9b1b7147a1ea8440d3127f0e96885adc0e9fbca2debc759c2902f8398c35e9a",
-      "bytes": 10395
+      "sha256": "5566e8492937d4330231674bd1f5930b0e9fb96fe3092c9a41f9f35944643211",
+      "bytes": 11038
     },
     {
       "path": "packages/adoption-shell/src/delivery-measurement-contract.ts",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6584f8575104b40d219d91bd4f85a89c8d19d4a39cd38a1fe93ddd6d73256a8e",
-      "bytes": 3724
+      "sha256": "135f7a583c2440b3ad9811c4eca269e3c34d3ee9d6b327532c40ff84f7ed5de5",
+      "bytes": 3751
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -105,8 +105,8 @@
       "path": "packages/adoption-shell/src/release-candidate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "109680fd7aa5cedae18d1ccbe27da4c1e65bac194f5f4c2a09674fae11525745",
-      "bytes": 8091
+      "sha256": "d1c8c92646cfc23c92107d4679ba8470b9482ed243e53dce7522d85c3a71fafd",
+      "bytes": 8744
     },
     {
       "path": "packages/adoption-shell/src/release-closure.ts",
@@ -116,11 +116,18 @@
       "bytes": 5596
     },
     {
+      "path": "packages/adoption-shell/src/release-evidence.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "9c2aeaf0d7969ab29251bd40a5473875042d61af9c081b2717d6cfcfb4f509fc",
+      "bytes": 4065
+    },
+    {
       "path": "packages/adoption-shell/src/release-receipt.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f7aeee44f432890ecddc64871a50237c7d49b7287ec9c7ea2dcef0d890aa6c4d",
-      "bytes": 12869
+      "sha256": "ba7daae9ea61d38720ba1ac1571cec2fb5ec08ab88eb6730a8c3dda2314ae842",
+      "bytes": 13394
     },
     {
       "path": "packages/adoption-shell/src/validate-documentation.ts",
@@ -226,8 +233,8 @@
       "path": "contracts/adoption-shell-v2/template-release-receipt.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "1fced1e7f8519cdcc10310c1e82f786b2f16260a0067653b5744d7ff5c39d149",
-      "bytes": 6759,
+      "sha256": "56640de35655e7eb92953cbb27a2c247f6dbf775584671d6cd052458791b7da7",
+      "bytes": 9925,
       "id": "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json",
       "version": "2.0.0"
     },
@@ -274,14 +281,14 @@
       "path": "contract.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f3d932821459c7beb67d73596eb4fccd3331e00982d648f14f67487b277db141",
-      "bytes": 10729
+      "sha256": "8ffb1cec743753836c69a06bde8a1de5413197b30cf06995cc234169ffbf204f",
+      "bytes": 11436
     },
     {
       "path": "contract.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d7b7219f10e68553e7f4a7c1ab79db4b620ec73d62d90f9c29bb0bbb1eb405f9",
+      "sha256": "c624fcd46286c5f6cf411b1a04b15323944b9898acb58a5ff02c9942d1c1e418",
       "bytes": 3107
     },
     {
@@ -344,8 +351,8 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "de621a9b22ef04ee5a3e744eec7a95408a8326ef655544810badc3b5be56911e",
-      "bytes": 3510
+      "sha256": "82d8338fd36c5aec79859c80d314bf410a1bc2c3f8ae71ef4cc0268d05faad14",
+      "bytes": 3535
     },
     {
       "path": "index.js",
@@ -421,8 +428,8 @@
       "path": "release-candidate.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "9cefe4658f9f667b7a6d99a85b576307bf198cf25f5c2ac8736481d451663663",
-      "bytes": 7850
+      "sha256": "c9f3c63e9189e6acb02f0afa0ab4b5ac531f7e294b1b545c60e4dbf7e2f4bc03",
+      "bytes": 8458
     },
     {
       "path": "release-closure.d.ts",
@@ -439,6 +446,20 @@
       "bytes": 4816
     },
     {
+      "path": "release-evidence.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "73bcb490d7fcdd9dfd032a2953d41319f3cb42ed6f2452f3989653fbad301c99",
+      "bytes": 203
+    },
+    {
+      "path": "release-evidence.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "8b2add8d9b9b72d2fd53ed0a30d4bf12c9a6cd220bb0623996dcfff0965814a0",
+      "bytes": 3811
+    },
+    {
       "path": "release-receipt.d.ts",
       "kind": "file",
       "mode": "100644",
@@ -449,8 +470,8 @@
       "path": "release-receipt.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7028b88d0ce68f389f0962f325e3785262fda4ecdbe9cb73d812411b5ec38e3b",
-      "bytes": 12325
+      "sha256": "0a384317e11d33ad1fe8e4b6da9d3dd032fe9f272d4925c01d1ffcdf5fb71465",
+      "bytes": 12805
     },
     {
       "path": "validate-documentation.d.ts",
@@ -605,8 +626,8 @@
       "path": "contracts/adoption-shell-v2/fixtures/template-release-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "b09b3f749c01982d158a4e9a8acfbc77666ae6b5d8891a1c97b21cc02d237019",
-      "bytes": 2690
+      "sha256": "173e645011e61311bab025e9f94ca9ede43aa9523b38f9e92e3b464ddc0c6053",
+      "bytes": 3717
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
@@ -866,7 +887,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d7d701f5ce30de6d9071afbcc9755750c155042ca16daa18932d4f15c679416b",
+      "sha256": "763da9cc55ef7d79200ea38c46df543738f4e42515d22cce78e3d94247743c93",
       "bytes": 876
     },
     {
@@ -898,5 +919,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "b50d3ec52d143ca7c9d7450d4a24359c7175c91dbb6fa39a7d3fa218a5cd9c31"
+  "manifestDigest": "84f3b61d17e0ebd77926de386394c68e560d96deb74157f337d93019cfb788bb"
 }

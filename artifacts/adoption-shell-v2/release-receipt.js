@@ -1,6 +1,7 @@
 import { ARTIFACT_MANIFEST_PATH, CONTRACT_ID, CONTRACT_VERSION, ENVELOPE_DIGEST_ALGORITHM, PAYLOAD_DIGEST_ALGORITHM, RELEASE_PAYLOAD_MANIFEST_PATH, RELEASE_RECEIPT_KIND, REPO_TEMPLATE_ORIGIN, REPO_TEMPLATE_REPOSITORY, SCHEMA_DIGESTS, SCHEMA_IDS, } from "./contract.js";
 import { sha256CanonicalJson } from "./digest.js";
 import { assertSortedUnique, BUNDLE_ID_PATTERN, Diagnostics, SEMVER_PATTERN, } from "./validation-helpers.js";
+import { validateTemplateReleaseEvidenceV1 } from "./release-evidence.js";
 const GIT_SHA1_PATTERN = /^[0-9a-f]{40}$/;
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
@@ -33,7 +34,7 @@ function validateBundleReferences(value, diagnostics) {
 }
 export function validateTemplateReleaseReceiptV1(value) {
     const diagnostics = new Diagnostics();
-    const fields = [
+    const requiredFields = [
         "schemaId",
         "schemaVersion",
         "schemaDigest",
@@ -50,7 +51,7 @@ export function validateTemplateReleaseReceiptV1(value) {
         "materializer",
         "migrationRefs",
     ];
-    if (!diagnostics.object(value, "", fields, fields)) {
+    if (!diagnostics.object(value, "", [...requiredFields, "releaseEvidence"], requiredFields)) {
         return finish(value, diagnostics);
     }
     diagnostics.string(value["schemaId"], "/schemaId", {
@@ -221,6 +222,14 @@ export function validateTemplateReleaseReceiptV1(value) {
         });
         diagnostics.string(materializer["runtimeCompatibility"], "/materializer/runtimeCompatibility", { constant: ">=24.16.0 <25" });
         diagnostics.string(materializer["compatibleReleaseReceiptKind"], "/materializer/compatibleReleaseReceiptKind", { constant: RELEASE_RECEIPT_KIND });
+    }
+    if (Object.hasOwn(value, "releaseEvidence")) {
+        const evidenceResult = validateTemplateReleaseEvidenceV1(value["releaseEvidence"]);
+        if (!evidenceResult.ok) {
+            for (const row of evidenceResult.diagnostics) {
+                diagnostics.add(row.code, `/releaseEvidence${row.pointer}`, row.message);
+            }
+        }
     }
     diagnostics.array(value["migrationRefs"], "/migrationRefs", 0, 0);
     if (typeof value["receiptDigest"] === "string") {
