@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "09c0709adcbb75d5d0a39e7d33cc95a1232a3954f83287e39c3bdf7f5eafedfb",
+  "inventoryDigest": "ce977e6d39a1e6796190d07d288adcee8185dea388f7bcd5be1e2340151ed899",
   "entryCount": 52,
   "excludedCount": 10,
   "entries": [
@@ -68,15 +68,15 @@
       "path": "artifacts/adoption-shell-v2/local-ci-contract-v2.d.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "a89c2e89cabe1b1f9ef78d6305652b5ff0377a066321d0b37042e266a1c81b85",
-      "bytes": 3190
+      "contentSha256": "a917af409ad48dd66d7debd572609e2ebbb59b043fd37d6c03977d4321e99d5f",
+      "bytes": 3388
     },
     {
       "path": "artifacts/adoption-shell-v2/local-ci-contract-v2.js",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "2bf5eec40b4f0832b9b3f4b41ed160f78e23b53adb71d76c7321c567f5133849",
-      "bytes": 8873
+      "contentSha256": "8efaf597a10447414ea7cde82e7f2fd56f0f5343e8c9373eec739e3413575969",
+      "bytes": 8957
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
@@ -89,15 +89,15 @@
       "path": "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "0102ff79a8d3ab38ca7526df10aa6af4e17a8a0bd4aa0eaeaf7c89966b16a656",
-      "bytes": 1340
+      "contentSha256": "6f1fdd8a23ed4a23bd6483f3e85728ca9c4f4ed3b898136a0fe9f89844b0ae2e",
+      "bytes": 1287
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-incomplete-env.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "014495f864f4022152b701c88728b344a6282ee83ebf7094e3f20e353857e685",
-      "bytes": 1228
+      "contentSha256": "0b0eb1e5f651102c6f5d5ead05abef35b3a3f7fb3a89952f14e8c31b5561bdfc",
+      "bytes": 1175
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-malformed.json",
@@ -117,15 +117,15 @@
       "path": "contracts/local-ci/v2/fixtures/invalid-no-authoritative-gate.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "e71995700eaebcfc0371a1be457d8d11c830ade90bc132e4b6e38f5c3a9eb30f",
-      "bytes": 1301
+      "contentSha256": "965526476f4cfcbfb43620ee59b7eb09740c92d7907424e5282192475f410c12",
+      "bytes": 1235
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-unsupported-version.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "11859e45edc531ecc5019d10fd7b0cfd94c8cfaf7b0546ea6ef92fa565f58b94",
-      "bytes": 1308
+      "contentSha256": "66f2aa14cdf6b17afe051eab56daef9b823b28042da50f21eb75e0e2d315537d",
+      "bytes": 1255
     },
     {
       "path": "contracts/local-ci/v2/fixtures/legacy-invalid-v1.json",
@@ -152,15 +152,15 @@
       "path": "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "82d976e5d4aa7ca9b86db812a2dfec3e2d7e2610a9f7e9efd6fb4765d4332da2",
-      "bytes": 2001
+      "contentSha256": "71dd27c1379e03d1f7b3aeb251072e2331d962aaef48d5ab956b59d5cfbc60c4",
+      "bytes": 1816
     },
     {
       "path": "contracts/local-ci/v2/local-ci-contract-v2.schema.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "a8f34f07e1598f80e4294a2250c4bb34a5dcc22ec57a017ef42b82a19815d63f",
-      "bytes": 5565
+      "contentSha256": "f121aa6a8067ad2e33f00f4cc418e260d8902b8abaa6020343d903f631047c8e",
+      "bytes": 5719
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -425,5 +425,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "5df06662e7bca8f5e4bc1269cf528e0969f8a2eeddd87a3d63beea2d2832e536"
+  "manifestDigest": "ed38d258053b785c358c937b93eddfacca5bd5f2313379e42a0bc7a5189a402b"
 }
