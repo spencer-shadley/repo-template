@@ -17,6 +17,7 @@ export declare const SCHEMA_IDS: {
     readonly artifactManifest: "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json";
     readonly templateReleaseReceipt: "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json";
     readonly verificationReceipt: "https://schemas.repo-template.dev/adoption-shell-v2/verification-receipt.schema.json";
+    readonly localCiContractV2: "https://schemas.repo-template.dev/local-ci-v2/local-ci-contract-v2.schema.json";
 };
 export declare const SCHEMA_DIGESTS: {
     readonly deliveryDeclaration: "7d70655d8232962d9a6e95b3edaf256a9d2c0e674ade9877cb787a29b98c5b7e";
@@ -28,6 +29,7 @@ export declare const SCHEMA_DIGESTS: {
     readonly artifactManifest: "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95";
     readonly templateReleaseReceipt: "1fced1e7f8519cdcc10310c1e82f786b2f16260a0067653b5744d7ff5c39d149";
     readonly verificationReceipt: "8a282bca596130df44f33cb00241d7874a23a2b78c3d23c7c4bd0026103ad256";
+    readonly localCiContractV2: "a8f34f07e1598f80e4294a2250c4bb34a5dcc22ec57a017ef42b82a19815d63f";
 };
 export type Sha256 = string;
 export type FileMode = "100644" | "100755";

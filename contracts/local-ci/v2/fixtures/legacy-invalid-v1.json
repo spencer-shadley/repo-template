@@ -1,0 +1,5 @@
+{
+  "runtime": "node@24.16.0",
+  "checks": "malformed-checks-not-array",
+  "effects": {}
+}

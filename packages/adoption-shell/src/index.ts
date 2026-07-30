@@ -123,3 +123,25 @@ export type {
   WorkMigrationDecisionV1,
   WorkMigrationManifestV1,
 } from "./work-migration-manifest-v1.ts";
+export {
+  LOCAL_CI_CONTRACT_V2_ID,
+  LOCAL_CI_CONTRACT_V2_SCHEMA_ID,
+  LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION,
+  classifyAndMigrateLegacyLocalCiV1,
+  orderedLocalCiCommands,
+  validateLocalCiContractV2,
+} from "./local-ci-contract-v2.ts";
+export type {
+  LegacyLineageKind,
+  LegacyLocalCiDisposition,
+  LocalCiCommandV2,
+  LocalCiContractV2,
+  LocalCiEffectsV2,
+  LocalCiEnvironmentV2,
+  LocalCiFailureDisposition,
+  LocalCiNetworkExpectation,
+  OrderedLocalCiCommandV2,
+  LocalCiPackageManagerConstraint,
+  LocalCiRuntimeConstraint,
+  LocalCiShell,
+} from "./local-ci-contract-v2.ts";

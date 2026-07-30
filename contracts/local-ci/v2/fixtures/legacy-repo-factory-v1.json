@@ -1,0 +1,13 @@
+{
+  "entrypoint": "pnpm verify",
+  "gates": [
+    "lint",
+    "typecheck",
+    "test",
+    "verify"
+  ],
+  "flags": {
+    "allowNetwork": false,
+    "allowSpend": false
+  }
+}
