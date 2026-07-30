@@ -37,6 +37,7 @@ export type {
   TemplateReleasePublicationState,
   TemplateReleaseClosure,
   TemplateReleaseCandidateInput,
+  TemplateReleaseEvidence,
   TemplateReleaseReceipt,
   ValidationResult,
   VerificationReceipt,

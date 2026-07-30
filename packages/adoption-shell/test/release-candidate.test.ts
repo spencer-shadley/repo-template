@@ -13,6 +13,7 @@ import {
   type MaterializerInput,
   type ReleasePayloadEntryDraftV2,
   type TemplateReleaseCandidateInput,
+  type TemplateReleaseEvidence,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -36,6 +37,39 @@ function input(): TemplateReleaseCandidateInput {
     artifactManifest: readJson<ArtifactManifest>(
       "artifacts/adoption-shell-v2/artifact-manifest.json",
     ),
+  };
+}
+
+function releaseEvidence(): TemplateReleaseEvidence {
+  return {
+    review: {
+      subject: "producer-commit",
+      url: "https://github.com/spencer-shadley/repo-template/pull/111#pullrequestreview-4815250857",
+      result: "approved",
+    },
+    canaryReceipts: {
+      "model-gateway-v1": {
+        url: "https://github.com/spencer-shadley/model-gateway/issues/21#issuecomment-5120000001",
+        receiptSha256: "a".repeat(64),
+      },
+      "repo-factory-v1": {
+        url: "https://github.com/spencer-shadley/repo-factory/issues/1#issuecomment-5120000002",
+        receiptSha256: "b".repeat(64),
+      },
+    },
+    checks: {
+      "repo-template-verify": {
+        command: "corepack.cmd pnpm verify",
+        result: "passed",
+      },
+    },
+    publicationReadback: {
+      kind: "producer-tag-ref/v1",
+    },
+    rollback: {
+      disposition: "immutable-correct-forward",
+      supersession: "new-semver-only",
+    },
   };
 }
 
@@ -93,6 +127,37 @@ test("candidate builder fails closed on invalid identity, unknown authority, or 
   assert.equal(result.ok, false);
   if (!result.ok) {
     assert.ok(result.diagnostics.some((row) => row.code === "E_PAYLOAD_DIGEST"));
+  }
+});
+
+test("candidate builder preserves valid closed release evidence", () => {
+  const evidence = releaseEvidence();
+  const result = createTemplateReleaseCandidateV1({
+    ...input(),
+    releaseEvidence: evidence,
+  });
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.deepEqual(result.value.receipt.releaseEvidence, evidence);
+
+  const malformed = {
+    ...releaseEvidence(),
+    review: {
+      ...releaseEvidence().review,
+      ambientAuthority: true,
+    },
+  };
+  const rejected = createTemplateReleaseCandidateV1({
+    ...input(),
+    releaseEvidence: malformed,
+  });
+  assert.equal(rejected.ok, false);
+  if (!rejected.ok) {
+    assert.ok(rejected.diagnostics.some(
+      (row) =>
+        row.code === "E_UNKNOWN_PROPERTY" &&
+        row.pointer === "/releaseEvidence/review/ambientAuthority",
+    ));
   }
 });
 

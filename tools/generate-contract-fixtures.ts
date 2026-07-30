@@ -505,6 +505,36 @@ function templateReleaseReceiptFixture(): TemplateReleaseReceipt {
       runtimeCompatibility: ">=24.16.0 <25",
       compatibleReleaseReceiptKind: RELEASE_RECEIPT_KIND,
     },
+    releaseEvidence: {
+      review: {
+        subject: "producer-commit",
+        url: "https://github.com/spencer-shadley/repo-template/pull/111#pullrequestreview-4815250857",
+        result: "approved",
+      },
+      canaryReceipts: {
+        "model-gateway-v1": {
+          url: "https://github.com/spencer-shadley/model-gateway/issues/21#issuecomment-5120000001",
+          receiptSha256: "a".repeat(64),
+        },
+        "repo-factory-v1": {
+          url: "https://github.com/spencer-shadley/repo-factory/issues/1#issuecomment-5120000002",
+          receiptSha256: "b".repeat(64),
+        },
+      },
+      checks: {
+        "repo-template-verify": {
+          command: "corepack.cmd pnpm verify",
+          result: "passed",
+        },
+      },
+      publicationReadback: {
+        kind: "producer-tag-ref/v1",
+      },
+      rollback: {
+        disposition: "immutable-correct-forward",
+        supersession: "new-semver-only",
+      },
+    },
     migrationRefs: [] as const,
   } as const;
   return { ...body, receiptDigest: sha256CanonicalJson(body) };

@@ -226,6 +226,89 @@
         }
       }
     },
+    "releaseEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review",
+        "canaryReceipts",
+        "checks",
+        "publicationReadback",
+        "rollback"
+      ],
+      "properties": {
+        "review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["subject", "url", "result"],
+          "properties": {
+            "subject": {
+              "const": "producer-commit"
+            },
+            "url": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "pattern": "^https://github\\.com/spencer-shadley/repo-template/pull/[1-9][0-9]*#pullrequestreview-[1-9][0-9]*$"
+            },
+            "result": {
+              "const": "approved"
+            }
+          }
+        },
+        "canaryReceipts": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 32,
+          "additionalProperties": false,
+          "propertyNames": {
+            "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+          },
+          "patternProperties": {
+            "^[a-z0-9]+(?:[._-][a-z0-9]+)*$": {
+              "$ref": "#/$defs/canaryReceipt"
+            }
+          }
+        },
+        "checks": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 32,
+          "additionalProperties": false,
+          "propertyNames": {
+            "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+          },
+          "patternProperties": {
+            "^[a-z0-9]+(?:[._-][a-z0-9]+)*$": {
+              "$ref": "#/$defs/releaseCheck"
+            }
+          }
+        },
+        "publicationReadback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": {
+              "const": "producer-tag-ref/v1"
+            }
+          }
+        },
+        "rollback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["disposition", "supersession"],
+          "properties": {
+            "disposition": {
+              "const": "immutable-correct-forward"
+            },
+            "supersession": {
+              "const": "new-semver-only"
+            }
+          }
+        }
+      }
+    },
     "migrationRefs": {
       "type": "array",
       "maxItems": 0
@@ -266,6 +349,37 @@
         },
         "digest": {
           "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "canaryReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "receiptSha256"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "pattern": "^https://github\\.com/spencer-shadley/[A-Za-z0-9_.-]+/(?:issues|pull)/[1-9][0-9]*#(?:issuecomment|pullrequestreview)-[1-9][0-9]*$"
+        },
+        "receiptSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "releaseCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "result"],
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "result": {
+          "const": "passed"
         }
       }
     }

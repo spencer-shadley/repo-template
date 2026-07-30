@@ -27,7 +27,7 @@ export declare const SCHEMA_DIGESTS: {
     readonly releasePayloadSet: "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f";
     readonly capabilityBundle: "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0";
     readonly artifactManifest: "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95";
-    readonly templateReleaseReceipt: "1fced1e7f8519cdcc10310c1e82f786b2f16260a0067653b5744d7ff5c39d149";
+    readonly templateReleaseReceipt: "56640de35655e7eb92953cbb27a2c247f6dbf775584671d6cd052458791b7da7";
     readonly verificationReceipt: "8a282bca596130df44f33cb00241d7874a23a2b78c3d23c7c4bd0026103ad256";
     readonly localCiContractV2: "a8f34f07e1598f80e4294a2250c4bb34a5dcc22ec57a017ef42b82a19815d63f";
 };
@@ -180,6 +180,29 @@ export interface VerificationReceipt extends SchemaIdentity, Readonly<{
 }> {
 }
 export type TemplateReleasePublicationState = "candidate" | "published";
+export interface TemplateReleaseEvidence extends Readonly<{
+    review: Readonly<{
+        subject: "producer-commit";
+        url: string;
+        result: "approved";
+    }>;
+    canaryReceipts: Readonly<Record<string, Readonly<{
+        url: string;
+        receiptSha256: Sha256;
+    }>>>;
+    checks: Readonly<Record<string, Readonly<{
+        command: string;
+        result: "passed";
+    }>>>;
+    publicationReadback: Readonly<{
+        kind: "producer-tag-ref/v1";
+    }>;
+    rollback: Readonly<{
+        disposition: "immutable-correct-forward";
+        supersession: "new-semver-only";
+    }>;
+}> {
+}
 export interface TemplateReleaseReceipt extends SchemaIdentity, Readonly<{
     contractId: typeof CONTRACT_ID;
     receiptKind: typeof RELEASE_RECEIPT_KIND;
@@ -227,6 +250,7 @@ export interface TemplateReleaseReceipt extends SchemaIdentity, Readonly<{
         runtimeCompatibility: ">=24.16.0 <25";
         compatibleReleaseReceiptKind: typeof RELEASE_RECEIPT_KIND;
     }>;
+    releaseEvidence?: TemplateReleaseEvidence;
     migrationRefs: readonly [];
 }> {
 }
@@ -235,6 +259,7 @@ export interface TemplateReleaseClosure extends Readonly<{
     payloadSet: ReleasePayloadSet;
     capabilityRegistry: CapabilityBundleRegistry;
     artifactManifest: ArtifactManifest;
+    releaseEvidence?: TemplateReleaseEvidence;
 }> {
 }
 export interface TemplateReleaseCandidateInput extends Readonly<{

@@ -2,6 +2,7 @@ import { ARTIFACT_MANIFEST_PATH, CONTRACT_ID, CONTRACT_VERSION, ENVELOPE_DIGEST_
 import { validateCapabilityBundleRegistryV2 } from "./capability-bundles.js";
 import { decodeCanonicalBase64, sha256Bytes, sha256CanonicalJson, sha256PayloadEntries, } from "./digest.js";
 import { validateTemplateReleaseClosureV1 } from "./release-closure.js";
+import { validateTemplateReleaseEvidenceV1 } from "./release-evidence.js";
 import { validateReleasePayloadSetV2 } from "./validate.js";
 import { validateArtifactManifestV2 } from "./validate-manifests.js";
 import { Diagnostics, isRecord, SEMVER_PATTERN, } from "./validation-helpers.js";
@@ -25,7 +26,7 @@ export function createTemplateReleaseCandidateV1(value) {
         "capabilityRegistry",
         "artifactManifest",
     ];
-    if (!diagnostics.object(value, "", fields, fields)) {
+    if (!diagnostics.object(value, "", [...fields, "releaseEvidence"], fields)) {
         return finish(value, diagnostics);
     }
     const semverValid = diagnostics.string(value["semver"], "/semver", {
@@ -42,6 +43,9 @@ export function createTemplateReleaseCandidateV1(value) {
     const payloadResult = validateReleasePayloadSetV2(value["payloadSet"]);
     const capabilityResult = validateCapabilityBundleRegistryV2(value["capabilityRegistry"]);
     const artifactResult = validateArtifactManifestV2(value["artifactManifest"]);
+    const evidenceResult = Object.hasOwn(value, "releaseEvidence")
+        ? validateTemplateReleaseEvidenceV1(value["releaseEvidence"])
+        : null;
     if (!payloadResult.ok) {
         addNested(diagnostics, "/payloadSet", payloadResult.diagnostics);
     }
@@ -51,12 +55,16 @@ export function createTemplateReleaseCandidateV1(value) {
     if (!artifactResult.ok) {
         addNested(diagnostics, "/artifactManifest", artifactResult.diagnostics);
     }
+    if (evidenceResult !== null && !evidenceResult.ok) {
+        addNested(diagnostics, "/releaseEvidence", evidenceResult.diagnostics);
+    }
     if (!semverValid ||
         !commitValid ||
         !treeValid ||
         !payloadResult.ok ||
         !capabilityResult.ok ||
         !artifactResult.ok ||
+        (evidenceResult !== null && !evidenceResult.ok) ||
         diagnostics.rows.length > 0) {
         return finish(value, diagnostics);
     }
@@ -66,6 +74,7 @@ export function createTemplateReleaseCandidateV1(value) {
     const payloadSet = payloadResult.value;
     const capabilityRegistry = capabilityResult.value;
     const artifactManifest = artifactResult.value;
+    const releaseEvidence = evidenceResult?.ok ? evidenceResult.value : undefined;
     const tag = `v${semver}`;
     const receiptBody = {
         schemaId: SCHEMA_IDS.templateReleaseReceipt,
@@ -116,6 +125,7 @@ export function createTemplateReleaseCandidateV1(value) {
             runtimeCompatibility: artifactManifest.toolchain.nodeCompatibility,
             compatibleReleaseReceiptKind: artifactManifest.releaseReceiptKind,
         },
+        ...(releaseEvidence === undefined ? {} : { releaseEvidence }),
         migrationRefs: [],
     };
     const closure = {

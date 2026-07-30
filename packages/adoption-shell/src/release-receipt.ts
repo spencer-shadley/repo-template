@@ -21,6 +21,7 @@ import {
   Diagnostics,
   SEMVER_PATTERN,
 } from "./validation-helpers.ts";
+import { validateTemplateReleaseEvidenceV1 } from "./release-evidence.ts";
 
 const GIT_SHA1_PATTERN = /^[0-9a-f]{40}$/;
 
@@ -72,7 +73,7 @@ export function validateTemplateReleaseReceiptV1(
   value: unknown,
 ): ValidationResult<TemplateReleaseReceipt> {
   const diagnostics = new Diagnostics();
-  const fields = [
+  const requiredFields = [
     "schemaId",
     "schemaVersion",
     "schemaDigest",
@@ -89,7 +90,14 @@ export function validateTemplateReleaseReceiptV1(
     "materializer",
     "migrationRefs",
   ];
-  if (!diagnostics.object(value, "", fields, fields)) {
+  if (
+    !diagnostics.object(
+      value,
+      "",
+      [...requiredFields, "releaseEvidence"],
+      requiredFields,
+    )
+  ) {
     return finish(value as TemplateReleaseReceipt, diagnostics);
   }
 
@@ -386,6 +394,19 @@ export function validateTemplateReleaseReceiptV1(
       "/materializer/compatibleReleaseReceiptKind",
       { constant: RELEASE_RECEIPT_KIND },
     );
+  }
+
+  if (Object.hasOwn(value, "releaseEvidence")) {
+    const evidenceResult = validateTemplateReleaseEvidenceV1(value["releaseEvidence"]);
+    if (!evidenceResult.ok) {
+      for (const row of evidenceResult.diagnostics) {
+        diagnostics.add(
+          row.code,
+          `/releaseEvidence${row.pointer}`,
+          row.message,
+        );
+      }
+    }
   }
 
   diagnostics.array(value["migrationRefs"], "/migrationRefs", 0, 0);
