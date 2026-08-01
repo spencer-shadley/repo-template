@@ -65,10 +65,14 @@ Stricter rules land **even when the tree is dirty**. Flow:
    - File-level / rule debt: `pnpm lint:baseline` → commit `eslint-suppressions.json`
    - Or per-file: `/* eslint-disable max-lines -- deferred: https://github.com/<owner>/<repo>/issues/N */`
    - Wide dirs: add allowlist row in `scripts/dir-breadth.json` with `"issue": "https://…/issues/N"`
-3. **File a GH issue** for each suppress/allowlist entry: title like `re-enable lint: max-lines on path/to/file` — issue is the ticket to split and re-enable.
-4. **New code** must pass; only grandfathered paths may stay disabled until their issue closes.
+3. **One GitHub issue per suppressed file** (and one per dir-breadth allowlist path).  
+   - Title: `re-enable lint on path/to/file`  
+   - **Do not** file a single mega-issue for the whole `eslint-suppressions.json` — that is too large to finish.  
+   - Optional index: `eslint-suppressions.issues.json` mapping `path → issue URL`.  
+   - Inline disables must cite **that file’s** issue URL.
+4. **New code** must pass; only grandfathered paths may stay disabled until **their** issue closes.
 
-This is the standard path for adding stricter repo rules via linter: **gate first, fix forward via issues**, never wait for a perfect tree.
+This is the standard path for adding stricter repo rules via linter: **gate first, fix forward via per-file issues**, never wait for a perfect tree.
 
 ## Presence gate
 
