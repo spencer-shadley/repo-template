@@ -72,3 +72,8 @@ globs to the files that contain those strings, then run
 `node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json` in the verify gate. Use
 `allowlist` entries only with `path`, optional `line`/`rule`/`match`, and a human-readable
 `justification`; repos with no user surface keep `include: []`, which no-ops with an explicit notice.
+
+
+## Quality lint (required)
+
+See [docs/QUALITY-LINT.md](./docs/QUALITY-LINT.md). Bootstrap without slint.quality.mjs + wired slint verify is incomplete.

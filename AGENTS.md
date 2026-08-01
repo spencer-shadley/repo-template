@@ -54,6 +54,19 @@ schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
 **Package manager:** {{PACKAGE_MANAGER}}. **Data/migrations:** {{DB_AND_MIGRATIONS}}.
 **E2E:** {{E2E}}. **Deploy:** {{DEPLOY}}.
 
+## Quality lint (required bootstrap)
+
+**Bootstrap is incomplete without the fleet quality lint gate** ([docs/QUALITY-LINT.md](./docs/QUALITY-LINT.md)).
+
+Every new or adopted repo MUST ship:
+
+1. `eslint.quality.mjs` exporting `qualityRules()` (max-lines **500**, complexity ceilings, sonarjs, unicorn, exhaustive core rules)
+2. `eslint.config.mjs` that imports and spreads `qualityRules()`
+3. `package.json` `"lint": "eslint ."` and a `verify` script that runs lint
+4. Grandfathered debt only via `eslint-suppressions.json` (`eslint . --suppress-all`) — new violations fail closed
+
+Presence check: `node scripts/verify-quality-lint-required.mjs`. Small files are not optional.
+
 ## Direct L0 fast path
 
 The repo manager may directly write, commit, and land simple reversible repo-contained source,

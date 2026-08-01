@@ -8,6 +8,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 
+- **Required quality lint bootstrap** (`eslint.quality.mjs`, starter `eslint.config.mjs`, `docs/QUALITY-LINT.md`, `scripts/verify-quality-lint-required.mjs`): max-lines 500, complexity ceilings, typescript-eslint strict/stylistic, sonarjs, unicorn, exhaustive core rules. Template `verify:self` fails if quality lint artifacts are missing. Materialized via template-manifest copy.
+
+### Added
+
 - Introduced `LocalCiContractV2`: a versioned machine-readable local-CI contract schema (`contracts/local-ci/v2/local-ci-contract-v2.schema.json`), pure offline validator, fail-closed legacy V1 dispositions (`model-gateway-v1` and `repo-factory-v1`), positive/negative fixtures, and ADR-0008. MAJOR. Refs #102; this source candidate cannot close it before the separate canaries and release receipt.
 - Added an optional closed `releaseEvidence` envelope to immutable Template release receipts,
   binding exact review, content-addressed canary receipts, named passed checks, deterministic
