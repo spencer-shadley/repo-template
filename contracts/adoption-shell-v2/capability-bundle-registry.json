@@ -54,6 +54,41 @@
       "digest": "12e6604b74413263039d55b4705e4d0e1cc3b854d7aead900d91cd9cef093e60"
     },
     {
+      "id": "repo-template/quality-lint",
+      "version": "1.0.0",
+      "dependencies": [],
+      "artifacts": [
+        "docs/QUALITY-LINT.md",
+        "eslint.config.mjs",
+        "eslint.quality.mjs",
+        "scripts/verify-quality-lint-required.mjs"
+      ],
+      "fixtures": [],
+      "goldens": [],
+      "modes": [
+        {
+          "id": "config",
+          "entrypoint": "eslint.quality.mjs",
+          "requiredPaths": [
+            "docs/QUALITY-LINT.md",
+            "eslint.config.mjs",
+            "eslint.quality.mjs",
+            "scripts/verify-quality-lint-required.mjs"
+          ]
+        },
+        {
+          "id": "presence",
+          "entrypoint": "scripts/verify-quality-lint-required.mjs",
+          "requiredPaths": [
+            "eslint.quality.mjs",
+            "scripts/verify-quality-lint-required.mjs"
+          ]
+        }
+      ],
+      "digestAlgorithm": "sha256-rfc8785-v1",
+      "digest": "bba68616a31f3a82cd1389bdadae791ca3cc5c7b17750ca7a7cc2a5855ccb6c2"
+    },
+    {
       "id": "repo-template/user-surface-lint",
       "version": "2.6.0",
       "dependencies": [],
