@@ -47,11 +47,28 @@ Tests (`*.test.*`, `e2e/`, `fixtures/`) turn off size/complexity caps.
    ```json
    "lint": "eslint .",
    "lint:baseline": "eslint . --suppress-all",
-   "lint:baseline:prune": "eslint . --prune-suppressions"
+   "lint:baseline:prune": "eslint . --prune-suppressions",
+   "lint:dir-breadth": "node scripts/check-dir-breadth.mjs",
+   "verify": "pnpm lint && pnpm lint:dir-breadth && …"
    ```
-4. Ensure `verify` (or land-gate) runs `pnpm lint`.
-5. If the repo already has large files: `pnpm lint:baseline` once, commit suppressions — **new** violations fail.
-6. Prefer split over suppress for anything you touch.
+4. Copy `scripts/check-dir-breadth.mjs` + `scripts/dir-breadth.json` (mega-dir cap; default **25** source peers per dir).
+5. Ensure `verify` (or land-gate) runs `pnpm lint` **and** `lint:dir-breadth`.
+6. If the repo already has large files / wide dirs: baseline once (below) — **new** violations fail.
+7. Prefer split over suppress for anything you touch.
+
+## Disable / grandfather flow (do not block adding the linter)
+
+Stricter rules land **even when the tree is dirty**. Flow:
+
+1. **Wire the gate** (eslint quality + dir-breadth) into `verify`.
+2. **Baseline existing debt** without fixing everything first:
+   - File-level / rule debt: `pnpm lint:baseline` → commit `eslint-suppressions.json`
+   - Or per-file: `/* eslint-disable max-lines -- deferred: https://github.com/<owner>/<repo>/issues/N */`
+   - Wide dirs: add allowlist row in `scripts/dir-breadth.json` with `"issue": "https://…/issues/N"`
+3. **File a GH issue** for each suppress/allowlist entry: title like `re-enable lint: max-lines on path/to/file` — issue is the ticket to split and re-enable.
+4. **New code** must pass; only grandfathered paths may stay disabled until their issue closes.
+
+This is the standard path for adding stricter repo rules via linter: **gate first, fix forward via issues**, never wait for a perfect tree.
 
 ## Presence gate
 

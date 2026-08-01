@@ -1,0 +1,18 @@
+{
+  "$schema": "./dir-breadth.schema.json",
+  "maxFilesPerDir": 25,
+  "roots": ["src", "lib", "packages", "apps", "tools", "scripts"],
+  "ignoreDirNames": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "vendor",
+    ".git",
+    "fixtures",
+    "testdata",
+    "__snapshots__",
+    "archive"
+  ],
+  "allowlist": []
+}
