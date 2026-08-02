@@ -145,6 +145,50 @@ const opsPolicyErrors = [
 ].filter((error): error is string => error !== undefined);
 
 const templateAgents = fs.readFileSync(path.join(root, "AGENTS.md"), "utf8");
+const portableCharterHeadings = [
+  "Mission",
+  "Responsibilities",
+  "Non-responsibilities",
+  "Current status / readiness",
+] as const;
+const templateSelfEnd = "<!-- /TEMPLATE-SELF -->";
+
+function validatePortableCharter(text: string): string[] {
+  const marker = text.indexOf(templateSelfEnd);
+  if (marker < 0) return ["portable charter: TEMPLATE-SELF end marker missing"];
+  const payload = text.slice(marker + templateSelfEnd.length);
+  const errors: string[] = [];
+  let previous = -1;
+  for (const heading of portableCharterHeadings) {
+    const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const matches = [...payload.matchAll(new RegExp(`^## ${escaped}$`, "gm"))];
+    if (matches.length !== 1) {
+      errors.push(`portable charter: expected exactly one ## ${heading}`);
+      continue;
+    }
+    const current = matches[0]?.index ?? -1;
+    if (current <= previous) errors.push(`portable charter: heading order invalid at ${heading}`);
+    previous = current;
+  }
+  for (const placeholder of ["{{ONE_LINE_DESCRIPTION}}", "{{RESPONSIBILITIES}}", "{{NON_GOALS}}"] as const) {
+    if (!payload.includes(placeholder)) errors.push(`portable charter: missing ${placeholder}`);
+  }
+  if (!payload.includes("[PRIORITIES.md](./PRIORITIES.md)")) {
+    errors.push("portable charter: sibling PRIORITIES.md pointer missing");
+  }
+  return errors;
+}
+
+const portableCharterErrors = validatePortableCharter(templateAgents);
+for (const heading of portableCharterHeadings) {
+  const marker = templateAgents.indexOf(templateSelfEnd);
+  const prefix = templateAgents.slice(0, marker + templateSelfEnd.length);
+  const payload = templateAgents.slice(marker + templateSelfEnd.length);
+  const damaged = `${prefix}${payload.replace(`## ${heading}`, `[removed ${heading}]`)}`;
+  if (!validatePortableCharter(damaged).some((error) => error.includes(heading))) {
+    portableCharterErrors.push(`portable charter removal check failed: ${heading}`);
+  }
+}
 const requiredDirectL0Defaults = [
   [
     "persistent goals disabled pending native guards",
@@ -244,6 +288,7 @@ if (userSurfaceLintSyncErrors(droppedConfigManifest).length === 0) {
 }
 
 const boundaryErrors: string[] = [
+  ...portableCharterErrors,
   ...directL0DefaultErrors,
   ...textFileSelfTestErrors,
   ...conflictMarkerSelfTestErrors,
@@ -336,7 +381,16 @@ if (workingVersion.trim() !== "3.1.0") {
   boundaryErrors.push("TEMPLATE_VERSION must publish inert-seed closure release 3.1.0");
 }
 
-if (process.argv.includes("--direct-l0-defaults")) {
+if (process.argv.includes("--portable-charter")) {
+  if (portableCharterErrors.length > 0) {
+    console.error("portable charter:", portableCharterErrors);
+    process.exitCode = 1;
+  } else {
+    console.log(
+      `portable charter: ${portableCharterHeadings.length} headings, placeholders, priorities pointer, and removal checks passed`,
+    );
+  }
+} else if (process.argv.includes("--direct-l0-defaults")) {
   if (directL0DefaultErrors.length > 0) {
     console.error("direct-L0 defaults:", directL0DefaultErrors);
     process.exitCode = 1;
