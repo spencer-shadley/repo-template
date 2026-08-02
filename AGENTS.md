@@ -1,10 +1,34 @@
 <!-- TEMPLATE-SELF — rules for working on repo-template ITSELF. adopt-project STRIPS this block
+
+## Mission
+
+Define, validate, version, and publish the portable repository structure and contracts used to
+create and adopt fleet repositories.
+
+## Responsibilities
+
+- Own generic template files, portable repository semantics, manifests, and setup placeholders.
+- Own versioned adoption-shell contracts, deterministic materialization, release artifacts, and migration guidance.
+- Own template self-verification, conformance fixtures, and structural semver policy.
+- Turn proven fleet-wide repository lessons into portable defaults without rewriting consumers directly.
+
+## Non-responsibilities
+
+- Does not own a consumer repository's product-specific mission, acceptance criteria, or local source.
+- Does not create, relocate, register, schedule, activate, or deploy repositories.
+- Does not own Fleet Registry identity facts or Repo Factory lifecycle/effect transactions.
+- Does not mutate existing consumers merely because the template evolves.
+
+## Current status / readiness
+
+Current readiness is established by `README.md`, current plans and statuses, and current verified release or operational evidence; this charter states durable ownership, not completion.
+
      (and resets plans/ + deletes any .ops data) when instantiating a new repo. -->
 # THIS repo: the living template (meta-rules)
 
 > **Source of truth (workspace constitution):** `C:\code\AGENTS.md` — [Agent Constitution](../../../AGENTS.md).
 > Fleet always-on law and progressive-disclosure index. Nested git roots may stop ancestral walk — resolve this path explicitly.
-> Rules in *this* file win only for stack/risk inside this directory tree.
+> Rules in *this* file win only for charter/stack/risk inside this directory tree.
 > **Priorities / SLI / SLO:** [PRIORITIES.md](./PRIORITIES.md) (inherits fleet `C:\code\PRIORITIES.md`).
 
 This repo IS the workspace standard. Everything below the `/TEMPLATE-SELF` marker is CONTENT copied
@@ -35,8 +59,27 @@ them when working on this repo.
 
 # {{NAME}} — Agent Rules
 
-{{ONE_LINE_DESCRIPTION}}. The root `../AGENTS.md` (Codex handoff protocol) also applies;
-rules here take precedence on any conflict.
+## Mission
+
+{{ONE_LINE_DESCRIPTION}} <!-- TODO(setup!): one durable outcome, stated without implementation or model identity. -->
+
+## Responsibilities
+
+{{RESPONSIBILITIES}} <!-- TODO(setup!): what this repo owns; one short paragraph or 2-4 bullets. -->
+
+## Non-responsibilities
+
+{{NON_GOALS}} <!-- TODO(setup!): adjacent authority this repo must not absorb. -->
+
+## Current status / readiness
+
+<!-- TODO(setup!): point to the current evidence that establishes commissioning/readiness. Durable
+responsibility is not a claim that implementation is complete. -->
+
+> **Source of truth (workspace constitution):** `C:\code\AGENTS.md` — [Agent Constitution](../AGENTS.md).
+> Fleet always-on law and progressive-disclosure index. Resolve the correct relative root path during adoption.
+> Rules in *this* file win only for charter/stack/risk inside this directory tree.
+> **Priorities / SLI / SLO:** [PRIORITIES.md](./PRIORITIES.md) (inherits fleet `C:\code\PRIORITIES.md`).
 
 > **What this file is:** the operating manual every agent loads first — responsibilities,
 > principles, commands, gates, flows, autonomy. Deeper context lives one hop away:
@@ -94,21 +137,12 @@ bounded mechanical substeps.
 ## Binding steer
 
 Every interactive or autonomous agent operating in this repository, including discovery, triage,
-review, implementation, and supervision agents, must read and obey the Responsibilities &
-non-goals and Product principles sections before acting.
+review, implementation, and supervision agents, must read and obey the Mission, Responsibilities,
+Non-responsibilities, Current status / readiness, and Product principles sections before acting.
 
 A technically correct change that violates a ratified product principle is a defect. Work beyond a
 ratified non-goal is rejected with the charter citation. Findings, issues, reviews, implementation
 reports, and PR descriptions cite every applicable principle by its exact `P<X>.<Y>` identifier.
-
-## Responsibilities & non-goals
-
-{{RESPONSIBILITIES}}  <!-- TODO(setup!): what this repo OWNS — its function in the fleet and its
-boundaries with sibling repos. One short paragraph or 2-4 bullets. -->
-
-**Non-goals:** {{NON_GOALS}}  <!-- TODO(setup!): what this repo explicitly does NOT do — the
-adjacent scope agents must not drift into (e.g. "no production deploy lane", "task content is
-owned by the external service, not us"). -->
 
 ## Product principles
 
