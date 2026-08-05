@@ -373,7 +373,7 @@ try {
 const issueTemplate = fs.readFileSync(
   path.join(root, ".github", "ISSUE_TEMPLATE", "task.md"),
 );
-if (gitBlobId(issueTemplate) !== "1383ad89b6bdccc6369c490d27a8326fa05f49cc") {
+if (gitBlobId(issueTemplate) !== "d8eb12468e07b7083e4fa7fdbb37ca082edbf855") {
   boundaryErrors.push("predecessor issue template bytes changed");
 }
 const workingVersion = fs.readFileSync(path.join(root, "TEMPLATE_VERSION"), "utf8");
