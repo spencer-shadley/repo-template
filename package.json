@@ -15,8 +15,9 @@
     "release:payload": "node tools/release-payload.ts write",
     "release:payload:check": "node tools/release-payload.ts check",
     "verify:artifact": "node tools/artifact-build.ts verify",
-    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node scripts/verify-quality-lint-required.mjs --self-test && node tools/verify-template-self.ts && pnpm release:payload:check",
+    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node scripts/verify-quality-lint-required.mjs --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.mjs && pnpm release:payload:check",
     "verify": "pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self",
+    "check:issue-template-intake": "node scripts/check-issue-template-intake.mjs",
     "verify:quality-lint": "node scripts/verify-quality-lint-required.mjs --self-test"
   },
   "devDependencies": {
