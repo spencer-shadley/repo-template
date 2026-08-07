@@ -6,6 +6,13 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Changed
+
+- **Decision C narrative (M9 prep):** enrollment remains `projects.json`; claim Pending SoT is
+  issue/plan DAG → `.ops/work-items/QUEUE.generated.md`; hand `plans/QUEUE.md` documented as frozen
+  optional glass (`WRITE_GENERATED_QUEUE=0`) heading toward delete. Updates `docs/QUEUE-ENROLLMENT.md`,
+  `AGENTS.md` / `README.md`, sticky `plans/QUEUE.md`, and ADR-0003 supersession note. PATCH.
+
 ### Added
 
 - **Required quality lint bootstrap** (`eslint.quality.mjs`, starter `eslint.config.mjs`, `docs/QUALITY-LINT.md`, `scripts/verify-quality-lint-required.mjs`): max-lines 500, complexity ceilings, typescript-eslint strict/stylistic, sonarjs, unicorn, exhaustive core rules. Template `verify:self` fails if quality lint artifacts are missing. Materialized via template-manifest copy.

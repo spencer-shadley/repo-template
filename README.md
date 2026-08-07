@@ -23,7 +23,7 @@ audit, the autonomous loop) rely on these paths.
 | `.user-surface-lint.json` | configured user-facing source globs and justified allowlist for developer-leak lint |
 | `.user-surface-lint.schema.json` | schema for the user-surface leak lint config |
 | `scripts/lint-user-surface-leaks.mjs` | deterministic lint preventing developer/operator internals in user-visible literals |
-| `plans/QUEUE.md` | the autonomous work queue (`## Pending` = auto-merge lane) |
+| `plans/QUEUE.md` | frozen optional glass (`WRITE_GENERATED_QUEUE=0`); **claim SoT** is issue/plan DAG → `.ops/work-items/QUEUE.generated.md` — see `docs/QUEUE-ENROLLMENT.md` |
 | `PLAN_TEMPLATE.md` | canonical plan header and Markdown-to-`PlanRecordV1` adapter |
 | `plans/archive/` | archived completed plan specs/results/logs |
 | `plans/drafts/000-smoke.md` | first enrollment-proof plan for new repos |
@@ -41,7 +41,7 @@ audit, the autonomous loop) rely on these paths.
 **Start here**
 1. `AGENTS.md`
 2. `docs/ARCHITECTURE.md`
-3. `plans/QUEUE.md`
+3. `docs/QUEUE-ENROLLMENT.md` (enrollment + claim SoT; not hand `plans/QUEUE.md`)
 4. `docs/adr/0001-design-philosophies.md`
 5. `.ops/README.md`
 6. `model-boundary.json`
