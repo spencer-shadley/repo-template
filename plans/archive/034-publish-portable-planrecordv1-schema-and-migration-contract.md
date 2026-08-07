@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** codex/issue-97-planrecordv1-release
-- **Status:** implementing - fresh R4 issue-authorized release candidate; not queued
+- **Status:** merged
 - **Priority:** P1
 - **Issue:** repo-template#97
 - **Effort:** high
