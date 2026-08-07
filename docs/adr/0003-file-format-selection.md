@@ -3,6 +3,13 @@
 - **Status:** accepted (workspace default)
 - **Date:** 2026-07-02
 - **Deciders:** Spencer Shadley, autonomous-loop maintainers
+- **Supersession (Decision C, 2026-08-07):** Rule 1's grandfather for hand-edited
+  `plans/QUEUE.md` no longer describes live claim authority. **Claim Pending SoT** is the
+  issue/plan DAG → `.ops/work-items/QUEUE.generated.md` (`CLAIM_SOT=1`). Hand `plans/QUEUE.md` is
+  frozen optional glass (`WRITE_GENERATED_QUEUE=0`), not a maintained md-as-data ledger, and is
+  heading toward M9 delete. The format table and remaining rules still hold; only the QUEUE
+  grandfather's operational meaning is retired. See `docs/QUEUE-ENROLLMENT.md` and fleet
+  [git-first-end-state-status](https://github.com/spencer-shadley/code/blob/master/docs/architecture/git-first-end-state-status.md).
 
 ## Decision
 
@@ -26,9 +33,9 @@ Secondary axes: write pattern (appended vs whole-state) and escaping risk.
 
 0. **No maintained record-files in md.** A curated incident/report md file is a record wearing a context costume — it WILL drift from the stream. Generated views only (digest/ops-report pattern).
 1. **md-as-data is banned for new surfaces.** Grandfathered only where the schema is
-   one-line-regex-simple AND humans must hand-edit it (plans/QUEUE.md). Anything richer:
-   **jsonl is the source of truth; md is a GENERATED view** (digest pattern). Never hand-maintain
-   the same fact in two formats.
+   one-line-regex-simple AND humans must hand-edit it (historical: `plans/QUEUE.md` — **retired as
+   claim SoT**; see header supersession). Anything richer: **jsonl is the source of truth; md is a
+   GENERATED view** (digest pattern). Never hand-maintain the same fact in two formats.
 2. **Append vs rewrite decides json vs jsonl.** A file that grows or has >1 potential writer must
    be jsonl (one-line append is the only free atomic write). Whole-file JSON rewrite = race.
 3. **Machine streams carry a schema note** — a header comment file (like `.ops/README.md`) or a
