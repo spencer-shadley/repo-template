@@ -12,9 +12,11 @@ import {
   sha256Bytes,
   validateArtifactManifestV2,
   type ArtifactManifest,
+  type CapabilityBundleRegistry,
   type MaterializerInput,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 import { scanPublicCode } from "../../../tools/artifact-policy.ts";
+import { generateContractFixtures } from "../../../tools/generate-contract-fixtures.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const artifactRoot = path.join(root, "artifacts", "adoption-shell-v2");
@@ -64,6 +66,62 @@ test("artifact and all schema identities are closed and content-addressed", () =
     );
     assert.equal(sha256Bytes(schemaBytes), row.sha256);
     inspectSchema(schema);
+  }
+});
+
+test("generated quality-lint bundle is retained in the artifact fixture closure", () => {
+  const manifest = readJson<ArtifactManifest>(
+    "artifacts/adoption-shell-v2/artifact-manifest.json",
+  );
+  const expectedArtifacts = [
+    "docs/QUALITY-LINT.md",
+    "eslint.config.mjs",
+    "eslint.quality.mjs",
+    "scripts/verify-quality-lint-required.mjs",
+  ];
+  const ownedTemp = fs.mkdtempSync(
+    path.join(os.tmpdir(), "repo-template-quality-lint-registry-"),
+  );
+  try {
+    generateContractFixtures(ownedTemp, manifest.artifactDigest);
+    const registry = JSON.parse(
+      fs.readFileSync(
+        path.join(ownedTemp, "capability-bundle-registry.json"),
+        "utf8",
+      ),
+    ) as CapabilityBundleRegistry;
+    const bundles = registry.bundles.filter(
+      (bundle) => bundle.id === "repo-template/quality-lint",
+    );
+    assert.equal(bundles.length, 1);
+    assert.equal(bundles[0]?.version, "1.0.0");
+    assert.deepEqual(bundles[0]?.artifacts, expectedArtifacts);
+    assert.deepEqual(bundles[0]?.modes, [
+      {
+        id: "config",
+        entrypoint: "eslint.quality.mjs",
+        requiredPaths: expectedArtifacts,
+      },
+      {
+        id: "presence",
+        entrypoint: "scripts/verify-quality-lint-required.mjs",
+        requiredPaths: [
+          "eslint.quality.mjs",
+          "scripts/verify-quality-lint-required.mjs",
+        ],
+      },
+    ]);
+
+    for (const artifactPath of expectedArtifacts) {
+      const rows = manifest.fixtures.filter((row) => row.path === artifactPath);
+      assert.equal(rows.length, 1, artifactPath);
+      const content = fs.readFileSync(path.join(root, ...artifactPath.split("/")));
+      assert.equal(rows[0]?.mode, "100644", artifactPath);
+      assert.equal(rows[0]?.bytes, content.byteLength, artifactPath);
+      assert.equal(rows[0]?.sha256, sha256Bytes(content), artifactPath);
+    }
+  } finally {
+    fs.rmSync(ownedTemp, { force: true, recursive: true });
   }
 });
 

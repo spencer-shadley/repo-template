@@ -563,15 +563,15 @@
       "path": "PLAN_TEMPLATE.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "104adce00691032399500452a650b72a1744b1ac00646283bf822e32b1ab45c6",
-      "bytes": 2574
+      "sha256": "b6f788307877b76b6dd531b324e6817d40030377097534df26e21627d1116d2d",
+      "bytes": 3175
     },
     {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a9fc51f2346c4eb47e7d99b8c477bb9bebfce04f52c1251474d54fd7a6f83da8",
-      "bytes": 6095
+      "sha256": "0934e761bccdb4ce2eea411ca0866f4c500d9beb896cadbe3aeef0860d416658",
+      "bytes": 7110
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/delivery-declaration.json",
@@ -756,6 +756,27 @@
       "bytes": 8159
     },
     {
+      "path": "docs/QUALITY-LINT.md",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "09db79f0a74e6897035c49de0b4d85d2e8ae952b3037790b04dd83bfcf513e08",
+      "bytes": 4365
+    },
+    {
+      "path": "eslint.config.mjs",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "abde5247499d7bd1d62ae0569f7a252cbe01f72a8cae27e50815a3d7f9de3c68",
+      "bytes": 810
+    },
+    {
+      "path": "eslint.quality.mjs",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e520154eebbad253aad95836d5999143a842fc10eb1180ac692c0c7b9167f1fc",
+      "bytes": 6136
+    },
+    {
       "path": "plans/drafts/000-smoke.md",
       "kind": "file",
       "mode": "100644",
@@ -768,6 +789,13 @@
       "mode": "100644",
       "sha256": "91e2786a19a994e3c4b5c540574d0c48ec6079da4fdc37c6a346e5060956f061",
       "bytes": 18834
+    },
+    {
+      "path": "scripts/verify-quality-lint-required.mjs",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "da762b0e28af2471a5ddd7c2f3fbb514a953421b7edc08ee4e053f7de89dabb4",
+      "bytes": 3720
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -919,5 +947,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "84f3b61d17e0ebd77926de386394c68e560d96deb74157f337d93019cfb788bb"
+  "manifestDigest": "6851b8dab3b5a6a304ac1f5cc9478b2a99114e493bea8aa162247196c35e502b"
 }

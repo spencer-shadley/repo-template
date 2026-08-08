@@ -359,6 +359,35 @@ const multiInput = input(
   [reference(beta)],
 );
 
+const qualityLintArtifacts = [
+  "docs/QUALITY-LINT.md",
+  "eslint.config.mjs",
+  "eslint.quality.mjs",
+  "scripts/verify-quality-lint-required.mjs",
+];
+const qualityLintBundle = bundle({
+  id: "repo-template/quality-lint",
+  version: "1.0.0",
+  dependencies: [],
+  artifacts: qualityLintArtifacts,
+  fixtures: [],
+  goldens: [],
+  modes: [
+    {
+      id: "config",
+      entrypoint: "eslint.quality.mjs",
+      requiredPaths: qualityLintArtifacts,
+    },
+    {
+      id: "presence",
+      entrypoint: "scripts/verify-quality-lint-required.mjs",
+      requiredPaths: [
+        "eslint.quality.mjs",
+        "scripts/verify-quality-lint-required.mjs",
+      ],
+    },
+  ],
+});
 const lintId = "repo-template/user-surface-lint";
 const lintArtifacts = [
   ".user-surface-lint.json",
@@ -432,7 +461,11 @@ const localCiBundle = bundle({
   goldens: [],
   modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v2.js", requiredPaths: [...localCiArtifacts, ...localCiFixtures].sort() }],
 });
-const portableCapabilityRegistry = registry([lintBundle, localCiBundle]);
+const portableCapabilityRegistry = registry([
+  lintBundle,
+  localCiBundle,
+  qualityLintBundle,
+]);
 const lintInput = input(
   release([
     baseEntry,

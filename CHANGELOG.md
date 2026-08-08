@@ -6,6 +6,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Changed
+
+- Added a material-choice-only governance reminder to `PLAN_TEMPLATE.md`, including the complete
+  workspace-to-change `AGENTS.md` breadcrumb chain and an open-ended no-material-tradeoff carve-out.
+  PATCH.
+
 ### Removed
 
 - **`plans/QUEUE.md` + template-manifest row.** Breaking: new repos must not recreate the

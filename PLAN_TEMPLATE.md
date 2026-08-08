@@ -28,6 +28,16 @@ Describe one observable outcome.
 
 1. Describe the bounded implementation.
 
+## Applicable governance (material choices only)
+
+- [ ] Considered where relevant: `PRIORITIES.md`; `DOCTRINE.md`; architecture/decision records; and
+  the full applicable `AGENTS.md` breadcrumb chain from `C:\code\AGENTS.md` through every ancestor
+  `AGENTS.md` between the workspace root and each changed path.
+
+Delete this section when the change presents no material governance tradeoff and recording it would
+add no decision-relevant evidence. Applicability follows actual hazards and choices, not an
+enumerated change-type allowlist. Do not add per-principle prose merely to fill the template.
+
 ## Acceptance criteria
 
 - [ ] State the evidence that proves the outcome.
