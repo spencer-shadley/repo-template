@@ -37,9 +37,8 @@ them when working on this repo.
 
 - **Queue project, auto-tier** (docs/config only): changes flow issue → triage → plan → loop →
   auto-merge. Enrollment is `projects.json` membership. **Claim Pending SoT** is the issue/plan
-  DAG → `.ops/work-items/QUEUE.generated.md`; hand `plans/QUEUE.md` is frozen optional glass
-  (`WRITE_GENERATED_QUEUE=0`), not the live ledger — heading toward M9 delete. Instantiation may
-  reset the sticky stub; do not author claim state there.
+  DAG (`WorkProjectionV1`). Do **not** recreate `plans/QUEUE.md` — that path is a forbidden
+  tombstone. Instantiation must not ship a QUEUE file.
 - **Verify gate for THIS repo:**
   ```
   corepack_bin=corepack
@@ -254,7 +253,7 @@ interaction events.
 
 ## Autonomy policy
 
-{{AUTONOMY_POLICY}}  <!-- TODO(setup!): fully-autonomous | risk-tiered (per-plan auto/human) | human-approval. If not fully-autonomous, list the triggers that force `human` (deletion, one-way/irreversible, live-service risk, major changes) and note that the auto-merge claim lane (generated Pending) holds ONLY auto-tier plans — not hand plans/QUEUE.md. -->
+{{AUTONOMY_POLICY}}  <!-- TODO(setup!): fully-autonomous | risk-tiered (per-plan auto/human) | human-approval. If not fully-autonomous, list the triggers that force `human` (deletion, one-way/irreversible, live-service risk, major changes) and note that the auto-merge claim lane holds ONLY auto-tier plans. Do not recreate plans/QUEUE.md. -->
 Default Effort for plans: **{{DEFAULT_EFFORT}}**. <!-- TODO(setup!): Pick by cost-vs-first-attempt-quality: `low` = docs/config repos and repos with cheap, fast verify gates (retries are cheap); `medium` = product repos (default starting point); `high` = only where a failed first attempt is expensive (long verify gates like e2e suites, e.g. 30+ min). The ladder auto-escalates per plan regardless; this sets the FLOOR. Repo priority offsets may modulate this in future (orchestrator #171). -->
 
 ## Incident log (`.ops/incidents.jsonl`)

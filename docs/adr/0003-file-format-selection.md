@@ -3,12 +3,11 @@
 - **Status:** accepted (workspace default)
 - **Date:** 2026-07-02
 - **Deciders:** Spencer Shadley, autonomous-loop maintainers
-- **Supersession (Decision C, 2026-08-07):** Rule 1's grandfather for hand-edited
-  `plans/QUEUE.md` no longer describes live claim authority. **Claim Pending SoT** is the
-  issue/plan DAG → `.ops/work-items/QUEUE.generated.md` (`CLAIM_SOT=1`). Hand `plans/QUEUE.md` is
-  frozen optional glass (`WRITE_GENERATED_QUEUE=0`), not a maintained md-as-data ledger, and is
-  heading toward M9 delete. The format table and remaining rules still hold; only the QUEUE
-  grandfather's operational meaning is retired. See `docs/QUEUE-ENROLLMENT.md` and fleet
+- **Supersession (Decision C / ADR-0009, 2026-08-08):** Rule 1's grandfather for hand-edited
+  `plans/QUEUE.md` is retired. Claim selection is the issue/plan DAG (`WorkProjectionV1`);
+  lease authority is `fleet-control-plane`. `plans/QUEUE.md` is a forbidden tombstone and is
+  not shipped by this template. The format table and remaining rules still hold. See
+  `docs/QUEUE-ENROLLMENT.md` and fleet
   [git-first-end-state-status](https://github.com/spencer-shadley/code/blob/master/docs/architecture/git-first-end-state-status.md).
 
 ## Decision

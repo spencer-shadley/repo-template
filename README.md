@@ -12,7 +12,7 @@ audit, the autonomous loop) rely on these paths.
 | `CLAUDE.md` | thin pointer at AGENTS.md (single source of truth) |
 | `docs/adr/` | Architecture Decision Records — decide-once, audit-forever |
 | `docs/MIGRATION.md` | overlay playbook for adopting template updates in existing repos |
-| `docs/QUEUE-ENROLLMENT.md` | how this repo joins the autonomous queue — enrollment is the default, opt-out needs an ADR |
+| `docs/QUEUE-ENROLLMENT.md` | how this repo joins the autonomous flywheel — enrollment is the default, opt-out needs an ADR |
 | `docs/INCIDENTS.md` | curated post-mortems (majors only) |
 | `docs/RUNBOOK.md` | recovery recipes specific to this repo |
 | `docs/OBSERVABILITY.md` | what we log/measure and where to look |
@@ -23,7 +23,6 @@ audit, the autonomous loop) rely on these paths.
 | `.user-surface-lint.json` | configured user-facing source globs and justified allowlist for developer-leak lint |
 | `.user-surface-lint.schema.json` | schema for the user-surface leak lint config |
 | `scripts/lint-user-surface-leaks.mjs` | deterministic lint preventing developer/operator internals in user-visible literals |
-| `plans/QUEUE.md` | frozen optional glass (`WRITE_GENERATED_QUEUE=0`); **claim SoT** is issue/plan DAG → `.ops/work-items/QUEUE.generated.md` — see `docs/QUEUE-ENROLLMENT.md` |
 | `PLAN_TEMPLATE.md` | canonical plan header and Markdown-to-`PlanRecordV1` adapter |
 | `plans/archive/` | archived completed plan specs/results/logs |
 | `plans/drafts/000-smoke.md` | first enrollment-proof plan for new repos |
@@ -41,7 +40,6 @@ audit, the autonomous loop) rely on these paths.
 **Start here**
 1. `AGENTS.md`
 2. `docs/ARCHITECTURE.md`
-3. `docs/QUEUE-ENROLLMENT.md` (enrollment + claim SoT; not hand `plans/QUEUE.md`)
 4. `docs/adr/0001-design-philosophies.md`
 5. `.ops/README.md`
 6. `model-boundary.json`

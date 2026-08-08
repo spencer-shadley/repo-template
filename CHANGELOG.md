@@ -6,12 +6,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
-### Changed
+### Removed
 
-- **Decision C narrative (M9 prep):** enrollment remains `projects.json`; claim Pending SoT is
-  issue/plan DAG → `.ops/work-items/QUEUE.generated.md`; hand `plans/QUEUE.md` documented as frozen
-  optional glass (`WRITE_GENERATED_QUEUE=0`) heading toward delete. Updates `docs/QUEUE-ENROLLMENT.md`,
-  `AGENTS.md` / `README.md`, sticky `plans/QUEUE.md`, and ADR-0003 supersession note. PATCH.
+- **`plans/QUEUE.md` + template-manifest row.** Breaking: new repos must not recreate the
+  retired queue file. Enrollment remains `projects.json`; claim selection is `WorkProjectionV1`
+  + `fleet-control-plane`. Updates `docs/QUEUE-ENROLLMENT.md`, `AGENTS.md`, `README.md`, and
+  ADR-0003 supersession. MAJOR.
 
 ### Added
 
