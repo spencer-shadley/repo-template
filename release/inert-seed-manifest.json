@@ -4,8 +4,8 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "ce977e6d39a1e6796190d07d288adcee8185dea388f7bcd5be1e2340151ed899",
-  "entryCount": 52,
+  "inventoryDigest": "e84fb22fe8c4c894858a11c74f707f6baec90ea63ce9a49633bee6dcda99ec8b",
+  "entryCount": 56,
   "excludedCount": 10,
   "entries": [
     {
@@ -47,8 +47,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "757e2bb347191251a6672811441b5d05418dcc15e49fbad5951a52811b83bd56",
-      "bytes": 4724
+      "contentSha256": "dbd28362394722f8c5fde33486c2618d4a215a3c8864619700bc0da7a7ad1db4",
+      "bytes": 4781
     },
     {
       "path": "SECURITY.md",
@@ -191,11 +191,18 @@
       "bytes": 442
     },
     {
+      "path": "docs/QUALITY-LINT.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "09db79f0a74e6897035c49de0b4d85d2e8ae952b3037790b04dd83bfcf513e08",
+      "bytes": 4365
+    },
+    {
       "path": "docs/QUEUE-ENROLLMENT.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "97f7a8bc1e073b230702cc2a1bdeab21308e74cd960fadcefe425599583927a1",
-      "bytes": 2167
+      "contentSha256": "1671f57b5dee60f1e0d349925e2846fa45c685ac8a42a13e529b4e9ebc343358",
+      "bytes": 2676
     },
     {
       "path": "docs/adr/0000-template.md",
@@ -222,8 +229,8 @@
       "path": "docs/adr/0003-file-format-selection.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "fb0df22bddab21a132efb8c85ce1a9e7db15a2c17012ada53c92621d8f11bbf6",
-      "bytes": 3511
+      "contentSha256": "2bb3de95979c476f75a0cf1e1a3789d50370b78daa085a3eda1343f17c2e7ef2",
+      "bytes": 4113
     },
     {
       "path": "docs/adr/0004-when-to-use-a-real-database.md",
@@ -238,6 +245,20 @@
       "gitMode": "100644",
       "contentSha256": "3ea9c04f505bfacead380b0725f59d1e5d928675dc6a29fb07b7dffb85b319a3",
       "bytes": 1784
+    },
+    {
+      "path": "eslint.config.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "abde5247499d7bd1d62ae0569f7a252cbe01f72a8cae27e50815a3d7f9de3c68",
+      "bytes": 810
+    },
+    {
+      "path": "eslint.quality.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "e520154eebbad253aad95836d5999143a842fc10eb1180ac692c0c7b9167f1fc",
+      "bytes": 6136
     },
     {
       "path": "model-boundary.json",
@@ -259,6 +280,13 @@
       "gitMode": "100644",
       "contentSha256": "91e2786a19a994e3c4b5c540574d0c48ec6079da4fdc37c6a346e5060956f061",
       "bytes": 18834
+    },
+    {
+      "path": "scripts/verify-quality-lint-required.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "da762b0e28af2471a5ddd7c2f3fbb514a953421b7edc08ee4e053f7de89dabb4",
+      "bytes": 3720
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -425,5 +453,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "ed38d258053b785c358c937b93eddfacca5bd5f2313379e42a0bc7a5189a402b"
+  "manifestDigest": "7d800a8f83749eb5f70e1bebe1e8ba7f9e339fb123ef6e0e9448b882ebff6264"
 }
