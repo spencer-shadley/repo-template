@@ -3,7 +3,9 @@
 - **Status:** accepted (workspace default)
 - **Date:** 2026-07-02
 - **Deciders:** Spencer Shadley, autonomous-loop maintainers
-- **Supersession (Decision C / ADR-0009, 2026-08-08):** Rule 1's grandfather for hand-edited
+- **Supersession (Decision C /
+  [ADR-0009: Fleet control-plane lease authority (PostgreSQL primary + sealed degraded local)](https://github.com/spencer-shadley/code/blob/master/docs/adr/0009-fleet-control-plane-lease-authority.md),
+  2026-08-08):** Rule 1's grandfather for hand-edited
   `plans/QUEUE.md` is retired. Claim selection is the issue/plan DAG (`WorkProjectionV1`);
   lease authority is `fleet-control-plane`. `plans/QUEUE.md` is a forbidden tombstone and is
   not shipped by this template. The format table and remaining rules still hold. See
