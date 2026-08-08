@@ -16,7 +16,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/037-keep-quality-lint-bundle-in-generated-capability-registry
-- **Status:** ready for implement
+- **Status:** stalled - verify-fail-budget
 - **Issue:** Fixes #126
 - **WorkItemId:** aaeb0704-2eca-47fa-9dd9-21d8010ef76c
 - **Priority:** P1   <!-- LEGACY MIRROR ONLY — selection SSOT is the linked GH issue's

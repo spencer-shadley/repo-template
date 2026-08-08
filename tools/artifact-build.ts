@@ -65,6 +65,12 @@ const PORTABLE_CAPABILITY_PATHS = [
   "tests/fixtures/user-surface-lint/source-leak/config.json",
   "tests/fixtures/user-surface-lint/source-leak/src/messages.js",
 ] as const;
+const QUALITY_LINT_ARTIFACT_PATHS = [
+  "docs/QUALITY-LINT.md",
+  "eslint.config.mjs",
+  "eslint.quality.mjs",
+  "scripts/verify-quality-lint-required.mjs",
+] as const;
 const PLAN_RECORD_ARTIFACT_PATHS = [
   "PLAN_TEMPLATE.md",
   "contracts/plan-record/v1/fixtures/classification-cases.json",
@@ -232,6 +238,7 @@ function fixtureRows(
   );
   const portableClosure = [
     ...PORTABLE_CAPABILITY_PATHS,
+    ...QUALITY_LINT_ARTIFACT_PATHS,
     ...PLAN_RECORD_ARTIFACT_PATHS,
     ...LOCAL_CI_V2_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
