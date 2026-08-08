@@ -563,8 +563,8 @@
       "path": "PLAN_TEMPLATE.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "104adce00691032399500452a650b72a1744b1ac00646283bf822e32b1ab45c6",
-      "bytes": 2574
+      "sha256": "b6f788307877b76b6dd531b324e6817d40030377097534df26e21627d1116d2d",
+      "bytes": 3175
     },
     {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -947,5 +947,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "5ca7371b8145daed30384e43494e6dad5503b1149e73db82b689cd540631c56f"
+  "manifestDigest": "6851b8dab3b5a6a304ac1f5cc9478b2a99114e493bea8aa162247196c35e502b"
 }

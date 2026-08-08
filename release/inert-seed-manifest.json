@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "e84fb22fe8c4c894858a11c74f707f6baec90ea63ce9a49633bee6dcda99ec8b",
+  "inventoryDigest": "f5f08ecd90ca7b34ecfd91abb5d7243fa02d4669e34b8a4bac3d4055621608dd",
   "entryCount": 56,
   "excludedCount": 10,
   "entries": [
@@ -40,8 +40,8 @@
       "path": "PLAN_TEMPLATE.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "104adce00691032399500452a650b72a1744b1ac00646283bf822e32b1ab45c6",
-      "bytes": 2574
+      "contentSha256": "b6f788307877b76b6dd531b324e6817d40030377097534df26e21627d1116d2d",
+      "bytes": 3175
     },
     {
       "path": "README.md",
@@ -229,8 +229,8 @@
       "path": "docs/adr/0003-file-format-selection.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "2bb3de95979c476f75a0cf1e1a3789d50370b78daa085a3eda1343f17c2e7ef2",
-      "bytes": 4113
+      "contentSha256": "d27c61c473b1a885acc0c8399866fe7ca75aba955ed47f5e9edafc061ab57a1a",
+      "bytes": 4307
     },
     {
       "path": "docs/adr/0004-when-to-use-a-real-database.md",
@@ -453,5 +453,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "7d800a8f83749eb5f70e1bebe1e8ba7f9e339fb123ef6e0e9448b882ebff6264"
+  "manifestDigest": "6126d20811daa7cc478c2aee48b04a4e900cabc7b806ffea40a5e3ccaaeb0e64"
 }
