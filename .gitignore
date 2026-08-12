@@ -32,3 +32,13 @@ plans/*.paused
 
 # local tool state (Serena MCP)
 .serena/
+
+# Loop-written ephemeral receipts. These are regenerated every cycle and are NOT
+# durable artifacts, but nothing ignored them, so the run-loop's own writers left
+# the tree permanently dirty -- and the run-loop then refuses to start in a dirty
+# tree it cannot attribute to a dead run ("Working tree is dirty and run-loop could
+# not attribute it to a dead run"). File-precise, never a blanket .ops/ ignore.
+plans/*.work-spine-lag.json
+/.credit-telemetry-coalesce.json
+.ops/work-items/QUEUE.generated.md
+.ops/work-items/work-projection.v1.json
