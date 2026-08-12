@@ -15,10 +15,12 @@
     "release:payload": "node tools/release-payload.ts write",
     "release:payload:check": "node tools/release-payload.ts check",
     "verify:artifact": "node tools/artifact-build.ts verify",
-    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node scripts/verify-quality-lint-required.mjs --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.mjs && pnpm release:payload:check",
+    "verify:self": "node scripts/lint-user-surface-leaks.mjs --self-test && node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json && node scripts/verify-quality-lint-required.mjs --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.mjs && node scripts/check-runtime-artifact-registry.mjs --self-test && node scripts/check-runtime-artifact-registry.mjs && node scripts/proof-of-detection/run-meta-gate.mjs --self-test && pnpm release:payload:check",
     "verify": "pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self",
     "check:issue-template-intake": "node scripts/check-issue-template-intake.mjs",
-    "verify:quality-lint": "node scripts/verify-quality-lint-required.mjs --self-test"
+    "verify:quality-lint": "node scripts/verify-quality-lint-required.mjs --self-test",
+    "check:runtime-artifact-registry": "node scripts/check-runtime-artifact-registry.mjs",
+    "verify:proof-of-detection": "node scripts/proof-of-detection/run-meta-gate.mjs --self-test"
   },
   "devDependencies": {
     "@types/node": "24.13.3",

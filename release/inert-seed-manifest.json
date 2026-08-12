@@ -4,16 +4,30 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "f5f08ecd90ca7b34ecfd91abb5d7243fa02d4669e34b8a4bac3d4055621608dd",
-  "entryCount": 56,
+  "inventoryDigest": "c6055669e2eadec2bb2a1bb22bb0fbcf324f382a04802e711c8e698be80a2e0c",
+  "entryCount": 82,
   "excludedCount": 10,
   "entries": [
     {
       "path": ".gitignore",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "b1012d9c2719a5ed6a1d871a09077b44aea9d6a86b7fb097a6dc9b56cda186c2",
-      "bytes": 1116
+      "contentSha256": "94615489bc952e4ec949a6947772870b8ead4dfd61bb9acc7b82985c318a6090",
+      "bytes": 2678
+    },
+    {
+      "path": ".runtime-artifact-registry.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "b0fd6f41bb5f56b0e59689699b36ce8bb6d1ef3354be61b23eece1f0c79dc23b",
+      "bytes": 3994
+    },
+    {
+      "path": ".runtime-artifact-registry.schema.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "8c05df3c2abb2e9c0bf2cf9a71853530cba1f27f59bcf9a01bbac747d41f61e5",
+      "bytes": 2141
     },
     {
       "path": ".template-sync.json",
@@ -47,8 +61,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "dbd28362394722f8c5fde33486c2618d4a215a3c8864619700bc0da7a7ad1db4",
-      "bytes": 4781
+      "contentSha256": "0528fce0496197b9d98a32c9f0e7bf37642ee59ae5a42a7373ae70d8d35c52b7",
+      "bytes": 5280
     },
     {
       "path": "SECURITY.md",
@@ -77,6 +91,34 @@
       "gitMode": "100644",
       "contentSha256": "8efaf597a10447414ea7cde82e7f2fd56f0f5343e8c9373eec739e3413575969",
       "bytes": 8957
+    },
+    {
+      "path": "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "ac16dfa06dbfc2a1b06c752c6b362249411efb8bad4e69af251c4925796fb171",
+      "bytes": 3810
+    },
+    {
+      "path": "artifacts/adoption-shell-v2/local-ci-contract-v3.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "9022163925f5cc4f41d62b8c4acdd8aa4a150ffb969a761457719fa5091bc7f8",
+      "bytes": 10880
+    },
+    {
+      "path": "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "1fdfa9789cea1f8f705b7460324fe225f5ff16b6dc4594b5fcc052ea4793c52b",
+      "bytes": 1641
+    },
+    {
+      "path": "artifacts/adoption-shell-v2/local-ci-outcome-v1.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "32898aeb54a59d68760e40f7037766e5383cc9e1b8f8f769fb6c93a359aeb617",
+      "bytes": 4004
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
@@ -163,6 +205,104 @@
       "bytes": 5719
     },
     {
+      "path": "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "f6da61353b1613aae16c214f87997a671ee52b39d237226605ce1afb03f9415e",
+      "bytes": 1543
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "8b0bdb400687bc192ac20186884121ef9fcb0e5a1ae1029455c4e207487ed6f7",
+      "bytes": 1311
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "aba2600943b98809cbaad9b4431c8849753c606ad90b75d3992378af6a61aaf6",
+      "bytes": 1740
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-extra-effect.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "f7909a06e632e4d8b1c5db2f58bd89f9f84ac29f0d642c67e0ecd2d095ad309e",
+      "bytes": 1340
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "44f9cc91fee8cb5a651a9a4afaf4aa68c99fa6d0e6fba3e456b05460ffee397e",
+      "bytes": 1226
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-malformed.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "2b640a12492673dc427b6b92b427114e4c6e636f54a9ce81d3e996e7da990c67",
+      "bytes": 336
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "735223f876f7b9bd7ee800fddd668c28b165750fb4eb8d4e114cfc5fe97434b7",
+      "bytes": 1255
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-missing-field.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "57728ca639a2c9569793bff4aa55e727a066cad64901a7555d806315b65616f6",
+      "bytes": 591
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "325e5900f30494554ca790e693929d6fd8829e82356e151698f24edc08977dd1",
+      "bytes": 1302
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "3c2bacc36fbe522bb38a24206f684ea5c738bc81f29c32587ac76a6ff446daf2",
+      "bytes": 1308
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "5c5bbe5c6746170c3e162a618fd0a8171d24f2bfc8300e715d079c92c31d6392",
+      "bytes": 1551
+    },
+    {
+      "path": "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "a3dca3e063e0e2c6622982fa2006ec4aa38c0f53eb4e3f8206fc84fb707f96b2",
+      "bytes": 2560
+    },
+    {
+      "path": "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
+      "bytes": 6795
+    },
+    {
+      "path": "contracts/local-ci/v3/local-ci-outcome-v1.schema.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "0ae86bc068fbd4e1cc2ff58409d3909204573f0ac0b09cdbc7dab974bb4ea429",
+      "bytes": 1793
+    },
+    {
       "path": "docs/ARCHITECTURE.md",
       "templateMode": "copy",
       "gitMode": "100644",
@@ -180,8 +320,8 @@
       "path": "docs/MIGRATION.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "1286149a170178970185d02c9f5c2cc1524bc26c625b09b748965b058e1a81a6",
-      "bytes": 13374
+      "contentSha256": "4d4c606ba274f86a2ab817e34d1c351f2e6d734308013b9b202274dda3787b99",
+      "bytes": 16427
     },
     {
       "path": "docs/OBSERVABILITY.md",
@@ -275,11 +415,53 @@
       "bytes": 795
     },
     {
+      "path": "scripts/check-runtime-artifact-registry.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "3736de2565c1e0def55e99060ae51af0eaba20c3b2747e21c762fefb3272a255",
+      "bytes": 6241
+    },
+    {
       "path": "scripts/lint-user-surface-leaks.mjs",
       "templateMode": "copy",
       "gitMode": "100644",
       "contentSha256": "91e2786a19a994e3c4b5c540574d0c48ec6079da4fdc37c6a346e5060956f061",
       "bytes": 18834
+    },
+    {
+      "path": "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "67a136005372fc99822ce92807dfff69a8229514af9cf5561baf864bcf49ec42",
+      "bytes": 67
+    },
+    {
+      "path": "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "ddafe3824075adc4d827449f9711ee33ff99baa2dad1a5018ab3326b33382b38",
+      "bytes": 88
+    },
+    {
+      "path": "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "0a3de33b035b400e3df318785f72494240f4fce4b390654444d804c7d201dcd8",
+      "bytes": 76
+    },
+    {
+      "path": "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "09414681be07318edad2db3b8003d08c5d810b30d45b4f6cc49aca222c0c7415",
+      "bytes": 3557
+    },
+    {
+      "path": "scripts/proof-of-detection/run-meta-gate.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "ae0a019d5e2c6254b609012d74b57e1fbede66312efad83f019be23ba1516d68",
+      "bytes": 11187
     },
     {
       "path": "scripts/verify-quality-lint-required.mjs",
@@ -453,5 +635,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "6126d20811daa7cc478c2aee48b04a4e900cabc7b806ffea40a5e3ccaaeb0e64"
+  "manifestDigest": "cf87553bb210ea8d621a5bcca63916feea752604070db46e6f5067b3d925fd8c"
 }

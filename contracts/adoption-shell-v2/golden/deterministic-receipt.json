@@ -5,11 +5,11 @@
   "contractId": "repo-template/adoption-shell-v2",
   "receiptKind": "repo-template/adoption-shell-verification/v2",
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "813d2b6cbb36de40533a8882662ed2fa3e4bc104500544c68f7bea0a5c22fe90",
+  "artifactDigest": "65acf31ab6d3ca96d651cf47fb29fb746bb82b5a484862734baef2f11fb5f97a",
   "inputDigest": "df7ee7b1e7ebe8494448119608659a943c977567dd4a938612a1c80d318a579b",
   "outputManifestDigest": "7e4fbb869793d6b19046ebf74c2cb9a919ca52c8d30bef047e59024338f5146f",
   "outputPayloadDigest": "143f8f9a9ef567beea4048d0bf3b42b8379e9b33b94ddb4f926dd67aa320e618",
   "independentRunCount": 2,
   "result": "verified",
-  "receiptDigest": "09b652c15d916b757056d7736055452bdff8a62050061fdeb57f7fdb42a8646a"
+  "receiptDigest": "9f35db84a04f7f0175633ce29ad8c20ad1f2b3fca6c6f9f593c209b326b3054d"
 }

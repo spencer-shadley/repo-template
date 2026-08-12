@@ -94,6 +94,32 @@ const LOCAL_CI_V2_ARTIFACT_PATHS = [
   "contracts/local-ci/v2/fixtures/valid-local-ci-v2.json",
   "contracts/local-ci/v2/local-ci-contract-v2.schema.json",
 ] as const;
+const LOCAL_CI_V3_ARTIFACT_PATHS = [
+  "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json",
+  "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json",
+  "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json",
+  "contracts/local-ci/v3/fixtures/invalid-extra-effect.json",
+  "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json",
+  "contracts/local-ci/v3/fixtures/invalid-malformed.json",
+  "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json",
+  "contracts/local-ci/v3/fixtures/invalid-missing-field.json",
+  "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json",
+  "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json",
+  "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json",
+  "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json",
+  "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
+  "contracts/local-ci/v3/local-ci-outcome-v1.schema.json",
+] as const;
+const PROOF_OF_DETECTION_ARTIFACT_PATHS = [
+  "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+  "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+  "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+  "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
+  "scripts/proof-of-detection/run-meta-gate.mjs",
+  "scripts/check-runtime-artifact-registry.mjs",
+  ".runtime-artifact-registry.json",
+  ".runtime-artifact-registry.schema.json",
+] as const;
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -241,6 +267,8 @@ function fixtureRows(
     ...QUALITY_LINT_ARTIFACT_PATHS,
     ...PLAN_RECORD_ARTIFACT_PATHS,
     ...LOCAL_CI_V2_ARTIFACT_PATHS,
+    ...LOCAL_CI_V3_ARTIFACT_PATHS,
+    ...PROOF_OF_DETECTION_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
     compare(left.path, right.path),

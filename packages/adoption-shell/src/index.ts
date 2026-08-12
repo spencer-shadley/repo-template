@@ -146,3 +146,38 @@ export type {
   LocalCiRuntimeConstraint,
   LocalCiShell,
 } from "./local-ci-contract-v2.ts";
+export {
+  LOCAL_CI_CONTRACT_V3_ID,
+  LOCAL_CI_CONTRACT_V3_SCHEMA_ID,
+  LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION,
+  classifyAndMigrateLocalCiV2ToV3,
+  orderedLocalCiCommandsV3,
+  validateLocalCiContractV3,
+} from "./local-ci-contract-v3.ts";
+export type {
+  DetectionProofExpectationV3,
+  DetectionProofFixtureV3,
+  DetectionProofV3,
+  LegacyLineageKindV3,
+  LegacyLocalCiDispositionV3,
+  LocalCiCommandV3,
+  LocalCiContractV3,
+  LocalCiEffectsV3,
+  LocalCiEnvironmentV3,
+  LocalCiFailureDispositionV3,
+  LocalCiNetworkExpectationV3,
+  LocalCiShellV3,
+  OrderedLocalCiCommandV3,
+} from "./local-ci-contract-v3.ts";
+export {
+  LOCAL_CI_OUTCOME_V1_ID,
+  LOCAL_CI_OUTCOME_V1_SCHEMA_ID,
+  LOCAL_CI_OUTCOME_V1_SCHEMA_VERSION,
+  LOCAL_CI_OUTCOMES_V1,
+  isNotExecutedOutcomeV1,
+  validateLocalCiOutcomeV1,
+} from "./local-ci-outcome-v1.ts";
+export type {
+  LocalCiOutcomeStateV1,
+  LocalCiOutcomeV1,
+} from "./local-ci-outcome-v1.ts";

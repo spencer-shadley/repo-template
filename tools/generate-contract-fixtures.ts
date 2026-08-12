@@ -461,9 +461,69 @@ const localCiBundle = bundle({
   goldens: [],
   modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v2.js", requiredPaths: [...localCiArtifacts, ...localCiFixtures].sort() }],
 });
+const localCiV3Id = "repo-template/local-ci-contract-v3";
+const localCiV3Artifacts = [
+  "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts",
+  "artifacts/adoption-shell-v2/local-ci-contract-v3.js",
+  "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts",
+  "artifacts/adoption-shell-v2/local-ci-outcome-v1.js",
+  "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
+  "contracts/local-ci/v3/local-ci-outcome-v1.schema.json",
+];
+const localCiV3Fixtures = [
+  "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json",
+  "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json",
+  "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json",
+  "contracts/local-ci/v3/fixtures/invalid-extra-effect.json",
+  "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json",
+  "contracts/local-ci/v3/fixtures/invalid-malformed.json",
+  "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json",
+  "contracts/local-ci/v3/fixtures/invalid-missing-field.json",
+  "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json",
+  "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json",
+  "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json",
+  "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json",
+];
+const localCiV3Bundle = bundle({
+  id: localCiV3Id,
+  version: "3.0.0",
+  dependencies: [reference(localCiBundle)],
+  artifacts: localCiV3Artifacts,
+  fixtures: localCiV3Fixtures,
+  goldens: [],
+  modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v3.js", requiredPaths: [...localCiV3Artifacts, ...localCiV3Fixtures].sort() }],
+});
+const proofOfDetectionId = "repo-template/proof-of-detection";
+const proofOfDetectionArtifacts = [
+  ".runtime-artifact-registry.json",
+  ".runtime-artifact-registry.schema.json",
+  "scripts/check-runtime-artifact-registry.mjs",
+  "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+  "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+  "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+  "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
+  "scripts/proof-of-detection/run-meta-gate.mjs",
+];
+const proofOfDetectionBundle = bundle({
+  id: proofOfDetectionId,
+  version: "1.0.0",
+  dependencies: [reference(localCiV3Bundle)],
+  artifacts: proofOfDetectionArtifacts,
+  fixtures: [],
+  goldens: [],
+  modes: [
+    {
+      id: "self-test",
+      entrypoint: "scripts/proof-of-detection/run-meta-gate.mjs",
+      requiredPaths: proofOfDetectionArtifacts,
+    },
+  ],
+});
 const portableCapabilityRegistry = registry([
   lintBundle,
   localCiBundle,
+  localCiV3Bundle,
+  proofOfDetectionBundle,
   qualityLintBundle,
 ]);
 const lintInput = input(

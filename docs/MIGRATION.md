@@ -203,3 +203,43 @@ repo can enter the queue, run the expected lightweight checks, and archive clean
 2. **Rollback path:**
    - Because `LocalCiContractV2` is a producer-side schema release and does not mutate consumer repositories directly, rollback of candidate adoption in a consumer repository requires reverting the consumer's adoption commit to its pre-migration state.
    - Candidate contract versions remain immutable; new candidate identities are issued for repairs rather than mutating existing release receipts or tags.
+
+## LocalCiContractV3 proof-of-detection migration (issue #131)
+
+`LocalCiContractV3` (`repo-template/local-ci-v3`) is a new, additive contract identity published
+alongside the frozen, unmodified `LocalCiContractV2`. Adopting v3 is opt-in per repository:
+
+1. **Migration path:**
+   - A repository's existing `local-ci.json` declared against `LocalCiContractV2` keeps validating
+     against the v2 schema/validator exactly as before; nothing about v2 changed and nothing starts
+     failing.
+   - To adopt v3, run `classifyAndMigrateLocalCiV2ToV3(rawInput)` against the current v2
+     declaration. A valid-but-unmigrated v2 declaration is rejected with
+     `reasonCode: "MISSING_DETECTION_PROOF"` and an exact `commandsMissingDetectionProof` list --
+     never auto-migrated, because a detection proof cannot be inferred without defeating the point
+     of requiring one.
+   - For each listed command, add either a `detectionProof.fixture` (a known-bad input the command
+     must flag, with `expectation: "non-zero-exit"`) or a `detectionProof.exempt` reason (non-empty,
+     recorded, and counted -- see the meta-gate's unproven-gate summary line). Re-validate with
+     `validateLocalCiContractV3` until it accepts, then bump `schemaVersion`/`schemaId`/`contractId`
+     to the v3 constants.
+   - Wire `scripts/proof-of-detection/run-meta-gate.mjs` (materialized via the
+     `repo-template/proof-of-detection` capability bundle) against the repository's real v3
+     `local-ci.json` and add it to the repository's own verify gate, so the proofs are re-checked
+     on every run rather than proven once and trusted forever.
+2. **Rollback path:** identical to `LocalCiContractV2` above -- v3 is a producer-side schema
+   release; rollback of a consumer's adoption is reverting that consumer's adoption commit. The v2
+   declaration a consumer migrated from remains valid and usable throughout.
+3. **Rollout order:** canary-first per the MAJOR-bump policy above. This release does not migrate
+   any consumer's `local-ci.json` on their behalf, including repo-template's own (it declares its
+   gates through `package.json` scripts, not a checked-in `local-ci.json`).
+4. **Owned elsewhere:** the runtime-artifact registry (`.runtime-artifact-registry.json`) currently
+   documents `agent-orchestrator`-owned transient patterns because repo-template does not own the
+   tools that write them (the loop, the drain auto-commit state, the queue projection). Consuming
+   `agent-orchestrator` must: (a) adopt `.runtime-artifact-registry.json` +
+   `.runtime-artifact-registry.schema.json` + `scripts/check-runtime-artifact-registry.mjs` via the
+   template manifest, (b) tag its own `.gitignore` lines with
+   `# runtime-artifact: owner=<repo> incident=<ref>` for every pattern it writes, and (c) wire
+   `check-runtime-artifact-registry` into its own verify gate so a new unregistered runtime file is
+   caught before it starves a drain the way `.ops/work-items/QUEUE.generated.md` and
+   `.ops/work-items/work-projection.v1.json` did (repo-template#129).

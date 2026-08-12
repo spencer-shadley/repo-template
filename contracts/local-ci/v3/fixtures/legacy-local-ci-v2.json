@@ -1,0 +1,66 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/local-ci-v2/local-ci-contract-v2.schema.json",
+  "schemaVersion": "2.0.0",
+  "contractId": "repo-template/local-ci-v2",
+  "repository": "spencer-shadley/repo-template",
+  "canonicalBranch": "master",
+  "commands": {
+    "lint": {
+      "name": "lint",
+      "executable": "pnpm",
+      "args": [
+        "lint"
+      ],
+      "shell": "none",
+      "cwd": ".",
+      "timeoutSeconds": 300,
+      "expectedExitCode": 0,
+      "failureDisposition": "fail-gate"
+    },
+    "authoritative-gate": {
+      "name": "verify",
+      "executable": "pnpm",
+      "args": [
+        "verify"
+      ],
+      "shell": "none",
+      "cwd": ".",
+      "timeoutSeconds": 600,
+      "expectedExitCode": 0,
+      "failureDisposition": "fail-gate"
+    }
+  },
+  "environment": {
+    "runtime": {
+      "name": "node",
+      "versionConstraint": ">=24.16.0 <25"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.17.0"
+    },
+    "supportedPlatforms": [
+      "win32",
+      "linux",
+      "darwin"
+    ],
+    "supportedArchitectures": [
+      "x64",
+      "arm64"
+    ],
+    "requiredEnvVars": [],
+    "requiredCredentials": [],
+    "networkExpectation": "offline-only"
+  },
+  "effects": {
+    "credentialsAccess": false,
+    "networkProviderAccess": false,
+    "providerSpend": false,
+    "externalMutation": false,
+    "registrationMutation": false,
+    "schedulesMutation": false,
+    "deploymentMutation": false,
+    "consumerBindingMutation": false,
+    "servingAuthorityMutation": false
+  }
+}

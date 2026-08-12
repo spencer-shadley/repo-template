@@ -54,6 +54,109 @@
       "digest": "12e6604b74413263039d55b4705e4d0e1cc3b854d7aead900d91cd9cef093e60"
     },
     {
+      "id": "repo-template/local-ci-contract-v3",
+      "version": "3.0.0",
+      "dependencies": [
+        {
+          "id": "repo-template/local-ci-contract-v2",
+          "version": "2.0.0",
+          "digest": "12e6604b74413263039d55b4705e4d0e1cc3b854d7aead900d91cd9cef093e60"
+        }
+      ],
+      "artifacts": [
+        "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts",
+        "artifacts/adoption-shell-v2/local-ci-contract-v3.js",
+        "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts",
+        "artifacts/adoption-shell-v2/local-ci-outcome-v1.js",
+        "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
+        "contracts/local-ci/v3/local-ci-outcome-v1.schema.json"
+      ],
+      "fixtures": [
+        "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json",
+        "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json",
+        "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json",
+        "contracts/local-ci/v3/fixtures/invalid-extra-effect.json",
+        "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json",
+        "contracts/local-ci/v3/fixtures/invalid-malformed.json",
+        "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json",
+        "contracts/local-ci/v3/fixtures/invalid-missing-field.json",
+        "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json",
+        "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json",
+        "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json",
+        "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json"
+      ],
+      "goldens": [],
+      "modes": [
+        {
+          "id": "validate",
+          "entrypoint": "artifacts/adoption-shell-v2/local-ci-contract-v3.js",
+          "requiredPaths": [
+            "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts",
+            "artifacts/adoption-shell-v2/local-ci-contract-v3.js",
+            "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts",
+            "artifacts/adoption-shell-v2/local-ci-outcome-v1.js",
+            "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json",
+            "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json",
+            "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json",
+            "contracts/local-ci/v3/fixtures/invalid-extra-effect.json",
+            "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json",
+            "contracts/local-ci/v3/fixtures/invalid-malformed.json",
+            "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json",
+            "contracts/local-ci/v3/fixtures/invalid-missing-field.json",
+            "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json",
+            "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json",
+            "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json",
+            "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json",
+            "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
+            "contracts/local-ci/v3/local-ci-outcome-v1.schema.json"
+          ]
+        }
+      ],
+      "digestAlgorithm": "sha256-rfc8785-v1",
+      "digest": "88b0d1f44eac757962de977f4c58682f546f31d2065f113ab001e50cf53b343d"
+    },
+    {
+      "id": "repo-template/proof-of-detection",
+      "version": "1.0.0",
+      "dependencies": [
+        {
+          "id": "repo-template/local-ci-contract-v3",
+          "version": "3.0.0",
+          "digest": "88b0d1f44eac757962de977f4c58682f546f31d2065f113ab001e50cf53b343d"
+        }
+      ],
+      "artifacts": [
+        ".runtime-artifact-registry.json",
+        ".runtime-artifact-registry.schema.json",
+        "scripts/check-runtime-artifact-registry.mjs",
+        "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+        "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+        "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+        "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
+        "scripts/proof-of-detection/run-meta-gate.mjs"
+      ],
+      "fixtures": [],
+      "goldens": [],
+      "modes": [
+        {
+          "id": "self-test",
+          "entrypoint": "scripts/proof-of-detection/run-meta-gate.mjs",
+          "requiredPaths": [
+            ".runtime-artifact-registry.json",
+            ".runtime-artifact-registry.schema.json",
+            "scripts/check-runtime-artifact-registry.mjs",
+            "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+            "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+            "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+            "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
+            "scripts/proof-of-detection/run-meta-gate.mjs"
+          ]
+        }
+      ],
+      "digestAlgorithm": "sha256-rfc8785-v1",
+      "digest": "af201da2952d01c82aea7992ea4d0ecf709b9631c527e31c035dccc8c19e2891"
+    },
+    {
       "id": "repo-template/quality-lint",
       "version": "1.0.0",
       "dependencies": [],
@@ -154,5 +257,5 @@
       "digest": "8789159231cbc5adb7794f381889ee0943e31675097a050d061993f9d85318e2"
     }
   ],
-  "registryDigest": "87884b97a652195b127fbc0e358e126db793eea539d3416130779d5bf98cd93d"
+  "registryDigest": "7a82524ce23fa208744496a3a4c87e5b966e3786e08be9960659e6de4927fbd1"
 }

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/runtime-artifact-registry-v1/runtime-artifact-registry.schema.json",
+  "title": "RuntimeArtifactRegistryV1",
+  "description": "Machine-readable registry of file-precise runtime artifacts a tool writes during its own operation and that must be gitignored so they never make a working tree read as dirty. Generic ecosystem ignores (node_modules, *.log, .env*, OS artifacts) are out of scope -- this registry covers only the class of tool-written, incident-prone transient state described in issue #131.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaId", "schemaVersion", "contractId", "entries"],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/runtime-artifact-registry-v1/runtime-artifact-registry.schema.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "contractId": {
+      "const": "repo-template/runtime-artifact-registry-v1"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 1024,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pattern", "owner", "reason", "incident"],
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact .gitignore pattern line this entry documents."
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Repository (or tool) responsible for writing and retiring this path."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Why this path is written and why it is transient rather than durable."
+          },
+          "incident": {
+            "oneOf": [
+              { "type": "string", "minLength": 1 },
+              { "type": "null" }
+            ],
+            "description": "Reference to the incident this registration traces back to, or null if none."
+          }
+        }
+      }
+    }
+  }
+}
