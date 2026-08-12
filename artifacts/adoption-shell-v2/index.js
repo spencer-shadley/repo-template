@@ -14,3 +14,5 @@ export { materializeAdoptionShellV2 } from "./materialize.js";
 export { classifyPlanRecordV1, isPlanBodyPathV1, planRecordTransitionReasonV1, PLAN_BODY_BASENAME_PATTERN_SOURCE, PLAN_RECORD_SCHEMA_VERSION, PLAN_RECORD_STATUSES, validatePlanRecordV1, } from "./plan-record-v1.js";
 export { ARCHIVE_AGGREGATE_ALGORITHM_V1, archiveAggregateSha256V1, createWorkMigrationManifestV1, validateWorkMigrationManifestV1, } from "./work-migration-manifest-v1.js";
 export { LOCAL_CI_CONTRACT_V2_ID, LOCAL_CI_CONTRACT_V2_SCHEMA_ID, LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION, classifyAndMigrateLegacyLocalCiV1, orderedLocalCiCommands, validateLocalCiContractV2, } from "./local-ci-contract-v2.js";
+export { LOCAL_CI_CONTRACT_V3_ID, LOCAL_CI_CONTRACT_V3_SCHEMA_ID, LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION, classifyAndMigrateLocalCiV2ToV3, orderedLocalCiCommandsV3, validateLocalCiContractV3, } from "./local-ci-contract-v3.js";
+export { LOCAL_CI_OUTCOME_V1_ID, LOCAL_CI_OUTCOME_V1_SCHEMA_ID, LOCAL_CI_OUTCOME_V1_SCHEMA_VERSION, LOCAL_CI_OUTCOMES_V1, isNotExecutedOutcomeV1, validateLocalCiOutcomeV1, } from "./local-ci-outcome-v1.js";

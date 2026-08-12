@@ -6,6 +6,33 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Added
+
+- **`LocalCiContractV3` proof-of-detection** (`contracts/local-ci/v3/local-ci-contract-v3.schema.json`,
+  `contractId: "repo-template/local-ci-v3"`): every declared command now requires `detectionProof`,
+  either a known-bad fixture the gate must flag or a recorded, non-empty `exempt` reason -- never
+  silent or defaulted. New, additive contract identity alongside the frozen, unmodified
+  `LocalCiContractV2`; no existing v2 consumer starts failing schema validation. Migration path:
+  `classifyAndMigrateLocalCiV2ToV3` rejects unmigrated v2 declarations with an exact
+  `commandsMissingDetectionProof` list rather than inferring proof. See ADR-0009. MAJOR (new v3
+  identity; v2 unchanged).
+- **The outcome contract** (`contracts/local-ci/v3/local-ci-outcome-v1.schema.json`,
+  `contractId: "repo-template/local-ci-outcome-v1"`): `pass | fail | skipped | could-not-execute`,
+  never fewer than four states, with a closed schema coupling so `skipped`/`could-not-execute`
+  can never carry a passing shape. Closes the "skip/unknown silently equals pass" class (watcher
+  skip, no-op `prune`, never-run gate, bare-worktree could-not-execute). See ADR-0009. MINOR.
+- **The proof-of-detection meta-gate** (`scripts/proof-of-detection/run-meta-gate.mjs`): plants
+  each declared command's detection-proof fixture, asserts the command exits non-zero, and restores
+  crash-safely via an on-disk plant ledger. Ships with a reference `theme-dual-mode-lint` detector
+  and its `--self-test` reproduces the exact historical hex-only blindness (issue #131) against
+  `rgb(13 15 22 / 92%)`, proving the meta-gate passes the real luminance-aware detector and fails
+  the deliberately blinded one. Wired into `verify:self`. See ADR-0009. MINOR.
+- **Runtime-artifact registry** (`.runtime-artifact-registry.json` +
+  `.runtime-artifact-registry.schema.json` + `scripts/check-runtime-artifact-registry.mjs`):
+  replaces the advisory transient-pattern-list template prose with a checked, bidirectional
+  cross-validation between tagged `.gitignore` lines and a machine-readable registry. Wired into
+  `verify:self`. See ADR-0009. MINOR.
+
 ### Changed
 
 - Added a material-choice-only governance reminder to `PLAN_TEMPLATE.md`, including the complete

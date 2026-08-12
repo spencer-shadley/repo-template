@@ -1,0 +1,95 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/local-ci-v3/local-ci-contract-v3.schema.json",
+  "schemaVersion": "3.0.0",
+  "contractId": "repo-template/local-ci-v3",
+  "repository": "spencer-shadley/repo-template",
+  "canonicalBranch": "master",
+  "commands": {
+    "lint": {
+      "name": "lint",
+      "executable": "pnpm",
+      "args": [
+        "lint"
+      ],
+      "shell": "none",
+      "cwd": ".",
+      "timeoutSeconds": 300,
+      "expectedExitCode": 0,
+      "failureDisposition": "fail-gate",
+      "detectionProof": {
+        "fixture": {
+          "path": "tests/fixtures/proof-of-detection/lint-known-bad.ts",
+          "description": "unused-variable fixture the lint rule set must flag",
+          "expectation": "non-zero-exit"
+        }
+      }
+    },
+    "typecheck": {
+      "name": "typecheck",
+      "executable": "pnpm",
+      "args": [
+        "typecheck"
+      ],
+      "shell": "none",
+      "cwd": ".",
+      "timeoutSeconds": 300,
+      "expectedExitCode": 0,
+      "failureDisposition": "fail-gate",
+      "detectionProof": {
+        "exempt": "typecheck detection is proven per-compiler by the TypeScript project itself; no repo-local fixture can exercise it without duplicating the compiler test suite"
+      }
+    },
+    "authoritative-gate": {
+      "name": "verify",
+      "executable": "pnpm",
+      "args": [
+        "verify"
+      ],
+      "shell": "none",
+      "cwd": ".",
+      "timeoutSeconds": 600,
+      "expectedExitCode": 0,
+      "failureDisposition": "fail-gate",
+      "detectionProof": {
+        "fixture": {
+          "path": "tests/fixtures/proof-of-detection/verify-known-bad.ts",
+          "description": "planted conflict marker the authoritative gate must fail on",
+          "expectation": "non-zero-exit"
+        }
+      }
+    }
+  },
+  "environment": {
+    "runtime": {
+      "name": "node",
+      "versionConstraint": ">=24.16.0 <25"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.17.0"
+    },
+    "supportedPlatforms": [
+      "win32",
+      "linux",
+      "darwin"
+    ],
+    "supportedArchitectures": [
+      "x64",
+      "arm64"
+    ],
+    "requiredEnvVars": [],
+    "requiredCredentials": [],
+    "networkExpectation": "offline-only"
+  },
+  "effects": {
+    "credentialsAccess": false,
+    "networkProviderAccess": false,
+    "providerSpend": false,
+    "externalMutation": false,
+    "registrationMutation": false,
+    "schedulesMutation": false,
+    "deploymentMutation": false,
+    "consumerBindingMutation": false,
+    "servingAuthorityMutation": false
+  }
+}

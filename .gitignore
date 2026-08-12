@@ -1,18 +1,26 @@
 node_modules/
+# runtime-artifact: owner=repo-template incident=none
 .adoption-shell-build.json
 *.log
 .DS_Store
 .env
 .env.*
 *.secret.*
+# runtime-artifact: owner=agent-orchestrator incident=none
 .orchestrator-tree.lock
+# runtime-artifact: owner=agent-orchestrator incident=none
 .orchestrator-*.lease
+# runtime-artifact: owner=agent-orchestrator incident=none
 .ops-auto-commit-state.json
 
 # loop transient sidecars (never commit)
+# runtime-artifact: owner=agent-orchestrator incident=none
 plans/*.log.md
+# runtime-artifact: owner=agent-orchestrator incident=none
 plans/*.result.md
+# runtime-artifact: owner=agent-orchestrator incident=none
 plans/*.feedback.md
+# runtime-artifact: owner=agent-orchestrator incident=none
 plans/*.paused
 
 # keep near LAST: incident log IS tracked; drain auto-commits sole dirty auto-appends as
@@ -22,12 +30,15 @@ plans/*.paused
 # Parent-directory ignore rules can still hide .ops before this file is read; fix those at the parent.
 !.ops/
 !.ops/**
+# runtime-artifact: owner=agent-orchestrator incident=none
 .ops/concurrency-capture.jsonl
+# runtime-artifact: owner=agent-orchestrator incident=none
 .ops/freeze-expired.notify
 
 # plan-critic/pre-enqueue writes failed verdict reports here for local diagnostics; successful
 # verdicts are copied into tracked plans/<NNN>.critic.md. Re-ignore file-precise so failed runs
 # don't dirty or wedge the queue (queue-abort-dirty incident).
+# runtime-artifact: owner=agent-orchestrator incident=none
 .ops/critic/*.md
 
 # local tool state (Serena MCP)
@@ -38,7 +49,14 @@ plans/*.paused
 # the tree permanently dirty -- and the run-loop then refuses to start in a dirty
 # tree it cannot attribute to a dead run ("Working tree is dirty and run-loop could
 # not attribute it to a dead run"). File-precise, never a blanket .ops/ ignore.
+# runtime-artifact: owner=agent-orchestrator incident=none
 plans/*.work-spine-lag.json
+# runtime-artifact: owner=agent-orchestrator incident=none
 /.credit-telemetry-coalesce.json
+# runtime-artifact: owner=agent-orchestrator incident=repo-template#129
 .ops/work-items/QUEUE.generated.md
+# runtime-artifact: owner=agent-orchestrator incident=repo-template#129
 .ops/work-items/work-projection.v1.json
+
+# runtime-artifact: owner=repo-template incident=repo-template#131
+.ops/proof-of-detection-plant-ledger.json

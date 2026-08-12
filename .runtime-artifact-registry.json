@@ -1,0 +1,103 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/runtime-artifact-registry-v1/runtime-artifact-registry.schema.json",
+  "schemaVersion": "1.0.0",
+  "contractId": "repo-template/runtime-artifact-registry-v1",
+  "entries": [
+    {
+      "pattern": ".adoption-shell-build.json",
+      "owner": "repo-template",
+      "reason": "tools/artifact-build.ts writes this temporary tsconfig extension while preparing a build and deletes it on finish/cleanup.",
+      "incident": null
+    },
+    {
+      "pattern": ".orchestrator-tree.lock",
+      "owner": "agent-orchestrator",
+      "reason": "worktree lock file held while the orchestrator operates on this checkout.",
+      "incident": null
+    },
+    {
+      "pattern": ".orchestrator-*.lease",
+      "owner": "agent-orchestrator",
+      "reason": "per-run lease file the orchestrator writes to claim exclusive use of this checkout.",
+      "incident": null
+    },
+    {
+      "pattern": ".ops-auto-commit-state.json",
+      "owner": "agent-orchestrator",
+      "reason": "drain auto-commit bookkeeping state, regenerated every cycle.",
+      "incident": null
+    },
+    {
+      "pattern": "plans/*.log.md",
+      "owner": "agent-orchestrator",
+      "reason": "loop-written per-plan execution log sidecar, regenerated every run.",
+      "incident": null
+    },
+    {
+      "pattern": "plans/*.result.md",
+      "owner": "agent-orchestrator",
+      "reason": "loop-written per-plan result sidecar, regenerated every run.",
+      "incident": null
+    },
+    {
+      "pattern": "plans/*.feedback.md",
+      "owner": "agent-orchestrator",
+      "reason": "loop-written per-plan feedback sidecar, regenerated every run.",
+      "incident": null
+    },
+    {
+      "pattern": "plans/*.paused",
+      "owner": "agent-orchestrator",
+      "reason": "loop-written pause marker for a plan, removed on resume.",
+      "incident": null
+    },
+    {
+      "pattern": ".ops/concurrency-capture.jsonl",
+      "owner": "agent-orchestrator",
+      "reason": "loop concurrency diagnostics capture, regenerated every cycle.",
+      "incident": null
+    },
+    {
+      "pattern": ".ops/freeze-expired.notify",
+      "owner": "agent-orchestrator",
+      "reason": "transient notification marker for an expired freeze window.",
+      "incident": null
+    },
+    {
+      "pattern": ".ops/critic/*.md",
+      "owner": "agent-orchestrator",
+      "reason": "plan-critic writes failed verdict reports here for local diagnostics; successful verdicts are copied into tracked plans/<NNN>.critic.md.",
+      "incident": null
+    },
+    {
+      "pattern": "plans/*.work-spine-lag.json",
+      "owner": "agent-orchestrator",
+      "reason": "loop-written ephemeral receipt regenerated every cycle; previously unregistered and left the tree permanently dirty.",
+      "incident": null
+    },
+    {
+      "pattern": "/.credit-telemetry-coalesce.json",
+      "owner": "agent-orchestrator",
+      "reason": "loop-written ephemeral receipt regenerated every cycle; previously unregistered and left the tree permanently dirty.",
+      "incident": null
+    },
+    {
+      "pattern": ".ops/work-items/QUEUE.generated.md",
+      "owner": "agent-orchestrator",
+      "reason": "generated queue projection view, regenerated every cycle; previously unregistered and left the tree permanently dirty.",
+      "incident": "repo-template#129"
+    },
+    {
+      "pattern": ".ops/work-items/work-projection.v1.json",
+      "owner": "agent-orchestrator",
+      "reason": "generated WorkProjectionV1 snapshot, regenerated every cycle; previously unregistered and left the tree permanently dirty.",
+      "incident": "repo-template#129"
+    },
+    {
+      "pattern": ".ops/proof-of-detection-plant-ledger.json",
+      "owner": "repo-template",
+      "reason": "crash-safety ledger the proof-of-detection meta-gate writes before planting a known-bad fixture and clears on restore, so a killed run leaves a trail the next invocation self-heals from.",
+      "incident": "repo-template#131"
+    }
+  ]
+}

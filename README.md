@@ -19,6 +19,9 @@ audit, the autonomous loop) rely on these paths.
 | `.ops/README.md` | incident stream schema and append rules |
 | `.ops/incidents.jsonl` | machine incident stream (appears lazily; append-only; weekly-rotated) |
 | `contracts/local-ci/v2/` | versioned machine-readable LocalCiContractV2 schema and fixtures |
+| `contracts/local-ci/v3/` | LocalCiContractV3 (required `detectionProof` per command) and LocalCiOutcomeV1 (`pass\|fail\|skipped\|could-not-execute`) schemas and fixtures |
+| `scripts/proof-of-detection/` | meta-gate that plants each command's detection-proof fixture and asserts non-zero exit; reference `theme-dual-mode-lint` detector proves it |
+| `.runtime-artifact-registry.json` | machine-readable registry of file-precise runtime artifacts, cross-checked against tagged `.gitignore` lines |
 | `model-boundary.json` | machine-readable model boundary: gateway, provider-specific exceptions, owner |
 | `.user-surface-lint.json` | configured user-facing source globs and justified allowlist for developer-leak lint |
 | `.user-surface-lint.schema.json` | schema for the user-surface leak lint config |
