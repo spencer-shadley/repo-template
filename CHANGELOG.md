@@ -6,6 +6,13 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Fixed
+
+- **Advisory `ci.yml` no longer echoes that the live thin check is a stub**
+  (repo-template#134 / code#1560 D3). `lint-user-surface-leaks` already runs on
+  preinstalled node. Adopter `TODO(setup):` toolchain/lint/test comments stay.
+  PATCH.
+
 ### Added
 
 - **`LocalCiContractV3` proof-of-detection** (`contracts/local-ci/v3/local-ci-contract-v3.schema.json`,
