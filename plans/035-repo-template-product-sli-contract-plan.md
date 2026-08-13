@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/035-repo-template-product-sli-contract-plan
-- **Status:** hold - critic death (retry: critic-available)
+- **Status:** hold - critic unavailable (retry: critic-available)
 - **Requeue-reason:** manual: #110 is a distinct portable local-priority/ProductSliProbeV1 successor consuming immutable v3.0.1; Plan 034's source/release is landed and its lingering live status is stale projection, not an active writer
 - **Priority:** P1
 - **Depends:** none
