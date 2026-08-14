@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # TODO(setup): toolchain setup (node/python/etc.)
+      # Live thin check: node builtins only; no install step required.
       - run: node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json
-      # TODO(setup): lint step
-      # TODO(setup): test step
-      - run: 'echo "TODO(setup): replace with real lint+test"'
+      # TODO(setup): lint step (adopter)
+      # TODO(setup): test step (adopter)
