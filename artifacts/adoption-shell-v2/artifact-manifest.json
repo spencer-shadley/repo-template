@@ -920,15 +920,15 @@
       "path": "eslint.config.mjs",
       "kind": "file",
       "mode": "100644",
-      "sha256": "abde5247499d7bd1d62ae0569f7a252cbe01f72a8cae27e50815a3d7f9de3c68",
-      "bytes": 810
+      "sha256": "04acb730f61f7286b377d8aa45206988ebf5d86e4d4ba582e925df35a4a644a6",
+      "bytes": 919
     },
     {
       "path": "eslint.quality.mjs",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e520154eebbad253aad95836d5999143a842fc10eb1180ac692c0c7b9167f1fc",
-      "bytes": 6136
+      "sha256": "17886ece5a1ea00556e3b6a60bfa15a664c9b182c97a8629e1668ff52fb97aad",
+      "bytes": 13122
     },
     {
       "path": "plans/drafts/000-smoke.md",
@@ -990,8 +990,8 @@
       "path": "scripts/verify-quality-lint-required.mjs",
       "kind": "file",
       "mode": "100644",
-      "sha256": "da762b0e28af2471a5ddd7c2f3fbb514a953421b7edc08ee4e053f7de89dabb4",
-      "bytes": 3720
+      "sha256": "12bade9b397975cf0af03f73b662a2edeb25226da07a1861d9389a26b4c37596",
+      "bytes": 3979
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -1143,5 +1143,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "b551b6bb749525bf7fe93a0cdfdf3af92d8c73f14257ee4a0da75a06deae4584"
+  "manifestDigest": "1d92bd024ce72ba9a9e3225b6770529d5060cf6dcda55f85d085d42315e8595c"
 }

@@ -1,7 +1,6 @@
 {
   ".github/ISSUE_TEMPLATE/task.md": "copy",
   ".github/pull_request_template.md": "copy",
-  ".github/workflows/ci.yml": "copy",
   ".gitignore": "merge",
   ".npmrc": "self",
   ".ops/concurrency-capture.jsonl": "self",
@@ -211,6 +210,7 @@
   "release/release-payload-set.json": "self",
   "scripts/check-dir-breadth.mjs": "self",
   "scripts/check-issue-template-intake.mjs": "self",
+  "scripts/check-prefer-typescript.selfcheck.ts": "self",
   "scripts/check-runtime-artifact-registry.mjs": "copy",
   "scripts/dir-breadth.json": "self",
   "scripts/lint-user-surface-leaks.mjs": "copy",

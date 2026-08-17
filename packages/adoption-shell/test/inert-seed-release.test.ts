@@ -53,7 +53,6 @@ test("released inert seed closes over exactly its selected safe bytes", () => {
     [
       ".github/ISSUE_TEMPLATE/task.md",
       ".github/pull_request_template.md",
-      ".github/workflows/ci.yml",
       ".ops/README.md",
       "AGENTS.md",
       "CHANGELOG.md",
@@ -64,10 +63,9 @@ test("released inert seed closes over exactly its selected safe bytes", () => {
     ],
   );
   assert.equal(selection.excluded[0]?.reason, "no-local-issue-template-override");
-  assert.equal(selection.excluded[2]?.reason, "no-pre-custody-workflow");
   assert.ok(
     selection.excluded
-      .filter((_, index) => index !== 0 && index !== 2)
+      .filter((_, index) => index !== 0)
       .every((entry) => entry.reason === "requires-portable-document-projection"),
   );
 });
