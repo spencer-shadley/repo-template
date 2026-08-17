@@ -1,4 +1,3 @@
-/* eslint-disable fleet/prefer-typescript -- TODO gh issue #1: Starter ESLint flat config root entrypoint */
 /**
  * Starter ESLint flat config for template-bootstrapped repos.
  * Requires the fleet quality gate (eslint.quality.mjs).
