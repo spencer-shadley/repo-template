@@ -20,6 +20,8 @@ export default [
       "**/test-results/**",
       ".design-sync/**",
       "ds-bundle/**",
+      // intentional negative fixtures for user-surface lint
+      "tests/fixtures/**",
     ],
   },
   ...qualityRules(),
@@ -30,6 +32,20 @@ export default [
         ...globals.node,
         ...globals.browser,
       },
+    },
+  },
+  // CLI / scripts / tools: console output is intentional
+  {
+    files: ["scripts/**/*.{js,mjs,cjs,ts}", "tools/**/*.{js,mjs,cjs,ts}"],
+    rules: {
+      "no-console": "off",
+    },
+  },
+  // Comprehensive schema/contract validators and fixture generators have higher statement count
+  {
+    files: ["packages/adoption-shell/src/**/*.ts", "tools/**/*.ts"],
+    rules: {
+      "max-statements": ["warn", 100],
     },
   },
 ];
