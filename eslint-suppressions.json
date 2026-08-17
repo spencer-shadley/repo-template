@@ -1,0 +1,812 @@
+{
+  "eslint.quality.mjs": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "unicorn/no-array-push-push": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/canonical-json.ts": {
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "unicorn/number-literal-case": {
+      "count": 6
+    },
+    "unicorn/numeric-separators-style": {
+      "count": 6
+    },
+    "unicorn/prefer-code-point": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/src/capability-bundles.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 3
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 2
+    },
+    "unicorn/no-array-for-each": {
+      "count": 8
+    },
+    "unicorn/no-negated-condition": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 3
+    }
+  },
+  "packages/adoption-shell/src/contract.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 11
+    },
+    "sonarjs/redundant-type-aliases": {
+      "count": 1
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/src/delivery-measurement-contract.ts": {
+    "@typescript-eslint/no-empty-object-type": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/src/delivery-measurement-validation.ts": {
+    "unicorn/no-array-for-each": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/delivery-measurement.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "sonarjs/unused-import": {
+      "count": 1
+    },
+    "unicorn/no-array-for-each": {
+      "count": 10
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 4
+    }
+  },
+  "packages/adoption-shell/src/digest.ts": {
+    "sonarjs/no-nested-conditional": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    },
+    "unicorn/prefer-export-from": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/src/local-ci-contract-v2.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 2
+    },
+    "unicorn/no-array-for-each": {
+      "count": 1
+    },
+    "unicorn/no-negated-condition": {
+      "count": 2
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 3
+    }
+  },
+  "packages/adoption-shell/src/local-ci-contract-v3.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 2
+    },
+    "unicorn/no-array-for-each": {
+      "count": 1
+    },
+    "unicorn/no-negated-condition": {
+      "count": 3
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 3
+    }
+  },
+  "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/materialize.ts": {
+    "unicorn/no-array-callback-reference": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/path-policy.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "unicorn/number-literal-case": {
+      "count": 1
+    },
+    "unicorn/prefer-code-point": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/plan-record-v1.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "unicorn/no-array-callback-reference": {
+      "count": 1
+    },
+    "unicorn/prefer-string-raw": {
+      "count": 1
+    },
+    "unicorn/prefer-switch": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/release-candidate.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/release-closure.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/release-evidence.ts": {
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/concise-regex": {
+      "count": 4
+    },
+    "unicorn/explicit-length-check": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/release-receipt.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 1
+    },
+    "unicorn/no-array-for-each": {
+      "count": 1
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/src/validate-documentation.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "max-depth": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/slow-regex": {
+      "count": 2
+    },
+    "unicorn/prefer-string-replace-all": {
+      "count": 2
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 3
+    }
+  },
+  "packages/adoption-shell/src/validate-manifests.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 3
+    },
+    "unicorn/no-array-for-each": {
+      "count": 4
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/src/validate.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 1
+    },
+    "unicorn/no-array-for-each": {
+      "count": 3
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 4
+    }
+  },
+  "packages/adoption-shell/src/validation-helpers.ts": {
+    "sonarjs/no-nested-conditional": {
+      "count": 2
+    },
+    "sonarjs/regex-complexity": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/src/work-migration-manifest-v1.ts": {
+    "complexity": {
+      "count": 2
+    },
+    "no-duplicate-imports": {
+      "count": 1
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 4
+    },
+    "unicorn/no-array-callback-reference": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 4
+    }
+  },
+  "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
+    "sonarjs/slow-regex": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/test/canonical-digest.test.ts": {
+    "unicorn/escape-case": {
+      "count": 2
+    },
+    "unicorn/no-new-array": {
+      "count": 1
+    },
+    "unicorn/number-literal-case": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/capability-docs-regression.test.ts": {
+    "sonarjs/slow-regex": {
+      "count": 1
+    },
+    "unicorn/prefer-string-replace-all": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 3
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/delivery-measurement.test.ts": {
+    "unicorn/prefer-structured-clone": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/local-ci-contract-v2.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/local-ci-contract-v3.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 2
+    }
+  },
+  "packages/adoption-shell/test/manifest-validators.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 4
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/plan-body-paths-v1.test.ts": {
+    "@typescript-eslint/array-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 3
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/plan-record-v1.test.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 9
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 2
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/release-candidate.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/release-closure.test.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 4
+    },
+    "unicorn/prefer-structured-clone": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/release-receipt.test.ts": {
+    "@typescript-eslint/array-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 4
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 4
+    },
+    "unicorn/prefer-structured-clone": {
+      "count": 1
+    }
+  },
+  "packages/adoption-shell/test/validation-materialization.test.ts": {
+    "unicorn/no-array-callback-reference": {
+      "count": 3
+    },
+    "unicorn/prefer-string-raw": {
+      "count": 1
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 1
+    }
+  },
+  "scripts/check-dir-breadth.mjs": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/no-nested-template-literals": {
+      "count": 1
+    },
+    "sonarjs/unused-import": {
+      "count": 1
+    },
+    "unicorn/consistent-existence-index-check": {
+      "count": 1
+    },
+    "unicorn/explicit-length-check": {
+      "count": 1
+    },
+    "unicorn/import-style": {
+      "count": 1
+    },
+    "unicorn/prefer-string-replace-all": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 8
+    }
+  },
+  "scripts/check-issue-template-intake.mjs": {
+    "complexity": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/slow-regex": {
+      "count": 3
+    },
+    "unicorn/explicit-length-check": {
+      "count": 1
+    },
+    "unicorn/no-negated-condition": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 1
+    }
+  },
+  "scripts/check-runtime-artifact-registry.mjs": {
+    "max-depth": {
+      "count": 1
+    },
+    "unicorn/explicit-length-check": {
+      "count": 1
+    },
+    "unicorn/import-style": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 5
+    }
+  },
+  "scripts/lint-user-surface-leaks.mjs": {
+    "complexity": {
+      "count": 2
+    },
+    "max-depth": {
+      "count": 1
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    },
+    "unicorn/no-array-callback-reference": {
+      "count": 1
+    },
+    "unicorn/prefer-code-point": {
+      "count": 1
+    },
+    "unicorn/prefer-string-raw": {
+      "count": 1
+    },
+    "unicorn/prefer-switch": {
+      "count": 1
+    },
+    "unicorn/prefer-type-error": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 16
+    }
+  },
+  "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs": {
+    "sonarjs/regex-complexity": {
+      "count": 1
+    },
+    "unicorn/consistent-function-scoping": {
+      "count": 1
+    },
+    "unicorn/numeric-separators-style": {
+      "count": 1
+    },
+    "unicorn/prefer-spread": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 2
+    }
+  },
+  "scripts/proof-of-detection/run-meta-gate.mjs": {
+    "@typescript-eslint/no-dynamic-delete": {
+      "count": 1
+    },
+    "sonarjs/no-nested-template-literals": {
+      "count": 1
+    },
+    "unicorn/no-negated-condition": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 2
+    }
+  },
+  "scripts/verify-quality-lint-required.mjs": {
+    "unicorn/explicit-length-check": {
+      "count": 1
+    },
+    "unicorn/import-style": {
+      "count": 1
+    },
+    "unicorn/no-negated-condition": {
+      "count": 3
+    },
+    "unicorn/no-useless-fallback-in-spread": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 5
+    }
+  },
+  "tests/fixtures/user-surface-lint/bad/src/messages.js": {
+    "unicorn/prefer-string-raw": {
+      "count": 1
+    }
+  },
+  "tests/fixtures/user-surface-lint/regex-leak/src/messages.js": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "tests/fixtures/user-surface-lint/source-leak/src/messages.js": {
+    "unicorn/catch-error-name": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 5
+    }
+  },
+  "tools/artifact-build.ts": {
+    "max-lines": {
+      "count": 1
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    },
+    "unicorn/prefer-type-error": {
+      "count": 2
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 6
+    }
+  },
+  "tools/artifact-policy.ts": {
+    "sonarjs/no-nested-conditional": {
+      "count": 1
+    },
+    "sonarjs/slow-regex": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    }
+  },
+  "tools/generate-contract-fixtures.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 3
+    },
+    "sonarjs/no-unused-vars": {
+      "count": 3
+    },
+    "unicorn/escape-case": {
+      "count": 1
+    },
+    "unicorn/no-array-callback-reference": {
+      "count": 2
+    },
+    "unicorn/no-array-push-push": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 3
+    },
+    "unicorn/number-literal-case": {
+      "count": 1
+    },
+    "unicorn/numeric-separators-style": {
+      "count": 1
+    },
+    "unicorn/prefer-string-raw": {
+      "count": 3
+    },
+    "unicorn/prefer-structured-clone": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 1
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 2
+    }
+  },
+  "tools/release-payload.ts": {
+    "complexity": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/concise-regex": {
+      "count": 1
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 1
+    },
+    "sonarjs/no-os-command-from-path": {
+      "count": 2
+    },
+    "unicorn/consistent-existence-index-check": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    },
+    "unicorn/number-literal-case": {
+      "count": 2
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 1
+    }
+  },
+  "tools/verify-template-self.ts": {
+    "sonarjs/hashing": {
+      "count": 1
+    },
+    "sonarjs/no-nested-conditional": {
+      "count": 1
+    },
+    "sonarjs/no-nested-template-literals": {
+      "count": 2
+    },
+    "sonarjs/no-os-command-from-path": {
+      "count": 2
+    },
+    "unicorn/consistent-existence-index-check": {
+      "count": 1
+    },
+    "unicorn/explicit-length-check": {
+      "count": 1
+    },
+    "unicorn/no-array-for-each": {
+      "count": 1
+    },
+    "unicorn/no-negated-condition": {
+      "count": 2
+    },
+    "unicorn/no-negation-in-equality-check": {
+      "count": 1
+    },
+    "unicorn/no-nested-ternary": {
+      "count": 1
+    },
+    "unicorn/prefer-string-raw": {
+      "count": 1
+    },
+    "unicorn/prefer-string-replace-all": {
+      "count": 1
+    },
+    "unicorn/prevent-abbreviations": {
+      "count": 1
+    },
+    "unicorn/text-encoding-identifier-case": {
+      "count": 1
+    }
+  }
+}
