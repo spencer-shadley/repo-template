@@ -143,6 +143,7 @@
   "docs/QUEUE-ENROLLMENT.md": "copy",
   "docs/RUNBOOK.md": "copy",
   "docs/template-fleet-adoption-refresh-stop-2026-07-28-root-15.md": "self",
+  "eslint-suppressions.json": "copy",
   "eslint.config.mjs": "copy",
   "eslint.quality.mjs": "copy",
   "GEMINI.md": "copy",

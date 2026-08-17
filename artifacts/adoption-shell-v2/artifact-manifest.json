@@ -920,8 +920,8 @@
       "path": "eslint.config.mjs",
       "kind": "file",
       "mode": "100644",
-      "sha256": "04acb730f61f7286b377d8aa45206988ebf5d86e4d4ba582e925df35a4a644a6",
-      "bytes": 919
+      "sha256": "abde5247499d7bd1d62ae0569f7a252cbe01f72a8cae27e50815a3d7f9de3c68",
+      "bytes": 810
     },
     {
       "path": "eslint.quality.mjs",
@@ -1143,5 +1143,5 @@
       "bytes": 433
     }
   ],
-  "manifestDigest": "1d92bd024ce72ba9a9e3225b6770529d5060cf6dcda55f85d085d42315e8595c"
+  "manifestDigest": "dc2b426aee284fea828eb376b4a992b6cf4dabee025b4eb8d2df953c9b86c51f"
 }
