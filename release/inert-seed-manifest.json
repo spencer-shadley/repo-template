@@ -4,8 +4,8 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "664205a832946b0dfdcd17ad94239286e03fd434923f2960127da87478807ff4",
-  "entryCount": 82,
+  "inventoryDigest": "2adf708d5ad2ba4a51d71e1762b42c0b80e685aeb02f98440aaa538861ba115c",
+  "entryCount": 83,
   "excludedCount": 9,
   "entries": [
     {
@@ -387,11 +387,18 @@
       "bytes": 1784
     },
     {
+      "path": "eslint-suppressions.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "737ee9734409806d296e8a1b848c5d24ff479af565f73165dbbb6b7c3d38e6af",
+      "bytes": 6347
+    },
+    {
       "path": "eslint.config.mjs",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "04acb730f61f7286b377d8aa45206988ebf5d86e4d4ba582e925df35a4a644a6",
-      "bytes": 919
+      "contentSha256": "abde5247499d7bd1d62ae0569f7a252cbe01f72a8cae27e50815a3d7f9de3c68",
+      "bytes": 810
     },
     {
       "path": "eslint.quality.mjs",
@@ -630,5 +637,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "5ec7a64d20c71c9ede06acf32c416a753c1b50fd824122b7b736e67058ebf8c9"
+  "manifestDigest": "d5b235c7d8caac2d118e2105fe75eaba3c95458595c6d10d2f8308c1d4310677"
 }
