@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable fleet/prefer-typescript -- TODO gh issue #1: Bootstrap verifier script */
+// @stack-waiver id=bootstrap-verifier reason="Bootstrap verifier for template adoption"
 /**
  * Fail closed if a repository has not bootstrapped the fleet quality lint gate.
  * Used by repo-template self-verify and recommended as a consumer bootstrap check.

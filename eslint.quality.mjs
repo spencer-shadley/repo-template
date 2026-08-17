@@ -1,4 +1,4 @@
-/* eslint-disable fleet/prefer-typescript, sonarjs/todo-tag -- gh issue #1690: Fleet quality lint factory entrypoint */
+// @stack-waiver id=quality-rules-factory reason="Fleet quality lint factory flat config module"
 /**
  * Fleet quality lint factory — required for every bootstrapped / template-adopted repo.
  *
