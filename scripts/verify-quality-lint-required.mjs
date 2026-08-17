@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable fleet/prefer-typescript -- TODO gh issue #1: Bootstrap verifier script */
 /**
  * Fail closed if a repository has not bootstrapped the fleet quality lint gate.
  * Used by repo-template self-verify and recommended as a consumer bootstrap check.
@@ -30,6 +31,9 @@ if (!existsSync(qualityPath)) {
   }
   if (!body.includes("max-lines") && !body.includes("maxLines")) {
     errors.push("eslint.quality.mjs missing max-lines / small-file ceilings");
+  }
+  if (!body.includes("prefer-typescript") && !body.includes("preferTypeScriptRule")) {
+    errors.push("eslint.quality.mjs missing fleet/prefer-typescript rule");
   }
   if (!body.includes("QUALITY_LINT_GATE_ID") && !body.includes("repo-template/quality-lint")) {
     // soft: older copies ok if qualityRules present
