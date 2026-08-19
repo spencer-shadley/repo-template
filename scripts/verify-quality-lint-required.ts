@@ -8,6 +8,7 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const pathArg = process.argv.slice(2).find((a) => !a.startsWith("-"));
@@ -15,10 +16,10 @@ const root = pathArg
   ? join(process.cwd(), pathArg)
   : join(dirname(fileURLToPath(import.meta.url)), "..");
 
-const errors = [];
+const errors: string[] = [];
 
-function read(path) {
-  return readFileSync(path, "utf8");
+function read(filePath: string): string {
+  return readFileSync(filePath, "utf8");
 }
 
 const qualityPath = join(root, "eslint.quality.mjs");
@@ -64,10 +65,14 @@ const pkgPath = join(root, "package.json");
 if (!existsSync(pkgPath)) {
   errors.push("missing package.json");
 } else {
-  const pkg = JSON.parse(read(pkgPath));
+  const pkg = JSON.parse(read(pkgPath)) as {
+    readonly scripts?: Record<string, string>;
+    readonly devDependencies?: Record<string, string>;
+    readonly dependencies?: Record<string, string>;
+  };
   const scripts = pkg.scripts || {};
-  const lintScript = String(scripts.lint || "");
-  const verifyScript = String(scripts.verify || scripts["verify:self"] || "");
+  const lintScript = String(scripts["lint"] || "");
+  const verifyScript = String(scripts["verify"] || scripts["verify:self"] || "");
   if (!lintScript.includes("eslint") && !verifyScript.includes("eslint")) {
     errors.push(
       'package.json scripts must run eslint (e.g. "lint": "eslint ." and verify must call lint)',

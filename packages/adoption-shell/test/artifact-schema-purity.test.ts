@@ -77,7 +77,7 @@ test("generated quality-lint bundle is retained in the artifact fixture closure"
     "docs/QUALITY-LINT.md",
     "eslint.config.mjs",
     "eslint.quality.mjs",
-    "scripts/verify-quality-lint-required.mjs",
+    "scripts/verify-quality-lint-required.ts",
   ];
   const ownedTemp = fs.mkdtempSync(
     path.join(os.tmpdir(), "repo-template-quality-lint-registry-"),
@@ -104,10 +104,10 @@ test("generated quality-lint bundle is retained in the artifact fixture closure"
       },
       {
         id: "presence",
-        entrypoint: "scripts/verify-quality-lint-required.mjs",
+        entrypoint: "scripts/verify-quality-lint-required.ts",
         requiredPaths: [
           "eslint.quality.mjs",
-          "scripts/verify-quality-lint-required.mjs",
+          "scripts/verify-quality-lint-required.ts",
         ],
       },
     ]);

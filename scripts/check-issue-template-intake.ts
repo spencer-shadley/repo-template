@@ -7,6 +7,7 @@
  */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -23,14 +24,20 @@ const REQUIRED_HEADINGS = [
   "Root-cause taxonomy and disposition",
   "Durable fix and acceptance",
   "Human-decision state",
-];
-const TAXONOMY_RANKS = ["Subspecies", "Species", "Genus", "Family", "Phylum"];
+] as const;
+const TAXONOMY_RANKS = ["Subspecies", "Species", "Genus", "Family", "Phylum"] as const;
 
-function escapeRegExp(s) {
+interface ValidateResult {
+  readonly ok: boolean;
+  readonly missing?: readonly string[];
+  readonly schemaVersion: string;
+}
+
+function escapeRegExp(s: string): string {
   return s.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
-function stripFrontmatter(markdown) {
+function stripFrontmatter(markdown: string): string {
   const text = String(markdown || "").replaceAll("\r\n", "\n").replace(/^\uFEFF/, "");
   if (!text.startsWith("---\n")) return text;
   const end = text.indexOf("\n---\n", 4);
@@ -38,9 +45,9 @@ function stripFrontmatter(markdown) {
   return text.slice(end + "\n---\n".length);
 }
 
-function validate(templateMarkdown) {
+function validate(templateMarkdown: string): ValidateResult {
   const text = stripFrontmatter(templateMarkdown);
-  const missing = [];
+  const missing: string[] = [];
   for (const h of REQUIRED_HEADINGS) {
     if (!new RegExp(String.raw`^##\s+` + escapeRegExp(h) + String.raw`\s*$`, "im").test(text)) {
       missing.push(`## ${h}`);
@@ -58,10 +65,11 @@ function validate(templateMarkdown) {
   const start = lines.findIndex((l) => /^##\s+Root-cause taxonomy and disposition\s*$/i.test(l));
   let section = "";
   if (start !== -1) {
-    const out = [];
+    const out: string[] = [];
     for (let i = start + 1; i < lines.length; i += 1) {
-      if (/^##\s+/.test(lines[i] ?? "")) break;
-      out.push(lines[i] ?? "");
+      const line = lines[i];
+      if (line !== undefined && /^##\s+/.test(line)) break;
+      out.push(line ?? "");
     }
     section = out.join("\n");
   }
@@ -85,7 +93,7 @@ if (!existsSync(templatePath)) {
 const result = validate(readFileSync(templatePath, "utf8"));
 if (!result.ok) {
   console.error(
-    `issue-template-intake: FAIL ${templatePath}\n  missing: ${result.missing.join(", ")}\n  schema: ${result.schemaVersion}`,
+    `issue-template-intake: FAIL ${templatePath}\n  missing: ${(result.missing ?? []).join(", ")}\n  schema: ${result.schemaVersion}`,
   );
   process.exit(1);
 }

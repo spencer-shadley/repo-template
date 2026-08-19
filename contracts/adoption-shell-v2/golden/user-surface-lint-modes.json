@@ -2,16 +2,16 @@
   "bundle": {
     "id": "repo-template/user-surface-lint",
     "version": "2.6.0",
-    "digest": "8789159231cbc5adb7794f381889ee0943e31675097a050d061993f9d85318e2"
+    "digest": "28c17d3287f732bfcf1bab72735f8185374f091113b83d92757a0c4680413cfe"
   },
   "modes": [
     {
       "id": "config",
-      "invocation": "node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json"
+      "invocation": "node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json"
     },
     {
       "id": "self-test",
-      "invocation": "node scripts/lint-user-surface-leaks.mjs --self-test"
+      "invocation": "node scripts/lint-user-surface-leaks.ts --self-test"
     }
   ]
 }

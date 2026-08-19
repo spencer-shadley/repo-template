@@ -44,7 +44,7 @@ same "0" as a genuine pass.
      `commandsMissingDetectionProof` list so the consumer knows precisely what to add. Unknown/
      legacy-v1 shapes fall through to the same fail-closed dispositions ADR-0008 already defined.
 
-2. **The proof-of-detection meta-gate** (`scripts/proof-of-detection/run-meta-gate.mjs`) is the
+2. **The proof-of-detection meta-gate** (`scripts/proof-of-detection/run-meta-gate.ts`) is the
    mechanism the orchestrator plan template's advisory rule always needed. For every declared
    command it plants the fixture, asserts the command exits **non-zero**, and restores. A command
    that stays green on planted bad input fails the meta-gate. Restoration is crash-safe: a plant is
@@ -69,7 +69,7 @@ same "0" as a genuine pass.
    regression under the old two-state model).
 
 4. **The runtime-artifact registry** (`.runtime-artifact-registry.json` +
-   `.runtime-artifact-registry.schema.json` + `scripts/check-runtime-artifact-registry.mjs`)
+   `.runtime-artifact-registry.schema.json` + `scripts/check-runtime-artifact-registry.ts`)
    replaces the advisory template-prose rule ("RULE (2026-07-02b): ... register it in the shared
    transient-pattern list") with a checked contract. Every `.gitignore` line meant to suppress a
    specific tool's runtime output is tagged `# runtime-artifact: owner=<repo> incident=<ref>`
