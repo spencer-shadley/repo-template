@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "2adf708d5ad2ba4a51d71e1762b42c0b80e685aeb02f98440aaa538861ba115c",
+  "inventoryDigest": "814a0ee57d098e3a41280c9caf5c38e595ea82a57f96996b092d644385d70eb2",
   "entryCount": 83,
   "excludedCount": 9,
   "entries": [
@@ -61,8 +61,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "0528fce0496197b9d98a32c9f0e7bf37642ee59ae5a42a7373ae70d8d35c52b7",
-      "bytes": 5280
+      "contentSha256": "79798c7f52c6d281236ab39c33f53a2d1af79811e31d1abe56188a09fe6d3ae0",
+      "bytes": 5278
     },
     {
       "path": "SECURITY.md",
@@ -320,8 +320,8 @@
       "path": "docs/MIGRATION.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "4d4c606ba274f86a2ab817e34d1c351f2e6d734308013b9b202274dda3787b99",
-      "bytes": 16427
+      "contentSha256": "8f224caffc72faa3ef882d3cce93f6530f3fef940d00f2cf9c573ebd58f94122",
+      "bytes": 16425
     },
     {
       "path": "docs/OBSERVABILITY.md",
@@ -334,8 +334,8 @@
       "path": "docs/QUALITY-LINT.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "09db79f0a74e6897035c49de0b4d85d2e8ae952b3037790b04dd83bfcf513e08",
-      "bytes": 4365
+      "contentSha256": "f5745d323e1079aa7f95aaa172059066a4f69e4db086dbed423b806dccaaeb23",
+      "bytes": 4362
     },
     {
       "path": "docs/QUEUE-ENROLLMENT.md",
@@ -390,22 +390,22 @@
       "path": "eslint-suppressions.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "737ee9734409806d296e8a1b848c5d24ff479af565f73165dbbb6b7c3d38e6af",
-      "bytes": 6347
+      "contentSha256": "9b01b6710bdb64fe6b72e28d3a7e9f76f73f2e852b3724787472bd05903bbb62",
+      "bytes": 6002
     },
     {
       "path": "eslint.config.mjs",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "abde5247499d7bd1d62ae0569f7a252cbe01f72a8cae27e50815a3d7f9de3c68",
-      "bytes": 810
+      "contentSha256": "d4fa41dc52b81b7377a7f173e54f7b3f60038f4b4391b46595334ba32195188a",
+      "bytes": 1321
     },
     {
       "path": "eslint.quality.mjs",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "17886ece5a1ea00556e3b6a60bfa15a664c9b182c97a8629e1668ff52fb97aad",
-      "bytes": 13122
+      "contentSha256": "72a0500cf0846c34ddc7fb88fc57f94e5a155bea41cf1d7e76cf5d44d8bf7cdc",
+      "bytes": 13099
     },
     {
       "path": "model-boundary.json",
@@ -422,18 +422,18 @@
       "bytes": 795
     },
     {
-      "path": "scripts/check-runtime-artifact-registry.mjs",
+      "path": "scripts/check-runtime-artifact-registry.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "3736de2565c1e0def55e99060ae51af0eaba20c3b2747e21c762fefb3272a255",
-      "bytes": 6241
+      "contentSha256": "f2415dece3cf4198f9c1d5d273e6b82b72c596b7b8a48f9116bc4cd8555070a1",
+      "bytes": 7104
     },
     {
-      "path": "scripts/lint-user-surface-leaks.mjs",
+      "path": "scripts/lint-user-surface-leaks.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "91e2786a19a994e3c4b5c540574d0c48ec6079da4fdc37c6a346e5060956f061",
-      "bytes": 18834
+      "contentSha256": "4ce0d6227d8229c4012acb3cc23fc18aa68991ff2cd6be103bf4d4b55478a283",
+      "bytes": 19990
     },
     {
       "path": "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
@@ -464,18 +464,18 @@
       "bytes": 3557
     },
     {
-      "path": "scripts/proof-of-detection/run-meta-gate.mjs",
+      "path": "scripts/proof-of-detection/run-meta-gate.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "ae0a019d5e2c6254b609012d74b57e1fbede66312efad83f019be23ba1516d68",
-      "bytes": 11187
+      "contentSha256": "dd4dda1db858170871c0e40c39ad0958ffde451beb2d4c85aca28b29fd787c85",
+      "bytes": 13838
     },
     {
-      "path": "scripts/verify-quality-lint-required.mjs",
+      "path": "scripts/verify-quality-lint-required.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "12bade9b397975cf0af03f73b662a2edeb25226da07a1861d9389a26b4c37596",
-      "bytes": 3979
+      "contentSha256": "61432b59cf376657177f903a7beda92928a099fbcd7b1b38f7184d0f15abf37b",
+      "bytes": 4215
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -637,5 +637,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "d5b235c7d8caac2d118e2105fe75eaba3c95458595c6d10d2f8308c1d4310677"
+  "manifestDigest": "cb17139a30bbb64b3f4d068f3a0897ab1d2229d8699dec8d2e88fa2e3b473324"
 }

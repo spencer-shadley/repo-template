@@ -223,7 +223,7 @@ alongside the frozen, unmodified `LocalCiContractV2`. Adopting v3 is opt-in per 
      recorded, and counted -- see the meta-gate's unproven-gate summary line). Re-validate with
      `validateLocalCiContractV3` until it accepts, then bump `schemaVersion`/`schemaId`/`contractId`
      to the v3 constants.
-   - Wire `scripts/proof-of-detection/run-meta-gate.mjs` (materialized via the
+   - Wire `scripts/proof-of-detection/run-meta-gate.ts` (materialized via the
      `repo-template/proof-of-detection` capability bundle) against the repository's real v3
      `local-ci.json` and add it to the repository's own verify gate, so the proofs are re-checked
      on every run rather than proven once and trusted forever.
@@ -237,7 +237,7 @@ alongside the frozen, unmodified `LocalCiContractV2`. Adopting v3 is opt-in per 
    documents `agent-orchestrator`-owned transient patterns because repo-template does not own the
    tools that write them (the loop, the drain auto-commit state, the queue projection). Consuming
    `agent-orchestrator` must: (a) adopt `.runtime-artifact-registry.json` +
-   `.runtime-artifact-registry.schema.json` + `scripts/check-runtime-artifact-registry.mjs` via the
+   `.runtime-artifact-registry.schema.json` + `scripts/check-runtime-artifact-registry.ts` via the
    template manifest, (b) tag its own `.gitignore` lines with
    `# runtime-artifact: owner=<repo> incident=<ref>` for every pattern it writes, and (c) wire
    `check-runtime-artifact-registry` into its own verify gate so a new unregistered runtime file is

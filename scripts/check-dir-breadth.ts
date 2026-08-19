@@ -11,7 +11,8 @@
  * Exit 0 = ok, 1 = violation, 2 = config error
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
+import { dirname, join } from "node:path";
+import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -21,7 +22,31 @@ const SOURCE_EXT = new Set([
   ".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".mts", ".cts",
 ]);
 
-function loadConfig() {
+interface AllowlistEntry {
+  readonly path?: string;
+  readonly maxFiles?: number;
+  readonly issue?: string;
+  readonly issueUrl?: string;
+}
+
+interface DirBreadthConfig {
+  readonly maxFilesPerDir: number;
+  readonly roots: readonly string[];
+  readonly ignoreDirNames: ReadonlySet<string>;
+  readonly allowlist: readonly AllowlistEntry[];
+}
+
+interface Hit {
+  readonly rel: string;
+  readonly count: number;
+}
+
+interface AllowlistCapResult {
+  readonly max: number;
+  readonly issue: string;
+}
+
+function loadConfig(): DirBreadthConfig {
   if (!existsSync(configPath)) {
     return {
       maxFilesPerDir: 25,
@@ -33,22 +58,40 @@ function loadConfig() {
       allowlist: [],
     };
   }
-  const raw = JSON.parse(readFileSync(configPath, "utf8"));
+  const raw = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+  const rawMax = Number(raw["maxFilesPerDir"]);
+  const rawRoots = raw["roots"];
+  const rawIgnore = raw["ignoreDirNames"];
+  const rawAllowlist = raw["allowlist"];
+
   return {
-    maxFilesPerDir: Number(raw.maxFilesPerDir) > 0 ? Number(raw.maxFilesPerDir) : 25,
-    roots: Array.isArray(raw.roots) ? raw.roots : ["src", "lib"],
-    ignoreDirNames: new Set(raw.ignoreDirNames || ["node_modules", "dist", "build", "coverage", "vendor", ".git"]),
-    allowlist: Array.isArray(raw.allowlist) ? raw.allowlist : [],
+    maxFilesPerDir: rawMax > 0 ? rawMax : 25,
+    roots: Array.isArray(rawRoots)
+      ? rawRoots.filter((r): r is string => typeof r === "string")
+      : ["src", "lib"],
+    ignoreDirNames: new Set(
+      Array.isArray(rawIgnore)
+        ? rawIgnore.filter((i): i is string => typeof i === "string")
+        : ["node_modules", "dist", "build", "coverage", "vendor", ".git"],
+    ),
+    allowlist: Array.isArray(rawAllowlist)
+      ? (rawAllowlist.filter((a): a is AllowlistEntry => typeof a === "object" && a !== null))
+      : [],
   };
 }
 
-function isSourceFile(name) {
+function isSourceFile(name: string): boolean {
   const i = name.lastIndexOf(".");
   if (i < 0) return false;
   return SOURCE_EXT.has(name.slice(i).toLowerCase());
 }
 
-function walk(dirAbs, dirRel, cfg, hits) {
+function walk(
+  dirAbs: string,
+  dirRel: string,
+  cfg: DirBreadthConfig,
+  hits: Hit[],
+): void {
   let entries;
   try {
     entries = readdirSync(dirAbs, { withFileTypes: true });
@@ -69,25 +112,26 @@ function walk(dirAbs, dirRel, cfg, hits) {
   }
 }
 
-function allowlistCap(rel, cfg) {
+function allowlistCap(rel: string, cfg: DirBreadthConfig): AllowlistCapResult | null {
   const row = cfg.allowlist.find((a) => String(a.path || "").replace(/\\/g, "/") === rel);
   if (!row) return null;
+  const max = Number(row.maxFiles);
   return {
-    max: Number(row.maxFiles) > 0 ? Number(row.maxFiles) : 9999,
+    max: max > 0 ? max : 9999,
     issue: row.issue || row.issueUrl || "",
   };
 }
 
-function main() {
+function main(): void {
   const cfg = loadConfig();
-  const hits = [];
+  const hits: Hit[] = [];
   for (const r of cfg.roots) {
     const abs = join(root, r);
     if (!existsSync(abs) || !statSync(abs).isDirectory()) continue;
     walk(abs, r.replace(/\\/g, "/"), cfg, hits);
   }
 
-  const violations = [];
+  const violations: string[] = [];
   for (const h of hits) {
     const allow = allowlistCap(h.rel, cfg);
     const cap = allow ? allow.max : cfg.maxFilesPerDir;

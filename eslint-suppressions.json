@@ -171,10 +171,7 @@
       "count": 1
     }
   },
-  "scripts/check-dir-breadth.mjs": {
-    "fleet/prefer-typescript": {
-      "count": 1
-    },
+  "scripts/check-dir-breadth.ts": {
     "sonarjs/cognitive-complexity": {
       "count": 1
     },
@@ -182,31 +179,22 @@
       "count": 1
     }
   },
-  "scripts/check-issue-template-intake.mjs": {
+  "scripts/check-issue-template-intake.ts": {
     "complexity": {
-      "count": 1
-    },
-    "fleet/prefer-typescript": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
     }
   },
-  "scripts/check-runtime-artifact-registry.mjs": {
-    "fleet/prefer-typescript": {
-      "count": 1
-    },
+  "scripts/check-runtime-artifact-registry.ts": {
     "max-depth": {
       "count": 1
     }
   },
-  "scripts/lint-user-surface-leaks.mjs": {
+  "scripts/lint-user-surface-leaks.ts": {
     "complexity": {
       "count": 2
-    },
-    "fleet/prefer-typescript": {
-      "count": 1
     },
     "max-depth": {
       "count": 1
@@ -222,11 +210,6 @@
     }
   },
   "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs": {
-    "fleet/prefer-typescript": {
-      "count": 1
-    }
-  },
-  "scripts/proof-of-detection/run-meta-gate.mjs": {
     "fleet/prefer-typescript": {
       "count": 1
     }

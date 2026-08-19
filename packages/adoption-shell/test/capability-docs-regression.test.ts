@@ -82,7 +82,7 @@ test("issue #92 bundle materializes both advertised modes from exact closure", a
       fs.writeFileSync(destination, Buffer.from(entry.contentBase64, "base64"));
     }
     const scriptUrl = pathToFileURL(
-      path.join(ownedTemp, "scripts", "lint-user-surface-leaks.mjs"),
+      path.join(ownedTemp, "scripts", "lint-user-surface-leaks.ts"),
     ).href;
     const lintModule = (await import(scriptUrl)) as {
       readonly runLint: (options: {
@@ -133,11 +133,11 @@ test("issue #92 closure is copy-classified and invocation goldens are exact", ()
     {
       id: "config",
       invocation:
-        "node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json",
+        "node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json",
     },
     {
       id: "self-test",
-      invocation: "node scripts/lint-user-surface-leaks.mjs --self-test",
+      invocation: "node scripts/lint-user-surface-leaks.ts --self-test",
     },
   ]);
 });

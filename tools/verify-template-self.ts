@@ -233,7 +233,7 @@ for (const [label, pattern] of requiredDirectL0Defaults) {
 // declared "copy" together, or neither.
 function userSurfaceLintSyncErrors(m: Record<string, string>): string[] {
   const configPaths = [".user-surface-lint.json", ".user-surface-lint.schema.json"];
-  const checkerPath = "scripts/lint-user-surface-leaks.mjs";
+  const checkerPath = "scripts/lint-user-surface-leaks.ts";
   const syncedConfigPaths = configPaths.filter((p) => m[p] === "copy");
   const checkerSynced = m[checkerPath] === "copy";
   const errors: string[] = [];
@@ -260,11 +260,11 @@ const userSurfaceLintSyncErrors_ = userSurfaceLintSyncErrors(manifest);
 const userSurfaceLintSyncedBaseline: Record<string, string> = {
   ".user-surface-lint.json": "copy",
   ".user-surface-lint.schema.json": "copy",
-  "scripts/lint-user-surface-leaks.mjs": "copy",
+  "scripts/lint-user-surface-leaks.ts": "copy",
 };
 const demotedCheckerManifest = {
   ...userSurfaceLintSyncedBaseline,
-  "scripts/lint-user-surface-leaks.mjs": "self",
+  "scripts/lint-user-surface-leaks.ts": "self",
 };
 const droppedConfigManifest = {
   ...userSurfaceLintSyncedBaseline,

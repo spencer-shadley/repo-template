@@ -363,7 +363,7 @@ const qualityLintArtifacts = [
   "docs/QUALITY-LINT.md",
   "eslint.config.mjs",
   "eslint.quality.mjs",
-  "scripts/verify-quality-lint-required.mjs",
+  "scripts/verify-quality-lint-required.ts",
 ];
 const qualityLintBundle = bundle({
   id: "repo-template/quality-lint",
@@ -380,10 +380,10 @@ const qualityLintBundle = bundle({
     },
     {
       id: "presence",
-      entrypoint: "scripts/verify-quality-lint-required.mjs",
+      entrypoint: "scripts/verify-quality-lint-required.ts",
       requiredPaths: [
         "eslint.quality.mjs",
-        "scripts/verify-quality-lint-required.mjs",
+        "scripts/verify-quality-lint-required.ts",
       ],
     },
   ],
@@ -392,7 +392,7 @@ const lintId = "repo-template/user-surface-lint";
 const lintArtifacts = [
   ".user-surface-lint.json",
   ".user-surface-lint.schema.json",
-  "scripts/lint-user-surface-leaks.mjs",
+  "scripts/lint-user-surface-leaks.ts",
 ];
 const lintFixtures = [
   "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -422,13 +422,13 @@ const lintBundle = bundle({
   modes: [
     {
       id: "config",
-      entrypoint: "scripts/lint-user-surface-leaks.mjs",
+      entrypoint: "scripts/lint-user-surface-leaks.ts",
       requiredPaths: lintArtifacts,
     },
     {
       id: "self-test",
-      entrypoint: "scripts/lint-user-surface-leaks.mjs",
-      requiredPaths: ["scripts/lint-user-surface-leaks.mjs", ...lintFixtures],
+      entrypoint: "scripts/lint-user-surface-leaks.ts",
+      requiredPaths: ["scripts/lint-user-surface-leaks.ts", ...lintFixtures],
     },
   ],
 });
@@ -497,12 +497,12 @@ const proofOfDetectionId = "repo-template/proof-of-detection";
 const proofOfDetectionArtifacts = [
   ".runtime-artifact-registry.json",
   ".runtime-artifact-registry.schema.json",
-  "scripts/check-runtime-artifact-registry.mjs",
+  "scripts/check-runtime-artifact-registry.ts",
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
   "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
   "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
-  "scripts/proof-of-detection/run-meta-gate.mjs",
+  "scripts/proof-of-detection/run-meta-gate.ts",
 ];
 const proofOfDetectionBundle = bundle({
   id: proofOfDetectionId,
@@ -514,7 +514,7 @@ const proofOfDetectionBundle = bundle({
   modes: [
     {
       id: "self-test",
-      entrypoint: "scripts/proof-of-detection/run-meta-gate.mjs",
+      entrypoint: "scripts/proof-of-detection/run-meta-gate.ts",
       requiredPaths: proofOfDetectionArtifacts,
     },
   ],
@@ -807,7 +807,7 @@ function negativeFixtures(): readonly NegativeFixture[] {
   missingArtifact.release = {
     ...missingArtifact.release,
     entries: missingArtifact.release.entries.filter(
-      (current) => current.path !== "scripts/lint-user-surface-leaks.mjs",
+      (current) => current.path !== "scripts/lint-user-surface-leaks.ts",
     ),
   };
   rehashRelease(missingArtifact);
@@ -1017,11 +1017,11 @@ export function generateContractFixtures(
       {
         id: "config",
         invocation:
-          "node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json",
+          "node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json",
       },
       {
         id: "self-test",
-        invocation: "node scripts/lint-user-surface-leaks.mjs --self-test",
+        invocation: "node scripts/lint-user-surface-leaks.ts --self-test",
       },
     ],
   });

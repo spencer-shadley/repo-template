@@ -26,6 +26,7 @@
   "include": [
     "packages/adoption-shell/src/**/*.ts",
     "packages/adoption-shell/test/**/*.ts",
+    "scripts/**/*.ts",
     "tools/**/*.ts"
   ]
 }

@@ -12,6 +12,7 @@
  */
 import { RuleTester } from "eslint";
 import tseslint from "typescript-eslint";
+// @ts-expect-error untyped mjs module in selfcheck
 import { preferTypeScriptRule, fleetPlugin } from "../eslint.quality.mjs";
 
 const tester = new RuleTester({

@@ -47,7 +47,7 @@ const SCHEMA_FILES = [
 const PORTABLE_CAPABILITY_PATHS = [
   ".user-surface-lint.json",
   ".user-surface-lint.schema.json",
-  "scripts/lint-user-surface-leaks.mjs",
+  "scripts/lint-user-surface-leaks.ts",
   "tests/fixtures/user-surface-lint/allowlisted/config.json",
   "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
   "tests/fixtures/user-surface-lint/bad/config.json",
@@ -69,7 +69,7 @@ const QUALITY_LINT_ARTIFACT_PATHS = [
   "docs/QUALITY-LINT.md",
   "eslint.config.mjs",
   "eslint.quality.mjs",
-  "scripts/verify-quality-lint-required.mjs",
+  "scripts/verify-quality-lint-required.ts",
 ] as const;
 const PLAN_RECORD_ARTIFACT_PATHS = [
   "PLAN_TEMPLATE.md",
@@ -115,8 +115,8 @@ const PROOF_OF_DETECTION_ARTIFACT_PATHS = [
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
   "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
   "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
-  "scripts/proof-of-detection/run-meta-gate.mjs",
-  "scripts/check-runtime-artifact-registry.mjs",
+  "scripts/proof-of-detection/run-meta-gate.ts",
+  "scripts/check-runtime-artifact-registry.ts",
   ".runtime-artifact-registry.json",
   ".runtime-artifact-registry.schema.json",
 ] as const;

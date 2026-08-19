@@ -128,33 +128,33 @@
       "artifacts": [
         ".runtime-artifact-registry.json",
         ".runtime-artifact-registry.schema.json",
-        "scripts/check-runtime-artifact-registry.mjs",
+        "scripts/check-runtime-artifact-registry.ts",
         "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
         "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
         "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
         "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
-        "scripts/proof-of-detection/run-meta-gate.mjs"
+        "scripts/proof-of-detection/run-meta-gate.ts"
       ],
       "fixtures": [],
       "goldens": [],
       "modes": [
         {
           "id": "self-test",
-          "entrypoint": "scripts/proof-of-detection/run-meta-gate.mjs",
+          "entrypoint": "scripts/proof-of-detection/run-meta-gate.ts",
           "requiredPaths": [
             ".runtime-artifact-registry.json",
             ".runtime-artifact-registry.schema.json",
-            "scripts/check-runtime-artifact-registry.mjs",
+            "scripts/check-runtime-artifact-registry.ts",
             "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
             "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
             "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
             "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
-            "scripts/proof-of-detection/run-meta-gate.mjs"
+            "scripts/proof-of-detection/run-meta-gate.ts"
           ]
         }
       ],
       "digestAlgorithm": "sha256-rfc8785-v1",
-      "digest": "af201da2952d01c82aea7992ea4d0ecf709b9631c527e31c035dccc8c19e2891"
+      "digest": "72785e3c079ef00609dfc674b8ddf7399c1f2afbbc285f7625500d92d2ce1bab"
     },
     {
       "id": "repo-template/quality-lint",
@@ -164,7 +164,7 @@
         "docs/QUALITY-LINT.md",
         "eslint.config.mjs",
         "eslint.quality.mjs",
-        "scripts/verify-quality-lint-required.mjs"
+        "scripts/verify-quality-lint-required.ts"
       ],
       "fixtures": [],
       "goldens": [],
@@ -176,20 +176,20 @@
             "docs/QUALITY-LINT.md",
             "eslint.config.mjs",
             "eslint.quality.mjs",
-            "scripts/verify-quality-lint-required.mjs"
+            "scripts/verify-quality-lint-required.ts"
           ]
         },
         {
           "id": "presence",
-          "entrypoint": "scripts/verify-quality-lint-required.mjs",
+          "entrypoint": "scripts/verify-quality-lint-required.ts",
           "requiredPaths": [
             "eslint.quality.mjs",
-            "scripts/verify-quality-lint-required.mjs"
+            "scripts/verify-quality-lint-required.ts"
           ]
         }
       ],
       "digestAlgorithm": "sha256-rfc8785-v1",
-      "digest": "bba68616a31f3a82cd1389bdadae791ca3cc5c7b17750ca7a7cc2a5855ccb6c2"
+      "digest": "73cea9ed67bf8508469327ac8342855b9eb54f28b2eab8eeb894a1fb0bcdb535"
     },
     {
       "id": "repo-template/user-surface-lint",
@@ -198,7 +198,7 @@
       "artifacts": [
         ".user-surface-lint.json",
         ".user-surface-lint.schema.json",
-        "scripts/lint-user-surface-leaks.mjs"
+        "scripts/lint-user-surface-leaks.ts"
       ],
       "fixtures": [
         "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -222,18 +222,18 @@
       "modes": [
         {
           "id": "config",
-          "entrypoint": "scripts/lint-user-surface-leaks.mjs",
+          "entrypoint": "scripts/lint-user-surface-leaks.ts",
           "requiredPaths": [
             ".user-surface-lint.json",
             ".user-surface-lint.schema.json",
-            "scripts/lint-user-surface-leaks.mjs"
+            "scripts/lint-user-surface-leaks.ts"
           ]
         },
         {
           "id": "self-test",
-          "entrypoint": "scripts/lint-user-surface-leaks.mjs",
+          "entrypoint": "scripts/lint-user-surface-leaks.ts",
           "requiredPaths": [
-            "scripts/lint-user-surface-leaks.mjs",
+            "scripts/lint-user-surface-leaks.ts",
             "tests/fixtures/user-surface-lint/allowlisted/config.json",
             "tests/fixtures/user-surface-lint/allowlisted/src/messages.js",
             "tests/fixtures/user-surface-lint/bad/config.json",
@@ -254,8 +254,8 @@
         }
       ],
       "digestAlgorithm": "sha256-rfc8785-v1",
-      "digest": "8789159231cbc5adb7794f381889ee0943e31675097a050d061993f9d85318e2"
+      "digest": "28c17d3287f732bfcf1bab72735f8185374f091113b83d92757a0c4680413cfe"
     }
   ],
-  "registryDigest": "7a82524ce23fa208744496a3a4c87e5b966e3786e08be9960659e6de4927fbd1"
+  "registryDigest": "39490b5cbebb432409bcd7b564191f62a3728fa68c8e48099e280d94711ea25e"
 }

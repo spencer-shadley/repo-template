@@ -110,7 +110,7 @@ Every new or adopted repo MUST ship:
 3. `package.json` `"lint": "eslint ."` and a `verify` script that runs lint
 4. Grandfathered debt only via `eslint-suppressions.json` (`eslint . --suppress-all`) — new violations fail closed
 
-Presence check: `node scripts/verify-quality-lint-required.mjs`. Small files are not optional.
+Presence check: `node scripts/verify-quality-lint-required.ts`. Small files are not optional.
 
 ## Direct L0 fast path
 
@@ -201,7 +201,7 @@ Run validation appropriate to the change size; every command listed above that e
 stack must pass before a change is "done". Run the stack's runtime/UI verifier when touching routes,
 UI, or runtime behavior.
 
-Run `node scripts/lint-user-surface-leaks.mjs --config .user-surface-lint.json` in the verify gate
+Run `node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json` in the verify gate
 for repos with user-facing screens or response messages. Keep `.user-surface-lint.json` explicit:
 empty `include` globs are a committed no-user-surface choice and print a no-op notice.
 

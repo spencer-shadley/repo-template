@@ -48,10 +48,10 @@ Tests (`*.test.*`, `e2e/`, `fixtures/`) turn off size/complexity caps.
    "lint": "eslint .",
    "lint:baseline": "eslint . --suppress-all",
    "lint:baseline:prune": "eslint . --prune-suppressions",
-   "lint:dir-breadth": "node scripts/check-dir-breadth.mjs",
+   "lint:dir-breadth": "node scripts/check-dir-breadth.ts",
    "verify": "pnpm lint && pnpm lint:dir-breadth && …"
    ```
-4. Copy `scripts/check-dir-breadth.mjs` + `scripts/dir-breadth.json` (mega-dir cap; default **25** source peers per dir).
+4. Copy `scripts/check-dir-breadth.ts` + `scripts/dir-breadth.json` (mega-dir cap; default **25** source peers per dir).
 5. Ensure `verify` (or land-gate) runs `pnpm lint` **and** `lint:dir-breadth`.
 6. If the repo already has large files / wide dirs: baseline once (below) — **new** violations fail.
 7. Prefer split over suppress for anything you touch.
@@ -76,7 +76,7 @@ This is the standard path for adding stricter repo rules via linter: **gate firs
 
 ## Presence gate
 
-`node scripts/verify-quality-lint-required.mjs` fails closed when quality lint is missing or not wired.
+`node scripts/verify-quality-lint-required.ts` fails closed when quality lint is missing or not wired.
 Template self-verify and consumer bootstrap should run this.
 
 ## Relationship to user-surface lint
