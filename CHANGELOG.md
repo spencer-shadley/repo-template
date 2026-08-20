@@ -8,6 +8,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Fixed
 
+- Restored the adoption-shell fixture generator after the #154 extraction: shared fixture
+  constructors now resolve without a cyclic initialization failure, and strict TypeScript
+  narrowing covers the extracted validator paths. Regenerated the committed artifact closure.
+  PATCH.
 - **Advisory `ci.yml` no longer echoes that the live thin check is a stub**
   (repo-template#134 / code#1560 D3). `lint-user-surface-leaks` already runs on
   preinstalled node. Adopter `TODO(setup):` toolchain/lint/test comments stay.
@@ -42,6 +46,11 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 
+- **`@spencer-shadley/repo-quality` now runs typed TypeScript linting**: the kit uses
+  `strictTypeChecked` with the project service, applies the type-aware rules only to TypeScript,
+  and disables them for JavaScript/config boundaries. Unsafe narrowing assertions, `any`, and
+  non-null assertions now fail; the template's existing lint debt is grandfathered only through
+  `eslint-suppressions.json`. MINOR. Fixes #148.
 - Added a material-choice-only governance reminder to `PLAN_TEMPLATE.md`, including the complete
   workspace-to-change `AGENTS.md` breadcrumb chain and an open-ended no-material-tradeoff carve-out.
   PATCH.

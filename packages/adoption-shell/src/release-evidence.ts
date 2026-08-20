@@ -141,5 +141,5 @@ export function validateTemplateReleaseEvidenceV1(
 
   validateEvidenceRollback(value["rollback"], diagnostics);
 
-  return finish(value as TemplateReleaseEvidence, diagnostics);
+  return finish(value as unknown as TemplateReleaseEvidence, diagnostics);
 }

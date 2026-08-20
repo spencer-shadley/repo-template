@@ -16,19 +16,7 @@ function addNested(diagnostics, prefix, rows) {
         diagnostics.add(row.code, `${prefix}${row.pointer}`, row.message);
     }
 }
-export function createTemplateReleaseCandidateV1(value) {
-    const diagnostics = new Diagnostics();
-    const fields = [
-        "semver",
-        "commit",
-        "tree",
-        "payloadSet",
-        "capabilityRegistry",
-        "artifactManifest",
-    ];
-    if (!diagnostics.object(value, "", [...fields, "releaseEvidence"], fields)) {
-        return finish(value, diagnostics);
-    }
+function validateCandidateInputs(value, diagnostics) {
     const semverValid = diagnostics.string(value["semver"], "/semver", {
         min: 5,
         max: 80,
@@ -58,25 +46,20 @@ export function createTemplateReleaseCandidateV1(value) {
     if (evidenceResult !== null && !evidenceResult.ok) {
         addNested(diagnostics, "/releaseEvidence", evidenceResult.diagnostics);
     }
-    if (!semverValid ||
-        !commitValid ||
-        !treeValid ||
-        !payloadResult.ok ||
-        !capabilityResult.ok ||
-        !artifactResult.ok ||
-        (evidenceResult !== null && !evidenceResult.ok) ||
-        diagnostics.rows.length > 0) {
-        return finish(value, diagnostics);
-    }
-    const semver = value["semver"];
-    const commit = value["commit"];
-    const tree = value["tree"];
-    const payloadSet = payloadResult.value;
-    const capabilityRegistry = capabilityResult.value;
-    const artifactManifest = artifactResult.value;
-    const releaseEvidence = evidenceResult?.ok ? evidenceResult.value : undefined;
+    const valid = semverValid &&
+        commitValid &&
+        treeValid &&
+        payloadResult.ok &&
+        capabilityResult.ok &&
+        artifactResult.ok &&
+        (evidenceResult === null || evidenceResult.ok) &&
+        diagnostics.rows.length === 0;
+    return { payloadResult, capabilityResult, artifactResult, evidenceResult, valid };
+}
+function buildReceiptBody(params) {
+    const { semver, commit, tree, payloadSet, capabilityRegistry, artifactManifest, releaseEvidence, } = params;
     const tag = `v${semver}`;
-    const receiptBody = {
+    return {
         schemaId: SCHEMA_IDS.templateReleaseReceipt,
         schemaVersion: CONTRACT_VERSION,
         schemaDigest: SCHEMA_DIGESTS.templateReleaseReceipt,
@@ -128,6 +111,38 @@ export function createTemplateReleaseCandidateV1(value) {
         ...(releaseEvidence === undefined ? {} : { releaseEvidence }),
         migrationRefs: [],
     };
+}
+export function createTemplateReleaseCandidateV1(value) {
+    const diagnostics = new Diagnostics();
+    const fields = [
+        "semver", "commit", "tree", "payloadSet", "capabilityRegistry", "artifactManifest",
+    ];
+    if (!diagnostics.object(value, "", [...fields, "releaseEvidence"], fields)) {
+        return finish(value, diagnostics);
+    }
+    const inputRec = value;
+    const { payloadResult, capabilityResult, artifactResult, evidenceResult, valid, } = validateCandidateInputs(inputRec, diagnostics);
+    if (!valid ||
+        !payloadResult.ok ||
+        !capabilityResult.ok ||
+        !artifactResult.ok ||
+        (evidenceResult !== null && !evidenceResult.ok)) {
+        return finish(value, diagnostics);
+    }
+    const payloadSet = payloadResult.value;
+    const capabilityRegistry = capabilityResult.value;
+    const artifactManifest = artifactResult.value;
+    const releaseEvidence = evidenceResult?.ok ? evidenceResult.value : undefined;
+    const receiptParams = {
+        semver: inputRec["semver"],
+        commit: inputRec["commit"],
+        tree: inputRec["tree"],
+        payloadSet,
+        capabilityRegistry,
+        artifactManifest,
+        ...(releaseEvidence === undefined ? {} : { releaseEvidence }),
+    };
+    const receiptBody = buildReceiptBody(receiptParams);
     const closure = {
         receipt: {
             ...receiptBody,

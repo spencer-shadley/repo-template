@@ -35,7 +35,7 @@ From `workspace-lint-default` + task-dag proven gate, plus exhaustive core rules
 | `max-nested-callbacks` | **4** |
 | `sonarjs/cognitive-complexity` | **15** |
 | `max-classes-per-file` | **1** |
-| Presets | `@eslint/js` recommended, `typescript-eslint` strict+stylistic, sonarjs recommended, unicorn recommended |
+| Presets | `@eslint/js` recommended, `typescript-eslint` strictTypeChecked, sonarjs recommended, unicorn recommended |
 | Extras | eqeqeq, no-eval, prefer-const, require-await, no-duplicate-imports, … |
 
 Tests (`*.test.*`, `e2e/`, `fixtures/`) turn off size/complexity caps.

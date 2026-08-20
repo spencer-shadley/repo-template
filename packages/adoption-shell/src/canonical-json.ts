@@ -59,7 +59,7 @@ function serializeObject(value: object, ancestors: Set<object>): string {
 function serialize(value: unknown, ancestors: Set<object>): string {
   const primitive = serializePrimitive(value);
   if (primitive !== null) return primitive;
-  if (typeof value !== "object") {
+  if (value === null || typeof value !== "object") {
     throw new TypeError(`RFC 8785 does not support ${typeof value}`);
   }
 

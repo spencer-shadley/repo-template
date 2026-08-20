@@ -196,7 +196,13 @@ export function createTemplateReleaseCandidateV1(
     payloadResult, capabilityResult, artifactResult, evidenceResult, valid,
   } = validateCandidateInputs(inputRec, diagnostics);
 
-  if (!valid) {
+  if (
+    !valid ||
+    !payloadResult.ok ||
+    !capabilityResult.ok ||
+    !artifactResult.ok ||
+    (evidenceResult !== null && !evidenceResult.ok)
+  ) {
     return finish(value as unknown as TemplateReleaseClosure, diagnostics);
   }
 
@@ -205,15 +211,16 @@ export function createTemplateReleaseCandidateV1(
   const artifactManifest: ArtifactManifest = artifactResult.value!;
   const releaseEvidence: TemplateReleaseEvidence | undefined =
     evidenceResult?.ok ? evidenceResult.value : undefined;
-  const receiptBody = buildReceiptBody({
+  const receiptParams = {
     semver: inputRec["semver"] as string,
     commit: inputRec["commit"] as string,
     tree: inputRec["tree"] as string,
     payloadSet,
     capabilityRegistry,
     artifactManifest,
-    releaseEvidence,
-  });
+    ...(releaseEvidence === undefined ? {} : { releaseEvidence }),
+  };
+  const receiptBody = buildReceiptBody(receiptParams);
   const closure: TemplateReleaseClosure = {
     receipt: {
       ...receiptBody,
