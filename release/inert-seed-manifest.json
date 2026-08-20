@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "1efef93a6ca8af3227466ca6a4f67081ad27b0f35824a1975b1c1d5f5bb2e8e0",
+  "inventoryDigest": "62716f2cd1534a8bbe55c3f01cf910f8c5a32462f59b5a513c20038fae125826",
   "entryCount": 82,
   "excludedCount": 9,
   "entries": [
@@ -12,15 +12,15 @@
       "path": ".gitignore",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "94615489bc952e4ec949a6947772870b8ead4dfd61bb9acc7b82985c318a6090",
-      "bytes": 2678
+      "contentSha256": "9789e24a4f0ddde8d29e451bf201bc2dfc9f88d73455f10964db27b7e0f1a1fd",
+      "bytes": 2763
     },
     {
       "path": ".runtime-artifact-registry.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "b0fd6f41bb5f56b0e59689699b36ce8bb6d1ef3354be61b23eece1f0c79dc23b",
-      "bytes": 3994
+      "contentSha256": "8bd8928aea50eea700c2eb6cfaaf4ae9e1284fab6df7e46ba78dcb4fa2be72c2",
+      "bytes": 4272
     },
     {
       "path": ".runtime-artifact-registry.schema.json",
@@ -334,8 +334,8 @@
       "path": "docs/QUALITY-LINT.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "fd30e2afc1a3be68f99b26249797006499a7e3878734a86268b6111bab7db57f",
-      "bytes": 7262
+      "contentSha256": "74a2aab822762ebbcd1bb145b2bc58a6b944a5933d9f6825021bcbb43cd53172",
+      "bytes": 8069
     },
     {
       "path": "docs/QUEUE-ENROLLMENT.md",
@@ -467,8 +467,8 @@
       "path": "scripts/verify-quality-lint-required.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "63a0af3916afaae2f5e6b82afd4d354b6eddb2ee74c257d3edb62aa2757be24a",
-      "bytes": 6870
+      "contentSha256": "cd247decfe21e60a45ca7ba87f09bfbe8d8ad597af7309dad37d3acd3b2bc7c9",
+      "bytes": 8572
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -630,5 +630,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "92fbfc695dea8879b6a73b1f687f8f99a8dfa6d8ff0feb39086d0c7e8a3b991a"
+  "manifestDigest": "407435a06426053b130827afcf21afc18303005a31f2e60055f9815fb0533ad4"
 }

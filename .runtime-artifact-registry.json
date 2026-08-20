@@ -98,6 +98,12 @@
       "owner": "repo-template",
       "reason": "crash-safety ledger the proof-of-detection meta-gate writes before planting a known-bad fixture and clears on restore, so a killed run leaves a trail the next invocation self-heals from.",
       "incident": "repo-template#131"
+    },
+    {
+      "pattern": ".ops/jscpd-ai.txt",
+      "owner": "repo-template",
+      "reason": "advisory jscpd wrapper writes the current AI duplicate-code report here so clone findings remain available without dirtying the worktree.",
+      "incident": "repo-template#152"
     }
   ]
 }

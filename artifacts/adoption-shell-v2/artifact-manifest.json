@@ -591,8 +591,8 @@
       "path": ".runtime-artifact-registry.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "b0fd6f41bb5f56b0e59689699b36ce8bb6d1ef3354be61b23eece1f0c79dc23b",
-      "bytes": 3994
+      "sha256": "8bd8928aea50eea700c2eb6cfaaf4ae9e1284fab6df7e46ba78dcb4fa2be72c2",
+      "bytes": 4272
     },
     {
       "path": ".runtime-artifact-registry.schema.json",
@@ -913,8 +913,8 @@
       "path": "docs/QUALITY-LINT.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "fd30e2afc1a3be68f99b26249797006499a7e3878734a86268b6111bab7db57f",
-      "bytes": 7262
+      "sha256": "74a2aab822762ebbcd1bb145b2bc58a6b944a5933d9f6825021bcbb43cd53172",
+      "bytes": 8069
     },
     {
       "path": "eslint.config.mjs",
@@ -983,8 +983,8 @@
       "path": "scripts/verify-quality-lint-required.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "63a0af3916afaae2f5e6b82afd4d354b6eddb2ee74c257d3edb62aa2757be24a",
-      "bytes": 6870
+      "sha256": "cd247decfe21e60a45ca7ba87f09bfbe8d8ad597af7309dad37d3acd3b2bc7c9",
+      "bytes": 8572
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -1136,5 +1136,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "146935bff0758caa2fcb8a037aa8ba2519c527bc4e90e9c95f0c1f691b91146a"
+  "manifestDigest": "b9f523b7603a3a575996d0daffa93227f97d02c4bf707eaa8743f7e44c87dcce"
 }

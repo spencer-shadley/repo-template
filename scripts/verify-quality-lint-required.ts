@@ -32,6 +32,7 @@ function hasTrackedIssue(text: string): boolean {
 
 const kitName = "@spencer-shadley/repo-quality";
 const kitKnipPath = `${kitName}/knip.mjs`;
+const kitJscpdPath = `${kitName}/jscpd.mjs`;
 const localFactoryPath = join(root, "eslint.quality.mjs");
 const templateRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const kitRoot = join(templateRoot, "packages", "repo-quality");
@@ -50,6 +51,28 @@ if (!isKitPackage && existsSync(localKnipConfigPath)) {
     errors.push(
       "knip.json changes rules.cycles without a tracked GitHub issue URL; the repo-quality wrapper requires cycles:error",
     );
+  }
+}
+
+const localJscpdConfigPath = join(root, ".jscpd.json");
+if (!isKitPackage && existsSync(localJscpdConfigPath)) {
+  try {
+    const localJscpdConfig = JSON.parse(read(localJscpdConfigPath)) as Record<string, unknown>;
+    const minLines = localJscpdConfig["minLines"];
+    const minTokens = localJscpdConfig["minTokens"];
+    const hasFailThreshold = Object.hasOwn(localJscpdConfig, "threshold");
+    const hasIssue = hasTrackedIssue(read(localJscpdConfigPath));
+    if (typeof minLines === "number" && minLines < 10) {
+      errors.push(".jscpd.json lowers minLines below the kit policy minimum of 10");
+    }
+    if (typeof minTokens === "number" && minTokens < 100) {
+      errors.push(".jscpd.json lowers minTokens below the kit policy minimum of 100");
+    }
+    if (hasFailThreshold && !hasIssue) {
+      errors.push(".jscpd.json adds a fail threshold without a tracked GitHub issue URL");
+    }
+  } catch {
+    errors.push(".jscpd.json must be valid JSON when present");
   }
 }
 
@@ -101,6 +124,7 @@ if (!existsSync(pkgPath)) {
   const verifyScript = String(scripts["verify"] || scripts["verify:self"] || "");
   const verifySelfScript = String(scripts["verify:self"] || "");
   const knipScript = String(scripts["knip"] || "");
+  const jscpdScript = String(scripts["dup"] || "");
   if (!lintScript.includes("eslint") && !verifyScript.includes("eslint")) {
     errors.push(
       'package.json scripts must run eslint (e.g. "lint": "eslint ." and verify must call lint)',
@@ -116,11 +140,22 @@ if (!existsSync(pkgPath)) {
       `package.json "knip" must invoke ${kitKnipPath}; the kit wrapper runs both knip and knip --strict`,
     );
   }
+  if (!jscpdScript.includes(kitJscpdPath)) {
+    errors.push(
+      `package.json "dup" must invoke ${kitJscpdPath}; the kit owns advisory jscpd policy`,
+    );
+  }
   if (!verifyScript.includes("knip")) {
     errors.push("package.json verify must run the kit Knip wrapper");
   }
+  if (!verifyScript.includes("dup")) {
+    errors.push("package.json verify must run the kit jscpd wrapper");
+  }
   if (isTemplateRepository && !verifySelfScript.includes("knip")) {
     errors.push("template package.json verify:self must run the kit Knip wrapper");
+  }
+  if (isTemplateRepository && !verifySelfScript.includes("dup")) {
+    errors.push("template package.json verify:self must run the kit jscpd wrapper");
   }
   const dev = { ...(pkg.devDependencies || {}), ...(pkg.dependencies || {}) };
   const kitDependency = dev[kitName];
@@ -144,6 +179,9 @@ if (process.argv.includes("--self-test")) {
     !existsSync(join(kitRoot, "knip.mjs")) || !existsSync(join(kitRoot, "knip.json"))
       ? "packages/repo-quality must ship the Knip wrapper and config"
       : undefined,
+    !existsSync(join(kitRoot, "jscpd.mjs")) || !existsSync(join(kitRoot, "jscpd.json"))
+      ? "packages/repo-quality must ship the jscpd wrapper and config"
+      : undefined,
     !existsSync(templateConfigPath) || !read(templateConfigPath).includes(kitName)
       ? `eslint.config.mjs must import from ${kitName}`
       : undefined,
@@ -159,7 +197,7 @@ if (process.argv.includes("--self-test")) {
     for (const error of selfTestErrors) console.error(`  - ${error}`);
     process.exit(2);
   }
-  console.log("verify-quality-lint-required: self-test ok (kit ESLint + Knip paths present)");
+  console.log("verify-quality-lint-required: self-test ok (kit ESLint + Knip + jscpd paths present)");
   process.exit(0);
 }
 
