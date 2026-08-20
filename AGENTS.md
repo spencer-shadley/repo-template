@@ -105,8 +105,8 @@ schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
 
 Every new or adopted repo MUST ship:
 
-1. `eslint.quality.mjs` exporting `qualityRules()` (max-lines **500**, complexity ceilings, sonarjs, unicorn, exhaustive core rules)
-2. `eslint.config.mjs` that imports and spreads `qualityRules()`
+1. `@spencer-shadley/repo-quality` from the template Git source (the kit owns `qualityRules()` and its ESLint plugins)
+2. `eslint.config.mjs` that imports and spreads `qualityRules()` from the kit
 3. `package.json` `"lint": "eslint ."` and a `verify` script that runs lint
 4. Grandfathered debt only via `eslint-suppressions.json` (`eslint . --suppress-all`) — new violations fail closed
 

@@ -626,8 +626,8 @@
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "b2c5388bbea32cc48ae40eaa87ea0b4ce5b32258f0dc30b3fe33337f56a42eb2",
-      "bytes": 12178
+      "sha256": "e991621bd197146dbd7e1d7ff9cd6fa398f0f31a92740529ceb5e8be002f708e",
+      "bytes": 12112
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/delivery-declaration.json",
@@ -913,22 +913,15 @@
       "path": "docs/QUALITY-LINT.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f5745d323e1079aa7f95aaa172059066a4f69e4db086dbed423b806dccaaeb23",
-      "bytes": 4362
+      "sha256": "502250d310ec8602efab7d76c1043b968e12f34e6a6aa3a475a53ca0727a3b65",
+      "bytes": 4726
     },
     {
       "path": "eslint.config.mjs",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d4fa41dc52b81b7377a7f173e54f7b3f60038f4b4391b46595334ba32195188a",
-      "bytes": 1321
-    },
-    {
-      "path": "eslint.quality.mjs",
-      "kind": "file",
-      "mode": "100644",
-      "sha256": "72a0500cf0846c34ddc7fb88fc57f94e5a155bea41cf1d7e76cf5d44d8bf7cdc",
-      "bytes": 13099
+      "sha256": "78ed35c767a73bdbc0b29f60e4f865e9c443ee09cb79cac9f3792e6c9ed6284c",
+      "bytes": 1135
     },
     {
       "path": "plans/drafts/000-smoke.md",
@@ -990,8 +983,8 @@
       "path": "scripts/verify-quality-lint-required.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "61432b59cf376657177f903a7beda92928a099fbcd7b1b38f7184d0f15abf37b",
-      "bytes": 4215
+      "sha256": "8f2188cbd85715de0c7987163d363ce31a5ca8e2bc37aed52f2e9a87ee5f0210",
+      "bytes": 4813
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -1143,5 +1136,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "5c8cf5c79301778286bdb0d570ecbdf3bec70f1277986fb5c8df48fb5a3f3372"
+  "manifestDigest": "cae6dacbd9eb17f830267083770e4017a793ed35f1d7a2655d17a9c456dae00d"
 }

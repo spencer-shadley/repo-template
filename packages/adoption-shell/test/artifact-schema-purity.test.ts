@@ -76,7 +76,6 @@ test("generated quality-lint bundle is retained in the artifact fixture closure"
   const expectedArtifacts = [
     "docs/QUALITY-LINT.md",
     "eslint.config.mjs",
-    "eslint.quality.mjs",
     "scripts/verify-quality-lint-required.ts",
   ];
   const ownedTemp = fs.mkdtempSync(
@@ -99,14 +98,14 @@ test("generated quality-lint bundle is retained in the artifact fixture closure"
     assert.deepEqual(bundles[0]?.modes, [
       {
         id: "config",
-        entrypoint: "eslint.quality.mjs",
+        entrypoint: "eslint.config.mjs",
         requiredPaths: expectedArtifacts,
       },
       {
         id: "presence",
         entrypoint: "scripts/verify-quality-lint-required.ts",
         requiredPaths: [
-          "eslint.quality.mjs",
+          "eslint.config.mjs",
           "scripts/verify-quality-lint-required.ts",
         ],
       },

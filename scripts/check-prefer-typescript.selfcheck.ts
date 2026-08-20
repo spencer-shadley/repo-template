@@ -10,10 +10,12 @@
  * 4. Valid disable comments with reasons (/* eslint-disable ... -- <reason> *\/ or tracked gh issue) pass.
  * 5. Empty disable directives without valid reasons fail.
  */
-import { RuleTester } from "eslint";
-import tseslint from "typescript-eslint";
-// @ts-expect-error untyped mjs module in selfcheck
-import { preferTypeScriptRule, fleetPlugin } from "../eslint.quality.mjs";
+import {
+  preferTypeScriptRule,
+  fleetPlugin,
+  RuleTester,
+  typescriptEslint,
+} from "@spencer-shadley/repo-quality";
 
 const tester = new RuleTester({
   plugins: {
@@ -34,7 +36,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       code: "const x: number = 42;\nexport default x;",
       filename: "src/module.ts",
       languageOptions: {
-        parser: tseslint.parser,
+        parser: typescriptEslint.parser,
       },
     },
     {
@@ -158,4 +160,3 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
 });
 
 console.log("[selfcheck] fleet/prefer-typescript rule tests PASSED cleanly.");
-

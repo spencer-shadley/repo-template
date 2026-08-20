@@ -1,6 +1,6 @@
 /* eslint-disable fleet/prefer-typescript, sonarjs/todo-tag -- gh issue #1690: Fleet quality lint factory entrypoint */
 /**
- * Fleet quality lint factory — required for every bootstrapped / template-adopted repo.
+ * Fleet quality lint kit — required for every bootstrapped / template-adopted repo.
  *
  * Enforces small files, bounded complexity, and exhaustive bug/style baselines built on
  * battle-tested presets (typescript-eslint, sonarjs, unicorn, @eslint/js).
@@ -10,8 +10,8 @@
  *   max-params 5 · max-nested-callbacks 4 · cognitive-complexity 15
  *
  * Adoption:
- * 1. Copy `eslint.quality.mjs` + starter `eslint.config.mjs` from repo-template.
- * 2. pnpm add -D eslint @eslint/js globals typescript-eslint eslint-plugin-sonarjs eslint-plugin-unicorn
+ * 1. Depend on `@spencer-shadley/repo-quality` from the repo-template Git source.
+ * 2. Import `qualityRules()` and `DEFAULT_FLEET_IGNORES` from the kit in `eslint.config.mjs`.
  * 3. Wire `lint` to `eslint .` and include it in `verify`.
  * 4. Grandfather debt: `eslint . --suppress-all` → commit `eslint-suppressions.json`
  * 5. Prune over time: `eslint . --prune-suppressions`
@@ -24,6 +24,12 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import sonarjs from "eslint-plugin-sonarjs";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
+import globals from "globals";
+
+// Runtime helpers used by the template's rule self-check. They keep ESLint implementation
+// dependencies behind the kit boundary for consumers as well as the starter config.
+export { RuleTester } from "eslint";
+export const typescriptEslint = tseslint;
 
 /**
  * Module-level regular expressions for prefer-typescript rule performance and precision.
@@ -199,6 +205,12 @@ export const DEFAULT_FLEET_IGNORES = Object.freeze([
   ".design-sync/**",
   "ds-bundle/**",
 ]);
+
+/** Standard globals for the starter flat config. */
+export const DEFAULT_FLEET_GLOBALS = Object.freeze({
+  ...globals.node,
+  ...globals.browser,
+});
 
 /**
  * @typedef {object} QualityRulesOptions

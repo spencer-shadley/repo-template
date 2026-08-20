@@ -1,0 +1,13 @@
+export const STACK_WAIVER_PATTERN: RegExp;
+export const ESLINT_DISABLE_PATTERN: RegExp;
+export const ISSUE_TRACKING_PATTERN: RegExp;
+export const JS_FILE_PATTERN: RegExp;
+export const preferTypeScriptRule: any;
+export const fleetPlugin: any;
+export const DEFAULT_FLEET_IGNORES: readonly string[];
+export const DEFAULT_FLEET_GLOBALS: Readonly<Record<string, boolean>>;
+export function qualityRules(options?: Record<string, unknown>): unknown[];
+export const QUALITY_LINT_GATE_ID: string;
+export const QUALITY_LINT_GATE_VERSION: string;
+export const RuleTester: any;
+export const typescriptEslint: any;
