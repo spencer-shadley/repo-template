@@ -10,7 +10,7 @@ are not optional style preference — they are the parallel-land and agent-maint
 | `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()` — max-lines 500, complexity, sonarjs, Unicorn's unopinionated safety baseline, exhaustive core rules |
 | `eslint.config.mjs` (or `.js`) | Flat config that **imports and spreads** `qualityRules()` from the kit |
 | `package.json` scripts | `"lint": "eslint ."` (or equivalent) and **`verify` must run lint** |
-| `eslint-suppressions.json` | Optional baseline from `eslint . --suppress-all` for grandfathered debt |
+| `eslint-suppressions.json` | Required central baseline for grandfathered lint debt; generated with `eslint . --suppress-all` |
 
 ## Required dependency (dev)
 
@@ -73,28 +73,30 @@ Only these representation-only rules are disabled by the kit: `consistent-compou
 6. If the repo already has large files / wide dirs: baseline once (below) — **new** violations fail.
 7. Prefer split over suppress for anything you touch.
 
-## Disable / grandfather flow (do not block adding the linter)
+## Waiver / grandfather flow (do not block adding the linter)
 
 Stricter rules land **even when the tree is dirty**. Flow:
 
 1. **Wire the gate** (eslint quality + dir-breadth) into `verify`.
-2. **Baseline existing debt** without fixing everything first:
-   - File-level / rule debt: `pnpm lint:baseline` → commit `eslint-suppressions.json`
-   - Or per-file: `/* eslint-disable max-lines -- deferred: https://github.com/<owner>/<repo>/issues/N */`
+2. **Baseline existing debt** without fixing everything first: `pnpm lint:baseline` → commit
+   `eslint-suppressions.json`. The kit rejects inline ESLint configuration, including disable and
+   enable comments. JavaScript bootstrap/config boundaries may use an explicit `@stack-waiver` with
+   an id and reason; this explains the TypeScript boundary but does not suppress unrelated lint rules.
    - Wide dirs: add allowlist row in `scripts/dir-breadth.json` with `"issue": "https://…/issues/N"`
 3. **One GitHub issue per suppressed file** (and one per dir-breadth allowlist path).  
    - Title: `re-enable lint on path/to/file`  
    - **Do not** file a single mega-issue for the whole `eslint-suppressions.json` — that is too large to finish.  
    - Optional index: `eslint-suppressions.issues.json` mapping `path → issue URL`.  
-   - Inline disables must cite **that file’s** issue URL.
-4. **New code** must pass; only grandfathered paths may stay disabled until **their** issue closes.
+4. **New code** must pass; only grandfathered suppressions may remain until **their** issue closes.
 
-This is the standard path for adding stricter repo rules via linter: **gate first, fix forward via per-file issues**, never wait for a perfect tree.
+This is the standard path for adding stricter repo rules via linter: **gate first, fix forward via
+per-file issues**, never wait for a perfect tree. There is no inline ESLint waiver path.
 
 ## Presence gate
 
 `node scripts/verify-quality-lint-required.ts` fails closed when the kit dependency or its config
-import is missing, and when a consumer vendors a local `eslint.quality.mjs` factory. Template
+import is missing, when a consumer vendors a local `eslint.quality.mjs` factory, or when a consumer
+sets `linterOptions.noInlineConfig: false`. Template
 self-verify proves the kit package and the thin config import are present. Template consumers SHOULD
 migrate from copied factories to the Git dependency before adopting this structural MAJOR change.
 

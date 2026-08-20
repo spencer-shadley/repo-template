@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-/* eslint-disable sonarjs/todo-tag -- selfcheck tests TODO comment matching in rule tester */
 /**
  * Self-check suite for fleet/prefer-typescript ESLint rule.
  *
@@ -7,11 +6,12 @@
  * 1. TypeScript files (.ts, .tsx) pass cleanly.
  * 2. JavaScript files (.mjs, .js, .cjs, .jsx) trigger errors unless an explicit justification is present.
  * 3. Valid stack waivers (// @stack-waiver id=... reason="...") pass.
- * 4. Valid disable comments with reasons (/* eslint-disable ... -- <reason> *\/ or tracked gh issue) pass.
- * 5. Empty disable directives without valid reasons fail.
+ * 4. Valid tracked GitHub issue comments pass.
+ * 5. Inline ESLint configuration comments never waive the rule.
  */
 import {
   preferTypeScriptRule,
+  noEslintInlineConfigRule,
   fleetPlugin,
   RuleTester,
   typescriptEslint,
@@ -48,16 +48,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       code: '// @stack-waiver id=code-bootstrap-cold-start reason="Runs before Node and TypeScript toolchain compatibility has been established."\nconst x = 1;\nexport default x;',
       filename: "bootstrap.mjs",
     },
-    // 3. JavaScript files with eslint-disable directive and description
-    {
-      code: "/* eslint-disable fleet/prefer-typescript -- TODO gh issue #1690: Flat config root entrypoint */\nexport default [];",
-      filename: "eslint.config.mjs",
-    },
-    {
-      code: "// eslint-disable-next-line fleet/prefer-typescript -- Bootstrapping script before TS\nconst a = 1;",
-      filename: "scripts/bootstrap.js",
-    },
-    // 4. JavaScript files with explicit TODO tracking issue comment
+    // 3. JavaScript files with explicit tracked issue comments
     {
       code: "// TODO gh issue #1234: Legacy script being migrated to TypeScript\nconsole.log('legacy');",
       filename: "legacy-tool.cjs",
@@ -74,8 +65,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "tools/bad-script.mjs",
       errors: [
         {
-          message:
-            "Authored file 'bad-script.mjs' is JavaScript (.mjs). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
     },
@@ -85,8 +75,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "src/unwaived.js",
       errors: [
         {
-          message:
-            "Authored file 'unwaived.js' is JavaScript (.js). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
     },
@@ -96,8 +85,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "tools/unwaived.cjs",
       errors: [
         {
-          message:
-            "Authored file 'unwaived.cjs' is JavaScript (.cjs). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
     },
@@ -107,8 +95,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "tools/generic-comment.mjs",
       errors: [
         {
-          message:
-            "Authored file 'generic-comment.mjs' is JavaScript (.mjs). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
     },
@@ -118,8 +105,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "tools/incomplete-waiver.mjs",
       errors: [
         {
-          message:
-            "Authored file 'incomplete-waiver.mjs' is JavaScript (.mjs). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
     },
@@ -129,8 +115,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "tools/generic-todo.mjs",
       errors: [
         {
-          message:
-            "Authored file 'generic-todo.mjs' is JavaScript (.mjs). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
     },
@@ -140,8 +125,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "tools/unrelated-disable.js",
       errors: [
         {
-          message:
-            "Authored file 'unrelated-disable.js' is JavaScript (.js). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
     },
@@ -151,10 +135,36 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
       filename: "tools/empty-reason-waiver.mjs",
       errors: [
         {
-          message:
-            "Authored file 'empty-reason-waiver.mjs' is JavaScript (.mjs). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+          messageId: "preferTypescript",
         },
       ],
+    },
+    // 9. A targeted inline directive is not a prefer-typescript waiver.
+    {
+      code: "/* eslint-disable fleet/prefer-typescript -- TODO gh issue #1690: Flat config root entrypoint */\nexport default [];",
+      filename: "eslint.config.mjs",
+      errors: [{ messageId: "preferTypescript" }],
+    },
+  ],
+});
+
+tester.run("fleet/no-eslint-inline-config", noEslintInlineConfigRule, {
+  valid: [
+    {
+      code: "// @stack-waiver id=code-bootstrap-cold-start reason=\"Runs before Node and TypeScript toolchain compatibility has been established.\"\nexport default [];",
+      filename: "bootstrap.mjs",
+    },
+  ],
+  invalid: [
+    {
+      code: "/* eslint-disable no-console */\nconsole.log('legacy');",
+      filename: "legacy.js",
+      errors: [{ messageId: "noInlineConfig" }],
+    },
+    {
+      code: "// eslint no-console: off\nconsole.log('legacy');",
+      filename: "legacy.js",
+      errors: [{ messageId: "noInlineConfig" }],
     },
   ],
 });

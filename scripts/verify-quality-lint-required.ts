@@ -22,6 +22,10 @@ function read(filePath: string): string {
   return readFileSync(filePath, "utf8");
 }
 
+function disablesNoInlineConfig(config: string): boolean {
+  return /\bnoInlineConfig\s*:\s*false\b/.test(config);
+}
+
 const kitName = "@spencer-shadley/repo-quality";
 const localFactoryPath = join(root, "eslint.quality.mjs");
 const templateRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -54,6 +58,11 @@ if (!configPath) {
   if (!cfg.includes("qualityRules") || !cfg.includes(kitName)) {
     errors.push(
       `${configPath.replace(root + "\\", "").replace(root + "/", "")} must import and spread qualityRules() from ${kitName}`,
+    );
+  }
+  if (disablesNoInlineConfig(cfg)) {
+    errors.push(
+      `${configPath.replace(root + "\\", "").replace(root + "/", "")} sets linterOptions.noInlineConfig: false; the fleet quality kit requires inline ESLint configuration to stay disabled`,
     );
   }
 }
@@ -105,6 +114,9 @@ if (process.argv.includes("--self-test")) {
     existsSync(join(templateRoot, "eslint.quality.mjs"))
       ? "template root must not ship a copied eslint.quality.mjs factory"
       : undefined,
+    disablesNoInlineConfig("linterOptions: { noInlineConfig: false }")
+      ? undefined
+      : "self-test must detect a noInlineConfig opt-out",
   ].filter((error): error is string => error !== undefined);
   if (selfTestErrors.length > 0) {
     console.error("verify-quality-lint-required self-test: FAIL");

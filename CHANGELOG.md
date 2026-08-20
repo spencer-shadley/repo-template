@@ -8,6 +8,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Fixed
 
+- **`@spencer-shadley/repo-quality` 1.3.0 closes inline ESLint configuration as a gate
+  bypass:** the kit ignores inline config, rejects every inline ESLint directive with a migration
+  pointer, and no longer accepts one as a TypeScript waiver. Existing debt is centralized in
+  `eslint-suppressions.json`; only explicit `@stack-waiver` annotations explain JavaScript
+  boundaries. The bootstrap verifier rejects consumer config that re-enables inline configuration.
+  MINOR. Fixes #150.
 - Restored the adoption-shell fixture generator after the #154 extraction: shared fixture
   constructors now resolve without a cyclic initialization failure, and strict TypeScript
   narrowing covers the extracted validator paths. Regenerated the committed artifact closure.

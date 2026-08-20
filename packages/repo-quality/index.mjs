@@ -39,8 +39,8 @@ export const typescriptEslint = tseslint;
 export const STACK_WAIVER_PATTERN =
   /@stack-waiver\s+id=["']?([a-z0-9][a-z0-9-]{2,63})["']?\s+reason=["']([^"'\r\n]{10,240})["']/i;
 
-export const ESLINT_DISABLE_PATTERN =
-  /(?:eslint-disable(?:-next-line)?)\s+(?:fleet\/)?prefer-typescript\s+--\s+([^\r\n]{8,})/i;
+export const ESLINT_INLINE_CONFIG_PATTERN =
+  /^\s*eslint(?:-(?:disable(?:-(?:next|line))?|enable|env|global))?(?:\s|$)/i;
 
 export const ISSUE_TRACKING_PATTERN =
   /\bTODO(?:\s*\((?:gh[#\s]?\d+|#\d+)\)|:?\s+(?:gh\s*issue|issue\s*#|gh#)\s*#?\d+|:?\s+https:\/\/github\.com\/[^\s]+)\s*[:-]?\s+([^\r\n]{6,})/i;
@@ -80,7 +80,7 @@ export const preferTypeScriptRule = {
     ],
     messages: {
       preferTypescript:
-        "Authored file '{{filename}}' is JavaScript ({{ext}}). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
+        "Authored file '{{filename}}' is JavaScript ({{ext}}). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment: a @stack-waiver with an id and reason, or a tracked GitHub issue comment.",
     },
   },
   create(context) {
@@ -143,9 +143,8 @@ export const preferTypeScriptRule = {
             .join(" ")
             .trim();
           return (
-            STACK_WAIVER_PATTERN.test(text) ||
-            ESLINT_DISABLE_PATTERN.test(text) ||
-            ISSUE_TRACKING_PATTERN.test(text)
+            !ESLINT_INLINE_CONFIG_PATTERN.test(text) &&
+            (STACK_WAIVER_PATTERN.test(text) || ISSUE_TRACKING_PATTERN.test(text))
           );
         });
 
@@ -166,6 +165,49 @@ export const preferTypeScriptRule = {
   },
 };
 
+/** Custom rule: fleet/no-eslint-inline-config. */
+export const noEslintInlineConfigRule = {
+  meta: {
+    type: "problem",
+    docs: {
+      description:
+        "Disallow inline ESLint configuration; use eslint-suppressions.json or @stack-waiver instead.",
+      recommended: true,
+    },
+    schema: [],
+    messages: {
+      noInlineConfig:
+        "Inline ESLint configuration is forbidden. Use eslint-suppressions.json for grandfathered lint debt or @stack-waiver for an allowed JavaScript boundary.",
+    },
+  },
+  create(context) {
+    const sourceCode =
+      context.sourceCode ??
+      (typeof context.getSourceCode === "function" ? context.getSourceCode() : null);
+    if (!sourceCode) return {};
+
+    return {
+      Program() {
+        const comments = sourceCode.getAllComments
+          ? sourceCode.getAllComments()
+          : (sourceCode.comments ?? []);
+        for (const comment of comments) {
+          const text = comment.value
+            .split("\n")
+            .map((line) => line.replace(/^\s*\*?\s?/, ""))
+            .join("\n");
+          if (ESLINT_INLINE_CONFIG_PATTERN.test(text)) {
+            context.report({
+              loc: comment.loc,
+              messageId: "noInlineConfig",
+            });
+          }
+        }
+      },
+    };
+  },
+};
+
 export const fleetPlugin = {
   meta: {
     name: "eslint-plugin-fleet",
@@ -173,6 +215,7 @@ export const fleetPlugin = {
   },
   rules: {
     "prefer-typescript": preferTypeScriptRule,
+    "no-eslint-inline-config": noEslintInlineConfigRule,
   },
   configs: {
     get recommended() {
@@ -266,6 +309,12 @@ export function qualityRules(options = {}) {
   }
 
   blocks.push(
+    {
+      linterOptions: {
+        noInlineConfig: true,
+        reportUnusedDisableDirectives: "error",
+      },
+    },
     js.configs.recommended,
     {
       plugins: {
@@ -273,6 +322,7 @@ export function qualityRules(options = {}) {
       },
       rules: {
         "fleet/prefer-typescript": preferTypescript ? "error" : "off",
+        "fleet/no-eslint-inline-config": "error",
       },
     },
   );
