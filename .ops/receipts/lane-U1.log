@@ -1,0 +1,2 @@
+2026-08-20T00:00:00-07:00 lane U1 heartbeat: began issue #149 scoped changes to packages/repo-quality, docs/QUALITY-LINT.md, and eslint-suppressions.json.
+2026-08-20T13:14:04-07:00 lane U1 heartbeat: switched the kit to Unicorn unopinionated, reduced explicit Unicorn overrides to the required 15, and refreshed lint suppressions.

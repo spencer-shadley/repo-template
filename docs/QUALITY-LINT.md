@@ -7,7 +7,7 @@ are not optional style preference — they are the parallel-land and agent-maint
 
 | Path | Role |
 |------|------|
-| `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()` — max-lines 500, complexity, sonarjs, unicorn, exhaustive core rules |
+| `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()` — max-lines 500, complexity, sonarjs, Unicorn's unopinionated safety baseline, exhaustive core rules |
 | `eslint.config.mjs` (or `.js`) | Flat config that **imports and spreads** `qualityRules()` from the kit |
 | `package.json` scripts | `"lint": "eslint ."` (or equivalent) and **`verify` must run lint** |
 | `eslint-suppressions.json` | Optional baseline from `eslint . --suppress-all` for grandfathered debt |
@@ -35,10 +35,26 @@ From `workspace-lint-default` + task-dag proven gate, plus exhaustive core rules
 | `max-nested-callbacks` | **4** |
 | `sonarjs/cognitive-complexity` | **15** |
 | `max-classes-per-file` | **1** |
-| Presets | `@eslint/js` recommended, `typescript-eslint` strictTypeChecked, sonarjs recommended, unicorn recommended |
+| Presets | `@eslint/js` recommended, `typescript-eslint` strictTypeChecked, sonarjs recommended, Unicorn unopinionated |
 | Extras | eqeqeq, no-eval, prefer-const, require-await, no-duplicate-imports, … |
 
 Tests (`*.test.*`, `e2e/`, `fixtures/`) turn off size/complexity caps.
+
+### Unicorn policy
+
+The kit uses Unicorn's `unopinionated` preset so Unicorn maintains the safety baseline while the
+fleet avoids a hand-maintained allowlist. It keeps mutation and bug checks such as
+`no-array-sort`, `no-array-reverse`, `no-array-fill-with-reference-type`,
+`no-accidental-bitwise-operator`, `no-impossible-length-comparison`,
+`no-invalid-argument-count`, `require-array-sort-compare`, `no-unsafe-buffer-conversion`,
+`no-xor-as-exponentiation`, and the `no-useless-*` family.
+
+Only these representation-only rules are disabled by the kit: `consistent-compound-words`,
+`consistent-existence-index-check`, `consistent-export-decorator-position`, `dom-node-dataset`,
+`escape-case`, `import-style`, `number-literal-case`, `numeric-separators-style`,
+`text-encoding-identifier-case`, `relative-url-style`, `no-negated-comparison`,
+`no-negated-condition`, `prefer-switch`, `prefer-ternary`, and `prefer-top-level-await`.
+`switch-case-braces` is not enabled because it is outside Unicorn's unopinionated preset.
 
 ## Bootstrap checklist
 
