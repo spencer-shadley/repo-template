@@ -70,6 +70,9 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 
+- Documented the fleet SLI 30 `repo_source_stock` repo source-stock split-trigger in
+  `docs/QUALITY-LINT.md`. MINOR. Fixes #164.
+
 - **`@spencer-shadley/repo-quality` now runs typed TypeScript linting**: the kit uses
   `strictTypeChecked` with the project service, applies the type-aware rules only to TypeScript,
   and disables them for JavaScript/config boundaries. Unsafe narrowing assertions, `any`, and

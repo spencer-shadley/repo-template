@@ -133,6 +133,26 @@ Only these representation-only rules are disabled by the kit: `consistent-compou
 6. If the repo already has large files / wide dirs: baseline once (below) — **new** violations fail.
 7. Prefer split over suppress for anything you touch.
 
+## Repo source stock (fleet SLI 30)
+
+The per-file `max-lines` default of **500** is not a repo-total cap. Fleet SLI 30
+`repo_source_stock` (owned by `spencer-shadley/code`) warns at **40,000 authored source LOC**
+or **200 files**, with a split-trigger at **80,000 LOC** or **400 files**.
+
+Contract: `github.com/spencer-shadley/code` —
+`contracts/repo-source-stock-sli.v1.json` and
+`docs/delivery-efficiency.md#sli-30-repo_source_stock`.
+
+Measure from the code workspace:
+
+```bash
+node --experimental-strip-types tools/usage/sli/repo-source-stock-measure.ts
+```
+
+Land policy: fail only when `origin/master` is under the split-trigger and `HEAD` would cross it.
+Already-over repos print `SPLIT-SIGNAL` and do not freeze land. Do not add an ESLint rule for
+total repo LOC, and do not copy the Code measure/check into this template.
+
 ## Waiver / grandfather flow (do not block adding the linter)
 
 Stricter rules land **even when the tree is dirty**. Flow:
