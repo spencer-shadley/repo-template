@@ -1,5 +1,4 @@
-// @stack-waiver id=quality-rules-factory reason="Fleet quality lint factory flat config module"
-/* eslint-disable complexity, max-lines-per-function */
+/* eslint-disable fleet/prefer-typescript, sonarjs/todo-tag -- gh issue #1690: Fleet quality lint factory entrypoint */
 /**
  * Fleet quality lint factory — required for every bootstrapped / template-adopted repo.
  *
@@ -188,24 +187,15 @@ export const DEFAULT_FLEET_IGNORES = Object.freeze([
   "**/vendor/**",
   "**/playwright-report/**",
   "**/test-results/**",
-  "**/artifacts/**",
-  "**/.adoption-shell-build/**",
   "**/.worktrees/**",
   "**/worktrees/**",
-  "**/.claude/**",
   "**/.claude/worktrees/**",
   "**/.codex-worktrees/**",
-  "**/.codex-remote-attachments/**",
   "**/.local/**",
   "**/.ops/**",
   "**/scratchpad/**",
   "**/scratch/**",
   "**/.scratch/**",
-  "**/.system_generated/**",
-  "**/tmp-*",
-  "**/.tmp-*",
-  "**/tmp/**",
-  "**/.tmp/**",
   ".design-sync/**",
   "ds-bundle/**",
 ]);
@@ -241,7 +231,7 @@ export function qualityRules(options = {}) {
     maxCognitiveComplexity = 15,
     typescript = true,
     exhaustive = true,
-    preferTypescript = typescript,
+    preferTypescript = true,
     includeDefaultIgnores = true,
     ignores = [],
   } = options;
@@ -276,18 +266,10 @@ export function qualityRules(options = {}) {
     blocks.push(...tseslint.configs.strict, ...tseslint.configs.stylistic);
   }
 
-  const sonarRecommended =
-    sonarjs.configs?.["flat/recommended"] ?? sonarjs.configs?.recommended;
-  const unicornRecommended =
-    eslintPluginUnicorn.configs?.["flat/recommended"] ??
-    eslintPluginUnicorn.configs?.recommended;
-
-  if (sonarRecommended) {
-    blocks.push(sonarRecommended);
-  }
-  if (unicornRecommended) {
-    blocks.push(unicornRecommended);
-  }
+  blocks.push(
+    sonarjs.configs.recommended,
+    eslintPluginUnicorn.configs.recommended,
+  );
 
   /** @type {Record<string, unknown>} */
   const sizeRules = {
@@ -339,43 +321,11 @@ export function qualityRules(options = {}) {
     "unicorn/new-for-builtins": "off",
     "unicorn/prefer-export-from": "off",
     "unicorn/prefer-string-replace-all": "off",
-    "unicorn/prefer-single-call": "off",
-    "unicorn/max-nested-calls": "off",
-    "unicorn/prefer-includes-over-repeated-comparisons": "off",
-    "unicorn/prefer-unicode-code-point-escapes": "off",
-    "unicorn/no-array-sort": "off",
-    "unicorn/require-array-sort-compare": "off",
-    "unicorn/no-return-array-push": "off",
-    "unicorn/consistent-boolean-name": "off",
-    "unicorn/consistent-class-member-order": "off",
-    "unicorn/prefer-simple-condition-first": "off",
-    "unicorn/no-exports-in-scripts": "off",
-    "unicorn/no-useless-spread": "off",
-    "unicorn/prefer-promise-with-resolvers": "off",
-    "unicorn/no-break-in-nested-loop": "off",
-    "unicorn/prefer-then-catch": "off",
-    "unicorn/no-unsafe-string-replacement": "off",
-    "unicorn/no-declarations-before-early-exit": "off",
-    "unicorn/prefer-number-is-safe-integer": "off",
-    "unicorn/no-unreadable-for-of-expression": "off",
-    "unicorn/no-computed-property-existence-check": "off",
-    "unicorn/no-object-as-default-parameter": "off",
-    "unicorn/prefer-minimal-ternary": "off",
-    "unicorn/prefer-await": "off",
-    "unicorn/prefer-iterator-to-array": "off",
-    "unicorn/no-useless-undefined": "off",
-    "unicorn/no-immediate-mutation": "off",
-    "unicorn/no-await-expression-member": "off",
-    "unicorn/no-array-reverse": "off",
-    "unicorn/prefer-array-last-methods": "off",
-    "unicorn/no-chained-comparison": "off",
-    "unicorn/prefer-iterator-helpers": "off",
 
     // CLI & process script environment rules
     "sonarjs/no-os-command-from-path": "off",
     "sonarjs/slow-regex": "off",
     "sonarjs/regex-complexity": "off",
-    "sonarjs/super-linear-regex": "off",
     "sonarjs/no-nested-conditional": "off",
     "sonarjs/no-nested-template-literals": "off",
     "sonarjs/concise-regex": "off",
@@ -398,13 +348,6 @@ export function qualityRules(options = {}) {
     "sonarjs/anchor-precedence": "off",
     "sonarjs/no-hardcoded-passwords": "off",
     "sonarjs/void-use": "off",
-    "sonarjs/no-redundant-optional": "off",
-    "sonarjs/no-trivial-assertions": "off",
-    "sonarjs/no-floating-point-equality": "off",
-    "sonarjs/no-identical-functions": "off",
-    "sonarjs/no-nested-functions": "off",
-    "sonarjs/redundant-type-aliases": "off",
-    "sonarjs/sql-queries": "off",
 
     // TypeScript assertions in meta-repo scripts
     "@typescript-eslint/no-explicit-any": "off",
@@ -414,14 +357,6 @@ export function qualityRules(options = {}) {
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/prefer-for-of": "off",
-    "@typescript-eslint/consistent-type-definitions": "off",
-    "@typescript-eslint/array-type": "off",
-
-    // Noise reduction & environment rules
-    "preserve-caught-error": "off",
-    "no-control-regex": "off",
-    "no-useless-assignment": "off",
-    "require-atomic-updates": "off",
 
     // Small-file / complexity ceilings (hard errors)
     "max-lines": ["error", { max: maxLines, skipBlankLines: true, skipComments: true }],
@@ -461,6 +396,7 @@ export function qualityRules(options = {}) {
       "no-promise-executor-return": "error",
       "no-unreachable-loop": "error",
       "no-useless-backreference": "error",
+      "require-atomic-updates": "error",
       "default-case-last": "error",
       "grouped-accessor-pairs": "error",
       "no-duplicate-imports": "error",
@@ -496,20 +432,16 @@ export function qualityRules(options = {}) {
     rules: sizeRules,
   });
 
-  // Tests & test harness: size/complexity noise off; keep bug rules
+  // Tests: size/complexity noise off; keep bug rules
   blocks.push({
     files: [
       "**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
       "**/__tests__/**",
       "**/tests/**",
-      "**/testing/**",
       "**/e2e/**",
       "**/fixtures/**",
-      "**/packages/testing/**",
-      "packages/testing/**",
     ],
     rules: {
-      "fleet/prefer-typescript": "off",
       "max-lines": "off",
       "max-lines-per-function": "off",
       "max-statements": "off",
@@ -518,75 +450,8 @@ export function qualityRules(options = {}) {
       complexity: "off",
       "sonarjs/cognitive-complexity": "off",
       "sonarjs/no-duplicate-string": "off",
-      "sonarjs/no-trivial-assertions": "off",
-      "sonarjs/no-floating-point-equality": "off",
-      "sonarjs/sql-queries": "off",
       "no-await-in-loop": "off",
       "no-console": "off",
-      "require-await": "off",
-      "require-atomic-updates": "off",
-      "no-duplicate-imports": "off",
-      "no-promise-executor-return": "off",
-      "no-useless-assignment": "off",
-      "unicorn/no-useless-undefined": "off",
-      "unicorn/no-await-expression-member": "off",
-      "@typescript-eslint/no-non-null-assertion": "off",
-    },
-  });
-
-  // Scripts & CLI tools: size/complexity/CLI environment rules relaxed
-  blocks.push({
-    files: [
-      "**/scripts/**",
-      "scripts/**",
-      "**/tools/**",
-      "tools/**",
-      "**/benchmarks/**",
-      "benchmarks/**",
-      "**/bin/**",
-      "bin/**",
-    ],
-    rules: {
-      "fleet/prefer-typescript": "off",
-      "no-console": "off",
-      "sonarjs/no-os-command-from-path": "off",
-      "unicorn/no-exports-in-scripts": "off",
-      "unicorn/no-await-expression-member": "off",
-      "unicorn/no-useless-undefined": "off",
-      "max-lines": "off",
-      "max-lines-per-function": "off",
-      "max-statements": "off",
-      "max-classes-per-file": "off",
-      "max-depth": "off",
-      complexity: "off",
-      "sonarjs/cognitive-complexity": "off",
-      "@typescript-eslint/no-non-null-assertion": "off",
-      "no-return-await": "off",
-      "no-await-in-loop": "off",
-      "no-promise-executor-return": "off",
-      "require-await": "off",
-      "require-atomic-updates": "off",
-      "no-duplicate-imports": "off",
-      "no-useless-assignment": "off",
-      "preserve-caught-error": "off",
-    },
-  });
-
-  // Meta config files: factory and config are intentionally comprehensive
-  blocks.push({
-    files: [
-      "eslint.config.mjs",
-      "eslint.quality.mjs",
-      "**/eslint.config.mjs",
-      "**/eslint.quality.mjs",
-    ],
-    rules: {
-      "fleet/prefer-typescript": "off",
-      "max-lines": "off",
-      "max-lines-per-function": "off",
-      "max-statements": "off",
-      complexity: "off",
-      "sonarjs/cognitive-complexity": "off",
     },
   });
 
@@ -596,4 +461,3 @@ export function qualityRules(options = {}) {
 /** Stable id for bootstrap presence checks */
 export const QUALITY_LINT_GATE_ID = "repo-template/quality-lint";
 export const QUALITY_LINT_GATE_VERSION = "1.0.0";
-
