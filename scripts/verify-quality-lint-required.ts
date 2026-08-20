@@ -33,6 +33,7 @@ function hasTrackedIssue(text: string): boolean {
 const kitName = "@spencer-shadley/repo-quality";
 const kitKnipPath = `${kitName}/knip.mjs`;
 const kitJscpdPath = `${kitName}/jscpd.mjs`;
+const kitSecretScanPath = `${kitName}/secret-scan.mjs`;
 const localFactoryPath = join(root, "eslint.quality.mjs");
 const templateRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const kitRoot = join(templateRoot, "packages", "repo-quality");
@@ -74,6 +75,17 @@ if (!isKitPackage && existsSync(localJscpdConfigPath)) {
   } catch {
     errors.push(".jscpd.json must be valid JSON when present");
   }
+}
+
+const localBetterleaksConfigPath = join(root, ".betterleaks.toml");
+const hasUntrackedBetterleaksConfig =
+  !isKitPackage &&
+  existsSync(localBetterleaksConfigPath) &&
+  !hasTrackedIssue(read(localBetterleaksConfigPath));
+if (hasUntrackedBetterleaksConfig) {
+  errors.push(
+    ".betterleaks.toml may add only repo-specific allowlist entries with a tracked GitHub issue URL; Betterleaks defaults and the kit wrapper remain the policy source of truth",
+  );
 }
 
 if (!isKitPackage && existsSync(localFactoryPath)) {
@@ -125,6 +137,7 @@ if (!existsSync(pkgPath)) {
   const verifySelfScript = String(scripts["verify:self"] || "");
   const knipScript = String(scripts["knip"] || "");
   const jscpdScript = String(scripts["dup"] || "");
+  const secretDirScript = String(scripts["secret:dir"] || "");
   if (!lintScript.includes("eslint") && !verifyScript.includes("eslint")) {
     errors.push(
       'package.json scripts must run eslint (e.g. "lint": "eslint ." and verify must call lint)',
@@ -145,11 +158,19 @@ if (!existsSync(pkgPath)) {
       `package.json "dup" must invoke ${kitJscpdPath}; the kit owns advisory jscpd policy`,
     );
   }
+  if (!secretDirScript.includes(kitSecretScanPath)) {
+    errors.push(
+      `package.json "secret:dir" must invoke ${kitSecretScanPath}; the kit owns the Betterleaks scan recipe`,
+    );
+  }
   if (!verifyScript.includes("knip")) {
     errors.push("package.json verify must run the kit Knip wrapper");
   }
   if (!verifyScript.includes("dup")) {
     errors.push("package.json verify must run the kit jscpd wrapper");
+  }
+  if (!verifyScript.includes("secret:dir")) {
+    errors.push("package.json verify must run the kit Betterleaks dir wrapper");
   }
   if (isTemplateRepository && !verifySelfScript.includes("knip")) {
     errors.push("template package.json verify:self must run the kit Knip wrapper");
@@ -182,6 +203,9 @@ if (process.argv.includes("--self-test")) {
     !existsSync(join(kitRoot, "jscpd.mjs")) || !existsSync(join(kitRoot, "jscpd.json"))
       ? "packages/repo-quality must ship the jscpd wrapper and config"
       : undefined,
+    !existsSync(join(kitRoot, "secret-scan.mjs"))
+      ? "packages/repo-quality must ship the Betterleaks secret-scan wrapper"
+      : undefined,
     !existsSync(templateConfigPath) || !read(templateConfigPath).includes(kitName)
       ? `eslint.config.mjs must import from ${kitName}`
       : undefined,
@@ -197,7 +221,7 @@ if (process.argv.includes("--self-test")) {
     for (const error of selfTestErrors) console.error(`  - ${error}`);
     process.exit(2);
   }
-  console.log("verify-quality-lint-required: self-test ok (kit ESLint + Knip + jscpd paths present)");
+  console.log("verify-quality-lint-required: self-test ok (kit ESLint + Knip + jscpd + Betterleaks paths present)");
   process.exit(0);
 }
 

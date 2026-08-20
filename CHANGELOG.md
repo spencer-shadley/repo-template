@@ -25,6 +25,13 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 
+- **`@spencer-shadley/repo-quality` 1.6.0 adds Betterleaks secret-scan recipes:** the published
+  wrapper runs redacted current-tree, staged land, and onboarding-history scans through the
+  host-installed `betterleaks` binary. Template verification fails closed on current-tree
+  findings or a missing binary; consumer config remains opt-in only for issue-linked local
+  allowlist/baseline additions. Betterleaks is the fleet recipe; Gitleaks and Semgrep are not
+  fleet-wide recipes. MINOR. Fixes #153.
+
 - **`@spencer-shadley/repo-quality` 1.5.0 adds advisory jscpd v5 scanning:** the kit owns the
   shared AI-reporter policy and wrapper, while template verification writes `.ops/jscpd-ai.txt`
   without failing on clone findings. The bootstrap gate requires consumers to invoke the kit path;

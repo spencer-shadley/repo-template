@@ -7,7 +7,7 @@ are not optional style preference — they are the parallel-land and agent-maint
 
 | Path | Role |
 |------|------|
-| `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()`, Knip, and advisory jscpd wrappers/config — max-lines 500, complexity, sonarjs, Unicorn's unopinionated safety baseline, exhaustive core rules |
+| `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()`, Knip, Betterleaks, and advisory jscpd wrappers/config — max-lines 500, complexity, sonarjs, Unicorn's unopinionated safety baseline, exhaustive core rules |
 | `eslint.config.mjs` (or `.js`) | Flat config that **imports and spreads** `qualityRules()` from the kit |
 | `package.json` scripts | `"lint": "eslint ."` (or equivalent) and **`verify` must run lint** |
 | `eslint-suppressions.json` | Required central baseline for grandfathered lint debt; generated with `eslint . --suppress-all` |
@@ -31,6 +31,28 @@ source of truth for the kit's cycle policy. Put any wrapper-merged, repo-specifi
 
 Do not add `dependency-cruiser` fleet-wide. Use it only in a specific repository when its
 transitive architectural rules cannot be expressed by Knip and `eslint-plugin-boundaries`.
+
+## Secret scan (required, fail-closed)
+
+The kit owns the Betterleaks recipe. Betterleaks must be installed on the host `PATH` (Code#1853
+owns that host installation); a missing binary fails the gate with an install pointer and is never
+treated as a skip. Do not add Gitleaks as a fleet recipe, and do not add Semgrep fleet-wide.
+
+```json
+"secret:dir": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs dir",
+"secret:staged": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs staged",
+"secret:history": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs history"
+```
+
+`pnpm verify` must run `pnpm secret:dir`, which executes `betterleaks dir . --redact` and fails
+on findings except a documented Betterleaks baseline. The land path runs `pnpm secret:staged`,
+which executes `betterleaks git . --pre-commit --staged --redact`. During onboarding, run
+`pnpm secret:history` once to scan the full history (`betterleaks git . --redact`).
+
+Betterleaks defaults plus this wrapper are the policy source of truth. Do not copy a
+`.betterleaks.toml` into every consumer. A repo-local `.betterleaks.toml` is allowed only for
+additional, issue-linked allowlist/baseline entries; it must contain the tracked GitHub issue URL
+that owns each exception.
 
 ## Duplicate-code scan (required, advisory v1)
 
@@ -100,13 +122,14 @@ Only these representation-only rules are disabled by the kit: `consistent-compou
    ```json
    "knip": "node ./node_modules/@spencer-shadley/repo-quality/knip.mjs",
    "lint": "eslint .",
+   "secret:dir": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs dir",
    "lint:baseline": "eslint . --suppress-all",
    "lint:baseline:prune": "eslint . --prune-suppressions",
    "lint:dir-breadth": "node scripts/check-dir-breadth.ts",
-   "verify": "pnpm knip && pnpm lint && pnpm lint:dir-breadth && …"
+   "verify": "pnpm knip && pnpm secret:dir && pnpm lint && pnpm lint:dir-breadth && …"
    ```
 4. Copy `scripts/check-dir-breadth.ts` + `scripts/dir-breadth.json` (mega-dir cap; default **25** source peers per dir).
-5. Ensure `verify` (or land-gate) runs `pnpm knip`, `pnpm dup`, `pnpm lint`, **and** `lint:dir-breadth`.
+5. Ensure `verify` runs `pnpm knip`, `pnpm dup`, `pnpm secret:dir`, `pnpm lint`, **and** `lint:dir-breadth`; run `pnpm secret:staged` in the land path and `pnpm secret:history` once during onboarding.
 6. If the repo already has large files / wide dirs: baseline once (below) — **new** violations fail.
 7. Prefer split over suppress for anything you touch.
 
@@ -132,9 +155,10 @@ per-file issues**, never wait for a perfect tree. There is no inline ESLint waiv
 ## Presence gate
 
 `node scripts/verify-quality-lint-required.ts` fails closed when the kit dependency, its config
-import, or its Knip wrapper path is missing; when a consumer vendors a local `eslint.quality.mjs`
+import, Knip wrapper path, or Betterleaks `secret:dir` wrapper invocation is missing; when a consumer vendors a local `eslint.quality.mjs`
 factory; when a copied `knip.json` becomes cycle-policy SSOT; or when a consumer sets
-`linterOptions.noInlineConfig: false`. Template
+`linterOptions.noInlineConfig: false`. A local `.betterleaks.toml` without a tracked issue URL is
+also rejected. Template
 self-verify proves the kit package and the thin config import are present. Template consumers SHOULD
 migrate from copied factories to the Git dependency before adopting this structural MAJOR change.
 

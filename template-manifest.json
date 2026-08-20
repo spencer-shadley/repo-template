@@ -179,6 +179,7 @@
   "packages/repo-quality/knip.json": "self",
   "packages/repo-quality/knip.mjs": "self",
   "packages/repo-quality/package.json": "self",
+  "packages/repo-quality/secret-scan.mjs": "self",
   "packages/adoption-shell/test/artifact-schema-purity.test.ts": "self",
   "packages/adoption-shell/test/canonical-digest.test.ts": "self",
   "packages/adoption-shell/test/capability-docs-regression.test.ts": "self",
