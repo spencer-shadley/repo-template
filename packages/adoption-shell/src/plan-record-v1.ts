@@ -174,10 +174,9 @@ function planReference(value: unknown): boolean {
     isRecord(value) &&
     exactKeys(
       value,
-      ["kind", "repository", "planNumber"],
-      ["kind", "repository", "planNumber"],
+      ["repository", "planNumber"],
+      ["repository", "planNumber"],
     ) &&
-    value["kind"] === "plan-host" &&
     typeof value["repository"] === "string" &&
     repositoryPattern.test(value["repository"]) &&
     integerAtLeastZero(value["planNumber"])

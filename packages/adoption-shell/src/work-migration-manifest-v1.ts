@@ -280,7 +280,7 @@ function validArchiveDispositions(
   aggregateSha256: string,
 ): boolean {
   if (!dispositions.every(validArchiveDispositionRow)) return false;
-  const dispositionCount = dispositions.reduce(
+  const dispositionCount = dispositions.reduce<number>(
     (sum, row) => sum + Number((row as Record<string, unknown>)["count"]),
     0,
   );

@@ -1,5 +1,5 @@
 import { SCHEMA_DIGESTS, SCHEMA_IDS, } from "./contract.js";
-import { DELIVERY_ANTI_GAMING_EXCLUSIONS, DELIVERY_COVERAGE_ERRORS, DELIVERY_COVERAGE_FIELDS, DELIVERY_EVIDENCE_KINDS, DELIVERY_MEASUREMENT_CONTRACT_ID, DELIVERY_SLI_IDS, DELIVERY_STAGES, } from "./delivery-measurement-contract.js";
+import { DELIVERY_ANTI_GAMING_EXCLUSIONS, DELIVERY_COVERAGE_ERRORS, DELIVERY_COVERAGE_FIELDS, DELIVERY_EVIDENCE_KINDS, DELIVERY_SLI_IDS, DELIVERY_STAGES, } from "./delivery-measurement-contract.js";
 import { bool, exactArray, finish, number, oneOf, ref, schemaIdentity, } from "./delivery-measurement-validation.js";
 import { assertSortedUnique, Diagnostics, } from "./validation-helpers.js";
 const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/;
@@ -37,70 +37,78 @@ function validateTokenUsage(value, pointer, diagnostics) {
     }
     return id;
 }
-function validateOutcome(value, pointer, diagnostics) {
-    const fields = [
-        "outcomeId",
-        "status",
-        "receiptRef",
-        "meaningful",
-        "meaningfulClass",
-        "weight",
-        "qualifyingEvidence",
-        "activityRefs",
-    ];
-    if (!diagnostics.object(value, pointer, fields, fields))
-        return;
-    ref(value["outcomeId"], `${pointer}/outcomeId`, diagnostics);
-    oneOf(value["status"], `${pointer}/status`, ["landed", "non-delivery"], diagnostics);
-    ref(value["receiptRef"], `${pointer}/receiptRef`, diagnostics);
-    const meaningfulValue = value["meaningful"];
-    const statusValue = value["status"];
-    const weightValue = value["weight"];
-    const meaningful = bool(meaningfulValue, `${pointer}/meaningful`, diagnostics);
-    const weight = number(weightValue, `${pointer}/weight`, diagnostics);
-    if (weight && (weightValue < 0 || weightValue > 1000)) {
-        diagnostics.add("E_RANGE", `${pointer}/weight`, "weight must be between 0 and 1000");
-    }
-    const meaningfulClass = value["meaningfulClass"];
-    const classPresent = meaningfulClass === null
-        ? false
-        : ref(meaningfulClass, `${pointer}/meaningfulClass`, diagnostics);
-    const evidenceCount = diagnostics.array(value["qualifyingEvidence"], `${pointer}/qualifyingEvidence`, 0, 16)
-        ? value["qualifyingEvidence"].length
+function validateQualifyingEvidence(value, pointer, diagnostics) {
+    const evidenceCount = diagnostics.array(value, `${pointer}/qualifyingEvidence`, 0, 16)
+        ? value.length
         : 0;
-    if (Array.isArray(value["qualifyingEvidence"])) {
-        value["qualifyingEvidence"].forEach((row, index) => {
+    if (Array.isArray(value)) {
+        value.forEach((row, index) => {
             const rowPointer = `${pointer}/qualifyingEvidence/${index}`;
             if (diagnostics.object(row, rowPointer, ["kind", "verificationRef"], ["kind", "verificationRef"])) {
-                oneOf(row["kind"], `${rowPointer}/kind`, DELIVERY_EVIDENCE_KINDS, diagnostics);
-                ref(row["verificationRef"], `${rowPointer}/verificationRef`, diagnostics);
+                const rec = row;
+                oneOf(rec["kind"], `${rowPointer}/kind`, DELIVERY_EVIDENCE_KINDS, diagnostics);
+                ref(rec["verificationRef"], `${rowPointer}/verificationRef`, diagnostics);
             }
         });
     }
-    const activityRefs = value["activityRefs"];
-    if (diagnostics.array(activityRefs, `${pointer}/activityRefs`, 0, 128)) {
+    return evidenceCount;
+}
+function validateActivityRefs(value, pointer, diagnostics) {
+    if (diagnostics.array(value, `${pointer}/activityRefs`, 0, 128)) {
         const refs = [];
-        activityRefs.forEach((row, index) => {
+        value.forEach((row, index) => {
             if (ref(row, `${pointer}/activityRefs/${index}`, diagnostics))
                 refs.push(row);
         });
         assertSortedUnique(refs, `${pointer}/activityRefs`, diagnostics);
     }
+}
+function validateOutcomeQualification(rec, ctx, pointer, diagnostics) {
+    const meaningfulValue = rec["meaningful"];
+    const statusValue = rec["status"];
+    const weightValue = Number(rec["weight"]);
+    const meaningfulClass = rec["meaningfulClass"];
+    if (meaningfulValue) {
+        if (statusValue !== "landed" ||
+            !ctx.classPresent ||
+            !ctx.weight ||
+            weightValue <= 0 ||
+            ctx.evidenceCount === 0) {
+            diagnostics.add("E_MEANINGFUL_QUALIFICATION", pointer, "meaningful delivery requires landed status, class, positive weight, and qualifying evidence");
+        }
+    }
+    else if (meaningfulClass !== null ||
+        weightValue !== 0 ||
+        ctx.evidenceCount !== 0) {
+        diagnostics.add("E_MEANINGFUL_QUALIFICATION", pointer, "non-meaningful outcome requires null class, zero weight, and no qualifying evidence");
+    }
+}
+function validateOutcome(value, pointer, diagnostics) {
+    const fields = [
+        "outcomeId", "status", "receiptRef", "meaningful",
+        "meaningfulClass", "weight", "qualifyingEvidence", "activityRefs",
+    ];
+    if (!diagnostics.object(value, pointer, fields, fields))
+        return;
+    const rec = value;
+    ref(rec["outcomeId"], `${pointer}/outcomeId`, diagnostics);
+    oneOf(rec["status"], `${pointer}/status`, ["landed", "non-delivery"], diagnostics);
+    ref(rec["receiptRef"], `${pointer}/receiptRef`, diagnostics);
+    const meaningfulValue = rec["meaningful"];
+    const weightValue = Number(rec["weight"]);
+    const meaningful = bool(meaningfulValue, `${pointer}/meaningful`, diagnostics);
+    const weight = number(rec["weight"], `${pointer}/weight`, diagnostics);
+    if (weight && (weightValue < 0 || weightValue > 1000)) {
+        diagnostics.add("E_RANGE", `${pointer}/weight`, "weight must be between 0 and 1000");
+    }
+    const meaningfulClass = rec["meaningfulClass"];
+    const classPresent = meaningfulClass === null
+        ? false
+        : ref(meaningfulClass, `${pointer}/meaningfulClass`, diagnostics);
+    const evidenceCount = validateQualifyingEvidence(rec["qualifyingEvidence"], pointer, diagnostics);
+    validateActivityRefs(rec["activityRefs"], pointer, diagnostics);
     if (meaningful) {
-        if (meaningfulValue) {
-            if (statusValue !== "landed" ||
-                !classPresent ||
-                !weight ||
-                weightValue <= 0 ||
-                evidenceCount === 0) {
-                diagnostics.add("E_MEANINGFUL_QUALIFICATION", pointer, "meaningful delivery requires landed status, class, positive weight, and qualifying evidence");
-            }
-        }
-        else if (meaningfulClass !== null ||
-            weightValue !== 0 ||
-            evidenceCount !== 0) {
-            diagnostics.add("E_MEANINGFUL_QUALIFICATION", pointer, "non-meaningful outcome requires null class, zero weight, and no qualifying evidence");
-        }
+        validateOutcomeQualification(rec, { classPresent, weight, evidenceCount }, pointer, diagnostics);
     }
 }
 function validateSloDelta(value, pointer, diagnostics) {
@@ -142,6 +150,25 @@ function validateHumanMessage(value, pointer, workId, diagnostics) {
         assertSortedUnique(refs, `${pointer}/relatedRefs`, diagnostics);
     }
     return id;
+}
+function validateEventCoverage(value, pointer, diagnostics) {
+    if (!diagnostics.object(value, pointer, ["complete", "errors"], ["complete", "errors"])) {
+        return;
+    }
+    const rec = value;
+    const complete = bool(rec["complete"], `${pointer}/complete`, diagnostics);
+    if (diagnostics.array(rec["errors"], `${pointer}/errors`, 0, 32)) {
+        const errors = [];
+        rec["errors"].forEach((row, index) => {
+            if (oneOf(row, `${pointer}/errors/${index}`, DELIVERY_COVERAGE_ERRORS, diagnostics)) {
+                errors.push(row);
+            }
+        });
+        assertSortedUnique(errors, `${pointer}/errors`, diagnostics);
+        if (complete && rec["complete"] !== (errors.length === 0)) {
+            diagnostics.add("E_COVERAGE", pointer, "complete must be true exactly when coverage errors are empty");
+        }
+    }
 }
 export function validateDeliveryEventV1(value) {
     const diagnostics = new Diagnostics();
@@ -192,21 +219,7 @@ export function validateDeliveryEventV1(value) {
         });
         assertSortedUnique(ids, "/humanMessages", diagnostics);
     }
-    if (diagnostics.object(value["coverage"], "/coverage", ["complete", "errors"], ["complete", "errors"])) {
-        const complete = bool(value["coverage"]["complete"], "/coverage/complete", diagnostics);
-        if (diagnostics.array(value["coverage"]["errors"], "/coverage/errors", 0, 32)) {
-            const errors = [];
-            value["coverage"]["errors"].forEach((row, index) => {
-                if (oneOf(row, `/coverage/errors/${index}`, DELIVERY_COVERAGE_ERRORS, diagnostics)) {
-                    errors.push(row);
-                }
-            });
-            assertSortedUnique(errors, "/coverage/errors", diagnostics);
-            if (complete && value["coverage"]["complete"] !== (errors.length === 0)) {
-                diagnostics.add("E_COVERAGE", "/coverage", "complete must be true exactly when coverage errors are empty");
-            }
-        }
-    }
+    validateEventCoverage(value["coverage"], "/coverage", diagnostics);
     return finish(value, diagnostics);
 }
 function validateClass(value, pointer, diagnostics) {
@@ -239,6 +252,74 @@ function validateClass(value, pointer, diagnostics) {
     }
     return id;
 }
+function validateDeclarationRepoBinding(value, pointer, diagnostics) {
+    const fields = [
+        "repoRef", "planeRef", "fleetRef", "registryGeneration",
+        "registryDigest", "centralRollupRef",
+    ];
+    if (!diagnostics.object(value, pointer, fields, fields))
+        return;
+    const rec = value;
+    for (const field of ["repoRef", "planeRef", "fleetRef", "registryGeneration", "centralRollupRef"]) {
+        ref(rec[field], `${pointer}/${field}`, diagnostics);
+    }
+    diagnostics.sha(rec["registryDigest"], `${pointer}/registryDigest`);
+}
+function validateDeclarationTokenAttribution(value, pointer, diagnostics) {
+    const fields = ["stages", "requireComplete", "unattributedPolicy"];
+    if (!diagnostics.object(value, pointer, fields, fields))
+        return;
+    const rec = value;
+    exactArray(rec["stages"], `${pointer}/stages`, DELIVERY_STAGES, diagnostics);
+    if (rec["requireComplete"] !== true) {
+        diagnostics.add("E_CONST", `${pointer}/requireComplete`, "must be true");
+    }
+    diagnostics.string(rec["unattributedPolicy"], `${pointer}/unattributedPolicy`, {
+        constant: "visible-coverage-error-in-totals",
+    });
+}
+function validateDeclarationSlis(value, pointer, diagnostics) {
+    if (!diagnostics.array(value, pointer, 6, 6))
+        return;
+    const ids = [];
+    value.forEach((row, index) => {
+        const rowPointer = `${pointer}/${index}`;
+        const sliFields = [
+            "id", "scopes", "targetRef", "budgetRef", "windowRef",
+            "exceptionPolicyRef", "revisitTrigger", "centralRollupRef",
+        ];
+        if (!diagnostics.object(row, rowPointer, sliFields, sliFields))
+            return;
+        const rec = row;
+        if (oneOf(rec["id"], `${rowPointer}/id`, DELIVERY_SLI_IDS, diagnostics))
+            ids.push(rec["id"]);
+        exactArray(rec["scopes"], `${rowPointer}/scopes`, ["fleet", "plane", "repo"], diagnostics);
+        for (const field of ["targetRef", "budgetRef", "windowRef", "exceptionPolicyRef", "centralRollupRef"]) {
+            ref(rec[field], `${rowPointer}/${field}`, diagnostics);
+        }
+        diagnostics.string(rec["revisitTrigger"], `${rowPointer}/revisitTrigger`, { min: 1, max: 500 });
+    });
+    assertSortedUnique(ids, pointer, diagnostics);
+    if (ids.some((row, index) => row !== DELIVERY_SLI_IDS[index])) {
+        diagnostics.add("E_COVERAGE", pointer, "all six SLI identities are required exactly once");
+    }
+}
+function validateDeclarationEventCapture(value, pointer, diagnostics) {
+    const fields = ["appendOnly", "eventKind", "coverageErrorPolicy", "requiredCoverage"];
+    if (!diagnostics.object(value, pointer, fields, fields))
+        return;
+    const rec = value;
+    if (rec["appendOnly"] !== true) {
+        diagnostics.add("E_CONST", `${pointer}/appendOnly`, "must be true");
+    }
+    diagnostics.string(rec["eventKind"], `${pointer}/eventKind`, {
+        constant: "repo-template/delivery-event/v1",
+    });
+    diagnostics.string(rec["coverageErrorPolicy"], `${pointer}/coverageErrorPolicy`, {
+        constant: "visible-non-blocking",
+    });
+    exactArray(rec["requiredCoverage"], `${pointer}/requiredCoverage`, DELIVERY_COVERAGE_FIELDS, diagnostics);
+}
 export function validateDeliveryDeclarationV1(value) {
     const diagnostics = new Diagnostics();
     const fields = [
@@ -254,12 +335,7 @@ export function validateDeliveryDeclarationV1(value) {
         constant: "repo-template/delivery-declaration/v1",
     });
     ref(value["classificationGeneration"], "/classificationGeneration", diagnostics);
-    if (diagnostics.object(value["repoBinding"], "/repoBinding", ["repoRef", "planeRef", "fleetRef", "registryGeneration", "registryDigest", "centralRollupRef"], ["repoRef", "planeRef", "fleetRef", "registryGeneration", "registryDigest", "centralRollupRef"])) {
-        for (const field of ["repoRef", "planeRef", "fleetRef", "registryGeneration", "centralRollupRef"]) {
-            ref(value["repoBinding"][field], `/repoBinding/${field}`, diagnostics);
-        }
-        diagnostics.sha(value["repoBinding"]["registryDigest"], "/repoBinding/registryDigest");
-    }
+    validateDeclarationRepoBinding(value["repoBinding"], "/repoBinding", diagnostics);
     if (diagnostics.array(value["meaningfulClasses"], "/meaningfulClasses", 1, 128)) {
         const ids = [];
         value["meaningfulClasses"].forEach((row, index) => {
@@ -270,45 +346,8 @@ export function validateDeliveryDeclarationV1(value) {
         assertSortedUnique(ids, "/meaningfulClasses", diagnostics);
     }
     exactArray(value["antiGamingExclusions"], "/antiGamingExclusions", DELIVERY_ANTI_GAMING_EXCLUSIONS, diagnostics);
-    if (diagnostics.object(value["tokenAttribution"], "/tokenAttribution", ["stages", "requireComplete", "unattributedPolicy"], ["stages", "requireComplete", "unattributedPolicy"])) {
-        exactArray(value["tokenAttribution"]["stages"], "/tokenAttribution/stages", DELIVERY_STAGES, diagnostics);
-        if (value["tokenAttribution"]["requireComplete"] !== true) {
-            diagnostics.add("E_CONST", "/tokenAttribution/requireComplete", "must be true");
-        }
-        diagnostics.string(value["tokenAttribution"]["unattributedPolicy"], "/tokenAttribution/unattributedPolicy", { constant: "visible-coverage-error-in-totals" });
-    }
-    if (diagnostics.array(value["slis"], "/slis", 6, 6)) {
-        const ids = [];
-        value["slis"].forEach((row, index) => {
-            const pointer = `/slis/${index}`;
-            const sliFields = [
-                "id", "scopes", "targetRef", "budgetRef", "windowRef",
-                "exceptionPolicyRef", "revisitTrigger", "centralRollupRef",
-            ];
-            if (!diagnostics.object(row, pointer, sliFields, sliFields))
-                return;
-            if (oneOf(row["id"], `${pointer}/id`, DELIVERY_SLI_IDS, diagnostics))
-                ids.push(row["id"]);
-            exactArray(row["scopes"], `${pointer}/scopes`, ["fleet", "plane", "repo"], diagnostics);
-            for (const field of ["targetRef", "budgetRef", "windowRef", "exceptionPolicyRef", "centralRollupRef"]) {
-                ref(row[field], `${pointer}/${field}`, diagnostics);
-            }
-            diagnostics.string(row["revisitTrigger"], `${pointer}/revisitTrigger`, { min: 1, max: 500 });
-        });
-        assertSortedUnique(ids, "/slis", diagnostics);
-        if (ids.some((row, index) => row !== DELIVERY_SLI_IDS[index])) {
-            diagnostics.add("E_COVERAGE", "/slis", "all six SLI identities are required exactly once");
-        }
-    }
-    if (diagnostics.object(value["eventCapture"], "/eventCapture", ["appendOnly", "eventKind", "coverageErrorPolicy", "requiredCoverage"], ["appendOnly", "eventKind", "coverageErrorPolicy", "requiredCoverage"])) {
-        if (value["eventCapture"]["appendOnly"] !== true) {
-            diagnostics.add("E_CONST", "/eventCapture/appendOnly", "must be true");
-        }
-        diagnostics.string(value["eventCapture"]["eventKind"], "/eventCapture/eventKind", {
-            constant: "repo-template/delivery-event/v1",
-        });
-        diagnostics.string(value["eventCapture"]["coverageErrorPolicy"], "/eventCapture/coverageErrorPolicy", { constant: "visible-non-blocking" });
-        exactArray(value["eventCapture"]["requiredCoverage"], "/eventCapture/requiredCoverage", DELIVERY_COVERAGE_FIELDS, diagnostics);
-    }
+    validateDeclarationTokenAttribution(value["tokenAttribution"], "/tokenAttribution", diagnostics);
+    validateDeclarationSlis(value["slis"], "/slis", diagnostics);
+    validateDeclarationEventCapture(value["eventCapture"], "/eventCapture", diagnostics);
     return finish(value, diagnostics);
 }

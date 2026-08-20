@@ -41,6 +41,14 @@ function exactKeys(value, allowed, required) {
     return (Object.keys(value).every((key) => allowedSet.has(key)) &&
         required.every((key) => Object.hasOwn(value, key)));
 }
+function isLeapYear(year) {
+    return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+function isValidDay(year, month, day) {
+    const monthDays = [31, isLeapYear(year) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const maximumDay = monthDays[month - 1] ?? 0;
+    return day >= 1 && day <= maximumDay;
+}
 function rfc3339(value) {
     if (!nonEmpty(value))
         return false;
@@ -55,11 +63,8 @@ function rfc3339(value) {
     const second = Number(match[6]);
     const offsetHour = match[7] === undefined ? 0 : Number(match[7]);
     const offsetMinute = match[8] === undefined ? 0 : Number(match[8]);
-    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-    const monthDays = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    const maximumDay = monthDays[month - 1] ?? 0;
     return (month >= 1 && month <= 12 &&
-        day >= 1 && day <= maximumDay &&
+        isValidDay(year, month, day) &&
         hour <= 23 && minute <= 59 && second <= 59 &&
         offsetHour <= 23 && offsetMinute <= 59);
 }
@@ -77,18 +82,18 @@ function reference(value) {
         integerAtLeastZero(value["planNumber"]);
 }
 function planReference(value) {
-    return isRecord(value) &&
+    return (isRecord(value) &&
         exactKeys(value, ["repository", "planNumber"], ["repository", "planNumber"]) &&
         typeof value["repository"] === "string" &&
         repositoryPattern.test(value["repository"]) &&
-        integerAtLeastZero(value["planNumber"]);
+        integerAtLeastZero(value["planNumber"]));
 }
 function snapshot(value) {
-    return isRecord(value) &&
+    return (isRecord(value) &&
         exactKeys(value, ["algorithm", "digest"], ["algorithm", "digest"]) &&
         value["algorithm"] === "sha256" &&
         typeof value["digest"] === "string" &&
-        SHA256_PATTERN.test(value["digest"]);
+        SHA256_PATTERN.test(value["digest"]));
 }
 function risk(value) {
     return isRecord(value) &&
@@ -101,10 +106,10 @@ function risk(value) {
         new Set(value["effectClasses"]).size === value["effectClasses"].length;
 }
 function snapshots(value) {
-    return isRecord(value) &&
+    return (isRecord(value) &&
         exactKeys(value, ["claim", "land"], ["claim"]) &&
         snapshot(value["claim"]) &&
-        (!Object.hasOwn(value, "land") || snapshot(value["land"]));
+        (!Object.hasOwn(value, "land") || snapshot(value["land"])));
 }
 function receipt(value) {
     return isRecord(value) &&
@@ -114,32 +119,22 @@ function receipt(value) {
         gitObjectPattern.test(value["commit"]) &&
         (!Object.hasOwn(value, "deployedAt") || rfc3339(value["deployedAt"]));
 }
-export function validatePlanRecordV1(value) {
-    if (!isRecord(value))
-        return false;
-    if (!exactKeys(value, [
-        "schemaVersion", "project", "repository", "planNumber", "title", "sourcePath",
-        "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk", "owner", "trigger",
-        "retryReason", "supersededBy", "disposition", "receipt", "contractSnapshots",
-    ], [
-        "schemaVersion", "project", "repository", "planNumber", "title", "sourcePath",
-        "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk",
-    ]))
-        return false;
-    if (value["schemaVersion"] !== PLAN_RECORD_SCHEMA_VERSION ||
-        !nonEmpty(value["project"]) ||
-        typeof value["repository"] !== "string" ||
-        !repositoryPattern.test(value["repository"]) ||
-        !integerAtLeastZero(value["planNumber"]) ||
-        !nonEmpty(value["title"]) ||
-        !isPlanBodyPathV1(value["sourcePath"], "live") ||
-        typeof value["status"] !== "string" ||
-        !statuses.has(value["status"]) ||
-        !reference(value["issue"]) ||
-        !rfc3339(value["enqueuedAt"]) ||
-        !["recorded", "file-add-backfill"].includes(String(value["enqueueTimeSource"])) ||
-        !risk(value["risk"]))
-        return false;
+function validatePlanRecordHeader(value) {
+    const statusStr = typeof value["status"] === "string" ? value["status"] : "";
+    return (value["schemaVersion"] === PLAN_RECORD_SCHEMA_VERSION &&
+        nonEmpty(value["project"]) &&
+        typeof value["repository"] === "string" &&
+        repositoryPattern.test(value["repository"]) &&
+        integerAtLeastZero(value["planNumber"]) &&
+        nonEmpty(value["title"]) &&
+        isPlanBodyPathV1(value["sourcePath"], "live") &&
+        statuses.has(statusStr) &&
+        reference(value["issue"]) &&
+        rfc3339(value["enqueuedAt"]) &&
+        ["recorded", "file-add-backfill"].includes(String(value["enqueueTimeSource"])) &&
+        risk(value["risk"]));
+}
+function validatePlanRecordOptionalFields(value) {
     for (const key of ["owner", "trigger", "retryReason"]) {
         if (Object.hasOwn(value, key) && !nonEmpty(value[key]))
             return false;
@@ -147,60 +142,101 @@ export function validatePlanRecordV1(value) {
     if (Object.hasOwn(value, "supersededBy") && !planReference(value["supersededBy"])) {
         return false;
     }
-    if (Object.hasOwn(value, "contractSnapshots") &&
-        !snapshots(value["contractSnapshots"]))
+    if (Object.hasOwn(value, "contractSnapshots") && !snapshots(value["contractSnapshots"])) {
         return false;
-    const status = value["status"];
-    const disposition = value["disposition"];
-    const snapshotValue = value["contractSnapshots"];
-    const receiptValue = value["receipt"];
-    const hasSnapshots = isRecord(snapshotValue);
-    const hasClaim = hasSnapshots && snapshot(snapshotValue["claim"]);
-    const hasLand = hasSnapshots && Object.hasOwn(snapshotValue, "land");
-    const hasReceipt = Object.hasOwn(value, "receipt");
-    if (Object.hasOwn(value, "supersededBy") &&
-        !(status === "closed" && disposition === "duplicate"))
-        return false;
-    if (status === "planned") {
-        if (hasSnapshots || hasReceipt || Object.hasOwn(value, "disposition"))
-            return false;
-    }
-    else if (status === "in-progress") {
-        if (!hasClaim || hasLand || hasReceipt || Object.hasOwn(value, "disposition"))
-            return false;
-    }
-    else if (status === "implemented") {
-        if (!hasClaim || !hasLand ||
-            !receipt(receiptValue) ||
-            receiptValue["kind"] !== "landed" ||
-            Object.hasOwn(receiptValue, "deployedAt") ||
-            Object.hasOwn(value, "disposition"))
-            return false;
-    }
-    else if (status === "closed") {
-        if (!["completed", "duplicate", "not-planned", "invalid"].includes(String(disposition))) {
-            return false;
-        }
-        if (disposition === "completed") {
-            if (!hasClaim || !hasLand ||
-                !receipt(receiptValue) ||
-                receiptValue["kind"] !== "deployed" ||
-                !rfc3339(receiptValue["deployedAt"]) ||
-                Object.hasOwn(value, "supersededBy"))
-                return false;
-        }
-        else if (hasLand || hasReceipt) {
-            return false;
-        }
-        if (Object.hasOwn(value, "supersededBy") && disposition !== "duplicate")
-            return false;
-    }
-    else {
-        if (!nonEmpty(value["trigger"]) || hasLand || hasReceipt ||
-            Object.hasOwn(value, "disposition") || Object.hasOwn(value, "supersededBy"))
-            return false;
     }
     return true;
+}
+function validatePlannedPlan(ctx) {
+    return !ctx.hasSnapshots && !ctx.hasReceipt && !ctx.hasDisposition;
+}
+function validateInProgressPlan(ctx) {
+    return ctx.hasClaim && !ctx.hasLand && !ctx.hasReceipt && !ctx.hasDisposition;
+}
+function validateImplementedPlan(ctx) {
+    return (ctx.hasClaim && ctx.hasLand &&
+        receipt(ctx.receiptValue) &&
+        ctx.receiptValue["kind"] === "landed" &&
+        !Object.hasOwn(ctx.receiptValue, "deployedAt") &&
+        !ctx.hasDisposition);
+}
+function validateClosedCompletedPlan(ctx) {
+    return (ctx.hasClaim && ctx.hasLand &&
+        receipt(ctx.receiptValue) &&
+        ctx.receiptValue["kind"] === "deployed" &&
+        rfc3339(ctx.receiptValue["deployedAt"]) &&
+        !ctx.hasSupersededBy);
+}
+function validateClosedPlan(ctx) {
+    const allowed = ["completed", "duplicate", "not-planned", "invalid"];
+    if (!allowed.includes(String(ctx.disposition)))
+        return false;
+    if (ctx.disposition === "completed") {
+        return validateClosedCompletedPlan(ctx);
+    }
+    if (ctx.hasLand || ctx.hasReceipt)
+        return false;
+    return !ctx.hasSupersededBy || ctx.disposition === "duplicate";
+}
+function validateDeferredPlan(value, ctx) {
+    return (nonEmpty(value["trigger"]) &&
+        !ctx.hasLand &&
+        !ctx.hasReceipt &&
+        !ctx.hasDisposition &&
+        !ctx.hasSupersededBy);
+}
+function validatePlanStatusRules(value, status, ctx) {
+    if (ctx.hasSupersededBy && !(status === "closed" && ctx.disposition === "duplicate")) {
+        return false;
+    }
+    switch (status) {
+        case "planned": {
+            return validatePlannedPlan(ctx);
+        }
+        case "in-progress": {
+            return validateInProgressPlan(ctx);
+        }
+        case "implemented": {
+            return validateImplementedPlan(ctx);
+        }
+        case "closed": {
+            return validateClosedPlan(ctx);
+        }
+        default: {
+            return validateDeferredPlan(value, ctx);
+        }
+    }
+}
+export function validatePlanRecordV1(value) {
+    if (!isRecord(value))
+        return false;
+    const allowed = [
+        "schemaVersion", "project", "repository", "planNumber", "title", "sourcePath",
+        "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk", "owner", "trigger",
+        "retryReason", "supersededBy", "disposition", "receipt", "contractSnapshots",
+    ];
+    const required = [
+        "schemaVersion", "project", "repository", "planNumber", "title", "sourcePath",
+        "status", "issue", "enqueuedAt", "enqueueTimeSource", "risk",
+    ];
+    if (!exactKeys(value, allowed, required))
+        return false;
+    if (!validatePlanRecordHeader(value) || !validatePlanRecordOptionalFields(value))
+        return false;
+    const status = String(value["status"]);
+    const snapshotValue = value["contractSnapshots"];
+    const hasSnapshots = isRecord(snapshotValue);
+    const ctx = {
+        hasSnapshots,
+        hasClaim: hasSnapshots && snapshot(snapshotValue["claim"]),
+        hasLand: hasSnapshots && Object.hasOwn(snapshotValue, "land"),
+        hasReceipt: Object.hasOwn(value, "receipt"),
+        hasDisposition: Object.hasOwn(value, "disposition"),
+        hasSupersededBy: Object.hasOwn(value, "supersededBy"),
+        receiptValue: value["receipt"],
+        disposition: value["disposition"],
+    };
+    return validatePlanStatusRules(value, status, ctx);
 }
 function legacyCandidate(value, targetStatus) {
     const candidate = { ...value };

@@ -17,6 +17,41 @@ function addNested(diagnostics, prefix, rows) {
 function bundleReferences(value) {
     return value.bundles.map(({ id, version, digest }) => ({ id, version, digest }));
 }
+function checkEqual(actual, expected, pointer, error, diagnostics) {
+    if (actual !== expected)
+        diagnostics.add(error[0], pointer, error[1]);
+}
+function validateReceiptBinding(receipt, payload, capabilities, artifact, diagnostics) {
+    checkEqual(receipt.payloadSet.manifestDigest, payload.releaseDigest, "/receipt/payloadSet/manifestDigest", ["E_RELEASE_MANIFEST_MISMATCH", "receipt does not bind the supplied release payload-set manifest"], diagnostics);
+    checkEqual(receipt.payloadSet.payloadDigest, payload.payloadDigest, "/receipt/payloadSet/payloadDigest", ["E_RELEASE_PAYLOAD_MISMATCH", "receipt does not bind the supplied release payload digest"], diagnostics);
+    checkEqual(receipt.payloadSet.entryCount, payload.entryCount, "/receipt/payloadSet/entryCount", ["E_RELEASE_ENTRY_COUNT_MISMATCH", "receipt does not bind the supplied release entry count"], diagnostics);
+    checkEqual(receipt.materializer.artifactManifestDigest, artifact.manifestDigest, "/receipt/materializer/artifactManifestDigest", ["E_ARTIFACT_MANIFEST_MISMATCH", "receipt does not bind the supplied artifact manifest"], diagnostics);
+    checkEqual(receipt.materializer.artifactDigest, artifact.artifactDigest, "/receipt/materializer/artifactDigest", ["E_ARTIFACT_MISMATCH", "receipt does not bind the supplied compiled artifact"], diagnostics);
+    checkEqual(receipt.receiptKind, artifact.releaseReceiptKind, "/receipt/receiptKind", ["E_RELEASE_KIND_MISMATCH", "artifact manifest does not declare the receipt kind"], diagnostics);
+    if (canonicalizeJson(receipt.capabilityBundles) !==
+        canonicalizeJson(bundleReferences(capabilities))) {
+        diagnostics.add("E_CAPABILITY_BUNDLES_MISMATCH", "/receipt/capabilityBundles", "receipt must bind every supplied capability bundle exactly once");
+    }
+}
+function validateMaterializerInputClosure(receipt, payload, capabilities, diagnostics) {
+    const materializerInput = {
+        schemaId: SCHEMA_IDS.materializerInput,
+        schemaVersion: CONTRACT_VERSION,
+        schemaDigest: SCHEMA_DIGESTS.materializerInput,
+        contractId: CONTRACT_ID,
+        release: payload,
+        capabilities,
+        requestedBundles: receipt.capabilityBundles,
+        conformance: {
+            noLocalIssueTemplateOverride: true,
+            noPreCustodyWorkflows: true,
+        },
+    };
+    const materializerResult = validateMaterializerInputV2(materializerInput);
+    if (!materializerResult.ok) {
+        addNested(diagnostics, "/materializerInput", materializerResult.diagnostics);
+    }
+}
 export function validateTemplateReleaseClosureV1(value) {
     const diagnostics = new Diagnostics();
     const fields = ["receipt", "payloadSet", "capabilityRegistry", "artifactManifest"];
@@ -49,37 +84,8 @@ export function validateTemplateReleaseClosureV1(value) {
     const payload = payloadResult.value;
     const capabilities = capabilityResult.value;
     const artifact = artifactResult.value;
-    const compare = (actual, expected, pointer, code, message) => {
-        if (actual !== expected)
-            diagnostics.add(code, pointer, message);
-    };
-    compare(receipt.payloadSet.manifestDigest, payload.releaseDigest, "/receipt/payloadSet/manifestDigest", "E_RELEASE_MANIFEST_MISMATCH", "receipt does not bind the supplied release payload-set manifest");
-    compare(receipt.payloadSet.payloadDigest, payload.payloadDigest, "/receipt/payloadSet/payloadDigest", "E_RELEASE_PAYLOAD_MISMATCH", "receipt does not bind the supplied release payload digest");
-    compare(receipt.payloadSet.entryCount, payload.entryCount, "/receipt/payloadSet/entryCount", "E_RELEASE_ENTRY_COUNT_MISMATCH", "receipt does not bind the supplied release entry count");
-    compare(receipt.materializer.artifactManifestDigest, artifact.manifestDigest, "/receipt/materializer/artifactManifestDigest", "E_ARTIFACT_MANIFEST_MISMATCH", "receipt does not bind the supplied artifact manifest");
-    compare(receipt.materializer.artifactDigest, artifact.artifactDigest, "/receipt/materializer/artifactDigest", "E_ARTIFACT_MISMATCH", "receipt does not bind the supplied compiled artifact");
-    compare(receipt.receiptKind, artifact.releaseReceiptKind, "/receipt/receiptKind", "E_RELEASE_KIND_MISMATCH", "artifact manifest does not declare the receipt kind");
-    if (canonicalizeJson(receipt.capabilityBundles) !==
-        canonicalizeJson(bundleReferences(capabilities))) {
-        diagnostics.add("E_CAPABILITY_BUNDLES_MISMATCH", "/receipt/capabilityBundles", "receipt must bind every supplied capability bundle exactly once");
-    }
-    const materializerInput = {
-        schemaId: SCHEMA_IDS.materializerInput,
-        schemaVersion: CONTRACT_VERSION,
-        schemaDigest: SCHEMA_DIGESTS.materializerInput,
-        contractId: CONTRACT_ID,
-        release: payload,
-        capabilities,
-        requestedBundles: receipt.capabilityBundles,
-        conformance: {
-            noLocalIssueTemplateOverride: true,
-            noPreCustodyWorkflows: true,
-        },
-    };
-    const materializerResult = validateMaterializerInputV2(materializerInput);
-    if (!materializerResult.ok) {
-        addNested(diagnostics, "/materializerInput", materializerResult.diagnostics);
-    }
+    validateReceiptBinding(receipt, payload, capabilities, artifact, diagnostics);
+    validateMaterializerInputClosure(receipt, payload, capabilities, diagnostics);
     return finish({
         receipt,
         payloadSet: payload,

@@ -1,6 +1,6 @@
 import { canonicalizeJson } from "./canonical-json.js";
 import { sha256Bytes } from "./digest.js";
-import { isPlanBodyPathV1 } from "./plan-record-v1.js";
+import { isPlanBodyPathV1, } from "./plan-record-v1.js";
 import { isRecord, SHA256_PATTERN } from "./validation-helpers.js";
 export const ARCHIVE_AGGREGATE_ALGORITHM_V1 = "sha256-framed-path-blob-sha256hex-v1";
 const encoder = new TextEncoder();
@@ -107,51 +107,61 @@ function liveInventoryCloses(value, decisions) {
         value["retire"] === retire &&
         value["after"] === migrate);
 }
-function archiveInventoryCloses(value) {
-    if (!isRecord(value) ||
-        !exactKeys(value, [
-            "repository", "count", "aggregateAlgorithm", "aggregateSha256",
-            "members", "dispositions",
-        ], [
-            "repository", "count", "aggregateAlgorithm", "aggregateSha256",
-            "members", "dispositions",
-        ]) ||
-        typeof value["repository"] !== "string" ||
-        !repositoryPattern.test(value["repository"]) ||
-        !integerAtLeastZero(value["count"]) ||
-        value["aggregateAlgorithm"] !== ARCHIVE_AGGREGATE_ALGORITHM_V1 ||
-        typeof value["aggregateSha256"] !== "string" ||
-        !SHA256_PATTERN.test(value["aggregateSha256"]) ||
-        !Array.isArray(value["members"]) ||
-        !Array.isArray(value["dispositions"]))
-        return false;
-    const members = value["members"];
-    if (!members.every((member) => isRecord(member) &&
+function validArchiveHeader(value) {
+    const keys = [
+        "repository", "count", "aggregateAlgorithm", "aggregateSha256",
+        "members", "dispositions",
+    ];
+    return (isRecord(value) &&
+        exactKeys(value, keys, keys) &&
+        typeof value["repository"] === "string" &&
+        repositoryPattern.test(value["repository"]) &&
+        integerAtLeastZero(value["count"]) &&
+        value["aggregateAlgorithm"] === ARCHIVE_AGGREGATE_ALGORITHM_V1 &&
+        typeof value["aggregateSha256"] === "string" &&
+        SHA256_PATTERN.test(value["aggregateSha256"]) &&
+        Array.isArray(value["members"]) &&
+        Array.isArray(value["dispositions"]));
+}
+function validArchiveMember(member) {
+    return (isRecord(member) &&
         exactKeys(member, ["path", "blobSha256"], ["path", "blobSha256"]) &&
         archivePlanPath(member["path"]) &&
         typeof member["blobSha256"] === "string" &&
-        SHA256_PATTERN.test(member["blobSha256"])) ||
-        !sortedUnique(members.map((member) => String(member["path"]))) ||
-        Number(value["count"]) !== members.length ||
-        value["aggregateSha256"] !== archiveAggregateSha256V1(members))
+        SHA256_PATTERN.test(member["blobSha256"]));
+}
+function validArchiveMembers(members, count, aggregateSha256) {
+    return (members.every(validArchiveMember) &&
+        sortedUnique(members.map((m) => String(m["path"]))) &&
+        count === members.length &&
+        aggregateSha256 === archiveAggregateSha256V1(members));
+}
+function validArchiveDispositionRow(row) {
+    return (isRecord(row) &&
+        exactKeys(row, ["decision", "reasonCode", "count", "aggregateSha256"], ["decision", "reasonCode", "count", "aggregateSha256"]) &&
+        row["decision"] === "archive-receipt-only" &&
+        row["reasonCode"] === "ARCHIVE_SEALED" &&
+        integerAtLeastZero(row["count"]) &&
+        typeof row["aggregateSha256"] === "string" &&
+        SHA256_PATTERN.test(row["aggregateSha256"]));
+}
+function validArchiveDispositions(dispositions, count, aggregateSha256) {
+    if (!dispositions.every(validArchiveDispositionRow))
         return false;
-    let dispositionCount = 0;
-    for (const row of value["dispositions"]) {
-        if (!isRecord(row) ||
-            !exactKeys(row, ["decision", "reasonCode", "count", "aggregateSha256"], ["decision", "reasonCode", "count", "aggregateSha256"]) ||
-            row["decision"] !== "archive-receipt-only" ||
-            row["reasonCode"] !== "ARCHIVE_SEALED" ||
-            !integerAtLeastZero(row["count"]) ||
-            typeof row["aggregateSha256"] !== "string" ||
-            !SHA256_PATTERN.test(row["aggregateSha256"]))
-            return false;
-        dispositionCount += Number(row["count"]);
-    }
-    return (dispositionCount === Number(value["count"]) &&
-        (Number(value["count"]) === 0) === (value["dispositions"].length === 0) &&
-        value["dispositions"].length <= 1 &&
-        (value["dispositions"].length === 0 ||
-            value["dispositions"][0]?.["aggregateSha256"] === value["aggregateSha256"]));
+    const dispositionCount = dispositions.reduce((sum, row) => sum + Number(row["count"]), 0);
+    return (dispositionCount === count &&
+        (count === 0) === (dispositions.length === 0) &&
+        dispositions.length <= 1 &&
+        (dispositions.length === 0 ||
+            dispositions[0]["aggregateSha256"] === aggregateSha256));
+}
+function archiveInventoryCloses(value) {
+    if (!validArchiveHeader(value))
+        return false;
+    const count = Number(value["count"]);
+    const aggregateSha256 = String(value["aggregateSha256"]);
+    return (validArchiveMembers(value["members"], count, aggregateSha256) &&
+        validArchiveDispositions(value["dispositions"], count, aggregateSha256));
 }
 function validStringLists(value) {
     return (Array.isArray(value["changedPaths"]) &&
@@ -166,7 +176,13 @@ function changedPathsClose(value, decisions) {
     return changedPaths.length === decisions.length &&
         changedPaths.every((path, index) => path === decisions[index]?.path);
 }
-function validManifestBody(value) {
+function validCanary(value) {
+    return (isRecord(value) &&
+        exactKeys(value, ["repository", "state"], ["repository", "state"]) &&
+        value["repository"] === "gmail-markdown" &&
+        ["pending", "green", "red"].includes(String(value["state"])));
+}
+function validManifestHeader(value) {
     if (!isRecord(value))
         return false;
     const keys = [
@@ -174,25 +190,23 @@ function validManifestBody(value) {
         "archive", "changedPaths", "verification", "canary", "rollbackRef",
         "unclassifiedCount",
     ];
-    if (!exactKeys(value, keys, keys) ||
-        value["schemaVersion"] !== "work-migration-manifest/v1" ||
-        !validSource(value["source"]) ||
-        !validRelease(value["schemaRelease"]))
+    return (exactKeys(value, keys, keys) &&
+        value["schemaVersion"] === "work-migration-manifest/v1" &&
+        validSource(value["source"]) &&
+        validRelease(value["schemaRelease"]));
+}
+function validManifestBody(value) {
+    if (!validManifestHeader(value))
         return false;
     const decisions = value["decisions"];
     if (!Array.isArray(decisions) || !decisions.every(validDecision))
         return false;
-    if (!sortedUnique(decisions.map((row) => row.path)) ||
-        !liveInventoryCloses(value["liveCounts"], decisions) ||
-        !archiveInventoryCloses(value["archive"]) ||
-        !validStringLists(value) ||
-        !changedPathsClose(value, decisions))
-        return false;
-    const canary = value["canary"];
-    return (isRecord(canary) &&
-        exactKeys(canary, ["repository", "state"], ["repository", "state"]) &&
-        canary["repository"] === "gmail-markdown" &&
-        ["pending", "green", "red"].includes(String(canary["state"])) &&
+    return (sortedUnique(decisions.map((row) => row.path)) &&
+        liveInventoryCloses(value["liveCounts"], decisions) &&
+        archiveInventoryCloses(value["archive"]) &&
+        validStringLists(value) &&
+        changedPathsClose(value, decisions) &&
+        validCanary(value["canary"]) &&
         nonEmpty(value["rollbackRef"]) &&
         value["unclassifiedCount"] === 0);
 }

@@ -29,15 +29,21 @@ import {
   type TemplateReleaseReceipt,
 } from "../packages/adoption-shell/src/index.ts";
 import {
+  baseEntry,
   deliveryDeclarationFixture,
   deliveryEventFixture,
   lintBundle,
   lintInput,
+  multiInput,
   portableCapabilityRegistry,
 } from "./contract-fixtures-data.ts";
 import { negativeFixtures } from "./generate-negative-fixtures.ts";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+function projectRoot(): string {
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+}
+
+const root = projectRoot();
 
 function writeJson(filePath: string, value: unknown): void {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -85,14 +91,14 @@ export function textEntry(
   return entry(portablePath, Buffer.from(text, "utf8"), role, bundleId, mode);
 }
 
-function fileEntry(
+export function fileEntry(
   portablePath: string,
   role: EntryRole,
   bundleId: string,
 ): PayloadEntry {
   return entry(
     portablePath,
-    fs.readFileSync(path.join(root, ...portablePath.split("/"))),
+    fs.readFileSync(path.join(projectRoot(), ...portablePath.split("/"))),
     role,
     bundleId,
     "100644",
@@ -213,12 +219,6 @@ export function invalid(
   return { name, expectedCodes, input: value };
 }
 
-export const baseEntry = textEntry(
-  "README.md",
-  "# Generic shell\n\nTarget-specific setup happens after materialization.\n",
-  "generic-base-text",
-  null,
-);
 export const minimalInput = input(release([baseEntry]), registry([]), []);
 
 function receiptEvidenceFixture() {

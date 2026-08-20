@@ -11,14 +11,21 @@ import {
   type DeliveryEventV1,
 } from "../packages/adoption-shell/src/index.ts";
 import {
-  baseEntry,
   bundle,
   fileEntry,
   input,
   reference,
   registry,
   release,
+  textEntry,
 } from "./generate-contract-fixtures.ts";
+
+export const baseEntry = textEntry(
+  "README.md",
+  "# Generic shell\n\nTarget-specific setup happens after materialization.\n",
+  "generic-base-text",
+  null,
+);
 
 export const deliveryEventFixture: DeliveryEventV1 = {
   schemaId: SCHEMA_IDS.deliveryEvent,
@@ -131,10 +138,37 @@ export const deliveryDeclarationFixture: DeliveryDeclarationV1 = {
   },
 };
 
+export const alpha = bundle({
+  id: "example/alpha",
+  version: "1.0.0",
+  dependencies: [],
+  artifacts: ["features/alpha.txt"],
+  fixtures: [],
+  goldens: [],
+  modes: [],
+});
+export const beta = bundle({
+  id: "example/beta",
+  version: "1.0.0",
+  dependencies: [reference(alpha)],
+  artifacts: ["features/beta.txt"],
+  fixtures: [],
+  goldens: [],
+  modes: [],
+});
+export const multiInput = input(
+  release([
+    baseEntry,
+    textEntry("features/alpha.txt", "alpha\n", "capability-config", alpha.id),
+    textEntry("features/beta.txt", "beta\n", "capability-config", beta.id),
+  ]),
+  registry([alpha, beta]),
+  [reference(beta)],
+);
+
 export const qualityLintArtifacts = [
   "docs/QUALITY-LINT.md",
   "eslint.config.mjs",
-  "eslint.quality.mjs",
   "scripts/verify-quality-lint-required.ts",
 ];
 export const qualityLintBundle = bundle({
@@ -147,14 +181,14 @@ export const qualityLintBundle = bundle({
   modes: [
     {
       id: "config",
-      entrypoint: "eslint.quality.mjs",
+      entrypoint: "eslint.config.mjs",
       requiredPaths: qualityLintArtifacts,
     },
     {
       id: "presence",
       entrypoint: "scripts/verify-quality-lint-required.ts",
       requiredPaths: [
-        "eslint.quality.mjs",
+        "eslint.config.mjs",
         "scripts/verify-quality-lint-required.ts",
       ],
     },

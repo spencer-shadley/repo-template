@@ -1,4 +1,6 @@
-/* eslint-disable fleet/prefer-typescript, sonarjs/todo-tag -- gh issue #1690: Fleet quality lint factory entrypoint */
+/*
+ * @stack-waiver id="quality-kit-js" reason="Git-consumable ESLint factory entrypoint."
+ */
 /**
  * Fleet quality lint kit — required for every bootstrapped / template-adopted repo.
  *
@@ -189,6 +191,7 @@ export const DEFAULT_FLEET_IGNORES = Object.freeze([
   "node_modules/**",
   "**/dist/**",
   "**/build/**",
+  "artifacts/**",
   "**/coverage/**",
   "**/vendor/**",
   "**/playwright-report/**",
@@ -221,7 +224,7 @@ export const DEFAULT_FLEET_GLOBALS = Object.freeze({
  * @property {number} [maxParams=5]
  * @property {number} [maxNestedCallbacks=4]
  * @property {number} [maxCognitiveComplexity=15]
- * @property {boolean} [typescript=true] Include typescript-eslint strict + stylistic
+ * @property {boolean} [typescript=true] Include typescript-eslint strict type-checked rules
  * @property {boolean} [exhaustive=true] Extra bug-catching core rules beyond length/complexity
  * @property {boolean} [preferTypescript=true] Enforce TypeScript source files unless waived
  * @property {boolean} [includeDefaultIgnores=true] Prepend default fleet ignore patterns
@@ -275,7 +278,25 @@ export function qualityRules(options = {}) {
   );
 
   if (typescript) {
-    blocks.push(...tseslint.configs.strict, ...tseslint.configs.stylistic);
+    blocks.push(
+      ...tseslint.configs.strictTypeChecked,
+      {
+        files: ["**/*.{ts,tsx,mts,cts}"],
+        languageOptions: {
+          parserOptions: {
+            projectService: true,
+          },
+        },
+        rules: {
+          "@typescript-eslint/no-unsafe-type-assertion": "error",
+          "@typescript-eslint/switch-exhaustiveness-check": "error",
+        },
+      },
+      {
+        files: ["**/*.{js,jsx,mjs,cjs}", "eslint.config.*"],
+        ...tseslint.configs.disableTypeChecked,
+      },
+    );
   }
 
   blocks.push(
@@ -362,8 +383,6 @@ export function qualityRules(options = {}) {
     "sonarjs/void-use": "off",
 
     // TypeScript assertions in meta-repo scripts
-    "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-dynamic-delete": "off",
     "@typescript-eslint/no-empty-function": "off",

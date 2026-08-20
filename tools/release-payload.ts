@@ -39,6 +39,11 @@ interface ExcludedRow {
     | "requires-portable-document-projection";
 }
 
+interface GitTreeEntry {
+  readonly mode: string;
+  readonly object: string;
+}
+
 const portableProjectionRequired = new Set([
   ".github/pull_request_template.md",
   ".ops/README.md",
@@ -55,7 +60,7 @@ function compare(left: string, right: string): number {
 }
 
 function gitTreeAndBlobs(): {
-  readonly tree: ReadonlyMap<string, { readonly mode: string; readonly object: string }>;
+  readonly tree: ReadonlyMap<string, GitTreeEntry>;
   readonly blobs: ReadonlyMap<string, Buffer>;
 } {
   const rows = execFileSync("git", ["ls-tree", "-rz", "HEAD"], {
@@ -64,7 +69,7 @@ function gitTreeAndBlobs(): {
   })
     .split("\0")
     .filter(Boolean);
-  const result = new Map<string, { readonly mode: string; readonly object: string }>();
+  const result = new Map<string, GitTreeEntry>();
   for (const row of rows) {
     const match = /^(\d{6}) blob ([0-9a-f]+)\t(.+)$/.exec(row);
     if (!match?.[1] || !match[2] || !match[3]) {
@@ -120,8 +125,8 @@ function classifyExcluded(pathValue: string): ExcludedRow["reason"] | null {
 }
 
 interface ProcessContext {
-  readonly tree: Map<string, GitTreeEntry>;
-  readonly blobs: Map<string, Buffer>;
+  readonly tree: ReadonlyMap<string, GitTreeEntry>;
+  readonly blobs: ReadonlyMap<string, Buffer>;
   readonly inventory: InventoryRow[];
   readonly excluded: ExcludedRow[];
   readonly drafts: ReleasePayloadEntryDraftV2[];

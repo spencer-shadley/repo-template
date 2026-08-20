@@ -1,4 +1,4 @@
-import type { MigrateReasonCode, PlanRecordStatus, RetireReasonCode } from "./plan-record-v1.ts";
+import { type MigrateReasonCode, type PlanRecordStatus, type RetireReasonCode } from "./plan-record-v1.ts";
 export type WorkMigrationDecisionV1 = Readonly<{
     path: string;
     decision: "migrate";
