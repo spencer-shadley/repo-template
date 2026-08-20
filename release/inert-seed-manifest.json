@@ -4,8 +4,8 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "2b71ede812ff0f1570c2880b0327847748b964ba881358f0becdb39ab86ecba1",
-  "entryCount": 82,
+  "inventoryDigest": "54d955b845374b4f60d15513167147980081411167179a4c420bd899cb465a62",
+  "entryCount": 83,
   "excludedCount": 9,
   "entries": [
     {
@@ -61,8 +61,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "5c13c59e088175290014ff13b08051e5c5debee9e8becd44031eaa3ebc501c19",
-      "bytes": 5289
+      "contentSha256": "79798c7f52c6d281236ab39c33f53a2d1af79811e31d1abe56188a09fe6d3ae0",
+      "bytes": 5278
     },
     {
       "path": "SECURITY.md",
@@ -334,8 +334,8 @@
       "path": "docs/QUALITY-LINT.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "502250d310ec8602efab7d76c1043b968e12f34e6a6aa3a475a53ca0727a3b65",
-      "bytes": 4726
+      "contentSha256": "f5745d323e1079aa7f95aaa172059066a4f69e4db086dbed423b806dccaaeb23",
+      "bytes": 4362
     },
     {
       "path": "docs/QUEUE-ENROLLMENT.md",
@@ -397,8 +397,15 @@
       "path": "eslint.config.mjs",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "78ed35c767a73bdbc0b29f60e4f865e9c443ee09cb79cac9f3792e6c9ed6284c",
-      "bytes": 1135
+      "contentSha256": "d5edeabbb95ed13441dd77bb9e20b9fce7a652739b8ab3e15a9cc676801e1d02",
+      "bytes": 1156
+    },
+    {
+      "path": "eslint.quality.mjs",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "bc056aedd1f20626ab8ffae1d39ee1d2eb193f5fade870844db481cc6dbd7fa0",
+      "bytes": 15942
     },
     {
       "path": "model-boundary.json",
@@ -467,8 +474,8 @@
       "path": "scripts/verify-quality-lint-required.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "8f2188cbd85715de0c7987163d363ce31a5ca8e2bc37aed52f2e9a87ee5f0210",
-      "bytes": 4813
+      "contentSha256": "61432b59cf376657177f903a7beda92928a099fbcd7b1b38f7184d0f15abf37b",
+      "bytes": 4215
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -630,5 +637,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "df7a2d463ae824fe7da14ea2eb2bb3c2cfacde002067cd9d827df13cc7e9685e"
+  "manifestDigest": "1b31a2a5c856b5f80a789b859bb071bf73fda2f7da35564ba5113da642508d08"
 }

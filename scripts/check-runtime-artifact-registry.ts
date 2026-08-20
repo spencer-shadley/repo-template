@@ -161,7 +161,25 @@ const invokedPath = process.argv[1];
 const invokedAsMain =
   invokedPath !== undefined && pathToFileURL(resolve(invokedPath)).href === import.meta.url;
 
-if (invokedAsMain) {
+function runCheck(repoRoot: string): void {
+  try {
+    const gitignoreText = readFileSync(join(repoRoot, ".gitignore"), "utf8");
+    const registry = loadRegistry(repoRoot);
+    const errors = checkRegistry({ gitignoreText, registry });
+    if (errors.length > 0) {
+      console.error("check-runtime-artifact-registry: FAIL");
+      for (const e of errors) console.error(`  - ${e}`);
+      process.exitCode = 1;
+    } else {
+      console.log(`check-runtime-artifact-registry: ok -- ${registry.entries.length} runtime artifact(s) registered and gitignored`);
+    }
+  } catch (error) {
+    console.error(`check-runtime-artifact-registry: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 2;
+  }
+}
+
+function main(): void {
   if (process.argv.includes("--self-test")) {
     try {
       selfTest();
@@ -169,22 +187,12 @@ if (invokedAsMain) {
       console.error(`check-runtime-artifact-registry: ${error instanceof Error ? error.message : String(error)}`);
       process.exitCode = 1;
     }
-  } else {
-    const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
-    try {
-      const gitignoreText = readFileSync(join(repoRoot, ".gitignore"), "utf8");
-      const registry = loadRegistry(repoRoot);
-      const errors = checkRegistry({ gitignoreText, registry });
-      if (errors.length > 0) {
-        console.error("check-runtime-artifact-registry: FAIL");
-        for (const e of errors) console.error(`  - ${e}`);
-        process.exitCode = 1;
-      } else {
-        console.log(`check-runtime-artifact-registry: ok -- ${registry.entries.length} runtime artifact(s) registered and gitignored`);
-      }
-    } catch (error) {
-      console.error(`check-runtime-artifact-registry: ${error instanceof Error ? error.message : String(error)}`);
-      process.exitCode = 2;
-    }
+    return;
   }
+  const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+  runCheck(repoRoot);
+}
+
+if (invokedAsMain) {
+  main();
 }

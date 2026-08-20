@@ -48,7 +48,7 @@ function signed(body: Record<string, unknown>): Record<string, unknown> {
 
 function livePathCandidate(path: string): Record<string, unknown> {
   const body = manifestBody();
-  const decisions = body["decisions"] as Array<Record<string, unknown>>;
+  const decisions = body["decisions"] as Record<string, unknown>[];
   decisions[0]!["path"] = path;
   body["changedPaths"] = [path];
   return body;
@@ -57,12 +57,12 @@ function livePathCandidate(path: string): Record<string, unknown> {
 function archivePathCandidate(path: string): Record<string, unknown> {
   const body = manifestBody();
   const archive = body["archive"] as Record<string, unknown>;
-  const members = archive["members"] as Array<{ path: string; blobSha256: string }>;
+  const members = archive["members"] as { path: string; blobSha256: string }[];
   members[0] = { ...members[0]!, path };
   members.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
   const aggregate = archiveAggregateSha256V1(members);
   archive["aggregateSha256"] = aggregate;
-  const dispositions = archive["dispositions"] as Array<Record<string, unknown>>;
+  const dispositions = archive["dispositions"] as Record<string, unknown>[];
   dispositions[0]!["aggregateSha256"] = aggregate;
   return body;
 }

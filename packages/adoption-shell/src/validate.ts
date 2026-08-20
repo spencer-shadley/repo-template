@@ -125,66 +125,24 @@ function validateBundleReference(
   return true;
 }
 
-function validatePayloadEntry(
-  value: unknown,
+function validatePayloadEntryEncoding(
+  role: unknown,
+  encoding: unknown,
+  bundleId: unknown,
   pointer: string,
   diagnostics: Diagnostics,
-): value is PayloadEntry {
+): void {
   if (
-    !diagnostics.object(
-      value,
-      pointer,
-      [
-        "path",
-        "kind",
-        "mode",
-        "contentSha256",
-        "role",
-        "encoding",
-        "bundleId",
-        "contentBase64",
-      ],
-      [
-        "path",
-        "kind",
-        "mode",
-        "contentSha256",
-        "role",
-        "encoding",
-        "bundleId",
-        "contentBase64",
-      ],
-    )
-  ) {
-    return false;
-  }
-  const pathValid = validatePath(value["path"], `${pointer}/path`, diagnostics);
-  diagnostics.string(value["kind"], `${pointer}/kind`, { constant: "file" });
-  if (
-    diagnostics.string(value["mode"], `${pointer}/mode`) &&
-    value["mode"] !== "100644" &&
-    value["mode"] !== "100755"
-  ) {
-    diagnostics.add("E_MODE", `${pointer}/mode`, "mode must be 100644 or 100755");
-  }
-  diagnostics.sha(value["contentSha256"], `${pointer}/contentSha256`);
-  if (
-    diagnostics.string(value["role"], `${pointer}/role`) &&
-    !ENTRY_ROLES.has(value["role"])
-  ) {
-    diagnostics.add("E_ROLE", `${pointer}/role`, "unsupported payload role");
-  }
-  if (
-    diagnostics.string(value["encoding"], `${pointer}/encoding`) &&
-    value["encoding"] !== "utf-8" &&
-    value["encoding"] !== "binary"
+    diagnostics.string(encoding, `${pointer}/encoding`) &&
+    encoding !== "utf-8" &&
+    encoding !== "binary"
   ) {
     diagnostics.add("E_ENCODING", `${pointer}/encoding`, "unsupported encoding");
   }
   const generic =
-    value["role"] === "generic-base-text" || value["role"] === "generic-base-binary";
+    role === "generic-base-text" || role === "generic-base-binary";
   if (generic) {
-    if (value["bundleId"] !== null) {
+    if (bundleId !== null) {
       diagnostics.add(
         "E_BUNDLE_OWNERSHIP",
         `${pointer}/bundleId`,
@@ -192,62 +150,103 @@ function validatePayloadEntry(
       );
     }
   } else {
-    diagnostics.string(value["bundleId"], `${pointer}/bundleId`, {
+    diagnostics.string(bundleId, `${pointer}/bundleId`, {
       min: 1,
       max: 80,
       pattern: BUNDLE_ID_PATTERN,
     });
   }
   const expectedEncoding =
-    value["role"] === "generic-base-binary" ? "binary" : "utf-8";
-  if (ENTRY_ROLES.has(String(value["role"])) && value["encoding"] !== expectedEncoding) {
+    role === "generic-base-binary" ? "binary" : "utf-8";
+  if (ENTRY_ROLES.has(String(role)) && encoding !== expectedEncoding) {
     diagnostics.add(
       "E_ENCODING_ROLE",
       `${pointer}/encoding`,
-      `${String(value["role"])} requires ${expectedEncoding}`,
+      `${String(role)} requires ${expectedEncoding}`,
     );
   }
-  if (diagnostics.string(value["contentBase64"], `${pointer}/contentBase64`)) {
-    try {
-      const bytes = decodeCanonicalBase64(value["contentBase64"]);
-      if (
-        typeof value["contentSha256"] === "string" &&
-        sha256Bytes(bytes) !== value["contentSha256"]
-      ) {
-        diagnostics.add(
-          "E_CONTENT_DIGEST",
-          `${pointer}/contentSha256`,
-          "content digest does not match decoded bytes",
-        );
-      }
-      if (expectedEncoding === "utf-8") {
-        try {
-          UTF8_DECODER.decode(bytes);
-        } catch {
-          diagnostics.add(
-            "E_UTF8",
-            `${pointer}/contentBase64`,
-            "text role content must be valid UTF-8",
-          );
-        }
-      }
-    } catch {
+}
+
+function validatePayloadEntryContent(
+  contentBase64: unknown,
+  contentSha256: unknown,
+  role: unknown,
+  pointer: string,
+  diagnostics: Diagnostics,
+): void {
+  if (!diagnostics.string(contentBase64, `${pointer}/contentBase64`)) return;
+  const expectedEncoding = role === "generic-base-binary" ? "binary" : "utf-8";
+  try {
+    const bytes = decodeCanonicalBase64(contentBase64 as string);
+    if (
+      typeof contentSha256 === "string" &&
+      sha256Bytes(bytes) !== contentSha256
+    ) {
       diagnostics.add(
-        "E_BASE64",
-        `${pointer}/contentBase64`,
-        "content must use canonical padded base64",
+        "E_CONTENT_DIGEST",
+        `${pointer}/contentSha256`,
+        "content digest does not match decoded bytes",
       );
     }
+    if (expectedEncoding === "utf-8") {
+      try {
+        UTF8_DECODER.decode(bytes);
+      } catch {
+        diagnostics.add(
+          "E_UTF8",
+          `${pointer}/contentBase64`,
+          "text role content must be valid UTF-8",
+        );
+      }
+    }
+  } catch {
+    diagnostics.add(
+      "E_BASE64",
+      `${pointer}/contentBase64`,
+      "content must use canonical padded base64",
+    );
   }
+}
+
+function validatePayloadEntry(
+  value: unknown,
+  pointer: string,
+  diagnostics: Diagnostics,
+): value is PayloadEntry {
+  const fields = [
+    "path", "kind", "mode", "contentSha256", "role", "encoding", "bundleId", "contentBase64",
+  ];
+  if (!diagnostics.object(value, pointer, fields, fields)) {
+    return false;
+  }
+  const rec = value as Record<string, unknown>;
+  const pathValid = validatePath(rec["path"], `${pointer}/path`, diagnostics);
+  diagnostics.string(rec["kind"], `${pointer}/kind`, { constant: "file" });
+  if (
+    diagnostics.string(rec["mode"], `${pointer}/mode`) &&
+    rec["mode"] !== "100644" &&
+    rec["mode"] !== "100755"
+  ) {
+    diagnostics.add("E_MODE", `${pointer}/mode`, "mode must be 100644 or 100755");
+  }
+  diagnostics.sha(rec["contentSha256"], `${pointer}/contentSha256`);
+  if (
+    diagnostics.string(rec["role"], `${pointer}/role`) &&
+    !ENTRY_ROLES.has(rec["role"] as string)
+  ) {
+    diagnostics.add("E_ROLE", `${pointer}/role`, "unsupported payload role");
+  }
+  validatePayloadEntryEncoding(rec["role"], rec["encoding"], rec["bundleId"], pointer, diagnostics);
+  validatePayloadEntryContent(rec["contentBase64"], rec["contentSha256"], rec["role"], pointer, diagnostics);
   return (
     pathValid &&
-    typeof value["kind"] === "string" &&
-    typeof value["mode"] === "string" &&
-    typeof value["contentSha256"] === "string" &&
-    typeof value["role"] === "string" &&
-    typeof value["encoding"] === "string" &&
-    (value["bundleId"] === null || typeof value["bundleId"] === "string") &&
-    typeof value["contentBase64"] === "string"
+    typeof rec["kind"] === "string" &&
+    typeof rec["mode"] === "string" &&
+    typeof rec["contentSha256"] === "string" &&
+    typeof rec["role"] === "string" &&
+    typeof rec["encoding"] === "string" &&
+    (rec["bundleId"] === null || typeof rec["bundleId"] === "string") &&
+    typeof rec["contentBase64"] === "string"
   );
 }
 
@@ -256,190 +255,129 @@ function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
   return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
 }
 
+function validateReleaseEntries(
+  entriesValue: unknown,
+  diagnostics: Diagnostics,
+): PayloadEntry[] {
+  const entries: PayloadEntry[] = [];
+  if (!diagnostics.array(entriesValue, "/entries", 1, 4096)) return entries;
+  (entriesValue as unknown[]).forEach((entry, index) => {
+    if (validatePayloadEntry(entry, `/entries/${index}`, diagnostics)) entries.push(entry);
+  });
+  const paths = entries.map((entry) => entry.path);
+  assertSortedUnique(paths, "/entries", diagnostics);
+  const folded = new Map<string, string>();
+  entries.forEach((entry, index) => {
+    const key = entry.path.toLowerCase();
+    const prior = folded.get(key);
+    if (prior !== undefined && prior !== entry.path) {
+      diagnostics.add(
+        "E_PATH_CASE_COLLISION",
+        `/entries/${index}/path`,
+        `case-fold collision with ${prior}`,
+      );
+    } else {
+      folded.set(key, entry.path);
+    }
+  });
+  return entries;
+}
+
 export function validateReleasePayloadSetV2(value: unknown): ValidationResult<ReleasePayloadSet> {
   const diagnostics = new Diagnostics();
-  if (
-    !diagnostics.object(
-      value,
-      "",
-      [
-        "schemaId",
-        "schemaVersion",
-        "schemaDigest",
-        "contractId",
-        "digestAlgorithm",
-        "payloadDigestAlgorithm",
-        "releaseDigest",
-        "payloadDigest",
-        "entryCount",
-        "migrationRefs",
-        "entries",
-      ],
-      [
-        "schemaId",
-        "schemaVersion",
-        "schemaDigest",
-        "contractId",
-        "digestAlgorithm",
-        "payloadDigestAlgorithm",
-        "releaseDigest",
-        "payloadDigest",
-        "entryCount",
-        "migrationRefs",
-        "entries",
-      ],
-    )
-  ) {
+  const fields = [
+    "schemaId", "schemaVersion", "schemaDigest", "contractId", "digestAlgorithm",
+    "payloadDigestAlgorithm", "releaseDigest", "payloadDigest", "entryCount",
+    "migrationRefs", "entries",
+  ];
+  if (!diagnostics.object(value, "", fields, fields)) {
     return finish(value as ReleasePayloadSet, diagnostics);
   }
-  schemaIdentity(value, "", SCHEMA_IDS.releasePayloadSet, SCHEMA_DIGESTS.releasePayloadSet, diagnostics);
-  diagnostics.string(value["contractId"], "/contractId", { constant: CONTRACT_ID });
-  diagnostics.string(value["digestAlgorithm"], "/digestAlgorithm", {
-    constant: ENVELOPE_DIGEST_ALGORITHM,
-  });
-  diagnostics.string(value["payloadDigestAlgorithm"], "/payloadDigestAlgorithm", {
+  const rec = value as Record<string, unknown>;
+  schemaIdentity(rec, "", SCHEMA_IDS.releasePayloadSet, SCHEMA_DIGESTS.releasePayloadSet, diagnostics);
+  diagnostics.string(rec["contractId"], "/contractId", { constant: CONTRACT_ID });
+  diagnostics.string(rec["digestAlgorithm"], "/digestAlgorithm", { constant: ENVELOPE_DIGEST_ALGORITHM });
+  diagnostics.string(rec["payloadDigestAlgorithm"], "/payloadDigestAlgorithm", {
     constant: PAYLOAD_DIGEST_ALGORITHM,
   });
-  diagnostics.sha(value["releaseDigest"], "/releaseDigest");
-  diagnostics.sha(value["payloadDigest"], "/payloadDigest");
-  if (!Number.isInteger(value["entryCount"]) || Number(value["entryCount"]) < 1) {
+  diagnostics.sha(rec["releaseDigest"], "/releaseDigest");
+  diagnostics.sha(rec["payloadDigest"], "/payloadDigest");
+  if (!Number.isInteger(rec["entryCount"]) || Number(rec["entryCount"]) < 1) {
     diagnostics.add("E_COUNT", "/entryCount", "entryCount must be a positive integer");
   }
-  if (!diagnostics.array(value["migrationRefs"], "/migrationRefs", 0, 0)) {
-    // Type diagnostic already added.
-  }
-  const entries: PayloadEntry[] = [];
-  if (diagnostics.array(value["entries"], "/entries", 1, 4096)) {
-    value["entries"].forEach((entry, index) => {
-      if (validatePayloadEntry(entry, `/entries/${index}`, diagnostics)) entries.push(entry);
-    });
-    const paths = entries.map((entry) => entry.path);
-    assertSortedUnique(paths, "/entries", diagnostics);
-    const folded = new Map<string, string>();
-    entries.forEach((entry, index) => {
-      const key = entry.path.toLowerCase();
-      const prior = folded.get(key);
-      if (prior !== undefined && prior !== entry.path) {
-        diagnostics.add(
-          "E_PATH_CASE_COLLISION",
-          `/entries/${index}/path`,
-          `case-fold collision with ${prior}`,
-        );
-      } else {
-        folded.set(key, entry.path);
-      }
-    });
-  }
-  if (Number.isInteger(value["entryCount"]) && value["entryCount"] !== entries.length) {
+  diagnostics.array(rec["migrationRefs"], "/migrationRefs", 0, 0);
+  const entries = validateReleaseEntries(rec["entries"], diagnostics);
+  if (Number.isInteger(rec["entryCount"]) && rec["entryCount"] !== entries.length) {
     diagnostics.add("E_ENTRY_COUNT", "/entryCount", "entryCount does not match entries");
   }
-  if (typeof value["payloadDigest"] === "string" && entries.length > 0) {
+  if (typeof rec["payloadDigest"] === "string" && entries.length > 0) {
     try {
-      if (sha256PayloadEntries(entries) !== value["payloadDigest"]) {
+      if (sha256PayloadEntries(entries) !== rec["payloadDigest"]) {
         diagnostics.add("E_PAYLOAD_DIGEST", "/payloadDigest", "payload digest mismatch");
       }
     } catch {
       // Entry-level diagnostics already identify malformed content.
     }
   }
-  if (typeof value["releaseDigest"] === "string") {
-    const { releaseDigest: _releaseDigest, ...body } = value;
+  if (typeof rec["releaseDigest"] === "string") {
+    const { releaseDigest: _releaseDigest, ...body } = rec;
     try {
-      if (sha256CanonicalJson(body) !== value["releaseDigest"]) {
+      if (sha256CanonicalJson(body) !== rec["releaseDigest"]) {
         diagnostics.add("E_RELEASE_DIGEST", "/releaseDigest", "release digest mismatch");
       }
     } catch {
-      diagnostics.add(
-        "E_CANONICAL_JSON",
-        "/releaseDigest",
-        "release body is not supported canonical JSON",
-      );
+      diagnostics.add("E_CANONICAL_JSON", "/releaseDigest", "release body is not supported canonical JSON");
     }
   }
   return finish(value as unknown as ReleasePayloadSet, diagnostics);
 }
 
+function validateConformance(conformance: unknown, diagnostics: Diagnostics): void {
+  const fields = ["noLocalIssueTemplateOverride", "noPreCustodyWorkflows"];
+  if (diagnostics.object(conformance, "/conformance", fields, fields)) {
+    const confRec = conformance as Record<string, unknown>;
+    if (confRec["noLocalIssueTemplateOverride"] !== true) {
+      diagnostics.add("E_CONST", "/conformance/noLocalIssueTemplateOverride", "must be true");
+    }
+    if (confRec["noPreCustodyWorkflows"] !== true) {
+      diagnostics.add("E_CONST", "/conformance/noPreCustodyWorkflows", "must be true");
+    }
+  }
+}
+
 export function validateMaterializerInputV2(value: unknown): ValidationResult<MaterializerInput> {
   const diagnostics = new Diagnostics();
-  if (
-    !diagnostics.object(
-      value,
-      "",
-      [
-        "schemaId",
-        "schemaVersion",
-        "schemaDigest",
-        "contractId",
-        "release",
-        "capabilities",
-        "requestedBundles",
-        "conformance",
-      ],
-      [
-        "schemaId",
-        "schemaVersion",
-        "schemaDigest",
-        "contractId",
-        "release",
-        "capabilities",
-        "requestedBundles",
-        "conformance",
-      ],
-    )
-  ) {
+  const fields = [
+    "schemaId", "schemaVersion", "schemaDigest", "contractId", "release",
+    "capabilities", "requestedBundles", "conformance",
+  ];
+  if (!diagnostics.object(value, "", fields, fields)) {
     return finish(value as MaterializerInput, diagnostics);
   }
-  schemaIdentity(
-    value,
-    "",
-    SCHEMA_IDS.materializerInput,
-    SCHEMA_DIGESTS.materializerInput,
-    diagnostics,
-  );
-  diagnostics.string(value["contractId"], "/contractId", { constant: CONTRACT_ID });
-  const releaseResult = validateReleasePayloadSetV2(value["release"]);
+  const rec = value as Record<string, unknown>;
+  schemaIdentity(rec, "", SCHEMA_IDS.materializerInput, SCHEMA_DIGESTS.materializerInput, diagnostics);
+  diagnostics.string(rec["contractId"], "/contractId", { constant: CONTRACT_ID });
+  const releaseResult = validateReleasePayloadSetV2(rec["release"]);
   if (!releaseResult.ok) {
     for (const row of releaseResult.diagnostics) {
       diagnostics.add(row.code, `/release${row.pointer}`, row.message);
     }
   }
-  const registryResult = validateCapabilityBundleRegistryV2(value["capabilities"]);
+  const registryResult = validateCapabilityBundleRegistryV2(rec["capabilities"]);
   if (!registryResult.ok) {
     for (const row of registryResult.diagnostics) {
       diagnostics.add(row.code, `/capabilities${row.pointer}`, row.message);
     }
   }
-  if (diagnostics.array(value["requestedBundles"], "/requestedBundles", 0, 256)) {
+  if (diagnostics.array(rec["requestedBundles"], "/requestedBundles", 0, 256)) {
     const keys: string[] = [];
-    value["requestedBundles"].forEach((reference, index) => {
+    (rec["requestedBundles"] as unknown[]).forEach((reference, index) => {
       if (validateBundleReference(reference, `/requestedBundles/${index}`, diagnostics)) {
         keys.push(`${reference.id}\u0000${reference.version}\u0000${reference.digest}`);
       }
     });
     assertSortedUnique(keys, "/requestedBundles", diagnostics);
   }
-  if (
-    diagnostics.object(
-      value["conformance"],
-      "/conformance",
-      ["noLocalIssueTemplateOverride", "noPreCustodyWorkflows"],
-      ["noLocalIssueTemplateOverride", "noPreCustodyWorkflows"],
-    )
-  ) {
-    if (value["conformance"]["noLocalIssueTemplateOverride"] !== true) {
-      diagnostics.add(
-        "E_CONST",
-        "/conformance/noLocalIssueTemplateOverride",
-        "must be true",
-      );
-    }
-    if (value["conformance"]["noPreCustodyWorkflows"] !== true) {
-      diagnostics.add(
-        "E_CONST",
-        "/conformance/noPreCustodyWorkflows",
-        "must be true",
-      );
-    }
-  }
+  validateConformance(rec["conformance"], diagnostics);
   return finish(value as unknown as MaterializerInput, diagnostics);
 }

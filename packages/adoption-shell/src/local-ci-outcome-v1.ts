@@ -48,6 +48,65 @@ function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
   return sorted.length === 0 ? { ok: true, value } : { ok: false, diagnostics: sorted };
 }
 
+function validateExecutedOutcome(
+  exitCode: unknown,
+  reason: unknown,
+  diagnostics: Diagnostics,
+): void {
+  if (typeof exitCode !== "number" || !Number.isInteger(exitCode)) {
+    diagnostics.add("E_TYPE", "/exitCode", "pass/fail outcomes must carry an integer exit code");
+  }
+  if (reason !== null) {
+    diagnostics.add(
+      "E_OUTCOME_REASON",
+      "/reason",
+      "pass/fail outcomes must carry a null reason",
+    );
+  }
+}
+
+function validateNotExecutedOutcome(
+  exitCode: unknown,
+  reason: unknown,
+  diagnostics: Diagnostics,
+): void {
+  if (exitCode !== null) {
+    diagnostics.add(
+      "E_OUTCOME_EXIT_CODE",
+      "/exitCode",
+      "skipped/could-not-execute outcomes never carry an exit code",
+    );
+  }
+  if (typeof reason !== "string" || reason.length === 0) {
+    diagnostics.add(
+      "E_OUTCOME_REASON",
+      "/reason",
+      "skipped/could-not-execute outcomes must carry a non-empty reason",
+    );
+  }
+}
+
+function validateOutcomePayload(
+  outcome: unknown,
+  outcomeValid: boolean,
+  exitCode: unknown,
+  reason: unknown,
+  diagnostics: Diagnostics,
+): void {
+  if (outcomeValid && EXECUTED_OUTCOMES.has(outcome as string)) {
+    validateExecutedOutcome(exitCode, reason, diagnostics);
+  } else if (outcomeValid && NOT_EXECUTED_OUTCOMES.has(outcome as string)) {
+    validateNotExecutedOutcome(exitCode, reason, diagnostics);
+  } else {
+    if (typeof exitCode !== "number" && exitCode !== null) {
+      diagnostics.add("E_TYPE", "/exitCode", "expected integer or null");
+    }
+    if (typeof reason !== "string" && reason !== null) {
+      diagnostics.add("E_TYPE", "/reason", "expected string or null");
+    }
+  }
+}
+
 export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<LocalCiOutcomeV1> {
   const diagnostics = new Diagnostics();
   const fields = [
@@ -76,10 +135,7 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
     diagnostics.add("E_ENUM", "/outcome", "unsupported outcome state");
   }
 
-  const exitCode = value["exitCode"];
-  const reason = value["reason"];
-  const detectionProofExercised = value["detectionProofExercised"];
-  if (typeof detectionProofExercised !== "boolean") {
+  if (typeof value["detectionProofExercised"] !== "boolean") {
     diagnostics.add("E_TYPE", "/detectionProofExercised", "expected boolean");
   }
   if (
@@ -89,41 +145,7 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
     diagnostics.add("E_FORMAT", "/recordedAt", "must be a UTC RFC 3339 instant");
   }
 
-  if (outcomeValid && EXECUTED_OUTCOMES.has(outcome)) {
-    if (typeof exitCode !== "number" || !Number.isInteger(exitCode)) {
-      diagnostics.add("E_TYPE", "/exitCode", "pass/fail outcomes must carry an integer exit code");
-    }
-    if (reason !== null) {
-      diagnostics.add(
-        "E_OUTCOME_REASON",
-        "/reason",
-        "pass/fail outcomes must carry a null reason",
-      );
-    }
-  } else if (outcomeValid && NOT_EXECUTED_OUTCOMES.has(outcome)) {
-    if (exitCode !== null) {
-      diagnostics.add(
-        "E_OUTCOME_EXIT_CODE",
-        "/exitCode",
-        "skipped/could-not-execute outcomes never carry an exit code",
-      );
-    }
-    if (typeof reason !== "string" || reason.length === 0) {
-      diagnostics.add(
-        "E_OUTCOME_REASON",
-        "/reason",
-        "skipped/could-not-execute outcomes must carry a non-empty reason",
-      );
-    }
-  } else {
-    if (typeof exitCode !== "number" && exitCode !== null) {
-      diagnostics.add("E_TYPE", "/exitCode", "expected integer or null");
-    }
-    if (typeof reason !== "string" && reason !== null) {
-      diagnostics.add("E_TYPE", "/reason", "expected string or null");
-    }
-  }
-
+  validateOutcomePayload(outcome, outcomeValid, value["exitCode"], value["reason"], diagnostics);
   return finish(value as unknown as LocalCiOutcomeV1, diagnostics);
 }
 

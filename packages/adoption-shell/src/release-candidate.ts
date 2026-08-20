@@ -55,21 +55,16 @@ function addNested(
   }
 }
 
-export function createTemplateReleaseCandidateV1(
-  value: unknown,
-): ValidationResult<TemplateReleaseClosure> {
-  const diagnostics = new Diagnostics();
-  const fields = [
-    "semver",
-    "commit",
-    "tree",
-    "payloadSet",
-    "capabilityRegistry",
-    "artifactManifest",
-  ];
-  if (!diagnostics.object(value, "", [...fields, "releaseEvidence"], fields)) {
-    return finish(value as TemplateReleaseClosure, diagnostics);
-  }
+function validateCandidateInputs(
+  value: Record<string, unknown>,
+  diagnostics: Diagnostics,
+): {
+  readonly payloadResult: ValidationResult<ReleasePayloadSet>;
+  readonly capabilityResult: ValidationResult<CapabilityBundleRegistry>;
+  readonly artifactResult: ValidationResult<ArtifactManifest>;
+  readonly evidenceResult: ValidationResult<TemplateReleaseEvidence> | null;
+  readonly valid: boolean;
+} {
   const semverValid = diagnostics.string(value["semver"], "/semver", {
     min: 5,
     max: 80,
@@ -101,29 +96,36 @@ export function createTemplateReleaseCandidateV1(
   if (evidenceResult !== null && !evidenceResult.ok) {
     addNested(diagnostics, "/releaseEvidence", evidenceResult.diagnostics);
   }
-  if (
-    !semverValid ||
-    !commitValid ||
-    !treeValid ||
-    !payloadResult.ok ||
-    !capabilityResult.ok ||
-    !artifactResult.ok ||
-    (evidenceResult !== null && !evidenceResult.ok) ||
-    diagnostics.rows.length > 0
-  ) {
-    return finish(value as unknown as TemplateReleaseClosure, diagnostics);
-  }
+  const valid =
+    semverValid &&
+    commitValid &&
+    treeValid &&
+    payloadResult.ok &&
+    capabilityResult.ok &&
+    artifactResult.ok &&
+    (evidenceResult === null || evidenceResult.ok) &&
+    diagnostics.rows.length === 0;
+  return { payloadResult, capabilityResult, artifactResult, evidenceResult, valid };
+}
 
-  const semver = value["semver"] as string;
-  const commit = value["commit"] as string;
-  const tree = value["tree"] as string;
-  const payloadSet: ReleasePayloadSet = payloadResult.value;
-  const capabilityRegistry: CapabilityBundleRegistry = capabilityResult.value;
-  const artifactManifest: ArtifactManifest = artifactResult.value;
-  const releaseEvidence: TemplateReleaseEvidence | undefined =
-    evidenceResult?.ok ? evidenceResult.value : undefined;
+interface BuildReceiptParams {
+  readonly semver: string;
+  readonly commit: string;
+  readonly tree: string;
+  readonly payloadSet: ReleasePayloadSet;
+  readonly capabilityRegistry: CapabilityBundleRegistry;
+  readonly artifactManifest: ArtifactManifest;
+  readonly releaseEvidence?: TemplateReleaseEvidence;
+}
+
+function buildReceiptBody(
+  params: BuildReceiptParams,
+): Record<string, unknown> {
+  const {
+    semver, commit, tree, payloadSet, capabilityRegistry, artifactManifest, releaseEvidence,
+  } = params;
   const tag = `v${semver}`;
-  const receiptBody = {
+  return {
     schemaId: SCHEMA_IDS.templateReleaseReceipt,
     schemaVersion: CONTRACT_VERSION,
     schemaDigest: SCHEMA_DIGESTS.templateReleaseReceipt,
@@ -176,12 +178,47 @@ export function createTemplateReleaseCandidateV1(
     },
     ...(releaseEvidence === undefined ? {} : { releaseEvidence }),
     migrationRefs: [] as const,
-  } as const;
+  };
+}
+
+export function createTemplateReleaseCandidateV1(
+  value: unknown,
+): ValidationResult<TemplateReleaseClosure> {
+  const diagnostics = new Diagnostics();
+  const fields = [
+    "semver", "commit", "tree", "payloadSet", "capabilityRegistry", "artifactManifest",
+  ];
+  if (!diagnostics.object(value, "", [...fields, "releaseEvidence"], fields)) {
+    return finish(value as TemplateReleaseClosure, diagnostics);
+  }
+  const inputRec = value as Record<string, unknown>;
+  const {
+    payloadResult, capabilityResult, artifactResult, evidenceResult, valid,
+  } = validateCandidateInputs(inputRec, diagnostics);
+
+  if (!valid) {
+    return finish(value as unknown as TemplateReleaseClosure, diagnostics);
+  }
+
+  const payloadSet: ReleasePayloadSet = payloadResult.value!;
+  const capabilityRegistry: CapabilityBundleRegistry = capabilityResult.value!;
+  const artifactManifest: ArtifactManifest = artifactResult.value!;
+  const releaseEvidence: TemplateReleaseEvidence | undefined =
+    evidenceResult?.ok ? evidenceResult.value : undefined;
+  const receiptBody = buildReceiptBody({
+    semver: inputRec["semver"] as string,
+    commit: inputRec["commit"] as string,
+    tree: inputRec["tree"] as string,
+    payloadSet,
+    capabilityRegistry,
+    artifactManifest,
+    releaseEvidence,
+  });
   const closure: TemplateReleaseClosure = {
     receipt: {
       ...receiptBody,
       receiptDigest: sha256CanonicalJson(receiptBody),
-    },
+    } as unknown as TemplateReleaseClosure["receipt"],
     payloadSet,
     capabilityRegistry,
     artifactManifest,

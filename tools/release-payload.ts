@@ -119,72 +119,61 @@ function classifyExcluded(pathValue: string): ExcludedRow["reason"] | null {
   return null;
 }
 
-function construct(): {
-  readonly selection: Record<string, unknown>;
-  readonly payload: Record<string, unknown>;
-} {
-  const { tree, blobs } = gitTreeAndBlobs();
-  const templateManifestRow = tree.get("template-manifest.json");
-  if (!templateManifestRow) throw new Error("HEAD lacks template-manifest.json");
-  const templateManifest = JSON.parse(
-    blobs.get(templateManifestRow.object)?.toString("utf8") ?? "",
-  ) as Record<string, unknown>;
-  const inventory: InventoryRow[] = [];
-  const excluded: ExcludedRow[] = [];
-  const drafts: ReleasePayloadEntryDraftV2[] = [];
+interface ProcessContext {
+  readonly tree: Map<string, GitTreeEntry>;
+  readonly blobs: Map<string, Buffer>;
+  readonly inventory: InventoryRow[];
+  readonly excluded: ExcludedRow[];
+  readonly drafts: ReleasePayloadEntryDraftV2[];
+}
 
-  for (const [pathValue, rawMode] of Object.entries(templateManifest).sort(([left], [right]) =>
-    compare(left, right),
-  )) {
-    if (!portableModes.has(String(rawMode))) continue;
-    const templateMode = rawMode as TemplateMode;
-    const reason = classifyExcluded(pathValue);
-    if (reason !== null) {
-      excluded.push({ path: pathValue, templateMode, reason });
-      continue;
-    }
-    const portableFailure = portablePathFailure(pathValue);
-    if (portableFailure !== null) {
-      throw new Error(`portable template path rejected (${portableFailure}): ${pathValue}`);
-    }
-    const tracked = tree.get(pathValue);
-    const gitMode = tracked?.mode;
-    if (!tracked || (gitMode !== "100644" && gitMode !== "100755")) {
-      throw new Error(`selected path lacks a regular tracked Git mode: ${pathValue}`);
-    }
-    const content = blobs.get(tracked.object);
-    if (!content) throw new Error(`selected path lacks batched Git bytes: ${pathValue}`);
-    const contentSha256 = createHash("sha256").update(content).digest("hex");
-    const encoding = content.includes(0) ? "binary" : "utf-8";
-    inventory.push({
-      path: pathValue,
-      templateMode,
-      gitMode,
-      contentSha256,
-      bytes: content.byteLength,
-    });
-    drafts.push({
-      path: pathValue,
-      kind: "file",
-      mode: gitMode,
-      role: encoding === "binary" ? "generic-base-binary" : "generic-base-text",
-      encoding,
-      bundleId: null,
-      contentBase64: content.toString("base64"),
-    });
+function processManifestEntry(
+  pathValue: string,
+  rawMode: unknown,
+  ctx: ProcessContext,
+): void {
+  if (!portableModes.has(String(rawMode))) return;
+  const templateMode = rawMode as TemplateMode;
+  const reason = classifyExcluded(pathValue);
+  if (reason !== null) {
+    ctx.excluded.push({ path: pathValue, templateMode, reason });
+    return;
   }
+  const portableFailure = portablePathFailure(pathValue);
+  if (portableFailure !== null) {
+    throw new Error(`portable template path rejected (${portableFailure}): ${pathValue}`);
+  }
+  const tracked = ctx.tree.get(pathValue);
+  const gitMode = tracked?.mode;
+  if (!tracked || (gitMode !== "100644" && gitMode !== "100755")) {
+    throw new Error(`selected path lacks a regular tracked Git mode: ${pathValue}`);
+  }
+  const content = ctx.blobs.get(tracked.object);
+  if (!content) throw new Error(`selected path lacks batched Git bytes: ${pathValue}`);
+  const contentSha256 = createHash("sha256").update(content).digest("hex");
+  const encoding = content.includes(0) ? "binary" : "utf-8";
+  ctx.inventory.push({
+    path: pathValue,
+    templateMode,
+    gitMode,
+    contentSha256,
+    bytes: content.byteLength,
+  });
+  ctx.drafts.push({
+    path: pathValue,
+    kind: "file",
+    mode: gitMode,
+    role: encoding === "binary" ? "generic-base-binary" : "generic-base-text",
+    encoding,
+    bundleId: null,
+    contentBase64: content.toString("base64"),
+  });
+}
 
-  if (inventory.length === 0 || excluded.length === 0) {
-    throw new Error("inert seed must contain selected bytes and explicit exclusions");
-  }
-  const payloadResult = createReleasePayloadSetV2(drafts);
-  if (!payloadResult.ok) {
-    throw new Error(
-      payloadResult.diagnostics
-        .map((row) => `${row.code} ${row.pointer} ${row.message}`)
-        .join("\n"),
-    );
-  }
+function buildSelectionBody(
+  inventory: InventoryRow[],
+  excluded: ExcludedRow[],
+): Record<string, unknown> {
   const selectionBody = {
     contractId: "repo-template/inert-seed-manifest/v1",
     schemaVersion: 1,
@@ -198,10 +187,45 @@ function construct(): {
     excluded,
   };
   return {
-    selection: {
-      ...selectionBody,
-      manifestDigest: sha256CanonicalJson(selectionBody),
-    },
+    ...selectionBody,
+    manifestDigest: sha256CanonicalJson(selectionBody),
+  };
+}
+
+function construct(): {
+  readonly selection: Record<string, unknown>;
+  readonly payload: Record<string, unknown>;
+} {
+  const { tree, blobs } = gitTreeAndBlobs();
+  const templateManifestRow = tree.get("template-manifest.json");
+  if (!templateManifestRow) throw new Error("HEAD lacks template-manifest.json");
+  const templateManifest = JSON.parse(
+    blobs.get(templateManifestRow.object)?.toString("utf8") ?? "",
+  ) as Record<string, unknown>;
+  const inventory: InventoryRow[] = [];
+  const excluded: ExcludedRow[] = [];
+  const drafts: ReleasePayloadEntryDraftV2[] = [];
+  const ctx: ProcessContext = { tree, blobs, inventory, excluded, drafts };
+
+  for (const [pathValue, rawMode] of Object.entries(templateManifest).sort(([left], [right]) =>
+    compare(left, right),
+  )) {
+    processManifestEntry(pathValue, rawMode, ctx);
+  }
+
+  if (inventory.length === 0 || excluded.length === 0) {
+    throw new Error("inert seed must contain selected bytes and explicit exclusions");
+  }
+  const payloadResult = createReleasePayloadSetV2(drafts);
+  if (!payloadResult.ok) {
+    throw new Error(
+      payloadResult.diagnostics
+        .map((row) => `${row.code} ${row.pointer} ${row.message}`)
+        .join("\n"),
+    );
+  }
+  return {
+    selection: buildSelectionBody(inventory, excluded),
     payload: payloadResult.value as unknown as Record<string, unknown>,
   };
 }

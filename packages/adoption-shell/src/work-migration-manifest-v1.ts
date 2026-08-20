@@ -1,10 +1,10 @@
 import { canonicalizeJson } from "./canonical-json.ts";
 import { sha256Bytes } from "./digest.ts";
-import { isPlanBodyPathV1 } from "./plan-record-v1.ts";
-import type {
-  MigrateReasonCode,
-  PlanRecordStatus,
-  RetireReasonCode,
+import {
+  isPlanBodyPathV1,
+  type MigrateReasonCode,
+  type PlanRecordStatus,
+  type RetireReasonCode,
 } from "./plan-record-v1.ts";
 import { isRecord, SHA256_PATTERN } from "./validation-helpers.ts";
 
@@ -216,68 +216,90 @@ function liveInventoryCloses(
   );
 }
 
-function archiveInventoryCloses(value: unknown): boolean {
-  if (
-    !isRecord(value) ||
-    !exactKeys(
-      value,
-      [
-        "repository", "count", "aggregateAlgorithm", "aggregateSha256",
-        "members", "dispositions",
-      ],
-      [
-        "repository", "count", "aggregateAlgorithm", "aggregateSha256",
-        "members", "dispositions",
-      ],
-    ) ||
-    typeof value["repository"] !== "string" ||
-    !repositoryPattern.test(value["repository"]) ||
-    !integerAtLeastZero(value["count"]) ||
-    value["aggregateAlgorithm"] !== ARCHIVE_AGGREGATE_ALGORITHM_V1 ||
-    typeof value["aggregateSha256"] !== "string" ||
-    !SHA256_PATTERN.test(value["aggregateSha256"]) ||
-    !Array.isArray(value["members"]) ||
-    !Array.isArray(value["dispositions"])
-  ) return false;
-  const members = value["members"];
-  if (
-    !members.every((member) =>
-      isRecord(member) &&
-      exactKeys(member, ["path", "blobSha256"], ["path", "blobSha256"]) &&
-      archivePlanPath(member["path"]) &&
-      typeof member["blobSha256"] === "string" &&
-      SHA256_PATTERN.test(member["blobSha256"])) ||
-    !sortedUnique(members.map((member) => String(member["path"]))) ||
-    Number(value["count"]) !== members.length ||
-    value["aggregateSha256"] !== archiveAggregateSha256V1(
-      members as unknown as readonly ArchiveMemberV1[],
-    )
-  ) return false;
-  let dispositionCount = 0;
-  for (const row of value["dispositions"]) {
-    if (
-      !isRecord(row) ||
-      !exactKeys(
-        row,
-        ["decision", "reasonCode", "count", "aggregateSha256"],
-        ["decision", "reasonCode", "count", "aggregateSha256"],
-      ) ||
-      row["decision"] !== "archive-receipt-only" ||
-      row["reasonCode"] !== "ARCHIVE_SEALED" ||
-      !integerAtLeastZero(row["count"]) ||
-      typeof row["aggregateSha256"] !== "string" ||
-      !SHA256_PATTERN.test(row["aggregateSha256"])
-    ) return false;
-    dispositionCount += Number(row["count"]);
-  }
+function validArchiveHeader(value: unknown): value is Record<string, unknown> {
+  const keys = [
+    "repository", "count", "aggregateAlgorithm", "aggregateSha256",
+    "members", "dispositions",
+  ];
   return (
-    dispositionCount === Number(value["count"]) &&
-    (Number(value["count"]) === 0) === (value["dispositions"].length === 0) &&
-    value["dispositions"].length <= 1 &&
-    (
-      value["dispositions"].length === 0 ||
-      value["dispositions"][0]?.["aggregateSha256"] === value["aggregateSha256"]
-    )
+    isRecord(value) &&
+    exactKeys(value, keys, keys) &&
+    typeof value["repository"] === "string" &&
+    repositoryPattern.test(value["repository"]) &&
+    integerAtLeastZero(value["count"]) &&
+    value["aggregateAlgorithm"] === ARCHIVE_AGGREGATE_ALGORITHM_V1 &&
+    typeof value["aggregateSha256"] === "string" &&
+    SHA256_PATTERN.test(value["aggregateSha256"]) &&
+    Array.isArray(value["members"]) &&
+    Array.isArray(value["dispositions"])
+  );
+}
+
+function validArchiveMember(member: unknown): boolean {
+  return (
+    isRecord(member) &&
+    exactKeys(member, ["path", "blobSha256"], ["path", "blobSha256"]) &&
+    archivePlanPath(member["path"]) &&
+    typeof member["blobSha256"] === "string" &&
+    SHA256_PATTERN.test(member["blobSha256"])
+  );
+}
+
+function validArchiveMembers(
+  members: unknown[],
+  count: number,
+  aggregateSha256: string,
+): boolean {
+  return (
+    members.every(validArchiveMember) &&
+    sortedUnique(members.map((m) => String((m as Record<string, unknown>)["path"]))) &&
+    count === members.length &&
+    aggregateSha256 === archiveAggregateSha256V1(members as unknown as readonly ArchiveMemberV1[])
+  );
+}
+
+function validArchiveDispositionRow(row: unknown): boolean {
+  return (
+    isRecord(row) &&
+    exactKeys(
+      row,
+      ["decision", "reasonCode", "count", "aggregateSha256"],
+      ["decision", "reasonCode", "count", "aggregateSha256"],
+    ) &&
+    row["decision"] === "archive-receipt-only" &&
+    row["reasonCode"] === "ARCHIVE_SEALED" &&
+    integerAtLeastZero(row["count"]) &&
+    typeof row["aggregateSha256"] === "string" &&
+    SHA256_PATTERN.test(row["aggregateSha256"])
+  );
+}
+
+function validArchiveDispositions(
+  dispositions: unknown[],
+  count: number,
+  aggregateSha256: string,
+): boolean {
+  if (!dispositions.every(validArchiveDispositionRow)) return false;
+  const dispositionCount = dispositions.reduce(
+    (sum, row) => sum + Number((row as Record<string, unknown>)["count"]),
+    0,
+  );
+  return (
+    dispositionCount === count &&
+    (count === 0) === (dispositions.length === 0) &&
+    dispositions.length <= 1 &&
+    (dispositions.length === 0 ||
+      (dispositions[0] as Record<string, unknown>)["aggregateSha256"] === aggregateSha256)
+  );
+}
+
+function archiveInventoryCloses(value: unknown): boolean {
+  if (!validArchiveHeader(value)) return false;
+  const count = Number(value["count"]);
+  const aggregateSha256 = String(value["aggregateSha256"]);
+  return (
+    validArchiveMembers(value["members"] as unknown[], count, aggregateSha256) &&
+    validArchiveDispositions(value["dispositions"] as unknown[], count, aggregateSha256)
   );
 }
 
@@ -302,32 +324,43 @@ function changedPathsClose(
     changedPaths.every((path, index) => path === decisions[index]?.path);
 }
 
-function validManifestBody(
-  value: unknown,
-): value is Omit<WorkMigrationManifestV1, "manifestSha256"> {
+function validCanary(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    exactKeys(value, ["repository", "state"], ["repository", "state"]) &&
+    value["repository"] === "gmail-markdown" &&
+    ["pending", "green", "red"].includes(String(value["state"]))
+  );
+}
+
+function validManifestHeader(value: unknown): value is Record<string, unknown> {
   if (!isRecord(value)) return false;
   const keys = [
     "schemaVersion", "source", "schemaRelease", "decisions", "liveCounts",
     "archive", "changedPaths", "verification", "canary", "rollbackRef",
     "unclassifiedCount",
   ];
-  if (!exactKeys(value, keys, keys) ||
-    value["schemaVersion"] !== "work-migration-manifest/v1" ||
-    !validSource(value["source"]) ||
-    !validRelease(value["schemaRelease"])) return false;
+  return (
+    exactKeys(value, keys, keys) &&
+    value["schemaVersion"] === "work-migration-manifest/v1" &&
+    validSource(value["source"]) &&
+    validRelease(value["schemaRelease"])
+  );
+}
+
+function validManifestBody(
+  value: unknown,
+): value is Omit<WorkMigrationManifestV1, "manifestSha256"> {
+  if (!validManifestHeader(value)) return false;
   const decisions = value["decisions"];
   if (!Array.isArray(decisions) || !decisions.every(validDecision)) return false;
-  if (!sortedUnique(decisions.map((row) => row.path)) ||
-    !liveInventoryCloses(value["liveCounts"], decisions) ||
-    !archiveInventoryCloses(value["archive"]) ||
-    !validStringLists(value) ||
-    !changedPathsClose(value, decisions)) return false;
-  const canary = value["canary"];
   return (
-    isRecord(canary) &&
-    exactKeys(canary, ["repository", "state"], ["repository", "state"]) &&
-    canary["repository"] === "gmail-markdown" &&
-    ["pending", "green", "red"].includes(String(canary["state"])) &&
+    sortedUnique(decisions.map((row) => row.path)) &&
+    liveInventoryCloses(value["liveCounts"], decisions) &&
+    archiveInventoryCloses(value["archive"]) &&
+    validStringLists(value) &&
+    changedPathsClose(value, decisions) &&
+    validCanary(value["canary"]) &&
     nonEmpty(value["rollbackRef"]) &&
     value["unclassifiedCount"] === 0
   );

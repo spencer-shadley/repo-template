@@ -5,16 +5,15 @@ import {
   ENVELOPE_DIGEST_ALGORITHM,
   PAYLOAD_DIGEST_ALGORITHM,
   type PayloadEntry,
-  type Sha256,
 } from "./contract.ts";
 
 const encoder = new TextEncoder();
 
-export function sha256Bytes(value: Uint8Array): Sha256 {
+export function sha256Bytes(value: Uint8Array): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-export function sha256CanonicalJson(value: unknown): Sha256 {
+export function sha256CanonicalJson(value: unknown): string {
   return sha256Bytes(canonicalJsonBytes(value));
 }
 
@@ -68,7 +67,7 @@ export function payloadFrame(entries: readonly PayloadEntry[]): Uint8Array {
   return output;
 }
 
-export function sha256PayloadEntries(entries: readonly PayloadEntry[]): Sha256 {
+export function sha256PayloadEntries(entries: readonly PayloadEntry[]): string {
   return sha256Bytes(payloadFrame(entries));
 }
 

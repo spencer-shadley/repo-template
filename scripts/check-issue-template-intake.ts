@@ -45,14 +45,7 @@ function stripFrontmatter(markdown: string): string {
   return text.slice(end + "\n---\n".length);
 }
 
-function validate(templateMarkdown: string): ValidateResult {
-  const text = stripFrontmatter(templateMarkdown);
-  const missing: string[] = [];
-  for (const h of REQUIRED_HEADINGS) {
-    if (!new RegExp(String.raw`^##\s+` + escapeRegExp(h) + String.raw`\s*$`, "im").test(text)) {
-      missing.push(`## ${h}`);
-    }
-  }
+function validateProvenance(text: string, missing: string[]): void {
   const hasRepo = /(?:^|\n)\s*(?:[-*]\s+)?(?:\*\*)?repository(?:\*\*)?\s*:/i.test(text);
   const hasCommit = /(?:^|\n)\s*(?:[-*]\s+)?(?:\*\*)?commit(?:\*\*)?\s*:/i.test(text);
   const hasPath =
@@ -61,26 +54,44 @@ function validate(templateMarkdown: string): ValidateResult {
   if (!(hasRepo && hasCommit && hasPath)) {
     missing.push("template provenance scaffold (repository, commit, path)");
   }
+}
+
+function extractTaxonomySection(text: string): string {
   const lines = text.split("\n");
   const start = lines.findIndex((l) => /^##\s+Root-cause taxonomy and disposition\s*$/i.test(l));
-  let section = "";
-  if (start !== -1) {
-    const out: string[] = [];
-    for (let i = start + 1; i < lines.length; i += 1) {
-      const line = lines[i];
-      if (line !== undefined && /^##\s+/.test(line)) break;
-      out.push(line ?? "");
-    }
-    section = out.join("\n");
+  if (start === -1) return "";
+  const out: string[] = [];
+  for (let i = start + 1; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (line !== undefined && /^##\s+/.test(line)) break;
+    out.push(line ?? "");
   }
-  if (!/\|/.test(section)) missing.push("Root-cause taxonomy table");
-  else {
-    for (const rank of TAXONOMY_RANKS) {
-      if (!new RegExp(String.raw`\|\s*` + escapeRegExp(rank) + String.raw`\s*\|`, "i").test(section)) {
-        missing.push(`taxonomy rank row: ${rank}`);
-      }
+  return out.join("\n");
+}
+
+function validateTaxonomySection(text: string, missing: string[]): void {
+  const section = extractTaxonomySection(text);
+  if (!/\|/.test(section)) {
+    missing.push("Root-cause taxonomy table");
+    return;
+  }
+  for (const rank of TAXONOMY_RANKS) {
+    if (!new RegExp(String.raw`\|\s*` + escapeRegExp(rank) + String.raw`\s*\|`, "i").test(section)) {
+      missing.push(`taxonomy rank row: ${rank}`);
     }
   }
+}
+
+function validate(templateMarkdown: string): ValidateResult {
+  const text = stripFrontmatter(templateMarkdown);
+  const missing: string[] = [];
+  for (const h of REQUIRED_HEADINGS) {
+    if (!new RegExp(String.raw`^##\s+` + escapeRegExp(h) + String.raw`\s*$`, "im").test(text)) {
+      missing.push(`## ${h}`);
+    }
+  }
+  validateProvenance(text, missing);
+  validateTaxonomySection(text, missing);
   return missing.length
     ? { ok: false, missing, schemaVersion: "governed-intake-body-v1" }
     : { ok: true, schemaVersion: "governed-intake-body-v1" };

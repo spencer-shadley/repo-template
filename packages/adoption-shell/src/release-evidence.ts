@@ -42,22 +42,7 @@ function validateNamedRecord(
   }
 }
 
-export function validateTemplateReleaseEvidenceV1(
-  value: unknown,
-): ValidationResult<TemplateReleaseEvidence> {
-  const diagnostics = new Diagnostics();
-  const fields = [
-    "review",
-    "canaryReceipts",
-    "checks",
-    "publicationReadback",
-    "rollback",
-  ];
-  if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as TemplateReleaseEvidence, diagnostics);
-  }
-
-  const review = value["review"];
+function validateEvidenceReview(review: unknown, diagnostics: Diagnostics): void {
   if (
     diagnostics.object(
       review,
@@ -66,16 +51,50 @@ export function validateTemplateReleaseEvidenceV1(
       ["subject", "url", "result"],
     )
   ) {
-    diagnostics.string(review["subject"], "/review/subject", {
+    const revRec = review as Record<string, unknown>;
+    diagnostics.string(revRec["subject"], "/review/subject", {
       constant: "producer-commit",
     });
-    diagnostics.string(review["url"], "/review/url", {
+    diagnostics.string(revRec["url"], "/review/url", {
       min: 1,
       max: 512,
       pattern: REVIEW_URL_PATTERN,
     });
-    diagnostics.string(review["result"], "/review/result", { constant: "approved" });
+    diagnostics.string(revRec["result"], "/review/result", { constant: "approved" });
   }
+}
+
+function validateEvidenceRollback(rollback: unknown, diagnostics: Diagnostics): void {
+  if (
+    diagnostics.object(
+      rollback,
+      "/rollback",
+      ["disposition", "supersession"],
+      ["disposition", "supersession"],
+    )
+  ) {
+    const rbRec = rollback as Record<string, unknown>;
+    diagnostics.string(rbRec["disposition"], "/rollback/disposition", {
+      constant: "immutable-correct-forward",
+    });
+    diagnostics.string(rbRec["supersession"], "/rollback/supersession", {
+      constant: "new-semver-only",
+    });
+  }
+}
+
+export function validateTemplateReleaseEvidenceV1(
+  value: unknown,
+): ValidationResult<TemplateReleaseEvidence> {
+  const diagnostics = new Diagnostics();
+  const fields = [
+    "review", "canaryReceipts", "checks", "publicationReadback", "rollback",
+  ];
+  if (!diagnostics.object(value, "", fields, fields)) {
+    return finish(value as TemplateReleaseEvidence, diagnostics);
+  }
+
+  validateEvidenceReview(value["review"], diagnostics);
 
   validateNamedRecord(
     value["canaryReceipts"],
@@ -88,12 +107,13 @@ export function validateTemplateReleaseEvidenceV1(
         ["url", "receiptSha256"],
         ["url", "receiptSha256"],
       )) return;
-      diagnostics.string(entry["url"], `${pointer}/url`, {
+      const entryRec = entry as Record<string, unknown>;
+      diagnostics.string(entryRec["url"], `${pointer}/url`, {
         min: 1,
         max: 512,
         pattern: RECEIPT_URL_PATTERN,
       });
-      diagnostics.sha(entry["receiptSha256"], `${pointer}/receiptSha256`);
+      diagnostics.sha(entryRec["receiptSha256"], `${pointer}/receiptSha256`);
     },
   );
 
@@ -105,34 +125,21 @@ export function validateTemplateReleaseEvidenceV1(
       if (!diagnostics.object(entry, pointer, ["command", "result"], ["command", "result"])) {
         return;
       }
-      diagnostics.string(entry["command"], `${pointer}/command`, { min: 1, max: 2048 });
-      diagnostics.string(entry["result"], `${pointer}/result`, { constant: "passed" });
+      const entryRec = entry as Record<string, unknown>;
+      diagnostics.string(entryRec["command"], `${pointer}/command`, { min: 1, max: 2048 });
+      diagnostics.string(entryRec["result"], `${pointer}/result`, { constant: "passed" });
     },
   );
 
   const readback = value["publicationReadback"];
   if (diagnostics.object(readback, "/publicationReadback", ["kind"], ["kind"])) {
-    diagnostics.string(readback["kind"], "/publicationReadback/kind", {
+    const rbRec = readback as Record<string, unknown>;
+    diagnostics.string(rbRec["kind"], "/publicationReadback/kind", {
       constant: "producer-tag-ref/v1",
     });
   }
 
-  const rollback = value["rollback"];
-  if (
-    diagnostics.object(
-      rollback,
-      "/rollback",
-      ["disposition", "supersession"],
-      ["disposition", "supersession"],
-    )
-  ) {
-    diagnostics.string(rollback["disposition"], "/rollback/disposition", {
-      constant: "immutable-correct-forward",
-    });
-    diagnostics.string(rollback["supersession"], "/rollback/supersession", {
-      constant: "new-semver-only",
-    });
-  }
+  validateEvidenceRollback(value["rollback"], diagnostics);
 
   return finish(value as TemplateReleaseEvidence, diagnostics);
 }

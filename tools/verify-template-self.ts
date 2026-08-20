@@ -40,6 +40,7 @@ function listTextFiles(): readonly string[] {
 
 function gitBlobId(content: Uint8Array): string {
   const header = Buffer.from(`blob ${content.byteLength}\0`, "utf8");
+  // eslint-disable-next-line sonarjs/hashing -- Git blob ID calculation requires standard git SHA-1
   return createHash("sha1").update(header).update(content).digest("hex");
 }
 
@@ -62,7 +63,10 @@ const textFileSelfTestErrors = ([
   ["UTF-8", Buffer.from("portable text", "utf8"), true],
   ["NUL byte", Buffer.from([0x61, 0x00]), false],
 ] as const)
-  .filter(([, content, expected]) => !content.includes(0) !== expected)
+  .filter(([, content, expected]) => {
+    const isText = !content.includes(0);
+    return isText !== expected;
+  })
   .map(([label]) => `text-file self-test failed: ${label}`);
 
 const conflictMarkerSelfTestErrors = ([

@@ -134,6 +134,55 @@ function validateFileRows(
   return rows;
 }
 
+function validateOutputEntryOwnership(
+  role: unknown,
+  bundleId: unknown,
+  pointer: string,
+  diagnostics: Diagnostics,
+): void {
+  const generic =
+    role === "generic-base-text" || role === "generic-base-binary";
+  if (generic) {
+    if (bundleId !== null) {
+      diagnostics.add(
+        "E_BUNDLE_OWNERSHIP",
+        `${pointer}/bundleId`,
+        "generic base entries must use null bundleId",
+      );
+    }
+  } else {
+    diagnostics.string(bundleId, `${pointer}/bundleId`, {
+      min: 1,
+      max: 80,
+      pattern: BUNDLE_ID_PATTERN,
+    });
+  }
+}
+
+function validateOutputEntryEncoding(
+  role: unknown,
+  encoding: unknown,
+  pointer: string,
+  diagnostics: Diagnostics,
+): void {
+  if (
+    diagnostics.string(encoding, `${pointer}/encoding`) &&
+    encoding !== "utf-8" &&
+    encoding !== "binary"
+  ) {
+    diagnostics.add("E_ENCODING", `${pointer}/encoding`, "unsupported encoding");
+  }
+  const expectedEncoding =
+    role === "generic-base-binary" ? "binary" : "utf-8";
+  if (ENTRY_ROLES.has(String(role)) && encoding !== expectedEncoding) {
+    diagnostics.add(
+      "E_ENCODING_ROLE",
+      `${pointer}/encoding`,
+      `${String(role)} requires ${expectedEncoding}`,
+    );
+  }
+}
+
 function validateOutputEntry(
   value: unknown,
   pointer: string,
@@ -165,40 +214,42 @@ function validateOutputEntry(
   ) {
     diagnostics.add("E_ROLE", `${pointer}/role`, "unsupported payload role");
   }
-  if (
-    diagnostics.string(value["encoding"], `${pointer}/encoding`) &&
-    value["encoding"] !== "utf-8" &&
-    value["encoding"] !== "binary"
-  ) {
-    diagnostics.add("E_ENCODING", `${pointer}/encoding`, "unsupported encoding");
-  }
-  const generic =
-    value["role"] === "generic-base-text" || value["role"] === "generic-base-binary";
-  if (generic) {
-    if (value["bundleId"] !== null) {
-      diagnostics.add(
-        "E_BUNDLE_OWNERSHIP",
-        `${pointer}/bundleId`,
-        "generic base entries must use null bundleId",
+  validateOutputEntryOwnership(value["role"], value["bundleId"], pointer, diagnostics);
+  validateOutputEntryEncoding(value["role"], value["encoding"], pointer, diagnostics);
+  return pathValid ? value["path"] as string : null;
+}
+
+function validateOutputSelectedBundles(value: unknown, diagnostics: Diagnostics): void {
+  if (!diagnostics.array(value, "/selectedBundles", 0, 256)) return;
+  const keys: string[] = [];
+  (value as unknown[]).forEach((reference, index) => {
+    const pointer = `/selectedBundles/${index}`;
+    if (
+      diagnostics.object(
+        reference,
+        pointer,
+        ["id", "version", "digest"],
+        ["id", "version", "digest"],
+      )
+    ) {
+      const refRec = reference as Record<string, unknown>;
+      diagnostics.string(refRec["id"], `${pointer}/id`, {
+        min: 1,
+        max: 80,
+        pattern: BUNDLE_ID_PATTERN,
+      });
+      diagnostics.string(refRec["version"], `${pointer}/version`, {
+        min: 5,
+        max: 80,
+        pattern: SEMVER_PATTERN,
+      });
+      diagnostics.sha(refRec["digest"], `${pointer}/digest`);
+      keys.push(
+        `${String(refRec["id"])}\u0000${String(refRec["version"])}\u0000${String(refRec["digest"])}`,
       );
     }
-  } else {
-    diagnostics.string(value["bundleId"], `${pointer}/bundleId`, {
-      min: 1,
-      max: 80,
-      pattern: BUNDLE_ID_PATTERN,
-    });
-  }
-  const expectedEncoding =
-    value["role"] === "generic-base-binary" ? "binary" : "utf-8";
-  if (ENTRY_ROLES.has(String(value["role"])) && value["encoding"] !== expectedEncoding) {
-    diagnostics.add(
-      "E_ENCODING_ROLE",
-      `${pointer}/encoding`,
-      `${String(value["role"])} requires ${expectedEncoding}`,
-    );
-  }
-  return pathValid ? value["path"] as string : null;
+  });
+  assertSortedUnique(keys, "/selectedBundles", diagnostics);
 }
 
 export function validateMaterializerOutputManifestV2(
@@ -206,101 +257,109 @@ export function validateMaterializerOutputManifestV2(
 ): ValidationResult<MaterializerOutputManifest> {
   const diagnostics = new Diagnostics();
   const fields = [
-    "schemaId",
-    "schemaVersion",
-    "schemaDigest",
-    "contractId",
-    "digestAlgorithm",
-    "manifestDigest",
-    "releaseDigest",
-    "releasePayloadDigest",
-    "payloadDigestAlgorithm",
-    "outputPayloadDigest",
-    "entryCount",
-    "selectedBundles",
-    "migrationRefs",
-    "entries",
+    "schemaId", "schemaVersion", "schemaDigest", "contractId", "digestAlgorithm",
+    "manifestDigest", "releaseDigest", "releasePayloadDigest", "payloadDigestAlgorithm",
+    "outputPayloadDigest", "entryCount", "selectedBundles", "migrationRefs", "entries",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
     return finish(value as MaterializerOutputManifest, diagnostics);
   }
-  schemaIdentity(
-    value,
-    SCHEMA_IDS.materializerOutputManifest,
-    SCHEMA_DIGESTS.materializerOutputManifest,
-    diagnostics,
-  );
-  diagnostics.string(value["contractId"], "/contractId", { constant: CONTRACT_ID });
-  diagnostics.string(value["digestAlgorithm"], "/digestAlgorithm", {
-    constant: ENVELOPE_DIGEST_ALGORITHM,
-  });
-  diagnostics.sha(value["manifestDigest"], "/manifestDigest");
-  diagnostics.sha(value["releaseDigest"], "/releaseDigest");
-  diagnostics.sha(value["releasePayloadDigest"], "/releasePayloadDigest");
-  diagnostics.string(value["payloadDigestAlgorithm"], "/payloadDigestAlgorithm", {
+  const rec = value as Record<string, unknown>;
+  schemaIdentity(rec, SCHEMA_IDS.materializerOutputManifest, SCHEMA_DIGESTS.materializerOutputManifest, diagnostics);
+  diagnostics.string(rec["contractId"], "/contractId", { constant: CONTRACT_ID });
+  diagnostics.string(rec["digestAlgorithm"], "/digestAlgorithm", { constant: ENVELOPE_DIGEST_ALGORITHM });
+  diagnostics.sha(rec["manifestDigest"], "/manifestDigest");
+  diagnostics.sha(rec["releaseDigest"], "/releaseDigest");
+  diagnostics.sha(rec["releasePayloadDigest"], "/releasePayloadDigest");
+  diagnostics.string(rec["payloadDigestAlgorithm"], "/payloadDigestAlgorithm", {
     constant: PAYLOAD_DIGEST_ALGORITHM,
   });
-  diagnostics.sha(value["outputPayloadDigest"], "/outputPayloadDigest");
-  if (!Number.isInteger(value["entryCount"]) || Number(value["entryCount"]) < 1) {
+  diagnostics.sha(rec["outputPayloadDigest"], "/outputPayloadDigest");
+  if (!Number.isInteger(rec["entryCount"]) || Number(rec["entryCount"]) < 1) {
     diagnostics.add("E_COUNT", "/entryCount", "entryCount must be a positive integer");
   }
-  if (diagnostics.array(value["selectedBundles"], "/selectedBundles", 0, 256)) {
-    const keys: string[] = [];
-    value["selectedBundles"].forEach((reference, index) => {
-      const pointer = `/selectedBundles/${index}`;
-      if (
-        diagnostics.object(
-          reference,
-          pointer,
-          ["id", "version", "digest"],
-          ["id", "version", "digest"],
-        )
-      ) {
-        diagnostics.string(reference["id"], `${pointer}/id`, {
-          min: 1,
-          max: 80,
-          pattern: BUNDLE_ID_PATTERN,
-        });
-        diagnostics.string(reference["version"], `${pointer}/version`, {
-          min: 5,
-          max: 80,
-          pattern: SEMVER_PATTERN,
-        });
-        diagnostics.sha(reference["digest"], `${pointer}/digest`);
-        keys.push(
-          `${String(reference["id"])}\u0000${String(reference["version"])}\u0000${String(reference["digest"])}`,
-        );
-      }
-    });
-    assertSortedUnique(keys, "/selectedBundles", diagnostics);
-  }
-  diagnostics.array(value["migrationRefs"], "/migrationRefs", 0, 0);
+  validateOutputSelectedBundles(rec["selectedBundles"], diagnostics);
+  diagnostics.array(rec["migrationRefs"], "/migrationRefs", 0, 0);
   const paths: string[] = [];
-  if (diagnostics.array(value["entries"], "/entries", 1, 4096)) {
-    value["entries"].forEach((entry, index) => {
+  if (diagnostics.array(rec["entries"], "/entries", 1, 4096)) {
+    (rec["entries"] as unknown[]).forEach((entry, index) => {
       const rowPath = validateOutputEntry(entry, `/entries/${index}`, diagnostics);
       if (rowPath !== null) paths.push(rowPath);
     });
     assertSortedUnique(paths, "/entries", diagnostics);
   }
-  if (Number.isInteger(value["entryCount"]) && value["entryCount"] !== paths.length) {
+  if (Number.isInteger(rec["entryCount"]) && rec["entryCount"] !== paths.length) {
     diagnostics.add("E_ENTRY_COUNT", "/entryCount", "entryCount does not match entries");
   }
-  if (typeof value["manifestDigest"] === "string") {
-    const { manifestDigest: _manifestDigest, ...body } = value;
+  if (typeof rec["manifestDigest"] === "string") {
+    const { manifestDigest: _manifestDigest, ...body } = rec;
     try {
-      if (sha256CanonicalJson(body) !== value["manifestDigest"]) {
+      if (sha256CanonicalJson(body) !== rec["manifestDigest"]) {
         diagnostics.add("E_MANIFEST_DIGEST", "/manifestDigest", "manifest digest mismatch");
       }
     } catch {
-      diagnostics.add(
-        "E_CANONICAL_JSON",
-        "/manifestDigest",
-        "manifest body is not supported canonical JSON",
-      );
+      diagnostics.add("E_CANONICAL_JSON", "/manifestDigest", "manifest body is not supported canonical JSON");
     }
   }
   return finish(value as unknown as MaterializerOutputManifest, diagnostics);
+}
+
+function validateArtifactToolchain(toolchain: unknown, diagnostics: Diagnostics): void {
+  if (
+    diagnostics.object(
+      toolchain,
+      "/toolchain",
+      ["typescript", "nodeCompatibility", "packageManager"],
+      ["typescript", "nodeCompatibility", "packageManager"],
+    )
+  ) {
+    const tcRec = toolchain as Record<string, unknown>;
+    diagnostics.string(tcRec["typescript"], "/toolchain/typescript", {
+      constant: "7.0.2",
+    });
+    diagnostics.string(
+      tcRec["nodeCompatibility"],
+      "/toolchain/nodeCompatibility",
+      { constant: ">=24.16.0 <25" },
+    );
+    diagnostics.string(tcRec["packageManager"], "/toolchain/packageManager", {
+      constant: "pnpm@11.17.0",
+    });
+  }
+}
+
+function validateArtifactSchemas(schemas: unknown, diagnostics: Diagnostics): void {
+  if (!diagnostics.array(schemas, "/schemas", 9, 9)) return;
+  const rows: SchemaClosureRow[] = [];
+  (schemas as unknown[]).forEach((row, index) => {
+    const pointer = `/schemas/${index}`;
+    const schemaFields = ["id", "version", "path", "kind", "mode", "sha256", "bytes"];
+    if (!diagnostics.object(row, pointer, schemaFields, schemaFields)) return;
+    const rowRec = row as Record<string, unknown>;
+    diagnostics.string(rowRec["id"], `${pointer}/id`, {
+      min: 1,
+      max: 240,
+      pattern: /^https:\/\/schemas\.repo-template\.dev\//,
+    });
+    diagnostics.string(rowRec["version"], `${pointer}/version`, {
+      constant: CONTRACT_VERSION,
+    });
+    const fileRow = {
+      path: rowRec["path"], kind: rowRec["kind"], mode: rowRec["mode"],
+      sha256: rowRec["sha256"], bytes: rowRec["bytes"],
+    };
+    if (validateFileRow(fileRow, pointer, diagnostics)) {
+      if (rowRec["mode"] === "100755") {
+        diagnostics.add("E_MODE", `${pointer}/mode`, "schema files must use mode 100644");
+      }
+      const schemaBytes = Number(rowRec["bytes"]);
+      if (Number.isSafeInteger(schemaBytes) && (schemaBytes < 1 || schemaBytes > 1_048_576)) {
+        diagnostics.add("E_COUNT", `${pointer}/bytes`, "schema bytes must be 1-1048576");
+      }
+      rows.push(row as unknown as SchemaClosureRow);
+    }
+  });
+  assertSortedUnique(rows.map((row) => row.path), "/schemas", diagnostics);
 }
 
 export function validateArtifactManifestV2(
@@ -308,124 +367,44 @@ export function validateArtifactManifestV2(
 ): ValidationResult<ArtifactManifest> {
   const diagnostics = new Diagnostics();
   const fields = [
-    "schemaId",
-    "schemaVersion",
-    "schemaDigest",
-    "contractId",
-    "contractVersion",
-    "digestAlgorithm",
-    "manifestDigest",
-    "artifactDigestAlgorithm",
-    "artifactDigest",
-    "toolchain",
-    "entrypoint",
-    "validatorExport",
-    "runtimeDependencyCount",
-    "releaseReceiptKind",
-    "sources",
-    "schemas",
-    "emitted",
-    "fixtures",
-    "goldens",
+    "schemaId", "schemaVersion", "schemaDigest", "contractId", "contractVersion",
+    "digestAlgorithm", "manifestDigest", "artifactDigestAlgorithm", "artifactDigest",
+    "toolchain", "entrypoint", "validatorExport", "runtimeDependencyCount",
+    "releaseReceiptKind", "sources", "schemas", "emitted", "fixtures", "goldens",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
     return finish(value as ArtifactManifest, diagnostics);
   }
-  schemaIdentity(
-    value,
-    SCHEMA_IDS.artifactManifest,
-    SCHEMA_DIGESTS.artifactManifest,
-    diagnostics,
-  );
-  diagnostics.string(value["contractId"], "/contractId", { constant: CONTRACT_ID });
-  diagnostics.string(value["contractVersion"], "/contractVersion", {
-    constant: CONTRACT_VERSION,
-  });
-  diagnostics.string(value["digestAlgorithm"], "/digestAlgorithm", {
+  const rec = value as Record<string, unknown>;
+  schemaIdentity(rec, SCHEMA_IDS.artifactManifest, SCHEMA_DIGESTS.artifactManifest, diagnostics);
+  diagnostics.string(rec["contractId"], "/contractId", { constant: CONTRACT_ID });
+  diagnostics.string(rec["contractVersion"], "/contractVersion", { constant: CONTRACT_VERSION });
+  diagnostics.string(rec["digestAlgorithm"], "/digestAlgorithm", { constant: ENVELOPE_DIGEST_ALGORITHM });
+  diagnostics.sha(rec["manifestDigest"], "/manifestDigest");
+  diagnostics.string(rec["artifactDigestAlgorithm"], "/artifactDigestAlgorithm", {
     constant: ENVELOPE_DIGEST_ALGORITHM,
   });
-  diagnostics.sha(value["manifestDigest"], "/manifestDigest");
-  diagnostics.string(value["artifactDigestAlgorithm"], "/artifactDigestAlgorithm", {
-    constant: ENVELOPE_DIGEST_ALGORITHM,
-  });
-  diagnostics.sha(value["artifactDigest"], "/artifactDigest");
-  if (
-    diagnostics.object(
-      value["toolchain"],
-      "/toolchain",
-      ["typescript", "nodeCompatibility", "packageManager"],
-      ["typescript", "nodeCompatibility", "packageManager"],
-    )
-  ) {
-    diagnostics.string(value["toolchain"]["typescript"], "/toolchain/typescript", {
-      constant: "7.0.2",
-    });
-    diagnostics.string(
-      value["toolchain"]["nodeCompatibility"],
-      "/toolchain/nodeCompatibility",
-      { constant: ">=24.16.0 <25" },
-    );
-    diagnostics.string(value["toolchain"]["packageManager"], "/toolchain/packageManager", {
-      constant: "pnpm@11.17.0",
-    });
-  }
-  diagnostics.string(value["entrypoint"], "/entrypoint", { constant: "index.js" });
-  diagnostics.string(value["validatorExport"], "/validatorExport", {
-    constant: "validateMaterializerInputV2",
-  });
-  if (value["runtimeDependencyCount"] !== 0) {
+  diagnostics.sha(rec["artifactDigest"], "/artifactDigest");
+  validateArtifactToolchain(rec["toolchain"], diagnostics);
+  diagnostics.string(rec["entrypoint"], "/entrypoint", { constant: "index.js" });
+  diagnostics.string(rec["validatorExport"], "/validatorExport", { constant: "validateMaterializerInputV2" });
+  if (rec["runtimeDependencyCount"] !== 0) {
     diagnostics.add("E_CONST", "/runtimeDependencyCount", "must equal 0");
   }
-  diagnostics.string(value["releaseReceiptKind"], "/releaseReceiptKind", {
-    constant: RELEASE_RECEIPT_KIND,
-  });
-  validateFileRows(value["sources"], "/sources", diagnostics);
-  validateFileRows(value["emitted"], "/emitted", diagnostics);
-  validateFileRows(value["fixtures"], "/fixtures", diagnostics);
-  validateFileRows(value["goldens"], "/goldens", diagnostics);
-  if (diagnostics.array(value["schemas"], "/schemas", 9, 9)) {
-    const rows: SchemaClosureRow[] = [];
-    value["schemas"].forEach((row, index) => {
-      const pointer = `/schemas/${index}`;
-      const schemaFields = ["id", "version", "path", "kind", "mode", "sha256", "bytes"];
-      if (!diagnostics.object(row, pointer, schemaFields, schemaFields)) return;
-      diagnostics.string(row["id"], `${pointer}/id`, {
-        min: 1,
-        max: 240,
-        pattern: /^https:\/\/schemas\.repo-template\.dev\//,
-      });
-      diagnostics.string(row["version"], `${pointer}/version`, {
-        constant: CONTRACT_VERSION,
-      });
-      const fileRow = {
-        path: row["path"], kind: row["kind"], mode: row["mode"],
-        sha256: row["sha256"], bytes: row["bytes"],
-      };
-      if (validateFileRow(fileRow, pointer, diagnostics)) {
-        if (row["mode"] === "100755") {
-          diagnostics.add("E_MODE", `${pointer}/mode`, "schema files must use mode 100644");
-        }
-        const schemaBytes = Number(row["bytes"]);
-        if (Number.isSafeInteger(schemaBytes) && (schemaBytes < 1 || schemaBytes > 1_048_576)) {
-          diagnostics.add("E_COUNT", `${pointer}/bytes`, "schema bytes must be 1-1048576");
-        }
-        rows.push(row as unknown as SchemaClosureRow);
-      }
-    });
-    assertSortedUnique(rows.map((row) => row.path), "/schemas", diagnostics);
-  }
-  if (typeof value["manifestDigest"] === "string") {
-    const { manifestDigest: _manifestDigest, ...body } = value;
+  diagnostics.string(rec["releaseReceiptKind"], "/releaseReceiptKind", { constant: RELEASE_RECEIPT_KIND });
+  validateFileRows(rec["sources"], "/sources", diagnostics);
+  validateFileRows(rec["emitted"], "/emitted", diagnostics);
+  validateFileRows(rec["fixtures"], "/fixtures", diagnostics);
+  validateFileRows(rec["goldens"], "/goldens", diagnostics);
+  validateArtifactSchemas(rec["schemas"], diagnostics);
+  if (typeof rec["manifestDigest"] === "string") {
+    const { manifestDigest: _manifestDigest, ...body } = rec;
     try {
-      if (sha256CanonicalJson(body) !== value["manifestDigest"]) {
+      if (sha256CanonicalJson(body) !== rec["manifestDigest"]) {
         diagnostics.add("E_MANIFEST_DIGEST", "/manifestDigest", "manifest digest mismatch");
       }
     } catch {
-      diagnostics.add(
-        "E_CANONICAL_JSON",
-        "/manifestDigest",
-        "manifest body is not supported canonical JSON",
-      );
+      diagnostics.add("E_CANONICAL_JSON", "/manifestDigest", "manifest body is not supported canonical JSON");
     }
   }
   return finish(value as unknown as ArtifactManifest, diagnostics);

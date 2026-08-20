@@ -51,19 +51,19 @@ export const DELIVERY_COVERAGE_ERRORS = [
   "unattributed-token-usage",
 ] as const;
 
-export interface DeliveryEventV1 extends Readonly<{
-  schemaId: typeof SCHEMA_IDS.deliveryEvent;
-  schemaVersion: typeof CONTRACT_VERSION;
-  schemaDigest: string;
-  contractId: typeof DELIVERY_MEASUREMENT_CONTRACT_ID;
-  eventKind: "repo-template/delivery-event/v1";
-  eventId: string;
-  workId: string;
-  repoRef: string;
-  planeRef: string;
-  fleetRef: string;
-  recordedAt: string;
-  tokenUsage: readonly Readonly<{
+export interface DeliveryEventV1 {
+  readonly schemaId: typeof SCHEMA_IDS.deliveryEvent;
+  readonly schemaVersion: typeof CONTRACT_VERSION;
+  readonly schemaDigest: string;
+  readonly contractId: typeof DELIVERY_MEASUREMENT_CONTRACT_ID;
+  readonly eventKind: "repo-template/delivery-event/v1";
+  readonly eventId: string;
+  readonly workId: string;
+  readonly repoRef: string;
+  readonly planeRef: string;
+  readonly fleetRef: string;
+  readonly recordedAt: string;
+  readonly tokenUsage: readonly Readonly<{
     attributionId: string;
     stage: (typeof DELIVERY_STAGES)[number];
     provider: string;
@@ -72,7 +72,7 @@ export interface DeliveryEventV1 extends Readonly<{
     outputTokens: number;
     totalTokens: number;
   }>[];
-  outcome: Readonly<{
+  readonly outcome: Readonly<{
     outcomeId: string;
     status: "landed" | "non-delivery";
     receiptRef: string;
@@ -85,32 +85,32 @@ export interface DeliveryEventV1 extends Readonly<{
     }>[];
     activityRefs: readonly string[];
   }>;
-  sloDeltas: readonly Readonly<{
+  readonly sloDeltas: readonly Readonly<{
     sloRef: string;
     measuredDelta: number;
     verified: boolean;
     verificationRef: string | null;
   }>[];
-  humanMessages: readonly Readonly<{
+  readonly humanMessages: readonly Readonly<{
     messageId: string;
     kind: "approve" | "correct" | "decide" | "unblock";
     primaryWorkId: string;
     relatedRefs: readonly string[];
   }>[];
-  coverage: Readonly<{
+  readonly coverage: Readonly<{
     complete: boolean;
     errors: readonly (typeof DELIVERY_COVERAGE_ERRORS)[number][];
   }>;
-}> {}
+}
 
-export interface DeliveryDeclarationV1 extends Readonly<{
-  schemaId: typeof SCHEMA_IDS.deliveryDeclaration;
-  schemaVersion: typeof CONTRACT_VERSION;
-  schemaDigest: string;
-  contractId: typeof DELIVERY_MEASUREMENT_CONTRACT_ID;
-  declarationKind: "repo-template/delivery-declaration/v1";
-  classificationGeneration: string;
-  repoBinding: Readonly<{
+export interface DeliveryDeclarationV1 {
+  readonly schemaId: typeof SCHEMA_IDS.deliveryDeclaration;
+  readonly schemaVersion: typeof CONTRACT_VERSION;
+  readonly schemaDigest: string;
+  readonly contractId: typeof DELIVERY_MEASUREMENT_CONTRACT_ID;
+  readonly declarationKind: "repo-template/delivery-declaration/v1";
+  readonly classificationGeneration: string;
+  readonly repoBinding: Readonly<{
     repoRef: string;
     planeRef: string;
     fleetRef: string;
@@ -118,20 +118,20 @@ export interface DeliveryDeclarationV1 extends Readonly<{
     registryDigest: string;
     centralRollupRef: string;
   }>;
-  meaningfulClasses: readonly Readonly<{
+  readonly meaningfulClasses: readonly Readonly<{
     classId: string;
     description: string;
     evidenceKinds: readonly (typeof DELIVERY_EVIDENCE_KINDS)[number][];
     aggregationMode: "segmented" | "weighted";
     weight: number | null;
   }>[];
-  antiGamingExclusions: typeof DELIVERY_ANTI_GAMING_EXCLUSIONS;
-  tokenAttribution: Readonly<{
+  readonly antiGamingExclusions: typeof DELIVERY_ANTI_GAMING_EXCLUSIONS;
+  readonly tokenAttribution: Readonly<{
     stages: typeof DELIVERY_STAGES;
     requireComplete: true;
     unattributedPolicy: "visible-coverage-error-in-totals";
   }>;
-  slis: readonly Readonly<{
+  readonly slis: readonly Readonly<{
     id: (typeof DELIVERY_SLI_IDS)[number];
     scopes: readonly ["fleet", "plane", "repo"];
     targetRef: string;
@@ -141,10 +141,10 @@ export interface DeliveryDeclarationV1 extends Readonly<{
     revisitTrigger: string;
     centralRollupRef: string;
   }>[];
-  eventCapture: Readonly<{
+  readonly eventCapture: Readonly<{
     appendOnly: true;
     eventKind: "repo-template/delivery-event/v1";
     coverageErrorPolicy: "visible-non-blocking";
     requiredCoverage: typeof DELIVERY_COVERAGE_FIELDS;
   }>;
-}> {}
+}
