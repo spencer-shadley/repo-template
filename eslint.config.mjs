@@ -1,12 +1,15 @@
 /**
  * Starter ESLint flat config for template-bootstrapped repos.
- * Requires the fleet quality gate (eslint.quality.mjs).
+ * Depend on the fleet quality kit; do not copy its factory into this repository.
  *
- * Copy alongside eslint.quality.mjs. Adjust ignores/globals for your stack.
+ * Adjust ignores/globals for your stack.
  * Grandfather existing debt: `pnpm exec eslint . --suppress-all`
  */
-import globals from "globals";
-import { DEFAULT_FLEET_IGNORES, qualityRules } from "./eslint.quality.mjs";
+import {
+  DEFAULT_FLEET_GLOBALS,
+  DEFAULT_FLEET_IGNORES,
+  qualityRules,
+} from "@spencer-shadley/repo-quality";
 
 export default [
   {
@@ -21,8 +24,7 @@ export default [
     files: ["**/*.{js,mjs,cjs,ts,tsx}"],
     languageOptions: {
       globals: {
-        ...globals.node,
-        ...globals.browser,
+        ...DEFAULT_FLEET_GLOBALS,
       },
     },
   },

@@ -23,6 +23,7 @@
     "verify:proof-of-detection": "node scripts/proof-of-detection/run-meta-gate.ts --self-test"
   },
   "devDependencies": {
+    "@spencer-shadley/repo-quality": "workspace:*",
     "@types/node": "24.13.3",
     "ajv": "8.17.1",
     "ajv-formats": "3.0.1",

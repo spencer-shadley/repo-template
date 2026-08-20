@@ -55,7 +55,11 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 
-- **Required quality lint bootstrap** (`eslint.quality.mjs`, starter `eslint.config.mjs`, `docs/QUALITY-LINT.md`, `scripts/verify-quality-lint-required.mjs`): max-lines 500, complexity ceilings, typescript-eslint strict/stylistic, sonarjs, unicorn, exhaustive core rules. Template `verify:self` fails if quality lint artifacts are missing. Materialized via template-manifest copy.
+- **Git-consumable `@spencer-shadley/repo-quality` kit** (`packages/repo-quality/`): the exact
+  quality-rule factory and its ESLint dependencies now have one source of truth; the copied root
+  `eslint.quality.mjs` is gone. Template configs import the kit, documentation records the Git
+  dependency, and the presence gate rejects consumer factory copies. Consumers MUST migrate before
+  taking this structural MAJOR change; new adopters SHOULD depend on the kit. Refs #147. MAJOR.
 
 ### Added
 

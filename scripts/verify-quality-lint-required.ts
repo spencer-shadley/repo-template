@@ -22,22 +22,19 @@ function read(filePath: string): string {
   return readFileSync(filePath, "utf8");
 }
 
-const qualityPath = join(root, "eslint.quality.mjs");
-if (!existsSync(qualityPath)) {
-  errors.push("missing eslint.quality.mjs (copy from repo-template; docs/QUALITY-LINT.md)");
-} else {
-  const body = read(qualityPath);
-  if (!body.includes("export function qualityRules") && !body.includes("qualityRules")) {
-    errors.push("eslint.quality.mjs does not export qualityRules()");
-  }
-  if (!body.includes("max-lines") && !body.includes("maxLines")) {
-    errors.push("eslint.quality.mjs missing max-lines / small-file ceilings");
-  }
-  if (!body.includes("prefer-typescript") && !body.includes("preferTypeScriptRule")) {
-    errors.push("eslint.quality.mjs missing fleet/prefer-typescript rule");
-  }
-  if (!body.includes("QUALITY_LINT_GATE_ID") && !body.includes("repo-template/quality-lint")) {
-    // soft: older copies ok if qualityRules present
+const kitName = "@spencer-shadley/repo-quality";
+const localFactoryPath = join(root, "eslint.quality.mjs");
+const templateRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const kitRoot = join(templateRoot, "packages", "repo-quality");
+const isKitPackage = root === kitRoot;
+const isTemplateRepository = root === templateRoot;
+
+if (!isKitPackage && existsSync(localFactoryPath)) {
+  const body = read(localFactoryPath);
+  if (body.includes("export function qualityRules")) {
+    errors.push(
+      "local eslint.quality.mjs exports qualityRules(); depend on @spencer-shadley/repo-quality instead of copying the factory",
+    );
   }
 }
 
@@ -50,13 +47,13 @@ const configCandidates = [
 const configPath = configCandidates.map((n) => join(root, n)).find((p) => existsSync(p));
 if (!configPath) {
   errors.push(
-    "missing eslint.config.mjs (or .js) that imports qualityRules from ./eslint.quality.mjs",
+    `missing eslint.config.mjs (or .js) that imports qualityRules from ${kitName}`,
   );
 } else {
   const cfg = read(configPath);
-  if (!cfg.includes("qualityRules") || !cfg.includes("eslint.quality")) {
+  if (!cfg.includes("qualityRules") || !cfg.includes(kitName)) {
     errors.push(
-      `${configPath.replace(root + "\\", "").replace(root + "/", "")} must import and spread qualityRules() from eslint.quality.mjs`,
+      `${configPath.replace(root + "\\", "").replace(root + "/", "")} must import and spread qualityRules() from ${kitName}`,
     );
   }
 }
@@ -84,21 +81,37 @@ if (!existsSync(pkgPath)) {
     );
   }
   const dev = { ...(pkg.devDependencies || {}), ...(pkg.dependencies || {}) };
-  const need = ["eslint", "eslint-plugin-sonarjs", "eslint-plugin-unicorn"];
-  for (const dep of need) {
-    if (!dev[dep]) {
-      errors.push(`missing devDependency ${dep} (see docs/QUALITY-LINT.md)`);
-    }
+  const kitDependency = dev[kitName];
+  if (!kitDependency) {
+    errors.push(`missing dependency ${kitName} (see docs/QUALITY-LINT.md)`);
+  } else if (kitDependency === "workspace:*" && !isTemplateRepository) {
+    errors.push(`${kitName} may use workspace:* only in the repo-template workspace`);
   }
 }
 
 if (process.argv.includes("--self-test")) {
-  // In-template: quality files must exist for the gate to be shippable
-  if (!existsSync(qualityPath)) {
-    console.error("verify-quality-lint-required self-test: eslint.quality.mjs must ship in template");
+  const kitPackagePath = join(kitRoot, "package.json");
+  const templateConfigPath = join(templateRoot, "eslint.config.mjs");
+  const selfTestErrors = [
+    !existsSync(kitPackagePath)
+      ? "packages/repo-quality/package.json must ship in template"
+      : undefined,
+    !existsSync(join(kitRoot, "index.mjs"))
+      ? "packages/repo-quality/index.mjs must ship in template"
+      : undefined,
+    !existsSync(templateConfigPath) || !read(templateConfigPath).includes(kitName)
+      ? `eslint.config.mjs must import from ${kitName}`
+      : undefined,
+    existsSync(join(templateRoot, "eslint.quality.mjs"))
+      ? "template root must not ship a copied eslint.quality.mjs factory"
+      : undefined,
+  ].filter((error): error is string => error !== undefined);
+  if (selfTestErrors.length > 0) {
+    console.error("verify-quality-lint-required self-test: FAIL");
+    for (const error of selfTestErrors) console.error(`  - ${error}`);
     process.exit(2);
   }
-  console.log("verify-quality-lint-required: self-test ok (artifact present)");
+  console.log("verify-quality-lint-required: self-test ok (kit package + config import present)");
   process.exit(0);
 }
 

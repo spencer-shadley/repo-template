@@ -362,7 +362,6 @@ const multiInput = input(
 const qualityLintArtifacts = [
   "docs/QUALITY-LINT.md",
   "eslint.config.mjs",
-  "eslint.quality.mjs",
   "scripts/verify-quality-lint-required.ts",
 ];
 const qualityLintBundle = bundle({
@@ -375,14 +374,14 @@ const qualityLintBundle = bundle({
   modes: [
     {
       id: "config",
-      entrypoint: "eslint.quality.mjs",
+      entrypoint: "eslint.config.mjs",
       requiredPaths: qualityLintArtifacts,
     },
     {
       id: "presence",
       entrypoint: "scripts/verify-quality-lint-required.ts",
       requiredPaths: [
-        "eslint.quality.mjs",
+        "eslint.config.mjs",
         "scripts/verify-quality-lint-required.ts",
       ],
     },

@@ -68,7 +68,6 @@ const PORTABLE_CAPABILITY_PATHS = [
 const QUALITY_LINT_ARTIFACT_PATHS = [
   "docs/QUALITY-LINT.md",
   "eslint.config.mjs",
-  "eslint.quality.mjs",
   "scripts/verify-quality-lint-required.ts",
 ] as const;
 const PLAN_RECORD_ARTIFACT_PATHS = [
@@ -505,6 +504,7 @@ function verifyPackage(): void {
     fs.readFileSync(path.join(root, "package.json"), "utf8"),
   ) as Record<string, unknown>;
   const expectedDev = {
+    "@spencer-shadley/repo-quality": "workspace:*",
     "@types/node": "24.13.3",
     ajv: "8.17.1",
     "ajv-formats": "3.0.1",
@@ -546,6 +546,16 @@ function verifyTemplateCapabilityClosure(): void {
         `user-surface-lint materialized closure must be copy: ${relativePath}`,
       );
     }
+  }
+  for (const relativePath of QUALITY_LINT_ARTIFACT_PATHS) {
+    if (templateManifest[relativePath] !== "copy") {
+      throw new Error(
+        `quality-lint materialized closure must be copy: ${relativePath}`,
+      );
+    }
+  }
+  if (templateManifest["eslint.quality.mjs"] !== undefined) {
+    throw new Error("quality-lint factory must not be materialized from template root");
   }
 }
 

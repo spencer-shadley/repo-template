@@ -100,6 +100,7 @@ const candidateFiles = git("ls-files", "--cached", "--others", "--exclude-standa
 const missing = candidateFiles.filter(
   (file) =>
     !file.startsWith(".ops/archive/") &&
+    !file.startsWith(".ops/receipts/") &&
     !file.startsWith("plans/") &&
     manifest[file] === undefined,
 );

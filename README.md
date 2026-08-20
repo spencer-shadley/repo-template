@@ -77,4 +77,4 @@ globs to the files that contain those strings, then run
 
 ## Quality lint (required)
 
-See [docs/QUALITY-LINT.md](./docs/QUALITY-LINT.md). Bootstrap without slint.quality.mjs + wired slint verify is incomplete.
+See [docs/QUALITY-LINT.md](./docs/QUALITY-LINT.md). Bootstrap without `@spencer-shadley/repo-quality` + wired lint verify is incomplete.

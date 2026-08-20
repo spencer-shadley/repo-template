@@ -7,18 +7,19 @@ are not optional style preference — they are the parallel-land and agent-maint
 
 | Path | Role |
 |------|------|
-| `eslint.quality.mjs` | Factory: `qualityRules()` — max-lines 500, complexity, sonarjs, unicorn, exhaustive core rules |
-| `eslint.config.mjs` (or `.js`) | Flat config that **imports and spreads** `qualityRules()` |
+| `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()` — max-lines 500, complexity, sonarjs, unicorn, exhaustive core rules |
+| `eslint.config.mjs` (or `.js`) | Flat config that **imports and spreads** `qualityRules()` from the kit |
 | `package.json` scripts | `"lint": "eslint ."` (or equivalent) and **`verify` must run lint** |
 | `eslint-suppressions.json` | Optional baseline from `eslint . --suppress-all` for grandfathered debt |
 
-## Required dependencies (dev)
+## Required dependency (dev)
 
-```text
-eslint @eslint/js globals typescript-eslint eslint-plugin-sonarjs eslint-plugin-unicorn
+```json
+"@spencer-shadley/repo-quality": "github:spencer-shadley/repo-template#path:packages/repo-quality"
 ```
 
-(JS-only repos may call `qualityRules({ typescript: false })` and drop `typescript-eslint`.)
+The kit owns ESLint, `@eslint/js`, `globals`, `typescript-eslint`, sonarjs, and unicorn. JS-only
+repos may call `qualityRules({ typescript: false })`.
 
 ## Defaults (exhaustive)
 
@@ -41,8 +42,8 @@ Tests (`*.test.*`, `e2e/`, `fixtures/`) turn off size/complexity caps.
 
 ## Bootstrap checklist
 
-1. Copy `eslint.quality.mjs` + `eslint.config.mjs` from this template (repo-template root).
-2. Install devDependencies listed above.
+1. Add the Git dependency above (pin to a reviewed template commit or release tag in production).
+2. Copy only the thin `eslint.config.mjs` from this template and retain its kit import.
 3. Add scripts:
    ```json
    "lint": "eslint .",
@@ -76,8 +77,10 @@ This is the standard path for adding stricter repo rules via linter: **gate firs
 
 ## Presence gate
 
-`node scripts/verify-quality-lint-required.ts` fails closed when quality lint is missing or not wired.
-Template self-verify and consumer bootstrap should run this.
+`node scripts/verify-quality-lint-required.ts` fails closed when the kit dependency or its config
+import is missing, and when a consumer vendors a local `eslint.quality.mjs` factory. Template
+self-verify proves the kit package and the thin config import are present. Template consumers SHOULD
+migrate from copied factories to the Git dependency before adopting this structural MAJOR change.
 
 ## Relationship to user-surface lint
 
@@ -90,5 +93,5 @@ Both are required for a complete bootstrap. Neither substitutes for the other.
 
 ## History
 
-- Intended fleet-wide via AO `initiatives/workspace-lint-default.md` and adopt-project `eslint.quality.mjs`.
-- Proven in **task-dag**; missing from template materialization until quality-lint capability landed.
+- Intended fleet-wide via AO `initiatives/workspace-lint-default.md` and the repo-quality kit.
+- Proven in **task-dag**; the factory now has one Git-consumable source of truth instead of copies.
