@@ -26,12 +26,32 @@ function disablesNoInlineConfig(config: string): boolean {
   return /\bnoInlineConfig\s*:\s*false\b/.test(config);
 }
 
+function hasTrackedIssue(text: string): boolean {
+  return /https:\/\/github\.com\/[^\s/]+\/[^\s/]+\/issues\/\d+/.test(text);
+}
+
 const kitName = "@spencer-shadley/repo-quality";
+const kitKnipPath = `${kitName}/knip.mjs`;
 const localFactoryPath = join(root, "eslint.quality.mjs");
 const templateRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const kitRoot = join(templateRoot, "packages", "repo-quality");
 const isKitPackage = root === kitRoot;
 const isTemplateRepository = root === templateRoot;
+
+const localKnipConfigPath = join(root, "knip.json");
+if (!isKitPackage && existsSync(localKnipConfigPath)) {
+  const localKnipConfig = read(localKnipConfigPath);
+  const cyclesMatch = localKnipConfig.match(/"cycles"\s*:\s*"([^"]+)"/);
+  if (cyclesMatch?.[1] === "error") {
+    errors.push(
+      "knip.json copies the cycles policy; invoke the repo-quality Knip wrapper instead of vendoring kit policy",
+    );
+  } else if (cyclesMatch && !hasTrackedIssue(localKnipConfig)) {
+    errors.push(
+      "knip.json changes rules.cycles without a tracked GitHub issue URL; the repo-quality wrapper requires cycles:error",
+    );
+  }
+}
 
 if (!isKitPackage && existsSync(localFactoryPath)) {
   const body = read(localFactoryPath);
@@ -79,6 +99,8 @@ if (!existsSync(pkgPath)) {
   const scripts = pkg.scripts || {};
   const lintScript = String(scripts["lint"] || "");
   const verifyScript = String(scripts["verify"] || scripts["verify:self"] || "");
+  const verifySelfScript = String(scripts["verify:self"] || "");
+  const knipScript = String(scripts["knip"] || "");
   if (!lintScript.includes("eslint") && !verifyScript.includes("eslint")) {
     errors.push(
       'package.json scripts must run eslint (e.g. "lint": "eslint ." and verify must call lint)',
@@ -88,6 +110,17 @@ if (!existsSync(pkgPath)) {
     errors.push(
       "package.json verify (or verify:self) should run lint so quality gate is land-blocking",
     );
+  }
+  if (!knipScript.includes(kitKnipPath)) {
+    errors.push(
+      `package.json "knip" must invoke ${kitKnipPath}; the kit wrapper runs both knip and knip --strict`,
+    );
+  }
+  if (!verifyScript.includes("knip")) {
+    errors.push("package.json verify must run the kit Knip wrapper");
+  }
+  if (isTemplateRepository && !verifySelfScript.includes("knip")) {
+    errors.push("template package.json verify:self must run the kit Knip wrapper");
   }
   const dev = { ...(pkg.devDependencies || {}), ...(pkg.dependencies || {}) };
   const kitDependency = dev[kitName];
@@ -108,6 +141,9 @@ if (process.argv.includes("--self-test")) {
     !existsSync(join(kitRoot, "index.mjs"))
       ? "packages/repo-quality/index.mjs must ship in template"
       : undefined,
+    !existsSync(join(kitRoot, "knip.mjs")) || !existsSync(join(kitRoot, "knip.json"))
+      ? "packages/repo-quality must ship the Knip wrapper and config"
+      : undefined,
     !existsSync(templateConfigPath) || !read(templateConfigPath).includes(kitName)
       ? `eslint.config.mjs must import from ${kitName}`
       : undefined,
@@ -123,7 +159,7 @@ if (process.argv.includes("--self-test")) {
     for (const error of selfTestErrors) console.error(`  - ${error}`);
     process.exit(2);
   }
-  console.log("verify-quality-lint-required: self-test ok (kit package + config import present)");
+  console.log("verify-quality-lint-required: self-test ok (kit ESLint + Knip paths present)");
   process.exit(0);
 }
 

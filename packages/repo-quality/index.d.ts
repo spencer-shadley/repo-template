@@ -2,6 +2,8 @@ export const STACK_WAIVER_PATTERN: RegExp;
 export const ESLINT_INLINE_CONFIG_PATTERN: RegExp;
 export const ISSUE_TRACKING_PATTERN: RegExp;
 export const JS_FILE_PATTERN: RegExp;
+export const KNIP_CONFIG: Readonly<{ readonly rules: Readonly<{ readonly cycles: "error" }> }>;
+export function knipConfig(): { rules: { cycles: "error" } };
 export const preferTypeScriptRule: any;
 export const noEslintInlineConfigRule: any;
 export const fleetPlugin: any;

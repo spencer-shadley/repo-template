@@ -47,6 +47,20 @@ export const ISSUE_TRACKING_PATTERN =
 
 export const JS_FILE_PATTERN = /\.([mc]?js|jsx)$/i;
 
+/** Knip policy shared by every TypeScript/JavaScript consumer. */
+export const KNIP_CONFIG = Object.freeze({
+  rules: Object.freeze({
+    cycles: "error",
+  }),
+});
+
+/** Return a mutable config copy for tooling that imports rather than reads knip.json. */
+export function knipConfig() {
+  return {
+    rules: { ...KNIP_CONFIG.rules },
+  };
+}
+
 /**
  * Custom rule: fleet/prefer-typescript
  * Enforces that authored source files must be TypeScript (.ts / .tsx) per the
