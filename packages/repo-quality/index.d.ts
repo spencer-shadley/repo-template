@@ -1,8 +1,9 @@
 export const STACK_WAIVER_PATTERN: RegExp;
-export const ESLINT_DISABLE_PATTERN: RegExp;
+export const ESLINT_INLINE_CONFIG_PATTERN: RegExp;
 export const ISSUE_TRACKING_PATTERN: RegExp;
 export const JS_FILE_PATTERN: RegExp;
 export const preferTypeScriptRule: any;
+export const noEslintInlineConfigRule: any;
 export const fleetPlugin: any;
 export const DEFAULT_FLEET_IGNORES: readonly string[];
 export const DEFAULT_FLEET_GLOBALS: Readonly<Record<string, boolean>>;

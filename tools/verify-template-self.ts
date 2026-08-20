@@ -40,7 +40,6 @@ function listTextFiles(): readonly string[] {
 
 function gitBlobId(content: Uint8Array): string {
   const header = Buffer.from(`blob ${content.byteLength}\0`, "utf8");
-  // eslint-disable-next-line sonarjs/hashing -- Git blob ID calculation requires standard git SHA-1
   return createHash("sha1").update(header).update(content).digest("hex");
 }
 

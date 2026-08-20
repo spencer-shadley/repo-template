@@ -608,7 +608,7 @@
   },
   "packages/repo-quality/index.d.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 4
+      "count": 5
     }
   },
   "packages/repo-quality/index.mjs": {
@@ -664,10 +664,13 @@
       "count": 3
     },
     "@typescript-eslint/no-unsafe-call": {
-      "count": 2
+      "count": 3
     },
     "@typescript-eslint/no-unsafe-member-access": {
-      "count": 2
+      "count": 3
+    },
+    "sonarjs/todo-tag": {
+      "count": 1
     }
   },
   "scripts/check-runtime-artifact-registry.ts": {
@@ -860,6 +863,9 @@
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
+    },
+    "sonarjs/hashing": {
+      "count": 1
     },
     "unicorn/no-array-sort": {
       "count": 2
