@@ -209,7 +209,7 @@ test("identity, transport, authority fields, ordering, and digest fail closed", 
   }
 
   const unsorted = clone(fixture()) as unknown as {
-    capabilityBundles: Array<{ id: string; version: string; digest: string }>;
+    capabilityBundles: { id: string; version: string; digest: string }[];
   };
   const first = unsorted.capabilityBundles[0];
   assert.ok(first);

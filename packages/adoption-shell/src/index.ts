@@ -33,7 +33,6 @@ export type {
   ReleasePayloadSet,
   SchemaClosureRow,
   SchemaIdentity,
-  Sha256,
   TemplateReleasePublicationState,
   TemplateReleaseClosure,
   TemplateReleaseCandidateInput,

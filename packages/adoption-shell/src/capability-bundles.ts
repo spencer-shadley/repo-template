@@ -99,105 +99,94 @@ function validatePaths(
   return paths;
 }
 
+function validateBundleModes(
+  value: unknown,
+  pointer: string,
+  diagnostics: Diagnostics,
+): void {
+  if (!diagnostics.array(value, `${pointer}/modes`, 0, 64)) return;
+  const modeIds: string[] = [];
+  (value as unknown[]).forEach((mode, index) => {
+    const modePointer = `${pointer}/modes/${index}`;
+    if (
+      !diagnostics.object(
+        mode,
+        modePointer,
+        ["id", "entrypoint", "requiredPaths"],
+        ["id", "entrypoint", "requiredPaths"],
+      )
+    ) {
+      return;
+    }
+    const modeRec = mode as Record<string, unknown>;
+    if (
+      diagnostics.string(modeRec["id"], `${modePointer}/id`, {
+        min: 1,
+        max: 40,
+        pattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      })
+    ) {
+      modeIds.push(modeRec["id"] as string);
+    }
+    validatePath(modeRec["entrypoint"], `${modePointer}/entrypoint`, diagnostics);
+    validatePaths(modeRec["requiredPaths"], `${modePointer}/requiredPaths`, diagnostics);
+  });
+  assertSortedUnique(modeIds, `${pointer}/modes`, diagnostics);
+}
+
+function validateBundleDigest(
+  value: Record<string, unknown>,
+  pointer: string,
+  diagnostics: Diagnostics,
+): void {
+  if (typeof value["digest"] !== "string") return;
+  const { digest: _digest, ...body } = value;
+  try {
+    if (sha256CanonicalJson(body) !== value["digest"]) {
+      diagnostics.add("E_BUNDLE_DIGEST", `${pointer}/digest`, "bundle digest mismatch");
+    }
+  } catch {
+    diagnostics.add(
+      "E_CANONICAL_JSON",
+      `${pointer}/digest`,
+      "bundle body is not supported canonical JSON",
+    );
+  }
+}
+
 function validateBundle(
   value: unknown,
   pointer: string,
   diagnostics: Diagnostics,
 ): value is CapabilityBundle {
   const fields = [
-    "id",
-    "version",
-    "digestAlgorithm",
-    "digest",
-    "dependencies",
-    "artifacts",
-    "fixtures",
-    "goldens",
-    "modes",
+    "id", "version", "digestAlgorithm", "digest",
+    "dependencies", "artifacts", "fixtures", "goldens", "modes",
   ];
   if (!diagnostics.object(value, pointer, fields, fields)) return false;
-  diagnostics.string(value["id"], `${pointer}/id`, {
-    min: 1,
-    max: 80,
-    pattern: BUNDLE_ID_PATTERN,
-  });
-  diagnostics.string(value["version"], `${pointer}/version`, {
-    min: 5,
-    max: 80,
-    pattern: SEMVER_PATTERN,
-  });
-  diagnostics.string(value["digestAlgorithm"], `${pointer}/digestAlgorithm`, {
+  const rec = value as Record<string, unknown>;
+  diagnostics.string(rec["id"], `${pointer}/id`, { min: 1, max: 80, pattern: BUNDLE_ID_PATTERN });
+  diagnostics.string(rec["version"], `${pointer}/version`, { min: 5, max: 80, pattern: SEMVER_PATTERN });
+  diagnostics.string(rec["digestAlgorithm"], `${pointer}/digestAlgorithm`, {
     constant: ENVELOPE_DIGEST_ALGORITHM,
   });
-  diagnostics.sha(value["digest"], `${pointer}/digest`);
-  if (diagnostics.array(value["dependencies"], `${pointer}/dependencies`, 0, 128)) {
+  diagnostics.sha(rec["digest"], `${pointer}/digest`);
+  if (diagnostics.array(rec["dependencies"], `${pointer}/dependencies`, 0, 128)) {
     const keys: string[] = [];
-    value["dependencies"].forEach((dependency, index) => {
+    (rec["dependencies"] as unknown[]).forEach((dependency, index) => {
       if (validateReference(dependency, `${pointer}/dependencies/${index}`, diagnostics)) {
-        keys.push(`${dependency.id}\u0000${dependency.version}\u0000${dependency.digest}`);
+        keys.push(`${(dependency as BundleReference).id}\u0000${(dependency as BundleReference).version}\u0000${(dependency as BundleReference).digest}`);
       }
     });
     assertSortedUnique(keys, `${pointer}/dependencies`, diagnostics);
   }
-  const artifacts = validatePaths(
-    value["artifacts"],
-    `${pointer}/artifacts`,
-    diagnostics,
-  );
-  const fixtures = validatePaths(
-    value["fixtures"],
-    `${pointer}/fixtures`,
-    diagnostics,
-  );
-  const goldens = validatePaths(
-    value["goldens"],
-    `${pointer}/goldens`,
-    diagnostics,
-  );
+  const artifacts = validatePaths(rec["artifacts"], `${pointer}/artifacts`, diagnostics);
+  const fixtures = validatePaths(rec["fixtures"], `${pointer}/fixtures`, diagnostics);
+  const goldens = validatePaths(rec["goldens"], `${pointer}/goldens`, diagnostics);
   const classifiedPaths = [...artifacts, ...fixtures, ...goldens].sort();
   assertSortedUnique(classifiedPaths, `${pointer}/closure`, diagnostics);
-  if (diagnostics.array(value["modes"], `${pointer}/modes`, 0, 64)) {
-    const modeIds: string[] = [];
-    value["modes"].forEach((mode, index) => {
-      const modePointer = `${pointer}/modes/${index}`;
-      if (
-        !diagnostics.object(
-          mode,
-          modePointer,
-          ["id", "entrypoint", "requiredPaths"],
-          ["id", "entrypoint", "requiredPaths"],
-        )
-      ) {
-        return;
-      }
-      if (
-        diagnostics.string(mode["id"], `${modePointer}/id`, {
-          min: 1,
-          max: 40,
-          pattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-        })
-      ) {
-        modeIds.push(mode["id"]);
-      }
-      validatePath(mode["entrypoint"], `${modePointer}/entrypoint`, diagnostics);
-      validatePaths(mode["requiredPaths"], `${modePointer}/requiredPaths`, diagnostics);
-    });
-    assertSortedUnique(modeIds, `${pointer}/modes`, diagnostics);
-  }
-  if (typeof value["digest"] === "string") {
-    const { digest: _digest, ...body } = value;
-    try {
-      if (sha256CanonicalJson(body) !== value["digest"]) {
-        diagnostics.add("E_BUNDLE_DIGEST", `${pointer}/digest`, "bundle digest mismatch");
-      }
-    } catch {
-      diagnostics.add(
-        "E_CANONICAL_JSON",
-        `${pointer}/digest`,
-        "bundle body is not supported canonical JSON",
-      );
-    }
-  }
+  validateBundleModes(rec["modes"], pointer, diagnostics);
+  validateBundleDigest(rec, pointer, diagnostics);
   return true;
 }
 
@@ -278,6 +267,75 @@ export interface CapabilityClosure {
   readonly diagnostics: readonly Diagnostic[];
 }
 
+function validateBundleCategoryPaths(
+  bundle: CapabilityBundle,
+  entryByPath: Map<string, PayloadEntry>,
+  diagnostics: Diagnostics,
+): void {
+  for (const [category, paths] of [
+    ["ARTIFACT", bundle.artifacts],
+    ["FIXTURE", bundle.fixtures],
+    ["GOLDEN", bundle.goldens],
+  ] as const) {
+    paths.forEach((path) => {
+      const entry = entryByPath.get(path);
+      if (entry === undefined) {
+        diagnostics.add(
+          `E_BUNDLE_${category}_MISSING`,
+          `/bundles/${bundle.id}/${path}`,
+          `${category.toLowerCase()} path is absent from the release`,
+        );
+      } else if (entry.bundleId !== bundle.id) {
+        diagnostics.add(
+          "E_BUNDLE_OWNERSHIP",
+          `/entries/${path}/bundleId`,
+          `entry is not owned by ${bundle.id}`,
+        );
+      } else {
+        const expectedRoles =
+          category === "ARTIFACT"
+            ? new Set(["capability-executable", "capability-config"])
+            : category === "FIXTURE"
+              ? new Set(["capability-fixture"])
+              : new Set(["capability-golden"]);
+        if (!expectedRoles.has(entry.role)) {
+          diagnostics.add(
+            "E_BUNDLE_ROLE",
+            `/entries/${path}/role`,
+            `entry role does not match ${category.toLowerCase()} classification`,
+          );
+        }
+      }
+    });
+  }
+}
+
+function validateBundleModesClosure(
+  bundle: CapabilityBundle,
+  declared: Set<string>,
+  entryByPath: Map<string, PayloadEntry>,
+  diagnostics: Diagnostics,
+): void {
+  bundle.modes.forEach((mode) => {
+    if (!bundle.artifacts.includes(mode.entrypoint)) {
+      diagnostics.add(
+        "E_MODE_ENTRYPOINT",
+        `/bundles/${bundle.id}/modes/${mode.id}/entrypoint`,
+        "mode entrypoint must be a bundle artifact",
+      );
+    }
+    for (const path of mode.requiredPaths) {
+      if (!declared.has(path) || !entryByPath.has(path)) {
+        diagnostics.add(
+          "E_MODE_CLOSURE",
+          `/bundles/${bundle.id}/modes/${mode.id}/requiredPaths`,
+          `mode dependency is absent from the materializable closure: ${path}`,
+        );
+      }
+    }
+  });
+}
+
 export function resolveCapabilityClosure(
   registry: CapabilityBundleRegistry,
   requested: readonly BundleReference[],
@@ -318,60 +376,8 @@ export function resolveCapabilityClosure(
       ...bundle.fixtures,
       ...bundle.goldens,
     ]);
-    for (const [category, paths] of [
-      ["ARTIFACT", bundle.artifacts],
-      ["FIXTURE", bundle.fixtures],
-      ["GOLDEN", bundle.goldens],
-    ] as const) {
-      paths.forEach((path) => {
-        const entry = entryByPath.get(path);
-        if (entry === undefined) {
-          diagnostics.add(
-            `E_BUNDLE_${category}_MISSING`,
-            `/bundles/${bundle.id}/${path}`,
-            `${category.toLowerCase()} path is absent from the release`,
-          );
-        } else if (entry.bundleId !== bundle.id) {
-          diagnostics.add(
-            "E_BUNDLE_OWNERSHIP",
-            `/entries/${path}/bundleId`,
-            `entry is not owned by ${bundle.id}`,
-          );
-        } else {
-          const expectedRoles =
-            category === "ARTIFACT"
-              ? new Set(["capability-executable", "capability-config"])
-              : category === "FIXTURE"
-                ? new Set(["capability-fixture"])
-                : new Set(["capability-golden"]);
-          if (!expectedRoles.has(entry.role)) {
-            diagnostics.add(
-              "E_BUNDLE_ROLE",
-              `/entries/${path}/role`,
-              `entry role does not match ${category.toLowerCase()} classification`,
-            );
-          }
-        }
-      });
-    }
-    bundle.modes.forEach((mode) => {
-      if (!bundle.artifacts.includes(mode.entrypoint)) {
-        diagnostics.add(
-          "E_MODE_ENTRYPOINT",
-          `/bundles/${bundle.id}/modes/${mode.id}/entrypoint`,
-          "mode entrypoint must be a bundle artifact",
-        );
-      }
-      for (const path of mode.requiredPaths) {
-        if (!declared.has(path) || !entryByPath.has(path)) {
-          diagnostics.add(
-            "E_MODE_CLOSURE",
-            `/bundles/${bundle.id}/modes/${mode.id}/requiredPaths`,
-            `mode dependency is absent from the materializable closure: ${path}`,
-          );
-        }
-      }
-    });
+    validateBundleCategoryPaths(bundle, entryByPath, diagnostics);
+    validateBundleModesClosure(bundle, declared, entryByPath, diagnostics);
   }
 
   const bundles = [...selected.values()].sort((left, right) =>

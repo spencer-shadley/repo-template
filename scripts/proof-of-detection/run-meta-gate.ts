@@ -150,6 +150,59 @@ function outcome(
   };
 }
 
+function executeProofForCommand(
+  commandId: string,
+  command: LocalCiContractV3Like["commands"][string],
+  targetRoot: string,
+  bytesForFixture: (commandId: string, fixture: DetectionProofFixture) => Buffer | Uint8Array | string,
+  timestamp: string,
+): OutcomeRecord {
+  const proof = command.detectionProof;
+  if (proof.exempt !== undefined) {
+    return outcome(commandId, { outcome: "skipped", exitCode: null, reason: proof.exempt, recordedAt: timestamp });
+  }
+  const fixture = proof.fixture;
+  if (!fixture) {
+    throw new Error(`proof-of-detection: command ${commandId} missing fixture definition`);
+  }
+  const bytes = bytesForFixture(commandId, fixture);
+  let planted = false;
+  try {
+    plant(targetRoot, fixture.path, bytes);
+    planted = true;
+    const spawnResult = spawnSync(command.executable, [...command.args], {
+      cwd: path.join(targetRoot, command.cwd),
+      shell: command.shell !== "none" ? command.shell : undefined,
+      timeout: command.timeoutSeconds * 1000,
+      encoding: "utf8",
+    });
+    if (spawnResult.error || spawnResult.status === null) {
+      const reason = spawnResult.error
+        ? spawnResult.error.message
+        : `command timed out after ${command.timeoutSeconds}s or was killed by signal ${String(spawnResult.signal)}`;
+      return outcome(commandId, {
+        outcome: "could-not-execute",
+        exitCode: null,
+        reason,
+        recordedAt: timestamp,
+        detectionProofExercised: true,
+      });
+    }
+    // Detection-proof inversion: exit 0 on a KNOWN-BAD fixture means the detector
+    // stayed blind -- that is a FAIL of this proof, not a pass of the command.
+    const detected = spawnResult.status !== 0;
+    return outcome(commandId, {
+      outcome: detected ? "pass" : "fail",
+      exitCode: spawnResult.status,
+      reason: null,
+      recordedAt: timestamp,
+      detectionProofExercised: true,
+    });
+  } finally {
+    if (planted) restore(targetRoot, fixture.path);
+  }
+}
+
 // `bytesForFixture` resolves the known-bad content to plant: a function so callers can
 // keep fixture bytes wherever fits the contract (checked-in file, inline buffer, ...).
 export function runDetectionProofs(
@@ -167,58 +220,7 @@ export function runDetectionProofs(
   restoreOrphans(targetRoot);
   const results: OutcomeRecord[] = [];
   for (const [commandId, command] of Object.entries(contract.commands)) {
-    const proof = command.detectionProof;
-    if (proof.exempt !== undefined) {
-      results.push(
-        outcome(commandId, { outcome: "skipped", exitCode: null, reason: proof.exempt, recordedAt: timestamp }),
-      );
-      continue;
-    }
-    const fixture = proof.fixture;
-    if (!fixture) {
-      throw new Error(`proof-of-detection: command ${commandId} missing fixture definition`);
-    }
-    const bytes = bytesForFixture(commandId, fixture);
-    let planted = false;
-    try {
-      plant(targetRoot, fixture.path, bytes);
-      planted = true;
-      const spawnResult = spawnSync(command.executable, [...command.args], {
-        cwd: path.join(targetRoot, command.cwd),
-        shell: command.shell !== "none" ? command.shell : undefined,
-        timeout: command.timeoutSeconds * 1000,
-        encoding: "utf8",
-      });
-      if (spawnResult.error || spawnResult.status === null) {
-        const reason = spawnResult.error
-          ? spawnResult.error.message
-          : `command timed out after ${command.timeoutSeconds}s or was killed by signal ${String(spawnResult.signal)}`;
-        results.push(
-          outcome(commandId, {
-            outcome: "could-not-execute",
-            exitCode: null,
-            reason,
-            recordedAt: timestamp,
-            detectionProofExercised: true,
-          }),
-        );
-        continue;
-      }
-      // Detection-proof inversion: exit 0 on a KNOWN-BAD fixture means the detector
-      // stayed blind -- that is a FAIL of this proof, not a pass of the command.
-      const detected = spawnResult.status !== 0;
-      results.push(
-        outcome(commandId, {
-          outcome: detected ? "pass" : "fail",
-          exitCode: spawnResult.status,
-          reason: null,
-          recordedAt: timestamp,
-          detectionProofExercised: true,
-        }),
-      );
-    } finally {
-      if (planted) restore(targetRoot, fixture.path);
-    }
+    results.push(executeProofForCommand(commandId, command, targetRoot, bytesForFixture, timestamp));
   }
   return results;
 }

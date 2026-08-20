@@ -176,6 +176,110 @@ export function orderedLocalCiCommandsV3(
   ];
 }
 
+function validateSingleCommandV3(
+  cmd: unknown,
+  id: string,
+  diagnostics: Diagnostics,
+): void {
+  const ptr = `/commands/${id}`;
+  if (!COMMAND_ID_PATTERN.test(id)) {
+    diagnostics.add("E_FORMAT", ptr, "invalid command id");
+  }
+  const closedFields = [
+    "name", "executable", "args", "shell", "cwd",
+    "timeoutSeconds", "expectedExitCode", "failureDisposition", "detectionProof",
+  ];
+  if (diagnostics.object(cmd, ptr, closedFields, closedFields)) {
+    const cmdRec = cmd as Record<string, unknown>;
+    diagnostics.string(cmdRec["name"], `${ptr}/name`, { min: 1 });
+    diagnostics.string(cmdRec["executable"], `${ptr}/executable`, { min: 1 });
+    stringArray(cmdRec["args"], `${ptr}/args`, 0, 256, diagnostics);
+    const shellStr = cmdRec["shell"];
+    if (diagnostics.string(shellStr, `${ptr}/shell`) && !SHELLS.has(shellStr as string)) {
+      diagnostics.add("E_ENUM", `${ptr}/shell`, "unsupported shell");
+    }
+    diagnostics.string(cmdRec["cwd"], `${ptr}/cwd`, { min: 1 });
+    const timeout = cmdRec["timeoutSeconds"];
+    if (typeof timeout !== "number" || !Number.isInteger(timeout) || timeout < 1) {
+      diagnostics.add("E_TYPE", `${ptr}/timeoutSeconds`, "expected positive integer");
+    }
+    if (typeof cmdRec["expectedExitCode"] !== "number" || !Number.isInteger(cmdRec["expectedExitCode"])) {
+      diagnostics.add("E_TYPE", `${ptr}/expectedExitCode`, "expected integer");
+    }
+    const disp = cmdRec["failureDisposition"];
+    if (diagnostics.string(disp, `${ptr}/failureDisposition`) && !FAILURE_DISPOSITIONS.has(disp as string)) {
+      diagnostics.add("E_ENUM", `${ptr}/failureDisposition`, "unsupported failure disposition");
+    }
+    validateDetectionProof(cmdRec["detectionProof"], `${ptr}/detectionProof`, diagnostics);
+  }
+}
+
+function validateCommandsV3(commandsRaw: unknown, diagnostics: Diagnostics): void {
+  if (!isRecord(commandsRaw)) {
+    diagnostics.add("E_TYPE", "/commands", "expected object");
+    return;
+  }
+  const commandIds = Object.keys(commandsRaw).sort();
+  if (commandIds.length === 0) {
+    diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
+  }
+  if (commandIds.length > 256) {
+    diagnostics.add("E_LENGTH", "/commands", "expected at most 256 commands");
+  }
+  if (!Object.hasOwn(commandsRaw, "authoritative-gate")) {
+    diagnostics.add(
+      "E_NO_AUTHORITATIVE_GATE",
+      "/commands/authoritative-gate",
+      "required authoritative gate is missing",
+    );
+  }
+  for (const id of commandIds) {
+    validateSingleCommandV3(commandsRaw[id], id, diagnostics);
+  }
+}
+
+function validateEnvironmentV3(envRaw: unknown, diagnostics: Diagnostics): void {
+  const envFields = [
+    "runtime", "packageManager", "supportedPlatforms", "supportedArchitectures",
+    "requiredEnvVars", "requiredCredentials", "networkExpectation",
+  ];
+  if (!diagnostics.object(envRaw, "/environment", envFields, envFields)) return;
+  const envRec = envRaw as Record<string, unknown>;
+  const rt = envRec["runtime"];
+  if (diagnostics.object(rt, "/environment/runtime", ["name", "versionConstraint"], ["name", "versionConstraint"])) {
+    const rtRec = rt as Record<string, unknown>;
+    diagnostics.string(rtRec["name"], "/environment/runtime/name", { min: 1 });
+    diagnostics.string(rtRec["versionConstraint"], "/environment/runtime/versionConstraint", { min: 1 });
+  }
+  const pm = envRec["packageManager"];
+  if (diagnostics.object(pm, "/environment/packageManager", ["name", "version"], ["name", "version"])) {
+    const pmRec = pm as Record<string, unknown>;
+    diagnostics.string(pmRec["name"], "/environment/packageManager/name", { min: 1 });
+    diagnostics.string(pmRec["version"], "/environment/packageManager/version", { min: 1 });
+  }
+  stringArray(envRec["supportedPlatforms"], "/environment/supportedPlatforms", 1, 32, diagnostics);
+  stringArray(envRec["supportedArchitectures"], "/environment/supportedArchitectures", 1, 32, diagnostics);
+  stringArray(envRec["requiredEnvVars"], "/environment/requiredEnvVars", 0, 256, diagnostics);
+  stringArray(envRec["requiredCredentials"], "/environment/requiredCredentials", 0, 256, diagnostics);
+  const netExp = envRec["networkExpectation"];
+  if (diagnostics.string(netExp, "/environment/networkExpectation") && !NETWORK_EXPECTATIONS.has(netExp as string)) {
+    diagnostics.add("E_ENUM", "/environment/networkExpectation", "unsupported network expectation");
+  }
+}
+
+function validateEffectsV3(effRaw: unknown, diagnostics: Diagnostics): void {
+  const effFields = [
+    "credentialsAccess", "networkProviderAccess", "providerSpend",
+    "externalMutation", "registrationMutation", "schedulesMutation",
+    "deploymentMutation", "consumerBindingMutation", "servingAuthorityMutation",
+  ];
+  if (!diagnostics.object(effRaw, "/effects", effFields, effFields)) return;
+  const effRec = effRaw as Record<string, unknown>;
+  for (const field of effFields) {
+    if (typeof effRec[field] !== "boolean") diagnostics.add("E_TYPE", `/effects/${field}`, "expected boolean");
+  }
+}
+
 export function validateLocalCiContractV3(value: unknown): ValidationResult<LocalCiContractV3> {
   const diagnostics = new Diagnostics();
   const fields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
@@ -187,86 +291,9 @@ export function validateLocalCiContractV3(value: unknown): ValidationResult<Loca
   diagnostics.string(value["repository"], "/repository", { min: 1, pattern: /^[^/]+\/[^/]+$/ });
   diagnostics.string(value["canonicalBranch"], "/canonicalBranch", { min: 1 });
 
-  const commandsRaw = value["commands"];
-  if (!isRecord(commandsRaw)) {
-    diagnostics.add("E_TYPE", "/commands", "expected object");
-  } else {
-    const commandIds = Object.keys(commandsRaw).sort();
-    if (commandIds.length === 0) {
-      diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
-    }
-    if (commandIds.length > 256) {
-      diagnostics.add("E_LENGTH", "/commands", "expected at most 256 commands");
-    }
-    if (!Object.hasOwn(commandsRaw, "authoritative-gate")) {
-      diagnostics.add(
-        "E_NO_AUTHORITATIVE_GATE",
-        "/commands/authoritative-gate",
-        "required authoritative gate is missing",
-      );
-    }
-    for (const id of commandIds) {
-      const cmd = commandsRaw[id];
-      const ptr = `/commands/${id}`;
-      if (!COMMAND_ID_PATTERN.test(id)) {
-        diagnostics.add("E_FORMAT", ptr, "invalid command id");
-      }
-      const closedFields = [
-        "name",
-        "executable",
-        "args",
-        "shell",
-        "cwd",
-        "timeoutSeconds",
-        "expectedExitCode",
-        "failureDisposition",
-        "detectionProof",
-      ];
-      if (diagnostics.object(cmd, ptr, closedFields, closedFields)) {
-        diagnostics.string(cmd["name"], `${ptr}/name`, { min: 1 });
-        diagnostics.string(cmd["executable"], `${ptr}/executable`, { min: 1 });
-        stringArray(cmd["args"], `${ptr}/args`, 0, 256, diagnostics);
-        const shellStr = cmd["shell"];
-        if (diagnostics.string(shellStr, `${ptr}/shell`) && !SHELLS.has(shellStr)) diagnostics.add("E_ENUM", `${ptr}/shell`, "unsupported shell");
-        diagnostics.string(cmd["cwd"], `${ptr}/cwd`, { min: 1 });
-        const timeout = cmd["timeoutSeconds"];
-        if (typeof timeout !== "number" || !Number.isInteger(timeout) || timeout < 1) diagnostics.add("E_TYPE", `${ptr}/timeoutSeconds`, "expected positive integer");
-        if (typeof cmd["expectedExitCode"] !== "number" || !Number.isInteger(cmd["expectedExitCode"])) diagnostics.add("E_TYPE", `${ptr}/expectedExitCode`, "expected integer");
-        const disp = cmd["failureDisposition"];
-        if (diagnostics.string(disp, `${ptr}/failureDisposition`) && !FAILURE_DISPOSITIONS.has(disp)) diagnostics.add("E_ENUM", `${ptr}/failureDisposition`, "unsupported failure disposition");
-        validateDetectionProof(cmd["detectionProof"], `${ptr}/detectionProof`, diagnostics);
-      }
-    }
-  }
-
-  const envRaw = value["environment"];
-  const envFields = ["runtime", "packageManager", "supportedPlatforms", "supportedArchitectures", "requiredEnvVars", "requiredCredentials", "networkExpectation"];
-  if (diagnostics.object(envRaw, "/environment", envFields, envFields)) {
-    const rt = envRaw["runtime"];
-    if (diagnostics.object(rt, "/environment/runtime", ["name", "versionConstraint"], ["name", "versionConstraint"])) {
-      diagnostics.string(rt["name"], "/environment/runtime/name", { min: 1 });
-      diagnostics.string(rt["versionConstraint"], "/environment/runtime/versionConstraint", { min: 1 });
-    }
-    const pm = envRaw["packageManager"];
-    if (diagnostics.object(pm, "/environment/packageManager", ["name", "version"], ["name", "version"])) {
-      diagnostics.string(pm["name"], "/environment/packageManager/name", { min: 1 });
-      diagnostics.string(pm["version"], "/environment/packageManager/version", { min: 1 });
-    }
-    stringArray(envRaw["supportedPlatforms"], "/environment/supportedPlatforms", 1, 32, diagnostics);
-    stringArray(envRaw["supportedArchitectures"], "/environment/supportedArchitectures", 1, 32, diagnostics);
-    stringArray(envRaw["requiredEnvVars"], "/environment/requiredEnvVars", 0, 256, diagnostics);
-    stringArray(envRaw["requiredCredentials"], "/environment/requiredCredentials", 0, 256, diagnostics);
-    const netExp = envRaw["networkExpectation"];
-    if (diagnostics.string(netExp, "/environment/networkExpectation") && !NETWORK_EXPECTATIONS.has(netExp)) diagnostics.add("E_ENUM", "/environment/networkExpectation", "unsupported network expectation");
-  }
-
-  const effRaw = value["effects"];
-  const effFields = ["credentialsAccess", "networkProviderAccess", "providerSpend", "externalMutation", "registrationMutation", "schedulesMutation", "deploymentMutation", "consumerBindingMutation", "servingAuthorityMutation"];
-  if (diagnostics.object(effRaw, "/effects", effFields, effFields)) {
-    for (const field of effFields) {
-      if (typeof effRaw[field] !== "boolean") diagnostics.add("E_TYPE", `/effects/${field}`, "expected boolean");
-    }
-  }
+  validateCommandsV3(value["commands"], diagnostics);
+  validateEnvironmentV3(value["environment"], diagnostics);
+  validateEffectsV3(value["effects"], diagnostics);
 
   return finish(value as unknown as LocalCiContractV3, diagnostics);
 }

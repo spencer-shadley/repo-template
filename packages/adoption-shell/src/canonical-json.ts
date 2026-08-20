@@ -15,7 +15,7 @@ function assertUnicodeScalarString(value: string): void {
   }
 }
 
-function serialize(value: unknown, ancestors: Set<object>): string {
+function serializePrimitive(value: unknown): string | null {
   if (value === null) return "null";
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "string") {
@@ -28,6 +28,37 @@ function serialize(value: unknown, ancestors: Set<object>): string {
     }
     return JSON.stringify(value);
   }
+  return null;
+}
+
+function serializeArray(value: unknown[], ancestors: Set<object>): string {
+  const rows: string[] = [];
+  for (let index = 0; index < value.length; index += 1) {
+    if (!(index in value)) {
+      throw new TypeError("RFC 8785 does not support sparse arrays");
+    }
+    rows.push(serialize(value[index], ancestors));
+  }
+  return `[${rows.join(",")}]`;
+}
+
+function serializeObject(value: object, ancestors: Set<object>): string {
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) {
+    throw new TypeError("RFC 8785 accepts only plain objects");
+  }
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record).sort();
+  const rows = keys.map((key) => {
+    assertUnicodeScalarString(key);
+    return `${JSON.stringify(key)}:${serialize(record[key], ancestors)}`;
+  });
+  return `{${rows.join(",")}}`;
+}
+
+function serialize(value: unknown, ancestors: Set<object>): string {
+  const primitive = serializePrimitive(value);
+  if (primitive !== null) return primitive;
   if (typeof value !== "object") {
     throw new TypeError(`RFC 8785 does not support ${typeof value}`);
   }
@@ -38,27 +69,9 @@ function serialize(value: unknown, ancestors: Set<object>): string {
   ancestors.add(value);
   try {
     if (Array.isArray(value)) {
-      const rows: string[] = [];
-      for (let index = 0; index < value.length; index += 1) {
-        if (!(index in value)) {
-          throw new TypeError("RFC 8785 does not support sparse arrays");
-        }
-        rows.push(serialize(value[index], ancestors));
-      }
-      return `[${rows.join(",")}]`;
+      return serializeArray(value, ancestors);
     }
-
-    const prototype = Object.getPrototypeOf(value);
-    if (prototype !== Object.prototype && prototype !== null) {
-      throw new TypeError("RFC 8785 accepts only plain objects");
-    }
-    const record = value as Record<string, unknown>;
-    const keys = Object.keys(record).sort();
-    const rows = keys.map((key) => {
-      assertUnicodeScalarString(key);
-      return `${JSON.stringify(key)}:${serialize(record[key], ancestors)}`;
-    });
-    return `{${rows.join(",")}}`;
+    return serializeObject(value, ancestors);
   } finally {
     ancestors.delete(value);
   }

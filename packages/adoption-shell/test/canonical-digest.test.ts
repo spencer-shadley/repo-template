@@ -40,14 +40,14 @@ test("RFC 8785 published vectors and key ordering are exact", () => {
   assert.equal(canonicalizeJson(-0), "0");
   assert.equal(canonicalizeJson(1e-7), "1e-7");
   assert.equal(canonicalizeJson(1e-6), "0.000001");
-  assert.equal(canonicalizeJson({ "\ufffd": 1, "😀": 2 }), "{\"😀\":2,\"�\":1}");
+  assert.equal(canonicalizeJson({ "\uFFFD": 1, "😀": 2 }), "{\"😀\":2,\"\uFFFD\":1}");
 });
 
 test("RFC 8785 rejects values outside its JSON domain", () => {
   for (const value of [Number.NaN, Number.POSITIVE_INFINITY, 1n, undefined]) {
     assert.throws(() => canonicalizeJson(value));
   }
-  assert.throws(() => canonicalizeJson("\ud800"), /lone surrogates/);
+  assert.throws(() => canonicalizeJson("\uD800"), /lone surrogates/);
   const sparse = new Array<unknown>(1);
   assert.throws(() => canonicalizeJson(sparse), /sparse arrays/);
   const cyclic: { self?: unknown } = {};

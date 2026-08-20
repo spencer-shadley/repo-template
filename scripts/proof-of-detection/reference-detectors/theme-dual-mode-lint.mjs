@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @stack-waiver id="theme-dual-mode-lint" reason="Reference detector fixture for proof-of-detection meta-gate"
 // Reference detector used only to prove the proof-of-detection meta-gate works
 // (issue #131). It is NOT a product gate of this repo -- repo-template ships no
 // themed UI. It exists solely as the fixture-runnable reproduction of the exact

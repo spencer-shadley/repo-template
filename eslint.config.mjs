@@ -1,3 +1,4 @@
+// @stack-waiver id="eslint-config" reason="Starter ESLint flat config loaded directly by ESLint CLI"
 /**
  * Starter ESLint flat config for template-bootstrapped repos.
  * Depend on the fleet quality kit; do not copy its factory into this repository.
@@ -15,6 +16,7 @@ export default [
   {
     ignores: [
       ...DEFAULT_FLEET_IGNORES,
+      "artifacts/**",
       // intentional negative fixtures for user-surface lint
       "tests/fixtures/**",
     ],

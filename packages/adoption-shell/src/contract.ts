@@ -55,7 +55,6 @@ export const SCHEMA_DIGESTS = {
   localCiOutcomeV1: "0ae86bc068fbd4e1cc2ff58409d3909204573f0ac0b09cdbc7dab974bb4ea429",
 } as const;
 
-export type Sha256 = string;
 export type FileMode = "100644" | "100755";
 export type EntryKind = "file";
 export type EntryEncoding = "utf-8" | "binary";
@@ -70,181 +69,181 @@ export type EntryRole =
 export interface SchemaIdentity {
   readonly schemaId: string;
   readonly schemaVersion: typeof CONTRACT_VERSION;
-  readonly schemaDigest: Sha256;
+  readonly schemaDigest: string;
 }
 
-export interface PayloadEntry extends Readonly<{
-  path: string;
-  kind: EntryKind;
-  mode: FileMode;
-  contentSha256: Sha256;
-  role: EntryRole;
-  encoding: EntryEncoding;
-  bundleId: string | null;
-  contentBase64: string;
-}> {}
+export interface PayloadEntry {
+  readonly path: string;
+  readonly kind: EntryKind;
+  readonly mode: FileMode;
+  readonly contentSha256: string;
+  readonly role: EntryRole;
+  readonly encoding: EntryEncoding;
+  readonly bundleId: string | null;
+  readonly contentBase64: string;
+}
 
 export type ReleasePayloadEntryDraftV2 = Omit<PayloadEntry, "contentSha256">;
 
-export interface ReleasePayloadSet extends SchemaIdentity, Readonly<{
-  contractId: typeof CONTRACT_ID;
-  digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  payloadDigestAlgorithm: typeof PAYLOAD_DIGEST_ALGORITHM;
-  releaseDigest: Sha256;
-  payloadDigest: Sha256;
-  entryCount: number;
-  migrationRefs: readonly [];
-  entries: readonly PayloadEntry[];
-}> {}
+export interface ReleasePayloadSet extends SchemaIdentity {
+  readonly contractId: typeof CONTRACT_ID;
+  readonly digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly payloadDigestAlgorithm: typeof PAYLOAD_DIGEST_ALGORITHM;
+  readonly releaseDigest: string;
+  readonly payloadDigest: string;
+  readonly entryCount: number;
+  readonly migrationRefs: readonly [];
+  readonly entries: readonly PayloadEntry[];
+}
 
-export interface BundleReference extends Readonly<{
-  id: string;
-  version: string;
-  digest: Sha256;
-}> {}
+export interface BundleReference {
+  readonly id: string;
+  readonly version: string;
+  readonly digest: string;
+}
 
-export interface CapabilityMode extends Readonly<{
-  id: string;
-  entrypoint: string;
-  requiredPaths: readonly string[];
-}> {}
+export interface CapabilityMode {
+  readonly id: string;
+  readonly entrypoint: string;
+  readonly requiredPaths: readonly string[];
+}
 
-export interface CapabilityBundle extends Readonly<{
-  id: string;
-  version: string;
-  digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  digest: Sha256;
-  dependencies: readonly BundleReference[];
-  artifacts: readonly string[];
-  fixtures: readonly string[];
-  goldens: readonly string[];
-  modes: readonly CapabilityMode[];
-}> {}
+export interface CapabilityBundle {
+  readonly id: string;
+  readonly version: string;
+  readonly digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly digest: string;
+  readonly dependencies: readonly BundleReference[];
+  readonly artifacts: readonly string[];
+  readonly fixtures: readonly string[];
+  readonly goldens: readonly string[];
+  readonly modes: readonly CapabilityMode[];
+}
 
-export interface CapabilityBundleRegistry extends SchemaIdentity, Readonly<{
-  contractId: typeof CONTRACT_ID;
-  digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  registryDigest: Sha256;
-  bundles: readonly CapabilityBundle[];
-}> {}
+export interface CapabilityBundleRegistry extends SchemaIdentity {
+  readonly contractId: typeof CONTRACT_ID;
+  readonly digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly registryDigest: string;
+  readonly bundles: readonly CapabilityBundle[];
+}
 
-export interface MaterializerInput extends SchemaIdentity, Readonly<{
-  contractId: typeof CONTRACT_ID;
-  release: ReleasePayloadSet;
-  capabilities: CapabilityBundleRegistry;
-  requestedBundles: readonly BundleReference[];
-  conformance: Readonly<{
+export interface MaterializerInput extends SchemaIdentity {
+  readonly contractId: typeof CONTRACT_ID;
+  readonly release: ReleasePayloadSet;
+  readonly capabilities: CapabilityBundleRegistry;
+  readonly requestedBundles: readonly BundleReference[];
+  readonly conformance: Readonly<{
     noLocalIssueTemplateOverride: true;
     noPreCustodyWorkflows: true;
   }>;
-}> {}
+}
 
-export interface OutputManifestEntry extends Readonly<{
-  path: string;
-  kind: EntryKind;
-  mode: FileMode;
-  contentSha256: Sha256;
-  role: EntryRole;
-  encoding: EntryEncoding;
-  bundleId: string | null;
-}> {}
+export interface OutputManifestEntry {
+  readonly path: string;
+  readonly kind: EntryKind;
+  readonly mode: FileMode;
+  readonly contentSha256: string;
+  readonly role: EntryRole;
+  readonly encoding: EntryEncoding;
+  readonly bundleId: string | null;
+}
 
-export interface MaterializerOutputManifest extends SchemaIdentity, Readonly<{
-  contractId: typeof CONTRACT_ID;
-  digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  manifestDigest: Sha256;
-  releaseDigest: Sha256;
-  releasePayloadDigest: Sha256;
-  payloadDigestAlgorithm: typeof PAYLOAD_DIGEST_ALGORITHM;
-  outputPayloadDigest: Sha256;
-  entryCount: number;
-  selectedBundles: readonly BundleReference[];
-  migrationRefs: readonly [];
-  entries: readonly OutputManifestEntry[];
-}> {}
+export interface MaterializerOutputManifest extends SchemaIdentity {
+  readonly contractId: typeof CONTRACT_ID;
+  readonly digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly manifestDigest: string;
+  readonly releaseDigest: string;
+  readonly releasePayloadDigest: string;
+  readonly payloadDigestAlgorithm: typeof PAYLOAD_DIGEST_ALGORITHM;
+  readonly outputPayloadDigest: string;
+  readonly entryCount: number;
+  readonly selectedBundles: readonly BundleReference[];
+  readonly migrationRefs: readonly [];
+  readonly entries: readonly OutputManifestEntry[];
+}
 
-export interface FileClosureRow extends Readonly<{
-  path: string;
-  kind: EntryKind;
-  mode: FileMode;
-  sha256: Sha256;
-  bytes: number;
-}> {}
+export interface FileClosureRow {
+  readonly path: string;
+  readonly kind: EntryKind;
+  readonly mode: FileMode;
+  readonly sha256: string;
+  readonly bytes: number;
+}
 
-export interface SchemaClosureRow extends FileClosureRow, Readonly<{
-  id: string;
-  version: typeof CONTRACT_VERSION;
-}> {}
+export interface SchemaClosureRow extends FileClosureRow {
+  readonly id: string;
+  readonly version: typeof CONTRACT_VERSION;
+}
 
-export interface ArtifactManifest extends SchemaIdentity, Readonly<{
-  contractId: typeof CONTRACT_ID;
-  contractVersion: typeof CONTRACT_VERSION;
-  digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  manifestDigest: Sha256;
-  artifactDigestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  artifactDigest: Sha256;
-  toolchain: Readonly<{
+export interface ArtifactManifest extends SchemaIdentity {
+  readonly contractId: typeof CONTRACT_ID;
+  readonly contractVersion: typeof CONTRACT_VERSION;
+  readonly digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly manifestDigest: string;
+  readonly artifactDigestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly artifactDigest: string;
+  readonly toolchain: Readonly<{
     typescript: "7.0.2";
     nodeCompatibility: ">=24.16.0 <25";
     packageManager: "pnpm@11.17.0";
   }>;
-  entrypoint: "index.js";
-  validatorExport: "validateMaterializerInputV2";
-  runtimeDependencyCount: 0;
-  releaseReceiptKind: typeof RELEASE_RECEIPT_KIND;
-  sources: readonly FileClosureRow[];
-  schemas: readonly SchemaClosureRow[];
-  emitted: readonly FileClosureRow[];
-  fixtures: readonly FileClosureRow[];
-  goldens: readonly FileClosureRow[];
-}> {}
+  readonly entrypoint: "index.js";
+  readonly validatorExport: "validateMaterializerInputV2";
+  readonly runtimeDependencyCount: 0;
+  readonly releaseReceiptKind: typeof RELEASE_RECEIPT_KIND;
+  readonly sources: readonly FileClosureRow[];
+  readonly schemas: readonly SchemaClosureRow[];
+  readonly emitted: readonly FileClosureRow[];
+  readonly fixtures: readonly FileClosureRow[];
+  readonly goldens: readonly FileClosureRow[];
+}
 
-export interface VerificationReceipt extends SchemaIdentity, Readonly<{
-  contractId: typeof CONTRACT_ID;
-  receiptKind: "repo-template/adoption-shell-verification/v2";
-  digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  receiptDigest: Sha256;
-  artifactDigest: Sha256;
-  inputDigest: Sha256;
-  outputManifestDigest: Sha256;
-  outputPayloadDigest: Sha256;
-  independentRunCount: 2;
-  result: "verified";
-}> {}
+export interface VerificationReceipt extends SchemaIdentity {
+  readonly contractId: typeof CONTRACT_ID;
+  readonly receiptKind: "repo-template/adoption-shell-verification/v2";
+  readonly digestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly receiptDigest: string;
+  readonly artifactDigest: string;
+  readonly inputDigest: string;
+  readonly outputManifestDigest: string;
+  readonly outputPayloadDigest: string;
+  readonly independentRunCount: 2;
+  readonly result: "verified";
+}
 
 export type TemplateReleasePublicationState = "candidate" | "published";
 
-export interface TemplateReleaseEvidence extends Readonly<{
-  review: Readonly<{
+export interface TemplateReleaseEvidence {
+  readonly review: Readonly<{
     subject: "producer-commit";
     url: string;
     result: "approved";
   }>;
-  canaryReceipts: Readonly<Record<string, Readonly<{
+  readonly canaryReceipts: Readonly<Record<string, Readonly<{
     url: string;
-    receiptSha256: Sha256;
+    receiptSha256: string;
   }>>>;
-  checks: Readonly<Record<string, Readonly<{
+  readonly checks: Readonly<Record<string, Readonly<{
     command: string;
     result: "passed";
   }>>>;
-  publicationReadback: Readonly<{
+  readonly publicationReadback: Readonly<{
     kind: "producer-tag-ref/v1";
   }>;
-  rollback: Readonly<{
+  readonly rollback: Readonly<{
     disposition: "immutable-correct-forward";
     supersession: "new-semver-only";
   }>;
-}> {}
+}
 
-export interface TemplateReleaseReceipt extends SchemaIdentity, Readonly<{
-  contractId: typeof CONTRACT_ID;
-  receiptKind: typeof RELEASE_RECEIPT_KIND;
-  publicationState: TemplateReleasePublicationState;
-  releaseId: string;
-  receiptDigestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
-  receiptDigest: Sha256;
-  producer: Readonly<{
+export interface TemplateReleaseReceipt extends SchemaIdentity {
+  readonly contractId: typeof CONTRACT_ID;
+  readonly receiptKind: typeof RELEASE_RECEIPT_KIND;
+  readonly publicationState: TemplateReleasePublicationState;
+  readonly releaseId: string;
+  readonly receiptDigestAlgorithm: typeof ENVELOPE_DIGEST_ALGORITHM;
+  readonly receiptDigest: string;
+  readonly producer: Readonly<{
     repository: typeof REPO_TEMPLATE_REPOSITORY;
     origin: typeof REPO_TEMPLATE_ORIGIN;
     semver: string;
@@ -252,69 +251,69 @@ export interface TemplateReleaseReceipt extends SchemaIdentity, Readonly<{
     commit: string;
     tree: string;
   }>;
-  receiptTransport: Readonly<{
+  readonly receiptTransport: Readonly<{
     kind: "annotated-git-tag-message/v1";
     tagName: string;
     targetObjectType: "commit";
     bodyEncoding: "utf-8";
     bodyCanonicalization: "rfc8785";
   }>;
-  payloadSet: Readonly<{
+  readonly payloadSet: Readonly<{
     manifestPath: typeof RELEASE_PAYLOAD_MANIFEST_PATH;
     schemaId: typeof SCHEMA_IDS.releasePayloadSet;
     schemaVersion: typeof CONTRACT_VERSION;
-    schemaDigest: Sha256;
-    manifestDigest: Sha256;
+    schemaDigest: string;
+    manifestDigest: string;
     payloadDigestAlgorithm: typeof PAYLOAD_DIGEST_ALGORITHM;
-    payloadDigest: Sha256;
+    payloadDigest: string;
     entryCount: number;
   }>;
-  capabilityBundles: readonly BundleReference[];
-  materializer: Readonly<{
+  readonly capabilityBundles: readonly BundleReference[];
+  readonly materializer: Readonly<{
     contractId: typeof CONTRACT_ID;
     contractVersion: typeof CONTRACT_VERSION;
     artifactManifestPath: typeof ARTIFACT_MANIFEST_PATH;
     artifactManifestSchemaId: typeof SCHEMA_IDS.artifactManifest;
     artifactManifestSchemaVersion: typeof CONTRACT_VERSION;
-    artifactManifestSchemaDigest: Sha256;
-    artifactManifestDigest: Sha256;
-    artifactDigest: Sha256;
+    artifactManifestSchemaDigest: string;
+    artifactManifestDigest: string;
+    artifactDigest: string;
     entrypoint: "index.js";
     validatorExport: "validateMaterializerInputV2";
     runtimeCompatibility: ">=24.16.0 <25";
     compatibleReleaseReceiptKind: typeof RELEASE_RECEIPT_KIND;
   }>;
-  releaseEvidence?: TemplateReleaseEvidence;
-  migrationRefs: readonly [];
-}> {}
+  readonly releaseEvidence?: TemplateReleaseEvidence;
+  readonly migrationRefs: readonly [];
+}
 
-export interface TemplateReleaseClosure extends Readonly<{
-  receipt: TemplateReleaseReceipt;
-  payloadSet: ReleasePayloadSet;
-  capabilityRegistry: CapabilityBundleRegistry;
-  artifactManifest: ArtifactManifest;
-  releaseEvidence?: TemplateReleaseEvidence;
-}> {}
+export interface TemplateReleaseClosure {
+  readonly receipt: TemplateReleaseReceipt;
+  readonly payloadSet: ReleasePayloadSet;
+  readonly capabilityRegistry: CapabilityBundleRegistry;
+  readonly artifactManifest: ArtifactManifest;
+  readonly releaseEvidence?: TemplateReleaseEvidence;
+}
 
-export interface TemplateReleaseCandidateInput extends Readonly<{
-  semver: string;
-  commit: string;
-  tree: string;
-  payloadSet: ReleasePayloadSet;
-  capabilityRegistry: CapabilityBundleRegistry;
-  artifactManifest: ArtifactManifest;
-}> {}
+export interface TemplateReleaseCandidateInput {
+  readonly semver: string;
+  readonly commit: string;
+  readonly tree: string;
+  readonly payloadSet: ReleasePayloadSet;
+  readonly capabilityRegistry: CapabilityBundleRegistry;
+  readonly artifactManifest: ArtifactManifest;
+}
 
-export interface MaterializationResult extends Readonly<{
-  entries: readonly PayloadEntry[];
-  manifest: MaterializerOutputManifest;
-}> {}
+export interface MaterializationResult {
+  readonly entries: readonly PayloadEntry[];
+  readonly manifest: MaterializerOutputManifest;
+}
 
-export interface Diagnostic extends Readonly<{
-  code: string;
-  pointer: string;
-  message: string;
-}> {}
+export interface Diagnostic {
+  readonly code: string;
+  readonly pointer: string;
+  readonly message: string;
+}
 
 export type ValidationResult<T> =
   | Readonly<{ ok: true; value: T }>

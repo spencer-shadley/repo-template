@@ -11,31 +11,43 @@ export type PathFailure =
   | "segment"
   | "trailing";
 
-export function portablePathFailure(value: string): PathFailure | null {
-  if (value.length === 0) return "empty";
-  if (value.length > 240) return "length";
-  if (
+function isAbsolutePath(value: string): boolean {
+  return (
     value.startsWith("/") ||
     value.startsWith("\\") ||
     /^[A-Za-z]:/.test(value) ||
     value.startsWith("//") ||
     value.startsWith("\\\\")
-  ) {
-    return "absolute";
-  }
+  );
+}
+
+function hasInvalidCharacters(value: string): boolean {
   for (let index = 0; index < value.length; index += 1) {
     const code = value.charCodeAt(index);
     if (code < 0x21 || code > 0x7e || value[index] === "\\") {
-      return "characters";
+      return true;
     }
   }
-  const segments = value.split("/");
-  for (const segment of segments) {
-    if (segment.length === 0 || segment === "." || segment === "..") return "segment";
-    if (segment.endsWith(".") || segment.endsWith(" ")) return "trailing";
-    if (!PORTABLE_SEGMENT.test(segment)) return "characters";
-    const basename = segment.split(".")[0] ?? segment;
-    if (WINDOWS_RESERVED.test(basename)) return "reserved";
+  return false;
+}
+
+function checkSegmentFailure(segment: string): PathFailure | null {
+  if (segment.length === 0 || segment === "." || segment === "..") return "segment";
+  if (segment.endsWith(".") || segment.endsWith(" ")) return "trailing";
+  if (!PORTABLE_SEGMENT.test(segment)) return "characters";
+  const basename = segment.split(".")[0] ?? segment;
+  if (WINDOWS_RESERVED.test(basename)) return "reserved";
+  return null;
+}
+
+export function portablePathFailure(value: string): PathFailure | null {
+  if (value.length === 0) return "empty";
+  if (value.length > 240) return "length";
+  if (isAbsolutePath(value)) return "absolute";
+  if (hasInvalidCharacters(value)) return "characters";
+  for (const segment of value.split("/")) {
+    const failure = checkSegmentFailure(segment);
+    if (failure !== null) return failure;
   }
   return null;
 }

@@ -122,6 +122,17 @@ function allowlistCap(rel: string, cfg: DirBreadthConfig): AllowlistCapResult | 
   };
 }
 
+function checkHit(h: Hit, cfg: DirBreadthConfig, violations: string[]): void {
+  const allow = allowlistCap(h.rel, cfg);
+  const cap = allow ? allow.max : cfg.maxFilesPerDir;
+  if (h.count > cap) {
+    const issue = allow?.issue ? ` (issue ${allow.issue})` : "";
+    violations.push(`${h.rel}: ${h.count} source files > max ${cap}${issue}`);
+  } else if (allow) {
+    console.log(`dir-breadth: allowlisted ${h.rel} ${h.count}/${cap}${allow.issue ? ` → ${allow.issue}` : ""}`);
+  }
+}
+
 function main(): void {
   const cfg = loadConfig();
   const hits: Hit[] = [];
@@ -133,14 +144,7 @@ function main(): void {
 
   const violations: string[] = [];
   for (const h of hits) {
-    const allow = allowlistCap(h.rel, cfg);
-    const cap = allow ? allow.max : cfg.maxFilesPerDir;
-    if (h.count > cap) {
-      const issue = allow?.issue ? ` (issue ${allow.issue})` : "";
-      violations.push(`${h.rel}: ${h.count} source files > max ${cap}${issue}`);
-    } else if (allow) {
-      console.log(`dir-breadth: allowlisted ${h.rel} ${h.count}/${cap}${allow.issue ? ` → ${allow.issue}` : ""}`);
-    }
+    checkHit(h, cfg, violations);
   }
 
   if (violations.length) {
