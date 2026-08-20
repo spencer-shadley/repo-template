@@ -12,14 +12,8 @@
     "unicorn/no-array-sort": {
       "count": 1
     },
-    "unicorn/no-computed-property-existence-check": {
-      "count": 1
-    },
-    "unicorn/prefer-number-is-safe-integer": {
-      "count": 1
-    },
-    "unicorn/prefer-simple-condition-first": {
-      "count": 1
+    "unicorn/prefer-code-point": {
+      "count": 2
     },
     "unicorn/require-array-sort-compare": {
       "count": 1
@@ -41,17 +35,11 @@
     "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 5
-    },
     "unicorn/no-array-sort": {
       "count": 2
     },
     "unicorn/no-for-each": {
       "count": 8
-    },
-    "unicorn/prefer-iterator-to-array": {
-      "count": 1
     },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 6
@@ -67,9 +55,6 @@
     "@typescript-eslint/restrict-template-expressions": {
       "count": 1
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 5
-    },
     "unicorn/no-for-each": {
       "count": 1
     }
@@ -83,9 +68,6 @@
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 10
-    },
-    "unicorn/consistent-boolean-name": {
-      "count": 8
     },
     "unicorn/no-chained-comparison": {
       "count": 1
@@ -127,9 +109,6 @@
     "unicorn/no-for-each": {
       "count": 1
     },
-    "unicorn/prefer-number-is-safe-integer": {
-      "count": 2
-    },
     "unicorn/require-array-sort-compare": {
       "count": 1
     }
@@ -150,17 +129,11 @@
     "sonarjs/no-alphabetical-sort": {
       "count": 2
     },
-    "unicorn/consistent-conditional-object-spread": {
-      "count": 1
-    },
     "unicorn/no-array-sort": {
       "count": 3
     },
     "unicorn/no-for-each": {
       "count": 1
-    },
-    "unicorn/prefer-number-is-safe-integer": {
-      "count": 2
     },
     "unicorn/require-array-sort-compare": {
       "count": 2
@@ -175,12 +148,6 @@
     },
     "sonarjs/no-selector-parameter": {
       "count": 1
-    },
-    "unicorn/consistent-boolean-name": {
-      "count": 2
-    },
-    "unicorn/prefer-number-is-safe-integer": {
-      "count": 1
     }
   },
   "packages/adoption-shell/src/materialize.ts": {
@@ -192,7 +159,7 @@
     }
   },
   "packages/adoption-shell/src/path-policy.ts": {
-    "unicorn/prefer-simple-condition-first": {
+    "unicorn/prefer-code-point": {
       "count": 1
     },
     "unicorn/prefer-split-limit": {
@@ -200,8 +167,8 @@
     }
   },
   "packages/adoption-shell/src/plan-record-v1.ts": {
-    "unicorn/consistent-boolean-name": {
-      "count": 22
+    "unicorn/prefer-string-raw": {
+      "count": 1
     }
   },
   "packages/adoption-shell/src/release-candidate.ts": {
@@ -216,12 +183,6 @@
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 8
-    },
-    "unicorn/consistent-boolean-name": {
-      "count": 4
-    },
-    "unicorn/consistent-conditional-object-spread": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/release-closure.ts": {
@@ -253,9 +214,6 @@
     "unicorn/no-for-each": {
       "count": 1
     },
-    "unicorn/prefer-number-is-safe-integer": {
-      "count": 1
-    },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 2
     }
@@ -266,6 +224,9 @@
     },
     "unicorn/no-array-sort": {
       "count": 1
+    },
+    "unicorn/prefer-string-replace-all": {
+      "count": 2
     }
   },
   "packages/adoption-shell/src/validate-manifests.ts": {
@@ -278,20 +239,11 @@
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 4
-    },
     "unicorn/no-for-each": {
       "count": 4
     },
     "unicorn/prefer-early-return": {
       "count": 1
-    },
-    "unicorn/prefer-number-is-safe-integer": {
-      "count": 2
-    },
-    "unicorn/prefer-simple-condition-first": {
-      "count": 2
     },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 2
@@ -307,17 +259,8 @@
     "@typescript-eslint/restrict-template-expressions": {
       "count": 3
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 5
-    },
     "unicorn/no-for-each": {
       "count": 3
-    },
-    "unicorn/prefer-number-is-safe-integer": {
-      "count": 2
-    },
-    "unicorn/prefer-simple-condition-first": {
-      "count": 2
     },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 2
@@ -343,9 +286,6 @@
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
-    },
-    "unicorn/consistent-boolean-name": {
-      "count": 23
     },
     "unicorn/no-array-sort": {
       "count": 6
@@ -379,16 +319,7 @@
     "sonarjs/super-linear-regex": {
       "count": 1
     },
-    "unicorn/max-nested-calls": {
-      "count": 1
-    },
     "unicorn/no-array-sort": {
-      "count": 1
-    },
-    "unicorn/no-break-in-nested-loop": {
-      "count": 1
-    },
-    "unicorn/no-duplicate-loops": {
       "count": 1
     },
     "unicorn/no-unnecessary-global-this": {
@@ -408,10 +339,10 @@
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 4
     },
-    "unicorn/max-nested-calls": {
+    "unicorn/no-array-reverse": {
       "count": 1
     },
-    "unicorn/no-array-reverse": {
+    "unicorn/no-new-array": {
       "count": 1
     },
     "unicorn/prefer-global-number-constants": {
@@ -434,17 +365,8 @@
     "sonarjs/super-linear-regex": {
       "count": 1
     },
-    "unicorn/max-nested-calls": {
-      "count": 1
-    },
-    "unicorn/no-duplicate-loops": {
-      "count": 1
-    },
-    "unicorn/no-return-array-push": {
-      "count": 3
-    },
-    "unicorn/single-line-block-comment-style": {
-      "count": 1
+    "unicorn/prefer-string-replace-all": {
+      "count": 2
     }
   },
   "packages/adoption-shell/test/delivery-measurement.test.ts": {
@@ -459,6 +381,9 @@
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 6
+    },
+    "unicorn/prefer-structured-clone": {
+      "count": 1
     }
   },
   "packages/adoption-shell/test/inert-seed-release.test.ts": {
@@ -469,9 +394,6 @@
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
-    "unicorn/max-nested-calls": {
       "count": 1
     }
   },
@@ -496,9 +418,6 @@
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
-    },
-    "unicorn/consistent-boolean-name": {
-      "count": 1
     },
     "unicorn/no-array-sort": {
       "count": 2
@@ -528,9 +447,6 @@
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
-    },
-    "unicorn/consistent-boolean-name": {
-      "count": 1
     },
     "unicorn/no-array-sort": {
       "count": 2
@@ -574,9 +490,6 @@
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 18
-    },
-    "unicorn/max-nested-calls": {
-      "count": 1
     }
   },
   "packages/adoption-shell/test/plan-body-paths-v1.test.ts": {
@@ -603,9 +516,6 @@
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 7
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 1
-    },
     "unicorn/no-declarations-before-early-exit": {
       "count": 1
     }
@@ -621,9 +531,6 @@
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
-    "unicorn/max-nested-calls": {
       "count": 1
     },
     "unicorn/no-array-reverse": {
@@ -643,7 +550,7 @@
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 2
     },
-    "unicorn/max-nested-calls": {
+    "unicorn/prefer-structured-clone": {
       "count": 1
     }
   },
@@ -665,6 +572,9 @@
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 8
+    },
+    "unicorn/prefer-structured-clone": {
+      "count": 1
     }
   },
   "packages/adoption-shell/test/validation-materialization.test.ts": {
@@ -683,13 +593,10 @@
     "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
-    "unicorn/max-nested-calls": {
-      "count": 1
-    },
     "unicorn/no-array-sort": {
       "count": 1
     },
-    "unicorn/prefer-https": {
+    "unicorn/prefer-string-raw": {
       "count": 1
     },
     "unicorn/prefer-unicode-code-point-escapes": {
@@ -717,8 +624,8 @@
     "unicorn/prefer-single-call": {
       "count": 1
     },
-    "unicorn/single-line-block-comment-style": {
-      "count": 4
+    "unicorn/prefer-string-replace-all": {
+      "count": 1
     }
   },
   "scripts/check-dir-breadth.ts": {
@@ -733,6 +640,9 @@
     },
     "unicorn/no-useless-coercion": {
       "count": 1
+    },
+    "unicorn/prefer-string-replace-all": {
+      "count": 2
     }
   },
   "scripts/check-issue-template-intake.ts": {
@@ -767,9 +677,6 @@
     "@typescript-eslint/restrict-template-expressions": {
       "count": 6
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 1
-    },
     "unicorn/no-exports-in-scripts": {
       "count": 5
     },
@@ -799,12 +706,6 @@
     "sonarjs/prefer-regexp-exec": {
       "count": 1
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 3
-    },
-    "unicorn/consistent-conditional-object-spread": {
-      "count": 4
-    },
     "unicorn/no-array-sort": {
       "count": 1
     },
@@ -817,20 +718,17 @@
     "unicorn/no-negated-array-predicate": {
       "count": 2
     },
-    "unicorn/no-return-array-push": {
-      "count": 2
-    },
-    "unicorn/no-unreadable-for-of-expression": {
+    "unicorn/prefer-code-point": {
       "count": 1
     },
-    "unicorn/prefer-number-is-safe-integer": {
+    "unicorn/prefer-string-raw": {
+      "count": 1
+    },
+    "unicorn/prefer-type-error": {
       "count": 1
     }
   },
   "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs": {
-    "unicorn/consistent-boolean-name": {
-      "count": 1
-    },
     "unicorn/no-array-sort": {
       "count": 1
     },
@@ -845,9 +743,6 @@
     "@typescript-eslint/restrict-template-expressions": {
       "count": 8
     },
-    "unicorn/consistent-boolean-name": {
-      "count": 4
-    },
     "unicorn/no-exports-in-scripts": {
       "count": 9
     }
@@ -860,6 +755,9 @@
       "count": 1
     },
     "unicorn/no-useless-coercion": {
+      "count": 2
+    },
+    "unicorn/no-useless-fallback-in-spread": {
       "count": 2
     }
   },
@@ -876,14 +774,11 @@
     "max-lines": {
       "count": 1
     },
-    "unicorn/max-nested-calls": {
-      "count": 2
-    },
     "unicorn/no-array-sort": {
       "count": 5
     },
-    "unicorn/no-unreadable-for-of-expression": {
-      "count": 1
+    "unicorn/prefer-type-error": {
+      "count": 2
     }
   },
   "tools/artifact-policy.ts": {
@@ -891,9 +786,6 @@
       "count": 2
     },
     "sonarjs/super-linear-regex": {
-      "count": 1
-    },
-    "unicorn/consistent-boolean-name": {
       "count": 1
     },
     "unicorn/no-array-sort": {
@@ -918,14 +810,17 @@
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 1
     },
-    "unicorn/max-nested-calls": {
-      "count": 2
-    },
     "unicorn/no-array-sort": {
       "count": 3
     },
     "unicorn/prefer-simple-sort-comparator": {
       "count": 3
+    },
+    "unicorn/prefer-string-raw": {
+      "count": 1
+    },
+    "unicorn/prefer-structured-clone": {
+      "count": 1
     },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 3
@@ -941,6 +836,9 @@
     "unicorn/no-array-sort": {
       "count": 1
     },
+    "unicorn/prefer-string-raw": {
+      "count": 2
+    },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 1
     },
@@ -954,12 +852,6 @@
     },
     "unicorn/no-array-sort": {
       "count": 1
-    },
-    "unicorn/no-unreadable-for-of-expression": {
-      "count": 1
-    },
-    "unicorn/prefer-iterator-to-array": {
-      "count": 1
     }
   },
   "tools/verify-template-self.ts": {
@@ -968,9 +860,6 @@
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
-    },
-    "unicorn/consistent-boolean-name": {
-      "count": 1
     },
     "unicorn/no-array-sort": {
       "count": 2
@@ -981,13 +870,7 @@
     "unicorn/no-negated-array-predicate": {
       "count": 2
     },
-    "unicorn/no-unsafe-string-replacement": {
-      "count": 2
-    },
-    "unicorn/prefer-iterator-to-array": {
-      "count": 1
-    },
-    "unicorn/prefer-simple-condition-first": {
+    "unicorn/prefer-string-raw": {
       "count": 1
     }
   }
