@@ -25,6 +25,12 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 
+- **`@spencer-shadley/repo-quality` 1.4.0 now owns the mandatory Knip policy:** its published
+  wrapper runs both default and strict Knip modes, and its config promotes import cycles to errors.
+  Template verify paths invoke that wrapper; the presence gate rejects vendored cycle-policy copies
+  and untracked policy downgrades. Fleet-wide `dependency-cruiser` remains prohibited. MINOR.
+  Fixes #151.
+
 - **`LocalCiContractV3` proof-of-detection** (`contracts/local-ci/v3/local-ci-contract-v3.schema.json`,
   `contractId: "repo-template/local-ci-v3"`): every declared command now requires `detectionProof`,
   either a known-bad fixture the gate must flag or a recorded, non-empty `exempt` reason -- never

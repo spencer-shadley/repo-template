@@ -1,0 +1,15 @@
+{
+  "issue": "https://github.com/spencer-shadley/repo-template/issues/151",
+  "entry": [
+    "eslint.config.mjs",
+    "scripts/**/*.ts",
+    "tools/**/*.ts",
+    "packages/adoption-shell/src/index.ts"
+  ],
+  "ignore": [
+    "artifacts/**",
+    "packages/adoption-shell/src/**",
+    "scripts/proof-of-detection/reference-detectors/**",
+    "tests/fixtures/**"
+  ]
+}

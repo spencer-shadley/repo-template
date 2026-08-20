@@ -913,8 +913,8 @@
       "path": "docs/QUALITY-LINT.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2995a99c8c69f5bcf9858350c8083c5146018a1bcce840f70a28ef381b62338d",
-      "bytes": 5982
+      "sha256": "fd30e2afc1a3be68f99b26249797006499a7e3878734a86268b6111bab7db57f",
+      "bytes": 7262
     },
     {
       "path": "eslint.config.mjs",
@@ -983,8 +983,8 @@
       "path": "scripts/verify-quality-lint-required.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "18e836c1842c58f92c8285a74058ddbc07d70c4d6bfb2f34c2237ca7e2a4dcf2",
-      "bytes": 5333
+      "sha256": "63a0af3916afaae2f5e6b82afd4d354b6eddb2ee74c257d3edb62aa2757be24a",
+      "bytes": 6870
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -1136,5 +1136,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "bf17737051d3993d8984dccf10a4dd1d64e8f08a5240320b81856e0ab73320b7"
+  "manifestDigest": "146935bff0758caa2fcb8a037aa8ba2519c527bc4e90e9c95f0c1f691b91146a"
 }
