@@ -7,7 +7,7 @@ are not optional style preference — they are the parallel-land and agent-maint
 
 | Path | Role |
 |------|------|
-| `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()` and the Knip wrapper/config — max-lines 500, complexity, sonarjs, Unicorn's unopinionated safety baseline, exhaustive core rules |
+| `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()`, Knip, and advisory jscpd wrappers/config — max-lines 500, complexity, sonarjs, Unicorn's unopinionated safety baseline, exhaustive core rules |
 | `eslint.config.mjs` (or `.js`) | Flat config that **imports and spreads** `qualityRules()` from the kit |
 | `package.json` scripts | `"lint": "eslint ."` (or equivalent) and **`verify` must run lint** |
 | `eslint-suppressions.json` | Required central baseline for grandfathered lint debt; generated with `eslint . --suppress-all` |
@@ -31,6 +31,22 @@ source of truth for the kit's cycle policy. Put any wrapper-merged, repo-specifi
 
 Do not add `dependency-cruiser` fleet-wide. Use it only in a specific repository when its
 transitive architectural rules cannot be expressed by Knip and `eslint-plugin-boundaries`.
+
+## Duplicate-code scan (required, advisory v1)
+
+The kit owns the jscpd v5 policy and wrapper. Consumers must run it through the kit rather than
+vendoring the policy:
+
+```json
+"dup": "node ./node_modules/@spencer-shadley/repo-quality/jscpd.mjs"
+```
+
+Run `pnpm dup` in both `verify` and `verify:self` where that script exists. The scanner prints its
+AI report to stdout and writes `.ops/jscpd-ai.txt`. Clone findings are advisory in v1 and never
+fail verification; only a scanner execution failure is non-zero. A local `.jscpd.json` is not the
+policy source of truth: it may not lower `minLines` below 10 or `minTokens` below 100, and it may
+not add a fail threshold without a tracked GitHub issue URL. Promotion to fail-closed requires a
+separate issue with measured clone volume.
 
 ## Required dependency (dev)
 
@@ -90,7 +106,7 @@ Only these representation-only rules are disabled by the kit: `consistent-compou
    "verify": "pnpm knip && pnpm lint && pnpm lint:dir-breadth && …"
    ```
 4. Copy `scripts/check-dir-breadth.ts` + `scripts/dir-breadth.json` (mega-dir cap; default **25** source peers per dir).
-5. Ensure `verify` (or land-gate) runs `pnpm knip`, `pnpm lint`, **and** `lint:dir-breadth`.
+5. Ensure `verify` (or land-gate) runs `pnpm knip`, `pnpm dup`, `pnpm lint`, **and** `lint:dir-breadth`.
 6. If the repo already has large files / wide dirs: baseline once (below) — **new** violations fail.
 7. Prefer split over suppress for anything you touch.
 

@@ -1,6 +1,6 @@
 {
   "name": "@spencer-shadley/repo-quality",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "type": "module",
   "private": false,
   "exports": {
@@ -9,7 +9,9 @@
       "default": "./index.mjs"
     },
     "./knip.mjs": "./knip.mjs",
-    "./knip.json": "./knip.json"
+    "./knip.json": "./knip.json",
+    "./jscpd.mjs": "./jscpd.mjs",
+    "./jscpd.json": "./jscpd.json"
   },
   "dependencies": {
     "@eslint/js": "10.0.1",
@@ -17,6 +19,7 @@
     "eslint-plugin-sonarjs": "4.2.0",
     "eslint-plugin-unicorn": "73.0.0",
     "globals": "17.11.0",
+    "jscpd": "5.0.16",
     "knip": "6.32.2",
     "typescript-eslint": "8.67.0",
     "typescript": "6.0.3"

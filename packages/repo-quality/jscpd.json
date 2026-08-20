@@ -1,0 +1,17 @@
+{
+  "reporters": ["ai"],
+  "mode": "mild",
+  "minLines": 10,
+  "minTokens": 100,
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/vendor/**",
+    "**/generated/**",
+    "**/__snapshots__/**",
+    "**/fixtures/**",
+    "**/*.test.*",
+    "**/*.spec.*"
+  ]
+}

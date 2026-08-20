@@ -25,6 +25,11 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Added
 
+- **`@spencer-shadley/repo-quality` 1.5.0 adds advisory jscpd v5 scanning:** the kit owns the
+  shared AI-reporter policy and wrapper, while template verification writes `.ops/jscpd-ai.txt`
+  without failing on clone findings. The bootstrap gate requires consumers to invoke the kit path;
+  fail-closed promotion awaits measured clone volume in a separate issue. MINOR. Fixes #152.
+
 - **`@spencer-shadley/repo-quality` 1.4.0 now owns the mandatory Knip policy:** its published
   wrapper runs both default and strict Knip modes, and its config promotes import cycles to errors.
   Template verify paths invoke that wrapper; the presence gate rejects vendored cycle-policy copies
