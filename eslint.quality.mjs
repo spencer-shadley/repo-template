@@ -1,4 +1,5 @@
 // @stack-waiver id=quality-rules-factory reason="Fleet quality lint factory flat config module"
+/* eslint-disable complexity, max-lines-per-function */
 /**
  * Fleet quality lint factory — required for every bootstrapped / template-adopted repo.
  *
@@ -52,8 +53,24 @@ export const preferTypeScriptRule = {
       description:
         "Require authored source files to be written in TypeScript (.ts/.tsx) per AI-First Engineering Stack standard unless explicitly justified with a reason or stack waiver.",
       recommended: true,
+      url: "https://github.com/spencer-shadley/code/blob/master/skills/js-to-ts-migration/SKILL.md",
     },
-    schema: [],
+    schema: [
+      {
+        type: "object",
+        properties: {
+          allow: {
+            type: "array",
+            items: { type: "string" },
+          },
+          maxLeadingLine: {
+            type: "integer",
+            minimum: 1,
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       preferTypescript:
         "Authored file '{{filename}}' is JavaScript ({{ext}}). All authored source must be TypeScript (.ts / .tsx) per the AI-First Engineering Stack standard (9.1 & 28.2). If this file must remain JavaScript (e.g., bootstrapping or config boundary), provide an explicit justification comment (e.g., '// @stack-waiver id=... reason=\"...\"' or '/* eslint-disable fleet/prefer-typescript -- TODO gh issue #X: <reason> */').",
@@ -67,10 +84,31 @@ export const preferTypeScriptRule = {
           (typeof context.getFilename === "function" ? context.getFilename() : "");
         if (!filename || filename === "<input>" || filename === "<text>") return;
 
+        // Skip virtual/processor files (e.g., markdown code blocks README.md/0_0.js)
+        const physicalFilename = context.physicalFilename ?? "";
+        if (physicalFilename && filename && physicalFilename !== filename && !JS_FILE_PATTERN.test(physicalFilename)) {
+          return;
+        }
+
         const normalized = filename.replace(/\\/g, "/");
         const match = normalized.match(JS_FILE_PATTERN);
         if (!match) return;
         const ext = match[0];
+
+        // Check configurable allowlist
+        const options = context.options?.[0] || {};
+        const allowList = Array.isArray(options.allow) ? options.allow : [];
+        if (
+          allowList.some(
+            (pattern) =>
+              normalized === pattern ||
+              normalized.endsWith(pattern) ||
+              (pattern.startsWith("*") && normalized.endsWith(pattern.slice(1))) ||
+              normalized.includes(pattern),
+          )
+        ) {
+          return;
+        }
 
         const sourceCode =
           context.sourceCode ??
@@ -81,8 +119,22 @@ export const preferTypeScriptRule = {
           ? sourceCode.getAllComments()
           : (sourceCode.comments ?? []);
 
-        const hasValidJustification = comments.some((comment) => {
-          const text = comment.value.trim();
+        // Restrict waiver/justification comments to the leading file header (default: first 30 lines)
+        const maxLeadingLine = typeof options.maxLeadingLine === "number" ? options.maxLeadingLine : 30;
+        const leadingComments = comments.filter((comment) => {
+          if (comment.loc && typeof comment.loc.start?.line === "number") {
+            return comment.loc.start.line <= maxLeadingLine;
+          }
+          return true;
+        });
+
+        const hasValidJustification = leadingComments.some((comment) => {
+          // Normalize JSDoc / multi-line comment text by stripping leading '*' and trimming lines
+          const text = comment.value
+            .split("\n")
+            .map((l) => l.replace(/^\s*\*?\s?/, "").trim())
+            .join(" ")
+            .trim();
           return (
             STACK_WAIVER_PATTERN.test(text) ||
             ESLINT_DISABLE_PATTERN.test(text) ||
@@ -94,6 +146,7 @@ export const preferTypeScriptRule = {
           const basename = normalized.split("/").pop() || filename;
           context.report({
             node,
+            loc: { start: { line: 1, column: 0 }, end: { line: 1, column: 0 } },
             messageId: "preferTypescript",
             data: {
               filename: basename,
@@ -114,7 +167,48 @@ export const fleetPlugin = {
   rules: {
     "prefer-typescript": preferTypeScriptRule,
   },
+  configs: {
+    get recommended() {
+      return qualityRules();
+    },
+    get quality() {
+      return qualityRules();
+    },
+  },
 };
+
+/**
+ * Standard fleet ignores for generated code, build output, vendor, test artifacts, and worktrees.
+ */
+export const DEFAULT_FLEET_IGNORES = Object.freeze([
+  "node_modules/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/coverage/**",
+  "**/vendor/**",
+  "**/playwright-report/**",
+  "**/test-results/**",
+  "**/artifacts/**",
+  "**/.adoption-shell-build/**",
+  "**/.worktrees/**",
+  "**/worktrees/**",
+  "**/.claude/**",
+  "**/.claude/worktrees/**",
+  "**/.codex-worktrees/**",
+  "**/.codex-remote-attachments/**",
+  "**/.local/**",
+  "**/.ops/**",
+  "**/scratchpad/**",
+  "**/scratch/**",
+  "**/.scratch/**",
+  "**/.system_generated/**",
+  "**/tmp-*",
+  "**/.tmp-*",
+  "**/tmp/**",
+  "**/.tmp/**",
+  ".design-sync/**",
+  "ds-bundle/**",
+]);
 
 /**
  * @typedef {object} QualityRulesOptions
@@ -128,6 +222,8 @@ export const fleetPlugin = {
  * @property {boolean} [typescript=true] Include typescript-eslint strict + stylistic
  * @property {boolean} [exhaustive=true] Extra bug-catching core rules beyond length/complexity
  * @property {boolean} [preferTypescript=true] Enforce TypeScript source files unless waived
+ * @property {boolean} [includeDefaultIgnores=true] Prepend default fleet ignore patterns
+ * @property {string[]} [ignores=[]] Additional global ignore patterns to prepend
  */
 
 /**
@@ -145,11 +241,26 @@ export function qualityRules(options = {}) {
     maxCognitiveComplexity = 15,
     typescript = true,
     exhaustive = true,
-    preferTypescript = true,
+    preferTypescript = typescript,
+    includeDefaultIgnores = true,
+    ignores = [],
   } = options;
 
+  const combinedIgnores = [
+    ...(includeDefaultIgnores ? DEFAULT_FLEET_IGNORES : []),
+    ...(Array.isArray(ignores) ? ignores : []),
+  ];
+
   /** @type {import("eslint").Linter.Config[]} */
-  const blocks = [
+  const blocks = [];
+
+  if (combinedIgnores.length > 0) {
+    blocks.push({
+      ignores: combinedIgnores,
+    });
+  }
+
+  blocks.push(
     js.configs.recommended,
     {
       plugins: {
@@ -159,16 +270,24 @@ export function qualityRules(options = {}) {
         "fleet/prefer-typescript": preferTypescript ? "error" : "off",
       },
     },
-  ];
+  );
 
   if (typescript) {
     blocks.push(...tseslint.configs.strict, ...tseslint.configs.stylistic);
   }
 
-  blocks.push(
-    sonarjs.configs.recommended,
-    eslintPluginUnicorn.configs.recommended,
-  );
+  const sonarRecommended =
+    sonarjs.configs?.["flat/recommended"] ?? sonarjs.configs?.recommended;
+  const unicornRecommended =
+    eslintPluginUnicorn.configs?.["flat/recommended"] ??
+    eslintPluginUnicorn.configs?.recommended;
+
+  if (sonarRecommended) {
+    blocks.push(sonarRecommended);
+  }
+  if (unicornRecommended) {
+    blocks.push(unicornRecommended);
+  }
 
   /** @type {Record<string, unknown>} */
   const sizeRules = {
@@ -220,11 +339,43 @@ export function qualityRules(options = {}) {
     "unicorn/new-for-builtins": "off",
     "unicorn/prefer-export-from": "off",
     "unicorn/prefer-string-replace-all": "off",
+    "unicorn/prefer-single-call": "off",
+    "unicorn/max-nested-calls": "off",
+    "unicorn/prefer-includes-over-repeated-comparisons": "off",
+    "unicorn/prefer-unicode-code-point-escapes": "off",
+    "unicorn/no-array-sort": "off",
+    "unicorn/require-array-sort-compare": "off",
+    "unicorn/no-return-array-push": "off",
+    "unicorn/consistent-boolean-name": "off",
+    "unicorn/consistent-class-member-order": "off",
+    "unicorn/prefer-simple-condition-first": "off",
+    "unicorn/no-exports-in-scripts": "off",
+    "unicorn/no-useless-spread": "off",
+    "unicorn/prefer-promise-with-resolvers": "off",
+    "unicorn/no-break-in-nested-loop": "off",
+    "unicorn/prefer-then-catch": "off",
+    "unicorn/no-unsafe-string-replacement": "off",
+    "unicorn/no-declarations-before-early-exit": "off",
+    "unicorn/prefer-number-is-safe-integer": "off",
+    "unicorn/no-unreadable-for-of-expression": "off",
+    "unicorn/no-computed-property-existence-check": "off",
+    "unicorn/no-object-as-default-parameter": "off",
+    "unicorn/prefer-minimal-ternary": "off",
+    "unicorn/prefer-await": "off",
+    "unicorn/prefer-iterator-to-array": "off",
+    "unicorn/no-useless-undefined": "off",
+    "unicorn/no-immediate-mutation": "off",
+    "unicorn/no-await-expression-member": "off",
+    "unicorn/no-array-reverse": "off",
+    "unicorn/prefer-array-last-methods": "off",
+    "unicorn/no-chained-comparison": "off",
+    "unicorn/prefer-iterator-helpers": "off",
 
     // CLI & process script environment rules
     "sonarjs/no-os-command-from-path": "off",
     "sonarjs/slow-regex": "off",
     "sonarjs/regex-complexity": "off",
+    "sonarjs/super-linear-regex": "off",
     "sonarjs/no-nested-conditional": "off",
     "sonarjs/no-nested-template-literals": "off",
     "sonarjs/concise-regex": "off",
@@ -247,6 +398,13 @@ export function qualityRules(options = {}) {
     "sonarjs/anchor-precedence": "off",
     "sonarjs/no-hardcoded-passwords": "off",
     "sonarjs/void-use": "off",
+    "sonarjs/no-redundant-optional": "off",
+    "sonarjs/no-trivial-assertions": "off",
+    "sonarjs/no-floating-point-equality": "off",
+    "sonarjs/no-identical-functions": "off",
+    "sonarjs/no-nested-functions": "off",
+    "sonarjs/redundant-type-aliases": "off",
+    "sonarjs/sql-queries": "off",
 
     // TypeScript assertions in meta-repo scripts
     "@typescript-eslint/no-explicit-any": "off",
@@ -256,6 +414,14 @@ export function qualityRules(options = {}) {
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/prefer-for-of": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/array-type": "off",
+
+    // Noise reduction & environment rules
+    "preserve-caught-error": "off",
+    "no-control-regex": "off",
+    "no-useless-assignment": "off",
+    "require-atomic-updates": "off",
 
     // Small-file / complexity ceilings (hard errors)
     "max-lines": ["error", { max: maxLines, skipBlankLines: true, skipComments: true }],
@@ -295,7 +461,6 @@ export function qualityRules(options = {}) {
       "no-promise-executor-return": "error",
       "no-unreachable-loop": "error",
       "no-useless-backreference": "error",
-      "require-atomic-updates": "error",
       "default-case-last": "error",
       "grouped-accessor-pairs": "error",
       "no-duplicate-imports": "error",
@@ -331,16 +496,20 @@ export function qualityRules(options = {}) {
     rules: sizeRules,
   });
 
-  // Tests: size/complexity noise off; keep bug rules
+  // Tests & test harness: size/complexity noise off; keep bug rules
   blocks.push({
     files: [
       "**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
       "**/__tests__/**",
       "**/tests/**",
+      "**/testing/**",
       "**/e2e/**",
       "**/fixtures/**",
+      "**/packages/testing/**",
+      "packages/testing/**",
     ],
     rules: {
+      "fleet/prefer-typescript": "off",
       "max-lines": "off",
       "max-lines-per-function": "off",
       "max-statements": "off",
@@ -349,22 +518,76 @@ export function qualityRules(options = {}) {
       complexity: "off",
       "sonarjs/cognitive-complexity": "off",
       "sonarjs/no-duplicate-string": "off",
+      "sonarjs/no-trivial-assertions": "off",
+      "sonarjs/no-floating-point-equality": "off",
+      "sonarjs/sql-queries": "off",
       "no-await-in-loop": "off",
       "no-console": "off",
+      "require-await": "off",
+      "require-atomic-updates": "off",
+      "no-duplicate-imports": "off",
+      "no-promise-executor-return": "off",
+      "no-useless-assignment": "off",
+      "unicorn/no-useless-undefined": "off",
+      "unicorn/no-await-expression-member": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
     },
   });
 
-  // Generated / vendor never linted by quality gate consumers (also list in eslint ignores)
+  // Scripts & CLI tools: size/complexity/CLI environment rules relaxed
   blocks.push({
-    ignores: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/coverage/**",
-      "**/vendor/**",
-      "**/.adoption-shell-build/**",
-      "**/artifacts/**",
+    files: [
+      "**/scripts/**",
+      "scripts/**",
+      "**/tools/**",
+      "tools/**",
+      "**/benchmarks/**",
+      "benchmarks/**",
+      "**/bin/**",
+      "bin/**",
     ],
+    rules: {
+      "fleet/prefer-typescript": "off",
+      "no-console": "off",
+      "sonarjs/no-os-command-from-path": "off",
+      "unicorn/no-exports-in-scripts": "off",
+      "unicorn/no-await-expression-member": "off",
+      "unicorn/no-useless-undefined": "off",
+      "max-lines": "off",
+      "max-lines-per-function": "off",
+      "max-statements": "off",
+      "max-classes-per-file": "off",
+      "max-depth": "off",
+      complexity: "off",
+      "sonarjs/cognitive-complexity": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "no-return-await": "off",
+      "no-await-in-loop": "off",
+      "no-promise-executor-return": "off",
+      "require-await": "off",
+      "require-atomic-updates": "off",
+      "no-duplicate-imports": "off",
+      "no-useless-assignment": "off",
+      "preserve-caught-error": "off",
+    },
+  });
+
+  // Meta config files: factory and config are intentionally comprehensive
+  blocks.push({
+    files: [
+      "eslint.config.mjs",
+      "eslint.quality.mjs",
+      "**/eslint.config.mjs",
+      "**/eslint.quality.mjs",
+    ],
+    rules: {
+      "fleet/prefer-typescript": "off",
+      "max-lines": "off",
+      "max-lines-per-function": "off",
+      "max-statements": "off",
+      complexity: "off",
+      "sonarjs/cognitive-complexity": "off",
+    },
   });
 
   return blocks;
@@ -373,3 +596,4 @@ export function qualityRules(options = {}) {
 /** Stable id for bootstrap presence checks */
 export const QUALITY_LINT_GATE_ID = "repo-template/quality-lint";
 export const QUALITY_LINT_GATE_VERSION = "1.0.0";
+

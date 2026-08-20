@@ -6,20 +6,12 @@
  * Grandfather existing debt: `pnpm exec eslint . --suppress-all`
  */
 import globals from "globals";
-import { qualityRules } from "./eslint.quality.mjs";
+import { DEFAULT_FLEET_IGNORES, qualityRules } from "./eslint.quality.mjs";
 
 export default [
   {
     ignores: [
-      "node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/coverage/**",
-      "**/vendor/**",
-      "**/playwright-report/**",
-      "**/test-results/**",
-      ".design-sync/**",
-      "ds-bundle/**",
+      ...DEFAULT_FLEET_IGNORES,
       // intentional negative fixtures for user-surface lint
       "tests/fixtures/**",
     ],
