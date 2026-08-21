@@ -40,6 +40,10 @@ plans/*.paused
 # don't dirty or wedge the queue (queue-abort-dirty incident).
 # runtime-artifact: owner=agent-orchestrator incident=none
 .ops/critic/*.md
+# runtime-artifact: owner=agent-orchestrator incident=repo-template#172
+.ops/issue-deps/**
+# runtime-artifact: owner=agent-orchestrator incident=repo-template#172
+.ops/receipts/work-spine-lag/*.json
 
 # local tool state (Serena MCP)
 .serena/
