@@ -4,8 +4,8 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "013948b744a1f192c1c12fac056c27614aea0944761b7c9d275c3733849771a5",
-  "entryCount": 82,
+  "inventoryDigest": "c061cc13566872733bede778eae16d874bbde1711215ca50f63d8f469f7176f8",
+  "entryCount": 83,
   "excludedCount": 9,
   "entries": [
     {
@@ -334,8 +334,8 @@
       "path": "docs/QUALITY-LINT.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "01ddd374a66f8e58d4575648cd631b7bace9c8aaf49cd0fb1b28b0dd4010bd81",
-      "bytes": 9689
+      "contentSha256": "3c83a53f3f54f375eea16eb309d65274bf3c7343c2feebe4bc26ec967abb8660",
+      "bytes": 11765
     },
     {
       "path": "docs/QUEUE-ENROLLMENT.md",
@@ -390,8 +390,8 @@
       "path": "eslint-suppressions.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "df28c579ed0b26abf8be14b73fbf5eee8fff854af090b059a9437bb2d35c7d9b",
-      "bytes": 21063
+      "contentSha256": "f9fae082aa4b0332e044c4c4064d16c71fde2c6c538a90da0b19e916a7b98330",
+      "bytes": 20720
     },
     {
       "path": "eslint.config.mjs",
@@ -399,6 +399,13 @@
       "gitMode": "100644",
       "contentSha256": "bf971a8f0b6a6df19e169cdfdfc5098a145b7d56315cf662b14219f56a3a7429",
       "bytes": 1259
+    },
+    {
+      "path": "local-ci.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "ebf9421a03efe466cf4cc8c1f54bc22dcc511c51b66983d8f084f3cb21581d11",
+      "bytes": 794
     },
     {
       "path": "model-boundary.json",
@@ -467,8 +474,8 @@
       "path": "scripts/verify-quality-lint-required.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "9194ef2d19b2ab0ea3d8526019e0bf7880410abc8b3a78605485069578e87b56",
-      "bytes": 9636
+      "contentSha256": "4226006eda27a74e1e66b825f3333d72205d83eb8e4e685630714b5ff2132953",
+      "bytes": 14256
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -630,5 +637,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "e7481b24982c7ff99fd15133ca53ef0f7690e2209a9a96c73f505eed8f6c0f5a"
+  "manifestDigest": "d2a3c9a13333ddb6439de6eb683a122f53efd11ca2ee79ff8f40caf99ebe185c"
 }

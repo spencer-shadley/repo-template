@@ -12,6 +12,29 @@ are not optional style preference — they are the parallel-land and agent-maint
 | `package.json` scripts | `"lint": "eslint ."` (or equivalent) and **`verify` must run lint** |
 | `eslint-suppressions.json` | Required central baseline for grandfathered lint debt; generated with `eslint . --suppress-all` |
 
+## Land-gate selector (required for TypeScript/JavaScript consumers)
+
+`@spencer-shadley/repo-quality/quality-lint-simple-diff.json` is the canonical
+`simpleDiff.quality-lint` declaration. The template projects it into `local-ci.json`; every
+TypeScript/JavaScript consumer must retain that class or declare a covering superset. It allows the
+following kit-consume / lint-adapter paths only:
+
+```text
+eslint.config.*
+eslint.quality.*
+eslint-suppressions.json
+package.json
+pnpm-lock.yaml
+package-lock.json
+docs/QUALITY-LINT.md
+scripts/verify-quality-lint*
+```
+
+When exactly one declared class covers every changed path, the land gate runs blocking `pnpm lint`.
+Unknown, mixed, malformed, or ambiguous diffs retain the repository's full declared gate. Do not
+skip-gate a quality-lint consume, and do not copy ESLint, Knip, jscpd, or Betterleaks policy into
+the class: the kit remains the policy source of truth.
+
 ## Knip (required for TypeScript/JavaScript repos)
 
 The kit owns `knip.json`, whose policy sets `rules.cycles` to `"error"`. Consumers must invoke the
@@ -79,6 +102,10 @@ separate issue with measured clone volume.
 The kit owns ESLint, `@eslint/js`, `globals`, `typescript-eslint`, sonarjs, and unicorn. JS-only
 repos may call `qualityRules({ typescript: false })`.
 
+For pnpm's isolated linker, add the matching `eslint` version as a direct dev dependency too: it
+supplies the `eslint` executable used by the required `"lint": "eslint ."` script while the kit
+continues to own the rule and plugin policy.
+
 ## Defaults (exhaustive)
 
 From `workspace-lint-default` + task-dag proven gate, plus exhaustive core rules:
@@ -126,10 +153,10 @@ Only these representation-only rules are disabled by the kit: `consistent-compou
    "lint:baseline": "eslint . --suppress-all",
    "lint:baseline:prune": "eslint . --prune-suppressions",
    "lint:dir-breadth": "node scripts/check-dir-breadth.ts",
-   "verify": "pnpm knip && pnpm secret:dir && pnpm lint && pnpm lint:dir-breadth && …"
+   "verify": "pnpm knip && pnpm secret:dir && pnpm lint && node scripts/verify-quality-lint-required.ts && pnpm lint:dir-breadth && …"
    ```
 4. Copy `scripts/check-dir-breadth.ts` + `scripts/dir-breadth.json` (mega-dir cap; default **25** source peers per dir).
-5. Ensure `verify` runs `pnpm knip`, `pnpm dup`, `pnpm secret:dir`, `pnpm lint`, **and** `lint:dir-breadth`; run `pnpm secret:staged` in the land path and `pnpm secret:history` once during onboarding.
+5. Ensure `verify` runs `pnpm knip`, `pnpm dup`, `pnpm secret:dir`, `pnpm lint`, `node scripts/verify-quality-lint-required.ts`, **and** `lint:dir-breadth`; run `pnpm secret:staged` in the land path and `pnpm secret:history` once during onboarding.
 6. If the repo already has large files / wide dirs: baseline once (below) — **new** violations fail.
 7. Prefer split over suppress for anything you touch.
 

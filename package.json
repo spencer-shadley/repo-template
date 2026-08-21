@@ -20,8 +20,9 @@
     "secret:dir": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs dir",
     "secret:staged": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs staged",
     "secret:history": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs history",
-    "verify:self": "pnpm knip && pnpm dup && node scripts/lint-user-surface-leaks.ts --self-test && node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json && node scripts/verify-quality-lint-required.ts --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.ts && node scripts/check-runtime-artifact-registry.ts --self-test && node scripts/check-runtime-artifact-registry.ts && node scripts/proof-of-detection/run-meta-gate.ts --self-test && pnpm release:payload:check",
-    "verify": "pnpm knip && pnpm dup && pnpm secret:dir && pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self",
+    "lint": "eslint .",
+    "verify:self": "pnpm lint && pnpm knip && pnpm dup && node scripts/lint-user-surface-leaks.ts --self-test && node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json && node scripts/verify-quality-lint-required.ts --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.ts && node scripts/check-runtime-artifact-registry.ts --self-test && node scripts/check-runtime-artifact-registry.ts && node scripts/proof-of-detection/run-meta-gate.ts --self-test && pnpm release:payload:check",
+    "verify": "pnpm knip && pnpm dup && pnpm secret:dir && pnpm lint && node scripts/verify-quality-lint-required.ts && pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self",
     "check:issue-template-intake": "node scripts/check-issue-template-intake.ts",
     "verify:quality-lint": "node scripts/verify-quality-lint-required.ts --self-test",
     "check:runtime-artifact-registry": "node scripts/check-runtime-artifact-registry.ts",
@@ -32,6 +33,7 @@
     "@types/node": "24.13.3",
     "ajv": "8.17.1",
     "ajv-formats": "3.0.1",
+    "eslint": "10.8.1",
     "typescript": "7.0.2"
   }
 }

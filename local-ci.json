@@ -1,0 +1,38 @@
+{
+  "commands": {
+    "authoritative-gate": {
+      "executable": "pnpm",
+      "args": [
+        "verify"
+      ],
+      "timeoutSeconds": 600,
+      "expectedExitCode": 0,
+      "failureDisposition": "fail-gate"
+    }
+  },
+  "simpleDiff": {
+    "quality-lint": {
+      "paths": [
+        "eslint.config.*",
+        "eslint.quality.*",
+        "eslint-suppressions.json",
+        "package.json",
+        "pnpm-lock.yaml",
+        "package-lock.json",
+        "docs/QUALITY-LINT.md",
+        "scripts/verify-quality-lint*"
+      ],
+      "commands": {
+        "lint": {
+          "executable": "pnpm",
+          "args": [
+            "lint"
+          ],
+          "timeoutSeconds": 300,
+          "expectedExitCode": 0,
+          "failureDisposition": "fail-gate"
+        }
+      }
+    }
+  }
+}

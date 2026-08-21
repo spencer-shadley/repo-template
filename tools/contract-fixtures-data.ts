@@ -169,11 +169,12 @@ export const multiInput = input(
 export const qualityLintArtifacts = [
   "docs/QUALITY-LINT.md",
   "eslint.config.mjs",
+  "local-ci.json",
   "scripts/verify-quality-lint-required.ts",
 ];
 export const qualityLintBundle = bundle({
   id: "repo-template/quality-lint",
-  version: "1.0.0",
+  version: "1.1.0",
   dependencies: [],
   artifacts: qualityLintArtifacts,
   fixtures: [],

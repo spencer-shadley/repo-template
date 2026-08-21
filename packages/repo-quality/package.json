@@ -1,6 +1,6 @@
 {
   "name": "@spencer-shadley/repo-quality",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "type": "module",
   "private": false,
   "exports": {
@@ -12,7 +12,8 @@
     "./knip.json": "./knip.json",
     "./jscpd.mjs": "./jscpd.mjs",
     "./jscpd.json": "./jscpd.json",
-    "./secret-scan.mjs": "./secret-scan.mjs"
+    "./secret-scan.mjs": "./secret-scan.mjs",
+    "./quality-lint-simple-diff.json": "./quality-lint-simple-diff.json"
   },
   "dependencies": {
     "@eslint/js": "10.0.1",
