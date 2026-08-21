@@ -5,14 +5,6 @@
     },
     "unicorn/prefer-code-point": {
       "count": 2
-    },
-    "unicorn/require-array-sort-compare": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/src/capability-bundles.ts": {
-    "unicorn/require-array-sort-compare": {
-      "count": 1
     }
   },
   "packages/adoption-shell/src/delivery-measurement.ts": {
@@ -31,17 +23,11 @@
   "packages/adoption-shell/src/local-ci-contract-v2.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
-    },
-    "unicorn/require-array-sort-compare": {
-      "count": 1
     }
   },
   "packages/adoption-shell/src/local-ci-contract-v3.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
-    },
-    "unicorn/require-array-sort-compare": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
@@ -72,9 +58,6 @@
   "packages/adoption-shell/src/work-migration-manifest-v1.ts": {
     "unicorn/prefer-simple-sort-comparator": {
       "count": 3
-    },
-    "unicorn/require-array-sort-compare": {
-      "count": 2
     }
   },
   "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
@@ -85,9 +68,6 @@
       "count": 1
     },
     "sonarjs/super-linear-regex": {
-      "count": 1
-    },
-    "unicorn/require-array-sort-compare": {
       "count": 1
     }
   },
@@ -121,9 +101,6 @@
     },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 20
-    },
-    "unicorn/require-array-sort-compare": {
-      "count": 2
     }
   },
   "packages/adoption-shell/test/local-ci-contract-v3.test.ts": {
@@ -135,14 +112,6 @@
     },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 3
-    },
-    "unicorn/require-array-sort-compare": {
-      "count": 2
-    }
-  },
-  "packages/adoption-shell/test/local-ci-outcome-v1.test.ts": {
-    "unicorn/require-array-sort-compare": {
-      "count": 1
     }
   },
   "packages/adoption-shell/test/manifest-validators.test.ts": {
@@ -220,9 +189,6 @@
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 2
-    },
-    "unicorn/require-array-sort-compare": {
-      "count": 1
     }
   },
   "packages/repo-quality/index.d.ts": {
