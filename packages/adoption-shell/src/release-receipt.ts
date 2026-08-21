@@ -32,6 +32,10 @@ function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationRe
     : { ok: false, diagnostics: rows };
 }
 
+function hasValidatedShape(value: unknown, diagnostics: Diagnostics): value is TemplateReleaseReceipt {
+  return diagnostics.rows.length === 0;
+}
+
 function validateBundleReferences(
   value: unknown,
   diagnostics: Diagnostics,
@@ -50,18 +54,21 @@ function validateBundleReferences(
     ) {
       continue;
     }
-    diagnostics.string(reference["id"], `${pointer}/id`, {
+    const id = reference["id"];
+    const version = reference["version"];
+    const digest = reference["digest"];
+    const idValid = diagnostics.string(id, `${pointer}/id`, {
       min: 1,
       max: 80,
       pattern: BUNDLE_ID_PATTERN,
     });
-    diagnostics.string(reference["version"], `${pointer}/version`, {
+    const versionValid = diagnostics.string(version, `${pointer}/version`, {
       min: 5,
       max: 80,
       pattern: SEMVER_PATTERN,
     });
-    diagnostics.sha(reference["digest"], `${pointer}/digest`);
-    rows.push(reference as unknown as BundleReference);
+    const digestValid = diagnostics.sha(digest, `${pointer}/digest`);
+    if (idValid && versionValid && digestValid) rows.push({ id, version, digest });
   }
   assertSortedUnique(
     rows.map((row) => `${row.id}\u{0}${row.version}\u{0}${row.digest}`),
@@ -359,7 +366,10 @@ export function validateTemplateReleaseReceiptV1(
 
   diagnostics.array(rec["migrationRefs"], "/migrationRefs", 0, 0);
   validateReceiptDigest(rec, diagnostics);
-  return finish(value as unknown as TemplateReleaseReceipt, diagnostics);
+  return finish(
+    hasValidatedShape(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }
 
 export function validatePublishedTemplateReleaseReceiptV1(

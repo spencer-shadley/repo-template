@@ -17,9 +17,6 @@
     }
   },
   "packages/adoption-shell/src/capability-bundles.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 7
     },
@@ -42,9 +39,6 @@
     "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 4
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 10
     },
@@ -64,9 +58,6 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
     },
@@ -84,9 +75,6 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
     },
@@ -101,9 +89,6 @@
     }
   },
   "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "sonarjs/no-selector-parameter": {
       "count": 1
     }
@@ -121,20 +106,9 @@
   "packages/adoption-shell/src/release-candidate.ts": {
     "@typescript-eslint/no-unsafe-return": {
       "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 4
-    }
-  },
-  "packages/adoption-shell/src/release-evidence.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/release-receipt.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 1
     }
@@ -148,17 +122,11 @@
     }
   },
   "packages/adoption-shell/src/validate-manifests.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 4
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
     }
   },
   "packages/adoption-shell/src/validate.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 3
     }
@@ -192,9 +160,6 @@
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 6
-    },
     "@typescript-eslint/unbound-method": {
       "count": 1
     },
@@ -212,9 +177,6 @@
     }
   },
   "packages/adoption-shell/test/canonical-digest.test.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 4
-    },
     "unicorn/no-array-reverse": {
       "count": 1
     }
@@ -222,9 +184,6 @@
   "packages/adoption-shell/test/capability-docs-regression.test.ts": {
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
     },
     "sonarjs/super-linear-regex": {
       "count": 1
@@ -234,18 +193,7 @@
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 6
-    },
     "unicorn/prefer-structured-clone": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/test/inert-seed-release.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 1
     }
   },

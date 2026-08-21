@@ -212,21 +212,31 @@ export function createTemplateReleaseCandidateV1(
   const artifactManifest: ArtifactManifest = artifactResult.value;
   const releaseEvidence: TemplateReleaseEvidence | undefined =
     evidenceResult?.ok ? evidenceResult.value : undefined;
+  const semver = inputRec["semver"];
+  const commit = inputRec["commit"];
+  const tree = inputRec["tree"];
+  if (
+    typeof semver !== "string" ||
+    typeof commit !== "string" ||
+    typeof tree !== "string"
+  ) {
+    return finish<TemplateReleaseClosure>(undefined, diagnostics);
+  }
   const receiptParams = {
-    semver: inputRec["semver"] as string,
-    commit: inputRec["commit"] as string,
-    tree: inputRec["tree"] as string,
+    semver,
+    commit,
+    tree,
     payloadSet,
     capabilityRegistry,
     artifactManifest,
     ...(releaseEvidence === undefined ? {} : { releaseEvidence }),
   };
   const receiptBody = buildReceiptBody(receiptParams);
-  const closure: TemplateReleaseClosure = {
+  const closure = {
     receipt: {
       ...receiptBody,
       receiptDigest: sha256CanonicalJson(receiptBody),
-    } as unknown as TemplateReleaseClosure["receipt"],
+    },
     payloadSet,
     capabilityRegistry,
     artifactManifest,

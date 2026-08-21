@@ -197,6 +197,10 @@ function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationRe
     : { ok: false, diagnostics: rows };
 }
 
+function hasValidatedShape(value: unknown, diagnostics: Diagnostics): value is CapabilityBundleRegistry {
+  return diagnostics.rows.length === 0;
+}
+
 export function validateCapabilityBundleRegistryV2(
   value: unknown,
 ): ValidationResult<CapabilityBundleRegistry> {
@@ -257,7 +261,10 @@ export function validateCapabilityBundleRegistryV2(
       );
     }
   }
-  return finish(value as unknown as CapabilityBundleRegistry, diagnostics);
+  return finish(
+    hasValidatedShape(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }
 
 function referenceKey(reference: BundleReference): string {

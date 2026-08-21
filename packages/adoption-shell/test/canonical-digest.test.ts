@@ -13,27 +13,50 @@ import {
   sha256Bytes,
   sha256CanonicalJson,
   sha256PayloadEntries,
-  type PayloadEntry,
+  validateMaterializerInputV2,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
 function readJson(relativePath: string): unknown {
-  return JSON.parse(
+  const value: unknown = JSON.parse(
     fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
-  ) as unknown;
+  );
+  return value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isRfcGolden(value: unknown): value is {
+  readonly vectors: readonly { readonly name: string; readonly input: unknown; readonly canonical: string }[];
+} {
+  return isRecord(value) && Array.isArray(value["vectors"]) && value["vectors"].every(
+    (row) => isRecord(row) && typeof row["name"] === "string" && typeof row["canonical"] === "string",
+  );
+}
+
+function isDigestGolden(value: unknown): value is Record<
+  "envelopeAlgorithm" | "canonical" | "canonicalSha256" | "payloadAlgorithm" | "payloadSha256" | "firstEntryContentSha256",
+  string
+> {
+  return isRecord(value) && [
+    "envelopeAlgorithm", "canonical", "canonicalSha256", "payloadAlgorithm", "payloadSha256", "firstEntryContentSha256",
+  ].every((field) => typeof value[field] === "string");
+}
+
+function readMaterializerInput(relativePath: string) {
+  const result = validateMaterializerInputV2(readJson(relativePath));
+  if (!result.ok) throw new Error("fixture must be a materializer input");
+  return result.value;
 }
 
 void test("RFC 8785 published vectors and key ordering are exact", () => {
   const golden = readJson(
     "contracts/adoption-shell-v2/golden/rfc8785-vectors.json",
-  ) as {
-    readonly vectors: readonly {
-      readonly name: string;
-      readonly input: unknown;
-      readonly canonical: string;
-    }[];
-  };
+  );
+  assert.ok(isRfcGolden(golden));
   for (const vector of golden.vectors) {
     assert.equal(canonicalizeJson(vector.input), vector.canonical, vector.name);
   }
@@ -48,7 +71,8 @@ void test("RFC 8785 rejects values outside its JSON domain", () => {
     assert.throws(() => canonicalizeJson(value));
   }
   assert.throws(() => canonicalizeJson("\u{D800}"), /lone surrogates/);
-  const sparse = new Array<unknown>(1);
+  const sparse: unknown[] = [];
+  sparse.length = 1;
   assert.throws(() => canonicalizeJson(sparse), /sparse arrays/);
   const cyclic: { self?: unknown } = {};
   cyclic.self = cyclic;
@@ -66,17 +90,11 @@ void test("canonical base64 decoder rejects alternate spellings", () => {
 void test("both named SHA-256 algorithms match committed goldens", () => {
   const golden = readJson(
     "contracts/adoption-shell-v2/golden/digest-vectors.json",
-  ) as {
-    readonly envelopeAlgorithm: string;
-    readonly canonical: string;
-    readonly canonicalSha256: string;
-    readonly payloadAlgorithm: string;
-    readonly payloadSha256: string;
-    readonly firstEntryContentSha256: string;
-  };
-  const input = readJson(
+  );
+  assert.ok(isDigestGolden(golden));
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
-  ) as { readonly release: { readonly entries: readonly PayloadEntry[] } };
+  );
   assert.equal(golden.envelopeAlgorithm, ENVELOPE_DIGEST_ALGORITHM);
   assert.equal(golden.payloadAlgorithm, PAYLOAD_DIGEST_ALGORITHM);
   assert.equal(canonicalizeJson({ b: 2, a: 1 }), golden.canonical);
@@ -92,9 +110,9 @@ void test("both named SHA-256 algorithms match committed goldens", () => {
 });
 
 void test("payload framing is length-prefixed, sorted, and unambiguous", () => {
-  const input = readJson(
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/multi-bundle-input.json",
-  ) as { readonly release: { readonly entries: readonly PayloadEntry[] } };
+  );
   const forward = input.release.entries;
   const reversed = [...forward].reverse();
   assert.deepEqual(payloadFrame(forward), payloadFrame(reversed));
