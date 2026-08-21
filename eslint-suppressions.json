@@ -14,9 +14,6 @@
     }
   },
   "packages/adoption-shell/src/capability-bundles.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 7
-    },
     "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
@@ -24,17 +21,9 @@
       "count": 1
     }
   },
-  "packages/adoption-shell/src/delivery-measurement-validation.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/src/delivery-measurement.ts": {
     "@typescript-eslint/no-unnecessary-type-assertion": {
       "count": 1
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 10
     },
     "unicorn/no-chained-comparison": {
       "count": 1
@@ -49,9 +38,6 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
     },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 2
-    },
     "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
@@ -62,9 +48,6 @@
   "packages/adoption-shell/src/local-ci-contract-v3.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 2
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
@@ -88,32 +71,14 @@
       "count": 1
     }
   },
-  "packages/adoption-shell/src/release-receipt.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/src/validate-documentation.ts": {
     "sonarjs/super-linear-regex": {
       "count": 2
     }
   },
-  "packages/adoption-shell/src/validate-manifests.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 4
-    }
-  },
-  "packages/adoption-shell/src/validate.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 3
-    }
-  },
   "packages/adoption-shell/src/validation-helpers.ts": {
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 1
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 5
     }
   },
   "packages/adoption-shell/src/work-migration-manifest-v1.ts": {

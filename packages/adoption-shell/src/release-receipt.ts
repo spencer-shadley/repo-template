@@ -43,7 +43,7 @@ function validateBundleReferences(
   if (!diagnostics.array(value, "/capabilityBundles", 0, 256)) return [];
   const rows: BundleReference[] = [];
   for (const [index, reference] of value.entries()) {
-    const pointer = `/capabilityBundles/${index}`;
+    const pointer = `/capabilityBundles/${String(index)}`;
     if (
       !diagnostics.object(
         reference,

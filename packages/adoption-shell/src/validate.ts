@@ -276,7 +276,7 @@ function validateReleaseEntries(
   const entries: PayloadEntry[] = [];
   if (!diagnostics.array(entriesValue, "/entries", 1, 4096)) return entries;
   for (const [index, entry] of (entriesValue).entries()) {
-    if (validatePayloadEntry(entry, `/entries/${index}`, diagnostics)) entries.push(entry);
+    if (validatePayloadEntry(entry, `/entries/${String(index)}`, diagnostics)) entries.push(entry);
   }
   const paths = entries.map((entry) => entry.path);
   assertSortedUnique(paths, "/entries", diagnostics);
@@ -287,7 +287,7 @@ function validateReleaseEntries(
     if (prior !== undefined && prior !== entry.path) {
       diagnostics.add(
         "E_PATH_CASE_COLLISION",
-        `/entries/${index}/path`,
+        `/entries/${String(index)}/path`,
         `case-fold collision with ${prior}`,
       );
     } else {
@@ -386,7 +386,7 @@ export function validateMaterializerInputV2(value: unknown): ValidationResult<Ma
   if (diagnostics.array(rec["requestedBundles"], "/requestedBundles", 0, 256)) {
     const keys: string[] = [];
     for (const [index, reference] of (rec["requestedBundles"]).entries()) {
-      if (validateBundleReference(reference, `/requestedBundles/${index}`, diagnostics)) {
+      if (validateBundleReference(reference, `/requestedBundles/${String(index)}`, diagnostics)) {
         keys.push(`${reference.id}\u{0}${reference.version}\u{0}${reference.digest}`);
       }
     }

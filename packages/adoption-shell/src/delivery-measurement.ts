@@ -88,7 +88,7 @@ function validateQualifyingEvidence(
     : 0;
   if (Array.isArray(value)) {
     for (const [index, row] of value.entries()) {
-      const rowPointer = `${pointer}/qualifyingEvidence/${index}`;
+      const rowPointer = `${pointer}/qualifyingEvidence/${String(index)}`;
       if (diagnostics.object(row, rowPointer, ["kind", "verificationRef"], ["kind", "verificationRef"])) {
         const rec = row;
         oneOf(rec["kind"], `${rowPointer}/kind`, DELIVERY_EVIDENCE_KINDS, diagnostics);
@@ -110,7 +110,7 @@ function validateActivityRefs(
 
   const refs: string[] = [];
   for (const [index, row] of (value).entries()) {
-    if (ref(row, `${pointer}/activityRefs/${index}`, diagnostics)) refs.push(row);
+    if (ref(row, `${pointer}/activityRefs/${String(index)}`, diagnostics)) refs.push(row);
   }
   assertSortedUnique(refs, `${pointer}/activityRefs`, diagnostics);
 }
@@ -242,7 +242,7 @@ function validateHumanMessage(
   if (diagnostics.array(value["relatedRefs"], `${pointer}/relatedRefs`, 0, 128)) {
     const refs: string[] = [];
     for (const [index, row] of value["relatedRefs"].entries()) {
-      if (ref(row, `${pointer}/relatedRefs/${index}`, diagnostics)) refs.push(row);
+      if (ref(row, `${pointer}/relatedRefs/${String(index)}`, diagnostics)) refs.push(row);
     }
     assertSortedUnique(refs, `${pointer}/relatedRefs`, diagnostics);
   }
@@ -262,7 +262,7 @@ function validateEventCoverage(
   if (diagnostics.array(rec["errors"], `${pointer}/errors`, 0, 32)) {
     const errors: string[] = [];
     for (const [index, row] of (rec["errors"]).entries()) {
-      if (oneOf(row, `${pointer}/errors/${index}`, DELIVERY_COVERAGE_ERRORS, diagnostics)) {
+      if (oneOf(row, `${pointer}/errors/${String(index)}`, DELIVERY_COVERAGE_ERRORS, diagnostics)) {
         errors.push(row);
       }
     }
@@ -281,7 +281,7 @@ function validateTokenUsageArray(value: unknown, diagnostics: Diagnostics): void
   if (!diagnostics.array(value, "/tokenUsage", 0, 128) || !Array.isArray(value)) return;
   const ids: string[] = [];
   for (const [index, row] of value.entries()) {
-    const id = validateTokenUsage(row, `/tokenUsage/${index}`, diagnostics);
+    const id = validateTokenUsage(row, `/tokenUsage/${String(index)}`, diagnostics);
     if (id !== null) ids.push(id);
   }
   assertSortedUnique(ids, "/tokenUsage", diagnostics);
@@ -291,7 +291,7 @@ function validateSloDeltasArray(value: unknown, diagnostics: Diagnostics): void 
   if (!diagnostics.array(value, "/sloDeltas", 0, 128) || !Array.isArray(value)) return;
   const ids: string[] = [];
   for (const [index, row] of value.entries()) {
-    const id = validateSloDelta(row, `/sloDeltas/${index}`, diagnostics);
+    const id = validateSloDelta(row, `/sloDeltas/${String(index)}`, diagnostics);
     if (id !== null) ids.push(id);
   }
   assertSortedUnique(ids, "/sloDeltas", diagnostics);
@@ -307,7 +307,7 @@ function validateHumanMessagesArray(
   for (const [index, row] of value.entries()) {
     const id = validateHumanMessage(
       row,
-      `/humanMessages/${index}`,
+      `/humanMessages/${String(index)}`,
       workId,
       diagnostics,
     );
@@ -363,7 +363,7 @@ function validateClass(
   if (diagnostics.array(value["evidenceKinds"], `${pointer}/evidenceKinds`, 1, 4)) {
     const kinds: string[] = [];
     for (const [index, row] of value["evidenceKinds"].entries()) {
-      if (oneOf(row, `${pointer}/evidenceKinds/${index}`, DELIVERY_EVIDENCE_KINDS, diagnostics)) {
+      if (oneOf(row, `${pointer}/evidenceKinds/${String(index)}`, DELIVERY_EVIDENCE_KINDS, diagnostics)) {
         kinds.push(row);
       }
     }
@@ -435,7 +435,7 @@ function validateDeclarationSlis(
   if (!diagnostics.array(value, pointer, 6, 6)) return;
   const ids: string[] = [];
   for (const [index, row] of (value).entries()) {
-    const rowPointer = `${pointer}/${index}`;
+    const rowPointer = `${pointer}/${String(index)}`;
     const sliFields = [
       "id", "scopes", "targetRef", "budgetRef", "windowRef",
       "exceptionPolicyRef", "revisitTrigger", "centralRollupRef",
@@ -501,7 +501,7 @@ export function validateDeliveryDeclarationV1(
   if (diagnostics.array(value["meaningfulClasses"], "/meaningfulClasses", 1, 128)) {
     const ids: string[] = [];
     for (const [index, row] of value["meaningfulClasses"].entries()) {
-      const id = validateClass(row, `/meaningfulClasses/${index}`, diagnostics);
+      const id = validateClass(row, `/meaningfulClasses/${String(index)}`, diagnostics);
       if (id !== null) ids.push(id);
     }
     assertSortedUnique(ids, "/meaningfulClasses", diagnostics);
