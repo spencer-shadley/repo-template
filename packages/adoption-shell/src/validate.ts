@@ -250,9 +250,11 @@ function validatePayloadEntry(
   );
 }
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();
-  return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+  return rows.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: rows };
 }
 
 function validateReleaseEntries(
@@ -291,7 +293,7 @@ export function validateReleasePayloadSetV2(value: unknown): ValidationResult<Re
     "migrationRefs", "entries",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as ReleasePayloadSet, diagnostics);
+    return finish<ReleasePayloadSet>(undefined, diagnostics);
   }
   const rec = value;
   schemaIdentity(rec, "", SCHEMA_IDS.releasePayloadSet, SCHEMA_DIGESTS.releasePayloadSet, diagnostics);
@@ -352,7 +354,7 @@ export function validateMaterializerInputV2(value: unknown): ValidationResult<Ma
     "capabilities", "requestedBundles", "conformance",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as MaterializerInput, diagnostics);
+    return finish<MaterializerInput>(undefined, diagnostics);
   }
   const rec = value;
   schemaIdentity(rec, "", SCHEMA_IDS.materializerInput, SCHEMA_DIGESTS.materializerInput, diagnostics);

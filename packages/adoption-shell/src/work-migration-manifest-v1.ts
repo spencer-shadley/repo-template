@@ -78,7 +78,7 @@ const migrateReasons = new Set<string>([
   "LEGACY_CLOSED",
   "LEGACY_HELD_COMPLETE",
 ]);
-const retireReasons = new Set<RetireReasonCode>([
+const retireReasons: ReadonlySet<string> = new Set<RetireReasonCode>([
   "INCOMPLETE_EVIDENCE",
   "AMBIGUOUS_STATUS",
   "INVALID_V1",
@@ -157,7 +157,7 @@ function isMigrateReason(reason: string): reason is MigrateReasonCode {
 }
 
 function isRetireReason(reason: string): reason is RetireReasonCode {
-  return retireReasons.has(reason as RetireReasonCode);
+  return retireReasons.has(reason);
 }
 
 function validDecision(value: unknown): value is WorkMigrationDecisionV1 {

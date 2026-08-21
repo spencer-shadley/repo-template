@@ -36,9 +36,11 @@ const ENTRY_ROLES = new Set([
   "capability-golden",
 ]);
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();
-  return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+  return rows.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: rows };
 }
 
 function schemaIdentity(
@@ -293,7 +295,7 @@ export function validateMaterializerOutputManifestV2(
     "outputPayloadDigest", "entryCount", "selectedBundles", "migrationRefs", "entries",
   ];
   if (!diagnostics.object(value, "", fields, fields) || !isRecord(value)) {
-    return finish(value as MaterializerOutputManifest, diagnostics);
+    return finish<MaterializerOutputManifest>(undefined, diagnostics);
   }
   const rec = value;
   schemaIdentity(rec, SCHEMA_IDS.materializerOutputManifest, SCHEMA_DIGESTS.materializerOutputManifest, diagnostics);
@@ -384,7 +386,7 @@ export function validateArtifactManifestV2(
     "releaseReceiptKind", "sources", "schemas", "emitted", "fixtures", "goldens",
   ];
   if (!diagnostics.object(value, "", fields, fields) || !isRecord(value)) {
-    return finish(value as ArtifactManifest, diagnostics);
+    return finish<ArtifactManifest>(undefined, diagnostics);
   }
   const rec = value;
   schemaIdentity(rec, SCHEMA_IDS.artifactManifest, SCHEMA_DIGESTS.artifactManifest, diagnostics);
@@ -441,7 +443,7 @@ export function validateVerificationReceiptV2(
     "result",
   ];
   if (!diagnostics.object(value, "", fields, fields) || !isRecord(value)) {
-    return finish(value as VerificationReceipt, diagnostics);
+    return finish<VerificationReceipt>(undefined, diagnostics);
   }
   schemaIdentity(
     value,
