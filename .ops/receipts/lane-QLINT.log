@@ -3,3 +3,5 @@
 2026-08-20T17:10:20-07:00 issue #167 implementation heartbeat: focused pnpm lint exposed missing pnpm-isolated ESLint executable; added direct runner dependency while preserving kit-owned policy.
 2026-08-20T17:15:03-07:00 issue #167 implementation heartbeat: full pnpm verify ran fail-closed at the required Betterleaks binary boundary; deterministic suite found release payload bytes stale after the portable addition, so regenerating the owned release artifact.
 2026-08-20T17:16:27-07:00 issue #167 implementation heartbeat: release payload generator correctly reads HEAD; creating the candidate commit before regenerating its HEAD-addressed release bytes, then will amend and re-verify.
+2026-08-20T17:23:08-07:00 issue #167 implementation heartbeat: deterministic post-commit checks passed; PR #168 has been requested for squash merge with the recorded Betterleaks host-binary environment exception.
+2026-08-20T17:30:06-07:00 issue #167 implementation heartbeat: PR #168 squash-merged as ac5a2c0 and issue #167 closed; canonical repo-template worktree verified clean, with no secret-scan bypass.
