@@ -418,14 +418,17 @@ export function validateWorkMigrationManifestV1(
   );
 }
 
+function assertNoUnclassifiedEntries(unclassifiedCount: number): void {
+  if (unclassifiedCount !== 0) throw new TypeError("unclassifiedCount must be zero");
+}
+
 export function createWorkMigrationManifestV1(
   input: Omit<WorkMigrationManifestV1, "manifestSha256">,
 ): WorkMigrationManifestV1 {
-  if (input.unclassifiedCount !== 0) throw new TypeError("unclassifiedCount must be zero");
+  assertNoUnclassifiedEntries(input.unclassifiedCount);
   const decisions = [...input.decisions].sort((left, right) =>
     left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
-  const dispositions = [...input.archive.dispositions].sort((left, right) =>
-    left.decision < right.decision ? -1 : left.decision > right.decision ? 1 : 0);
+  const dispositions = [...input.archive.dispositions];
   const members = [...input.archive.members].sort((left, right) =>
     left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
   const body = {

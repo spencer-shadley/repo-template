@@ -41,29 +41,27 @@ void test("valid LocalCiContractV2 fixture passes validation", () => {
   const validFixture = readJsonFixture("valid-local-ci-v2.json");
   const result = validateLocalCiContractV2(validFixture);
   assert.equal(result.ok, true);
-  if (result.ok) {
-    assert.equal(result.value.schemaId, LOCAL_CI_CONTRACT_V2_SCHEMA_ID);
-    assert.equal(result.value.schemaVersion, LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION);
-    assert.equal(result.value.contractId, LOCAL_CI_CONTRACT_V2_ID);
-    assert.equal(result.value.repository, "spencer-shadley/repo-template");
-    assert.equal(result.value.canonicalBranch, "master");
-    assert.deepEqual(Object.keys(result.value.commands).sort(), ["authoritative-gate", "lint", "typecheck"]);
-    assert.deepEqual(
-      orderedLocalCiCommands(result.value).map(({ id, order, isAuthoritativeGate }) => ({
-        id,
-        order,
-        isAuthoritativeGate,
-      })),
-      [
-        { id: "lint", order: 0, isAuthoritativeGate: false },
-        { id: "typecheck", order: 1, isAuthoritativeGate: false },
-        { id: "authoritative-gate", order: 2, isAuthoritativeGate: true },
-      ],
-    );
-    assert.equal(result.value.environment.networkExpectation, "offline-only");
-    assert.equal(result.value.effects.credentialsAccess, false);
-    assert.equal(result.value.effects.externalMutation, false);
-  }
+  assert.equal(result.value.schemaId, LOCAL_CI_CONTRACT_V2_SCHEMA_ID);
+  assert.equal(result.value.schemaVersion, LOCAL_CI_CONTRACT_V2_SCHEMA_VERSION);
+  assert.equal(result.value.contractId, LOCAL_CI_CONTRACT_V2_ID);
+  assert.equal(result.value.repository, "spencer-shadley/repo-template");
+  assert.equal(result.value.canonicalBranch, "master");
+  assert.deepEqual(Object.keys(result.value.commands).sort(), ["authoritative-gate", "lint", "typecheck"]);
+  assert.deepEqual(
+    orderedLocalCiCommands(result.value).map(({ id, order, isAuthoritativeGate }) => ({
+      id,
+      order,
+      isAuthoritativeGate,
+    })),
+    [
+      { id: "lint", order: 0, isAuthoritativeGate: false },
+      { id: "typecheck", order: 1, isAuthoritativeGate: false },
+      { id: "authoritative-gate", order: 2, isAuthoritativeGate: true },
+    ],
+  );
+  assert.equal(result.value.environment.networkExpectation, "offline-only");
+  assert.equal(result.value.effects.credentialsAccess, false);
+  assert.equal(result.value.effects.externalMutation, false);
 });
 
 void test("all negative V2 contract fixtures fail validation with stable reason codes", () => {
@@ -81,14 +79,12 @@ void test("all negative V2 contract fixtures fail validation with stable reason 
     const data = readJsonFixture(c.fixture);
     const result = validateLocalCiContractV2(data);
     assert.equal(result.ok, false, `Expected ${c.fixture} to fail validation`);
-    if (!result.ok) {
-      const hasCode = result.diagnostics.some((d) => d.code === c.expectedCode);
-      assert.equal(
-        hasCode,
-        true,
-        `Expected ${c.fixture} diagnostic codes ${JSON.stringify(result.diagnostics)} to include ${c.expectedCode}`,
-      );
-    }
+    const hasCode = result.diagnostics.some((d) => d.code === c.expectedCode);
+    assert.equal(
+      hasCode,
+      true,
+      `Expected ${c.fixture} diagnostic codes ${JSON.stringify(result.diagnostics)} to include ${c.expectedCode}`,
+    );
   }
 });
 
@@ -151,7 +147,7 @@ void test("runtime validation rejects every adversarial schema-parity probe", ()
     mutate(value);
     const result = validateLocalCiContractV2(value);
     assert.equal(result.ok, false, name);
-    if (!result.ok) assert.equal(result.diagnostics.some((d) => d.code === code), true, name);
+    assert.equal(result.diagnostics.some((d) => d.code === code), true, name);
   }
 });
 

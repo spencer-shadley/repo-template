@@ -73,13 +73,11 @@ void test("activity proxies and receipts alone never qualify as meaningful deliv
   event.outcome.qualifyingEvidence = [];
   const result = validateDeliveryEventV1(event);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(
-      result.diagnostics.some(
-        (row) => row.code === "E_MEANINGFUL_QUALIFICATION",
-      ),
-    );
-  }
+  assert.ok(
+    result.diagnostics.some(
+      (row) => row.code === "E_MEANINGFUL_QUALIFICATION",
+    ),
+  );
 
   event.outcome.meaningful = false;
   event.outcome.meaningfulClass = null;
@@ -102,17 +100,13 @@ void test("coverage errors remain visible without blocking structurally valid so
   event.coverage.complete = true;
   const inconsistent = validateDeliveryEventV1(event);
   assert.equal(inconsistent.ok, false);
-  if (!inconsistent.ok) {
-    assert.ok(inconsistent.diagnostics.some((row) => row.code === "E_COVERAGE"));
-  }
+  assert.ok(inconsistent.diagnostics.some((row) => row.code === "E_COVERAGE"));
 
   event.coverage.complete = false;
   event.coverage.errors = [];
   const omitted = validateDeliveryEventV1(event);
   assert.equal(omitted.ok, false);
-  if (!omitted.ok) {
-    assert.ok(omitted.diagnostics.some((row) => row.code === "E_COVERAGE"));
-  }
+  assert.ok(omitted.diagnostics.some((row) => row.code === "E_COVERAGE"));
 });
 
 void test("declaration rejects a weighted class exceeding the schema's maximum weight", () => {
@@ -132,14 +126,12 @@ void test("declaration rejects a weighted class exceeding the schema's maximum w
   declaredClass.weight = 1000.01;
   const result = validateDeliveryDeclarationV1(declaration);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(
-      result.diagnostics.some(
-        (row) =>
-          row.pointer === "/meaningfulClasses/0/weight" && row.code === "E_RANGE",
-      ),
-    );
-  }
+  assert.ok(
+    result.diagnostics.some(
+      (row) =>
+        row.pointer === "/meaningfulClasses/0/weight" && row.code === "E_RANGE",
+    ),
+  );
 });
 
 void test("declaration rejects incomplete SLI coverage and proxy drift", () => {
@@ -153,12 +145,10 @@ void test("declaration rejects incomplete SLI coverage and proxy drift", () => {
   declaration.antiGamingExclusions.pop();
   const result = validateDeliveryDeclarationV1(declaration);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.pointer === "/slis"));
-    assert.ok(
-      result.diagnostics.some(
-        (row) => row.pointer === "/antiGamingExclusions",
-      ),
-    );
-  }
+  assert.ok(result.diagnostics.some((row) => row.pointer === "/slis"));
+  assert.ok(
+    result.diagnostics.some(
+      (row) => row.pointer === "/antiGamingExclusions",
+    ),
+  );
 });

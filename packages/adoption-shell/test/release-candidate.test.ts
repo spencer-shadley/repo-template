@@ -88,7 +88,6 @@ void test("candidate builder deterministically constructs a valid non-authoritat
   });
   assert.equal(first.ok, true);
   assert.equal(second.ok, true);
-  if (!first.ok || !second.ok) return;
   assert.equal(first.value.receipt.publicationState, "candidate");
   assert.equal(first.value.receipt.releaseId, "spencer-shadley/repo-template@3.0.0");
   assert.equal(first.value.receipt.producer.tag, "v3.0.0");
@@ -101,9 +100,7 @@ void test("candidate builder fails closed on invalid identity, unknown authority
   const invalidIdentity = { ...input(), semver: "3" };
   let result = createTemplateReleaseCandidateV1(invalidIdentity);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.pointer === "/semver"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.pointer === "/semver"));
 
   const foreignAuthority = {
     ...input(),
@@ -111,9 +108,7 @@ void test("candidate builder fails closed on invalid identity, unknown authority
   };
   result = createTemplateReleaseCandidateV1(foreignAuthority);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
 
   const validPayload = input();
   const payloadDrift = {
@@ -125,9 +120,7 @@ void test("candidate builder fails closed on invalid identity, unknown authority
   };
   result = createTemplateReleaseCandidateV1(payloadDrift);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_PAYLOAD_DIGEST"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_PAYLOAD_DIGEST"));
 });
 
 void test("candidate builder preserves valid closed release evidence", () => {
@@ -137,7 +130,6 @@ void test("candidate builder preserves valid closed release evidence", () => {
     releaseEvidence: evidence,
   });
   assert.equal(result.ok, true);
-  if (!result.ok) return;
   assert.deepEqual(result.value.receipt.releaseEvidence, evidence);
 
   const malformed = {
@@ -152,13 +144,11 @@ void test("candidate builder preserves valid closed release evidence", () => {
     releaseEvidence: malformed,
   });
   assert.equal(rejected.ok, false);
-  if (!rejected.ok) {
-    assert.ok(rejected.diagnostics.some(
-      (row) =>
-        row.code === "E_UNKNOWN_PROPERTY" &&
-        row.pointer === "/releaseEvidence/review/ambientAuthority",
-    ));
-  }
+  assert.ok(rejected.diagnostics.some(
+    (row) =>
+      row.code === "E_UNKNOWN_PROPERTY" &&
+      row.pointer === "/releaseEvidence/review/ambientAuthority",
+  ));
 });
 
 void test("payload builder hashes, sorts, and reproduces the canonical release payload set", () => {
@@ -169,7 +159,6 @@ void test("payload builder hashes, sorts, and reproduces the canonical release p
   const original = canonicalizeJson(drafts);
   const result = createReleasePayloadSetV2(drafts);
   assert.equal(result.ok, true);
-  if (!result.ok) return;
   assert.equal(canonicalizeJson(result.value), canonicalizeJson(canonical));
   assert.equal(canonicalizeJson(drafts), original);
 });
@@ -186,25 +175,17 @@ void test("payload builder rejects malformed drafts without throwing", () => {
   };
   let result = createReleasePayloadSetV2([malformedBase64]);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_BASE64"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_BASE64"));
 
   result = createReleasePayloadSetV2([{ ...validDraft, foreignAuthority: true }]);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
 
   result = createReleasePayloadSetV2([]);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_COUNT"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_COUNT"));
 
   result = createReleasePayloadSetV2(validDraft);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_TYPE"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_TYPE"));
 });

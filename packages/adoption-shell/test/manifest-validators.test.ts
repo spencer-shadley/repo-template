@@ -46,16 +46,14 @@ void test("capability-owned output entries reject a malformed bundleId", () => {
 
   const result = validateMaterializerOutputManifestV2(manifest);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(
-      result.diagnostics.some(
-        (row) =>
-          row.pointer === "/entries/1/bundleId" &&
-          (row.code === "E_FORMAT" || row.code === "E_LENGTH"),
-      ),
-      JSON.stringify(result.diagnostics),
-    );
-  }
+  assert.ok(
+    result.diagnostics.some(
+      (row) =>
+        row.pointer === "/entries/1/bundleId" &&
+        (row.code === "E_FORMAT" || row.code === "E_LENGTH"),
+    ),
+    JSON.stringify(result.diagnostics),
+  );
 });
 
 function readArtifactManifest(): Record<string, unknown> {
@@ -267,14 +265,12 @@ void test("artifact manifest validator rejects every mutated field with a target
       : manifest;
     const result = validateArtifactManifestV2(candidate);
     assert.equal(result.ok, false, testCase.name);
-    if (!result.ok) {
-      assert.ok(
-        result.diagnostics.some(
-          (row) => row.code === testCase.code && row.pointer === testCase.pointer,
-        ),
-        `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
-      );
-    }
+    assert.ok(
+      result.diagnostics.some(
+        (row) => row.code === testCase.code && row.pointer === testCase.pointer,
+      ),
+      `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
+    );
   }
 });
 
@@ -359,14 +355,12 @@ void test("verification receipt validator rejects every mutated field with a tar
       : receipt;
     const result = validateVerificationReceiptV2(candidate);
     assert.equal(result.ok, false, testCase.name);
-    if (!result.ok) {
-      assert.ok(
-        result.diagnostics.some(
-          (row) => row.code === testCase.code && row.pointer === testCase.pointer,
-        ),
-        `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
-      );
-    }
+    assert.ok(
+      result.diagnostics.some(
+        (row) => row.code === testCase.code && row.pointer === testCase.pointer,
+      ),
+      `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
+    );
   }
 });
 
@@ -496,13 +490,11 @@ void test("materializer output manifest validator rejects every mutated field wi
       candidate,
     );
     assert.equal(result.ok, false, testCase.name);
-    if (!result.ok) {
-      assert.ok(
-        result.diagnostics.some(
-          (row) => row.code === testCase.code && row.pointer === testCase.pointer,
-        ),
-        `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
-      );
-    }
+    assert.ok(
+      result.diagnostics.some(
+        (row) => row.code === testCase.code && row.pointer === testCase.pointer,
+      ),
+      `${testCase.name}: ${JSON.stringify(result.diagnostics)}`,
+    );
   }
 });

@@ -108,12 +108,10 @@ void test("candidate receipt validates but carries no publication authority", ()
   assert.equal(validateTemplateReleaseReceiptV1(candidate).ok, true);
   const authority = validatePublishedTemplateReleaseReceiptV1(candidate);
   assert.equal(authority.ok, false);
-  if (!authority.ok) {
-    assert.deepEqual(
-      authority.diagnostics.map((diagnostic) => diagnostic.code),
-      ["E_PUBLICATION_AUTHORITY"],
-    );
-  }
+  assert.deepEqual(
+    authority.diagnostics.map((diagnostic) => diagnostic.code),
+    ["E_PUBLICATION_AUTHORITY"],
+  );
 });
 
 void test("closed release evidence binds review, canaries, checks, readback, and rollback", () => {
@@ -192,9 +190,7 @@ void test("identity, transport, authority fields, ordering, and digest fail clos
   releaseId["releaseId"] = "spencer-shadley/repo-template@9.9.9";
   let result = validateTemplateReleaseReceiptV1(releaseId);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_RELEASE_ID"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_RELEASE_ID"));
 
   const transport = clone(fixture()) as unknown as {
     receiptTransport: { tagName: string };
@@ -202,17 +198,13 @@ void test("identity, transport, authority fields, ordering, and digest fail clos
   transport.receiptTransport.tagName = "v9.9.9";
   result = validateTemplateReleaseReceiptV1(transport);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_TAG_TRANSPORT"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_TAG_TRANSPORT"));
 
   const ambient = clone(fixture()) as unknown as Record<string, unknown>;
   ambient["createdAt"] = "2026-07-25T00:00:00Z";
   result = validateTemplateReleaseReceiptV1(ambient);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
 
   const unsorted = clone(fixture()) as unknown as {
     capabilityBundles: { id: string; version: string; digest: string }[];
@@ -225,15 +217,11 @@ void test("identity, transport, authority fields, ordering, and digest fail clos
   ];
   result = validateTemplateReleaseReceiptV1(unsorted);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_SORT_ORDER"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_SORT_ORDER"));
 
   const digest = clone(fixture()) as unknown as { receiptDigest: string };
   digest.receiptDigest = "0".repeat(64);
   result = validateTemplateReleaseReceiptV1(digest);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.ok(result.diagnostics.some((row) => row.code === "E_RECEIPT_DIGEST"));
-  }
+  assert.ok(result.diagnostics.some((row) => row.code === "E_RECEIPT_DIGEST"));
 });

@@ -175,26 +175,20 @@
     }
   },
   "packages/adoption-shell/src/work-migration-manifest-v1.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 3
-    },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
     },
     "unicorn/no-array-sort": {
-      "count": 6
+      "count": 5
     },
     "unicorn/prefer-simple-sort-comparator": {
-      "count": 4
+      "count": 3
     },
     "unicorn/require-array-sort-compare": {
       "count": 2
     }
   },
   "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 4
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
@@ -237,9 +231,6 @@
     }
   },
   "packages/adoption-shell/test/delivery-measurement.test.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 5
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
@@ -262,9 +253,6 @@
     "@typescript-eslint/no-explicit-any": {
       "count": 5
     },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 3
-    },
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 2
     },
@@ -285,9 +273,6 @@
     "@typescript-eslint/no-explicit-any": {
       "count": 2
     },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 2
-    },
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 2
     },
@@ -305,9 +290,6 @@
     }
   },
   "packages/adoption-shell/test/local-ci-outcome-v1.test.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
     "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
@@ -319,9 +301,6 @@
     }
   },
   "packages/adoption-shell/test/manifest-validators.test.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 4
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
@@ -352,9 +331,6 @@
     }
   },
   "packages/adoption-shell/test/release-candidate.test.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 12
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
@@ -366,9 +342,6 @@
     }
   },
   "packages/adoption-shell/test/release-closure.test.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
@@ -382,9 +355,6 @@
   "packages/adoption-shell/test/release-receipt.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
-    },
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 6
     },
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 1
@@ -400,9 +370,6 @@
     }
   },
   "packages/adoption-shell/test/validation-materialization.test.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
