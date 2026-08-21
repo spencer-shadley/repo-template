@@ -78,6 +78,13 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Changed
 
+- Copied Code's generated dual-ladder `.github/ISSUE_TEMPLATE/task.md`
+  (`governed-intake-body-v1`) so portable intake no longer ships a single
+  "Fix or next action" column. Provenance path stays this repo's
+  `.github/ISSUE_TEMPLATE/task.md`. The intake recurrence guard now requires
+  all nine ranks, both Defect ladders, and legal status tokens. MINOR.
+  Fixes #184.
+
 - Documented the fleet SLI 30 `repo_source_stock` repo source-stock split-trigger in
   `docs/QUALITY-LINT.md`. MINOR. Fixes #164.
 

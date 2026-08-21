@@ -25,7 +25,38 @@ const REQUIRED_HEADINGS = [
   "Durable fix and acceptance",
   "Human-decision state",
 ] as const;
-const TAXONOMY_RANKS = ["Subspecies", "Species", "Genus", "Family", "Phylum"] as const;
+const TAXONOMY_RANKS = [
+  "Subspecies",
+  "Species",
+  "Genus",
+  "Family",
+  "Order",
+  "Class",
+  "Phylum",
+  "Kingdom",
+  "Domain",
+] as const;
+const CAUSAL_CLIMB_COLUMNS = ["Rank", "Finding", "Disposition", "Reified as"] as const;
+const PREVENTION_HEADING = "Prevention — never again";
+const DETECT_HEADING = "Detect / self-heal / recover — if it still happens";
+const PREVENTION_COLUMNS = ["Rank", "Preventive control", "Status"] as const;
+const DETECT_COLUMNS = [
+  "Rank",
+  "Notice",
+  "Self-heal / contain",
+  "Restore",
+  "Escalate if no progress",
+  "Status",
+] as const;
+const STATUS_TOKENS = [
+  "landed",
+  "assigned-issue",
+  "already-owned",
+  "inherited",
+  "N/A",
+  "evidence-ceiling",
+  "TBD — triage",
+] as const;
 
 interface ValidateResult {
   readonly ok: boolean;
@@ -80,6 +111,27 @@ function validateTaxonomySection(text: string, missing: string[]): void {
       missing.push(`taxonomy rank row: ${rank}`);
     }
   }
+  const causalHeader = `| ${CAUSAL_CLIMB_COLUMNS.join(" | ")} |`;
+  if (!section.includes(causalHeader)) {
+    missing.push(`causal climb columns: ${CAUSAL_CLIMB_COLUMNS.join(", ")}`);
+  }
+  if (section.includes("| Fix or next action |")) {
+    missing.push("causal climb still uses Fix or next action; use Defect ladders A and B");
+  }
+  if (!section.includes(PREVENTION_HEADING)) {
+    missing.push(`Defect ladder A: ${PREVENTION_HEADING}`);
+  }
+  if (!section.includes(DETECT_HEADING)) {
+    missing.push(`Defect ladder B: ${DETECT_HEADING}`);
+  }
+  const preventionHeader = `| ${PREVENTION_COLUMNS.join(" | ")} |`;
+  const detectHeader = `| ${DETECT_COLUMNS.join(" | ")} |`;
+  if (!section.includes(preventionHeader)) {
+    missing.push(`prevention columns: ${PREVENTION_COLUMNS.join(", ")}`);
+  }
+  if (!section.includes(detectHeader)) {
+    missing.push(`detect/heal/recover columns: ${DETECT_COLUMNS.join(", ")}`);
+  }
 }
 
 function validate(templateMarkdown: string): ValidateResult {
@@ -92,6 +144,11 @@ function validate(templateMarkdown: string): ValidateResult {
   }
   validateProvenance(text, missing);
   validateTaxonomySection(text, missing);
+  for (const token of STATUS_TOKENS) {
+    if (!text.includes("`" + token + "`")) {
+      missing.push(`status token: ${token}`);
+    }
+  }
   return missing.length
     ? { ok: false, missing, schemaVersion: "governed-intake-body-v1" }
     : { ok: true, schemaVersion: "governed-intake-body-v1" };
