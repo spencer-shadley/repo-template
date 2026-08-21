@@ -40,10 +40,130 @@ const kitRoot = join(templateRoot, "packages", "repo-quality");
 const isKitPackage = root === kitRoot;
 const isTemplateRepository = root === templateRoot;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function readJsonRecord(filePath: string): Record<string, unknown> {
+  const parsed: unknown = JSON.parse(read(filePath));
+  if (!isRecord(parsed)) throw new Error(`${filePath} must contain a JSON object`);
+  return parsed;
+}
+
+function globMatches(pattern: string, value: string): boolean {
+  let source = "^";
+  for (let index = 0; index < pattern.length; index += 1) {
+    const character = pattern[index] ?? "";
+    if (character === "*" && pattern[index + 1] === "*") {
+      if (pattern[index + 2] === "/") {
+        source += "(?:.*/)?";
+        index += 2;
+      } else {
+        source += ".*";
+        index += 1;
+      }
+    } else if (character === "*") {
+      source += "[^/]*";
+    } else if (character === "?") {
+      source += "[^/]";
+    } else {
+      source += /[\\^$.*+?()[\]{}|]/.test(character) ? `\\${character}` : character;
+    }
+  }
+  return new RegExp(`${source}$`, "u").test(value);
+}
+
+function hasBlockingLintCommand(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return Object.values(value).some((command) =>
+    isRecord(command)
+    && command["executable"] === "pnpm"
+    && Array.isArray(command["args"])
+    && command["args"].length === 1
+    && command["args"][0] === "lint"
+    && command["failureDisposition"] === "fail-gate",
+  );
+}
+
+function canonicalQualityLintClass(): Record<string, unknown> | undefined {
+  const declarationPath = isTemplateRepository
+    ? join(kitRoot, "quality-lint-simple-diff.json")
+    : join(root, "node_modules", "@spencer-shadley", "repo-quality", "quality-lint-simple-diff.json");
+  if (!existsSync(declarationPath)) return undefined;
+  try {
+    const declaration = readJsonRecord(declarationPath);
+    const candidate = declaration["quality-lint"];
+    return isRecord(candidate) ? candidate : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function isUsableQualityLintClass(value: Record<string, unknown> | undefined): boolean {
+  const paths = value?.["paths"];
+  return value !== undefined
+    && Array.isArray(paths)
+    && paths.length > 0
+    && paths.every((path) => typeof path === "string")
+    && hasBlockingLintCommand(value["commands"]);
+}
+
+function readSimpleDiff(): Record<string, unknown> | undefined {
+  const localCiPath = join(root, "local-ci.json");
+  if (!existsSync(localCiPath)) return undefined;
+  try {
+    const localCi = readJsonRecord(localCiPath);
+    return isRecord(localCi["simpleDiff"]) ? localCi["simpleDiff"] : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function coversQualityLint(simpleDiff: Record<string, unknown>): boolean {
+  const representativePaths = [
+    "eslint.config.mjs",
+    "eslint.quality.mjs",
+    "eslint-suppressions.json",
+    "package.json",
+    "pnpm-lock.yaml",
+    "package-lock.json",
+    "docs/QUALITY-LINT.md",
+    "scripts/verify-quality-lint-required.ts",
+  ];
+  return Object.values(simpleDiff).some((candidate) => {
+    if (!isRecord(candidate) || !Array.isArray(candidate["paths"])) return false;
+    const patterns = candidate["paths"].filter((path): path is string => typeof path === "string");
+    return hasBlockingLintCommand(candidate["commands"])
+      && representativePaths.every((path) => patterns.some((pattern) => globMatches(pattern, path)));
+  });
+}
+
+function qualityLintSimpleDiffErrors(): string[] {
+  if (isKitPackage) return [];
+  const canonicalClass = canonicalQualityLintClass();
+  if (
+    !isUsableQualityLintClass(canonicalClass)
+  ) {
+    return [`${kitName}/quality-lint-simple-diff.json must declare blocking quality-lint paths and pnpm lint`];
+  }
+  const simpleDiff = readSimpleDiff();
+  if (!simpleDiff) return ["local-ci.json must declare simpleDiff.quality-lint or a covering superset"];
+  if (!coversQualityLint(simpleDiff)) {
+    return ["local-ci.json must declare blocking simpleDiff.quality-lint or a covering superset"];
+  }
+  if (
+    isTemplateRepository
+    && JSON.stringify(simpleDiff["quality-lint"]) !== JSON.stringify(canonicalClass)
+  ) {
+    return ["template local-ci.json quality-lint must exactly project the repo-quality declaration"];
+  }
+  return [];
+}
+
 const localKnipConfigPath = join(root, "knip.json");
 if (!isKitPackage && existsSync(localKnipConfigPath)) {
   const localKnipConfig = read(localKnipConfigPath);
-  const cyclesMatch = localKnipConfig.match(/"cycles"\s*:\s*"([^"]+)"/);
+  const cyclesMatch = /"cycles"\s*:\s*"([^"]+)"/.exec(localKnipConfig);
   if (cyclesMatch?.[1] === "error") {
     errors.push(
       "knip.json copies the cycles policy; invoke the repo-quality Knip wrapper instead of vendoring kit policy",
@@ -58,7 +178,7 @@ if (!isKitPackage && existsSync(localKnipConfigPath)) {
 const localJscpdConfigPath = join(root, ".jscpd.json");
 if (!isKitPackage && existsSync(localJscpdConfigPath)) {
   try {
-    const localJscpdConfig = JSON.parse(read(localJscpdConfigPath)) as Record<string, unknown>;
+    const localJscpdConfig = readJsonRecord(localJscpdConfigPath);
     const minLines = localJscpdConfig["minLines"];
     const minTokens = localJscpdConfig["minTokens"];
     const hasFailThreshold = Object.hasOwn(localJscpdConfig, "threshold");
@@ -126,18 +246,18 @@ const pkgPath = join(root, "package.json");
 if (!existsSync(pkgPath)) {
   errors.push("missing package.json");
 } else {
-  const pkg = JSON.parse(read(pkgPath)) as {
-    readonly scripts?: Record<string, string>;
-    readonly devDependencies?: Record<string, string>;
-    readonly dependencies?: Record<string, string>;
-  };
-  const scripts = pkg.scripts || {};
-  const lintScript = String(scripts["lint"] || "");
-  const verifyScript = String(scripts["verify"] || scripts["verify:self"] || "");
-  const verifySelfScript = String(scripts["verify:self"] || "");
-  const knipScript = String(scripts["knip"] || "");
-  const jscpdScript = String(scripts["dup"] || "");
-  const secretDirScript = String(scripts["secret:dir"] || "");
+  const pkg = readJsonRecord(pkgPath);
+  const scripts = isRecord(pkg["scripts"]) ? pkg["scripts"] : {};
+  const script = (name: string): string => typeof scripts[name] === "string" ? scripts[name] : "";
+  const lintScript = script("lint");
+  const verifyScript = script("verify") || script("verify:self");
+  const verifySelfScript = script("verify:self");
+  const knipScript = script("knip");
+  const jscpdScript = script("dup");
+  const secretDirScript = script("secret:dir");
+  const directDev = isRecord(pkg["devDependencies"]) ? pkg["devDependencies"] : {};
+  const dependencies = isRecord(pkg["dependencies"]) ? pkg["dependencies"] : {};
+  const dev = { ...directDev, ...dependencies };
   if (!lintScript.includes("eslint") && !verifyScript.includes("eslint")) {
     errors.push(
       'package.json scripts must run eslint (e.g. "lint": "eslint ." and verify must call lint)',
@@ -163,6 +283,9 @@ if (!existsSync(pkgPath)) {
       `package.json "secret:dir" must invoke ${kitSecretScanPath}; the kit owns the Betterleaks scan recipe`,
     );
   }
+  if (!dev["eslint"]) {
+    errors.push("missing direct eslint dependency required to run the blocking lint script under pnpm");
+  }
   if (!verifyScript.includes("knip")) {
     errors.push("package.json verify must run the kit Knip wrapper");
   }
@@ -172,13 +295,15 @@ if (!existsSync(pkgPath)) {
   if (!verifyScript.includes("secret:dir")) {
     errors.push("package.json verify must run the kit Betterleaks dir wrapper");
   }
+  if (!verifyScript.includes("verify-quality-lint-required")) {
+    errors.push("package.json verify must run verify-quality-lint-required so missing simpleDiff classes fail closed");
+  }
   if (isTemplateRepository && !verifySelfScript.includes("knip")) {
     errors.push("template package.json verify:self must run the kit Knip wrapper");
   }
   if (isTemplateRepository && !verifySelfScript.includes("dup")) {
     errors.push("template package.json verify:self must run the kit jscpd wrapper");
   }
-  const dev = { ...(pkg.devDependencies || {}), ...(pkg.dependencies || {}) };
   const kitDependency = dev[kitName];
   if (!kitDependency) {
     errors.push(`missing dependency ${kitName} (see docs/QUALITY-LINT.md)`);
@@ -186,6 +311,8 @@ if (!existsSync(pkgPath)) {
     errors.push(`${kitName} may use workspace:* only in the repo-template workspace`);
   }
 }
+
+errors.push(...qualityLintSimpleDiffErrors());
 
 if (process.argv.includes("--self-test")) {
   const kitPackagePath = join(kitRoot, "package.json");
@@ -215,6 +342,7 @@ if (process.argv.includes("--self-test")) {
     disablesNoInlineConfig("linterOptions: { noInlineConfig: false }")
       ? undefined
       : "self-test must detect a noInlineConfig opt-out",
+    ...qualityLintSimpleDiffErrors(),
   ].filter((error): error is string => error !== undefined);
   if (selfTestErrors.length > 0) {
     console.error("verify-quality-lint-required self-test: FAIL");

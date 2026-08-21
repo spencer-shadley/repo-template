@@ -750,20 +750,6 @@
       "count": 9
     }
   },
-  "scripts/verify-quality-lint-required.ts": {
-    "@typescript-eslint/no-unnecessary-type-conversion": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
-    "unicorn/no-useless-coercion": {
-      "count": 2
-    },
-    "unicorn/no-useless-fallback-in-spread": {
-      "count": 2
-    }
-  },
   "tools/artifact-build.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1

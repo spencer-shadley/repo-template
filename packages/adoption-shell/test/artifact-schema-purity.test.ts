@@ -76,6 +76,7 @@ test("generated quality-lint bundle is retained in the artifact fixture closure"
   const expectedArtifacts = [
     "docs/QUALITY-LINT.md",
     "eslint.config.mjs",
+    "local-ci.json",
     "scripts/verify-quality-lint-required.ts",
   ];
   const ownedTemp = fs.mkdtempSync(
@@ -93,7 +94,7 @@ test("generated quality-lint bundle is retained in the artifact fixture closure"
       (bundle) => bundle.id === "repo-template/quality-lint",
     );
     assert.equal(bundles.length, 1);
-    assert.equal(bundles[0]?.version, "1.0.0");
+    assert.equal(bundles[0]?.version, "1.1.0");
     assert.deepEqual(bundles[0]?.artifacts, expectedArtifacts);
     assert.deepEqual(bundles[0]?.modes, [
       {

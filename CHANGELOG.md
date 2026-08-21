@@ -6,6 +6,14 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Added
+
+- **`@spencer-shadley/repo-quality` 1.7.0 adds the portable `simpleDiff.quality-lint`
+  land-gate selector:** its checked template projection runs blocking `pnpm lint` for kit-consume
+  and lint-adapter diffs, and the bootstrap verifier fails TypeScript/JavaScript consumers that do
+  not declare this class or a covering superset. This is the deterministic response to
+  repo-template#167, where kit consumes otherwise ran an unnecessary full gate.
+
 ### Fixed
 
 - **`@spencer-shadley/repo-quality` 1.3.0 closes inline ESLint configuration as a gate

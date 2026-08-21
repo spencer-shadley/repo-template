@@ -158,11 +158,12 @@
     },
     {
       "id": "repo-template/quality-lint",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "dependencies": [],
       "artifacts": [
         "docs/QUALITY-LINT.md",
         "eslint.config.mjs",
+        "local-ci.json",
         "scripts/verify-quality-lint-required.ts"
       ],
       "fixtures": [],
@@ -174,6 +175,7 @@
           "requiredPaths": [
             "docs/QUALITY-LINT.md",
             "eslint.config.mjs",
+            "local-ci.json",
             "scripts/verify-quality-lint-required.ts"
           ]
         },
@@ -187,7 +189,7 @@
         }
       ],
       "digestAlgorithm": "sha256-rfc8785-v1",
-      "digest": "d00de76bf1d29122917b358519b8686a94b3954a7b372a556d8e465aa279ffff"
+      "digest": "bdb025ca87072d1015f0a8d85d3af01aa769b92faf426995a1bc6be14608dc09"
     },
     {
       "id": "repo-template/user-surface-lint",
@@ -255,5 +257,5 @@
       "digest": "28c17d3287f732bfcf1bab72735f8185374f091113b83d92757a0c4680413cfe"
     }
   ],
-  "registryDigest": "9cd3844cf3e1f6717a44c2106386534830ae060dacc024d7de6c8af5d83ac502"
+  "registryDigest": "941ab2910056dcb1c1422169390a22c46d965b110ba34d190abef94554495349"
 }

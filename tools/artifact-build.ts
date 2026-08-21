@@ -68,6 +68,7 @@ const PORTABLE_CAPABILITY_PATHS = [
 const QUALITY_LINT_ARTIFACT_PATHS = [
   "docs/QUALITY-LINT.md",
   "eslint.config.mjs",
+  "local-ci.json",
   "scripts/verify-quality-lint-required.ts",
 ] as const;
 const PLAN_RECORD_ARTIFACT_PATHS = [
@@ -508,6 +509,7 @@ function verifyPackage(): void {
     "@types/node": "24.13.3",
     ajv: "8.17.1",
     "ajv-formats": "3.0.1",
+    eslint: "10.8.1",
     typescript: "7.0.2",
   };
   if (
