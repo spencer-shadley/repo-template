@@ -47,7 +47,7 @@ function serializeObject(value: object, ancestors: Set<object>): string {
   if (prototype !== Object.prototype && prototype !== null) {
     throw new TypeError("RFC 8785 accepts only plain objects");
   }
-  const record = value as Record<string, unknown>;
+  const record = Object.fromEntries(Object.entries(value));
   const keys = Object.keys(record).sort();
   const rows = keys.map((key) => {
     assertUnicodeScalarString(key);

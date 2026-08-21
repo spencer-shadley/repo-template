@@ -19,9 +19,11 @@ import { validateMaterializerInputV2, validateReleasePayloadSetV2 } from "./vali
 import { validateArtifactManifestV2 } from "./validate-manifests.ts";
 import { Diagnostics } from "./validation-helpers.ts";
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();
-  return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+  return rows.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: rows };
 }
 
 function addNested(
@@ -149,7 +151,7 @@ export function validateTemplateReleaseClosureV1(
   const diagnostics = new Diagnostics();
   const fields = ["receipt", "payloadSet", "capabilityRegistry", "artifactManifest"];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as TemplateReleaseClosure, diagnostics);
+    return finish<TemplateReleaseClosure>(undefined, diagnostics);
   }
 
   const receiptResult = validateTemplateReleaseReceiptV1(value["receipt"]);
@@ -177,7 +179,7 @@ export function validateTemplateReleaseClosureV1(
     !capabilityResult.ok ||
     !artifactResult.ok
   ) {
-    return finish(value as unknown as TemplateReleaseClosure, diagnostics);
+    return finish<TemplateReleaseClosure>(undefined, diagnostics);
   }
 
   const receipt: TemplateReleaseReceipt = receiptResult.value;

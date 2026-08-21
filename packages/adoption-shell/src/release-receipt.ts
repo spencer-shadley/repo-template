@@ -25,9 +25,11 @@ import { validateTemplateReleaseEvidenceV1 } from "./release-evidence.ts";
 
 const GIT_SHA1_PATTERN = /^[0-9a-f]{40}$/;
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();
-  return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+  return rows.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: rows };
 }
 
 function validateBundleReferences(
@@ -340,7 +342,7 @@ export function validateTemplateReleaseReceiptV1(
       requiredFields,
     )
   ) {
-    return finish(value as TemplateReleaseReceipt, diagnostics);
+    return finish<TemplateReleaseReceipt>(undefined, diagnostics);
   }
 
   const rec = value;

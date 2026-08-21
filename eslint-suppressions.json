@@ -3,9 +3,6 @@
     "@typescript-eslint/no-unsafe-assignment": {
       "count": 1
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
@@ -21,7 +18,7 @@
   },
   "packages/adoption-shell/src/capability-bundles.ts": {
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 7
@@ -68,7 +65,7 @@
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
@@ -88,7 +85,7 @@
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
+      "count": 1
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 2
@@ -105,7 +102,7 @@
   },
   "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 4
+      "count": 1
     },
     "sonarjs/no-selector-parameter": {
       "count": 1
@@ -126,12 +123,7 @@
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 7
-    }
-  },
-  "packages/adoption-shell/src/release-closure.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
+      "count": 4
     }
   },
   "packages/adoption-shell/src/release-evidence.ts": {
@@ -141,7 +133,7 @@
   },
   "packages/adoption-shell/src/release-receipt.ts": {
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 3
+      "count": 2
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 1
@@ -157,7 +149,7 @@
   },
   "packages/adoption-shell/src/validate-manifests.ts": {
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 7
+      "count": 4
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
@@ -165,7 +157,7 @@
   },
   "packages/adoption-shell/src/validate.ts": {
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 4
+      "count": 2
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 3
@@ -185,9 +177,6 @@
   "packages/adoption-shell/src/work-migration-manifest-v1.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 2

@@ -190,9 +190,11 @@ function validateBundle(
   return true;
 }
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();
-  return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+  return rows.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: rows };
 }
 
 export function validateCapabilityBundleRegistryV2(
@@ -209,7 +211,7 @@ export function validateCapabilityBundleRegistryV2(
     "bundles",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as CapabilityBundleRegistry, diagnostics);
+    return finish<CapabilityBundleRegistry>(undefined, diagnostics);
   }
   diagnostics.string(value["schemaId"], "/schemaId", {
     constant: SCHEMA_IDS.capabilityBundle,

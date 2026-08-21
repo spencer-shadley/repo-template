@@ -106,9 +106,11 @@ function stringArray(value: unknown, pointer: string, min: number, max: number, 
   }
 }
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const sorted = diagnostics.sorted();
-  return sorted.length === 0 ? { ok: true, value } : { ok: false, diagnostics: sorted };
+  return sorted.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: sorted };
 }
 
 function validateDetectionProof(value: unknown, pointer: string, diagnostics: Diagnostics): void {
@@ -283,7 +285,7 @@ function validateEffectsV3(effRaw: unknown, diagnostics: Diagnostics): void {
 export function validateLocalCiContractV3(value: unknown): ValidationResult<LocalCiContractV3> {
   const diagnostics = new Diagnostics();
   const fields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
-  if (!diagnostics.object(value, "", fields, fields)) return finish(value as LocalCiContractV3, diagnostics);
+  if (!diagnostics.object(value, "", fields, fields)) return finish<LocalCiContractV3>(undefined, diagnostics);
 
   diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_ID });
   diagnostics.string(value["schemaVersion"], "/schemaVersion", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION });

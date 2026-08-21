@@ -43,9 +43,11 @@ const EXECUTED_OUTCOMES = new Set(["pass", "fail"]);
 const NOT_EXECUTED_OUTCOMES = new Set(["skipped", "could-not-execute"]);
 const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/;
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const sorted = diagnostics.sorted();
-  return sorted.length === 0 ? { ok: true, value } : { ok: false, diagnostics: sorted };
+  return sorted.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: sorted };
 }
 
 function validateExecutedOutcome(
@@ -93,9 +95,9 @@ function validateOutcomePayload(
   reason: unknown,
   diagnostics: Diagnostics,
 ): void {
-  if (outcomeValid && EXECUTED_OUTCOMES.has(outcome as string)) {
+  if (outcomeValid && typeof outcome === "string" && EXECUTED_OUTCOMES.has(outcome)) {
     validateExecutedOutcome(exitCode, reason, diagnostics);
-  } else if (outcomeValid && NOT_EXECUTED_OUTCOMES.has(outcome as string)) {
+  } else if (outcomeValid && typeof outcome === "string" && NOT_EXECUTED_OUTCOMES.has(outcome)) {
     validateNotExecutedOutcome(exitCode, reason, diagnostics);
   } else {
     if (typeof exitCode !== "number" && exitCode !== null) {
@@ -121,7 +123,7 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
     "recordedAt",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as LocalCiOutcomeV1, diagnostics);
+    return finish<LocalCiOutcomeV1>(undefined, diagnostics);
   }
 
   diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_OUTCOME_V1_SCHEMA_ID });
@@ -145,7 +147,13 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
     diagnostics.add("E_FORMAT", "/recordedAt", "must be a UTC RFC 3339 instant");
   }
 
-  validateOutcomePayload(outcome, outcomeValid, value["exitCode"], value["reason"], diagnostics);
+  validateOutcomePayload(
+    outcome,
+    outcomeValid,
+    value["exitCode"],
+    value["reason"],
+    diagnostics,
+  );
   return finish(value as unknown as LocalCiOutcomeV1, diagnostics);
 }
 
