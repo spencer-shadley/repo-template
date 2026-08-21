@@ -151,7 +151,7 @@ function validateFileRows(
   if (!diagnostics.array(value, pointer, 0, 4096)) return [];
   const rows: FileClosureRow[] = [];
   for (const [index, row] of value.entries()) {
-    if (validateFileRow(row, `${pointer}/${index}`, diagnostics)) rows.push(row);
+    if (validateFileRow(row, `${pointer}/${String(index)}`, diagnostics)) rows.push(row);
   }
   assertSortedUnique(rows.map((row) => row.path), pointer, diagnostics);
   return rows;
@@ -246,7 +246,7 @@ function validateOutputSelectedBundles(value: unknown, diagnostics: Diagnostics)
   if (!diagnostics.array(value, "/selectedBundles", 0, 256) || !Array.isArray(value)) return;
   const keys: string[] = [];
   for (const [index, reference] of value.entries()) {
-    const pointer = `/selectedBundles/${index}`;
+    const pointer = `/selectedBundles/${String(index)}`;
     if (
       diagnostics.object(
         reference,
@@ -295,7 +295,7 @@ function validateOutputEntries(
   const paths: string[] = [];
   if (diagnostics.array(entries, "/entries", 1, 4096) && Array.isArray(entries)) {
     for (const [index, entry] of entries.entries()) {
-      const rowPath = validateOutputEntry(entry, `/entries/${index}`, diagnostics);
+      const rowPath = validateOutputEntry(entry, `/entries/${String(index)}`, diagnostics);
       if (rowPath !== null) paths.push(rowPath);
     }
     assertSortedUnique(paths, "/entries", diagnostics);
@@ -369,7 +369,7 @@ function validateArtifactSchemas(schemas: unknown, diagnostics: Diagnostics): vo
   if (!diagnostics.array(schemas, "/schemas", 9, 9)) return;
   const rows: SchemaClosureRow[] = [];
   for (const [index, row] of schemas.entries()) {
-    const pointer = `/schemas/${index}`;
+    const pointer = `/schemas/${String(index)}`;
     const schemaFields = ["id", "version", "path", "kind", "mode", "sha256", "bytes"];
     if (!diagnostics.object(row, pointer, schemaFields, schemaFields)) continue;
     diagnostics.string(row["id"], `${pointer}/id`, {

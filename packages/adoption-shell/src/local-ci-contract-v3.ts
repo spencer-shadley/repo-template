@@ -100,8 +100,8 @@ function stringArray(value: unknown, pointer: string, min: number, max: number, 
   if (!diagnostics.array(value, pointer, min, max)) return;
   const seen = new Set<string>();
   for (const [index, item] of value.entries()) {
-    if (!diagnostics.string(item, `${pointer}/${index}`, { min: 1 })) continue;
-    if (seen.has(item)) diagnostics.add("E_DUPLICATE", `${pointer}/${index}`, `duplicate value: ${item}`);
+    if (!diagnostics.string(item, `${pointer}/${String(index)}`, { min: 1 })) continue;
+    if (seen.has(item)) diagnostics.add("E_DUPLICATE", `${pointer}/${String(index)}`, `duplicate value: ${item}`);
     else seen.add(item);
   }
 }

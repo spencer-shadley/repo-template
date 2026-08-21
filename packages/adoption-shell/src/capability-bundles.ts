@@ -49,7 +49,7 @@ function validatePath(
         ? "local .github/ISSUE_TEMPLATE overrides are forbidden"
         : workflow
           ? "pre-custody .github/workflows entries are forbidden"
-          : `portable path rejected: ${failure}`,
+          : `portable path rejected: ${String(failure)}`,
     );
     return false;
   }
@@ -93,7 +93,7 @@ function validatePaths(
   if (!diagnostics.array(value, pointer, 0, 4096)) return [];
   const paths: string[] = [];
   for (const [index, path] of value.entries()) {
-    if (validatePath(path, `${pointer}/${index}`, diagnostics)) paths.push(path);
+    if (validatePath(path, `${pointer}/${String(index)}`, diagnostics)) paths.push(path);
   }
   assertSortedUnique(paths, pointer, diagnostics);
   return paths;
@@ -107,7 +107,7 @@ function validateBundleModes(
   if (!diagnostics.array(value, `${pointer}/modes`, 0, 64)) return;
   const modeIds: string[] = [];
   for (const [index, mode] of (value).entries()) {
-    const modePointer = `${pointer}/modes/${index}`;
+    const modePointer = `${pointer}/modes/${String(index)}`;
     if (
       !diagnostics.object(
         mode,
@@ -174,7 +174,7 @@ function validateBundle(
   if (diagnostics.array(rec["dependencies"], `${pointer}/dependencies`, 0, 128)) {
     const keys: string[] = [];
     for (const [index, dependency] of (rec["dependencies"]).entries()) {
-      if (validateReference(dependency, `${pointer}/dependencies/${index}`, diagnostics)) {
+      if (validateReference(dependency, `${pointer}/dependencies/${String(index)}`, diagnostics)) {
         keys.push(`${(dependency).id}\u{0}${(dependency).version}\u{0}${(dependency).digest}`);
       }
     }
@@ -241,7 +241,7 @@ export function validateCapabilityBundleRegistryV2(
   if (diagnostics.array(value["bundles"], "/bundles", 0, 256)) {
     const keys: string[] = [];
     for (const [index, bundle] of value["bundles"].entries()) {
-      if (validateBundle(bundle, `/bundles/${index}`, diagnostics)) {
+      if (validateBundle(bundle, `/bundles/${String(index)}`, diagnostics)) {
         keys.push(`${bundle.id}\u{0}${bundle.version}\u{0}${bundle.digest}`);
       }
     }
@@ -384,12 +384,12 @@ export function resolveCapabilityClosure(
       return;
     }
     visiting.add(key);
-    for (const [index, dependency] of bundle.dependencies.entries()) visit(dependency, `${pointer}/dependencies/${index}`)
+    for (const [index, dependency] of bundle.dependencies.entries()) visit(dependency, `${pointer}/dependencies/${String(index)}`)
     ;
     visiting.delete(key);
     selected.set(key, bundle);
   };
-  for (const [index, reference] of requested.entries()) visit(reference, `/requestedBundles/${index}`);
+  for (const [index, reference] of requested.entries()) visit(reference, `/requestedBundles/${String(index)}`);
 
   for (const bundle of selected.values()) {
     const declared = new Set([
