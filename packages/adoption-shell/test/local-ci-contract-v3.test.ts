@@ -48,7 +48,7 @@ void test("valid LocalCiContractV3 fixture passes validation and carries detecti
   assert.equal(result.value.schemaId, LOCAL_CI_CONTRACT_V3_SCHEMA_ID);
   assert.equal(result.value.schemaVersion, LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION);
   assert.equal(result.value.contractId, LOCAL_CI_CONTRACT_V3_ID);
-  assert.deepEqual(Object.keys(result.value.commands).toSorted(), ["authoritative-gate", "lint", "typecheck"]);
+  assert.deepEqual(Object.keys(result.value.commands).toSorted((left, right) => left.localeCompare(right)), ["authoritative-gate", "lint", "typecheck"]);
   assert.deepEqual(
     orderedLocalCiCommandsV3(result.value).map(({ id, order, isAuthoritativeGate }) => ({
       id,
@@ -95,7 +95,7 @@ void test("all negative V3 contract fixtures fail validation with stable reason 
 void test("published V3 schema and runtime agree on every committed non-legacy fixture", () => {
   const fixtures = fs.readdirSync(fixturesDir)
     .filter((name) => name.endsWith(".json") && !name.startsWith("legacy-"))
-    .toSorted();
+    .toSorted((left, right) => left.localeCompare(right));
   for (const fixture of fixtures) {
     const value = readV3Fixture(fixture);
     assert.equal(
