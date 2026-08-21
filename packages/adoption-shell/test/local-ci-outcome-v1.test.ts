@@ -99,7 +99,5 @@ void test("unsupported outcome strings fail closed", () => {
   const value = { ...passOutcome, outcome: "green", exitCode: 0 };
   const result = validateLocalCiOutcomeV1(value);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assert.equal(result.diagnostics.some((d) => d.code === "E_ENUM"), true);
-  }
+  assert.equal(result.diagnostics.some((d) => d.code === "E_ENUM"), true);
 });

@@ -65,7 +65,7 @@ function closure(): TemplateReleaseClosure {
 function codes(value: unknown): readonly string[] {
   const result = validateTemplateReleaseClosureV1(value);
   assert.equal(result.ok, false);
-  return result.ok ? [] : result.diagnostics.map((row) => row.code);
+  return result.diagnostics.map((row) => row.code);
 }
 
 void test("release closure authenticates payload, bundles, and compiled artifact together", () => {

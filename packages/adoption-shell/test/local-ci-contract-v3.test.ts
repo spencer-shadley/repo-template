@@ -45,26 +45,24 @@ void test("valid LocalCiContractV3 fixture passes validation and carries detecti
   const validFixture = readV3Fixture("valid-local-ci-v3.json");
   const result = validateLocalCiContractV3(validFixture);
   assert.equal(result.ok, true);
-  if (result.ok) {
-    assert.equal(result.value.schemaId, LOCAL_CI_CONTRACT_V3_SCHEMA_ID);
-    assert.equal(result.value.schemaVersion, LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION);
-    assert.equal(result.value.contractId, LOCAL_CI_CONTRACT_V3_ID);
-    assert.deepEqual(Object.keys(result.value.commands).sort(), ["authoritative-gate", "lint", "typecheck"]);
-    assert.deepEqual(
-      orderedLocalCiCommandsV3(result.value).map(({ id, order, isAuthoritativeGate }) => ({
-        id,
-        order,
-        isAuthoritativeGate,
-      })),
-      [
-        { id: "lint", order: 0, isAuthoritativeGate: false },
-        { id: "typecheck", order: 1, isAuthoritativeGate: false },
-        { id: "authoritative-gate", order: 2, isAuthoritativeGate: true },
-      ],
-    );
-    assert.equal(result.value.commands["lint"]?.detectionProof.fixture?.path, "tests/fixtures/proof-of-detection/lint-known-bad.ts");
-    assert.equal(result.value.commands["typecheck"]?.detectionProof.exempt !== undefined, true);
-  }
+  assert.equal(result.value.schemaId, LOCAL_CI_CONTRACT_V3_SCHEMA_ID);
+  assert.equal(result.value.schemaVersion, LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION);
+  assert.equal(result.value.contractId, LOCAL_CI_CONTRACT_V3_ID);
+  assert.deepEqual(Object.keys(result.value.commands).sort(), ["authoritative-gate", "lint", "typecheck"]);
+  assert.deepEqual(
+    orderedLocalCiCommandsV3(result.value).map(({ id, order, isAuthoritativeGate }) => ({
+      id,
+      order,
+      isAuthoritativeGate,
+    })),
+    [
+      { id: "lint", order: 0, isAuthoritativeGate: false },
+      { id: "typecheck", order: 1, isAuthoritativeGate: false },
+      { id: "authoritative-gate", order: 2, isAuthoritativeGate: true },
+    ],
+  );
+  assert.equal(result.value.commands["lint"]?.detectionProof.fixture?.path, "tests/fixtures/proof-of-detection/lint-known-bad.ts");
+  assert.equal(result.value.commands["typecheck"]?.detectionProof.exempt !== undefined, true);
 });
 
 void test("all negative V3 contract fixtures fail validation with stable reason codes", () => {
@@ -85,14 +83,12 @@ void test("all negative V3 contract fixtures fail validation with stable reason 
     const data = readV3Fixture(c.fixture);
     const result = validateLocalCiContractV3(data);
     assert.equal(result.ok, false, `Expected ${c.fixture} to fail validation`);
-    if (!result.ok) {
-      const hasCode = result.diagnostics.some((d) => d.code === c.expectedCode);
-      assert.equal(
-        hasCode,
-        true,
-        `Expected ${c.fixture} diagnostic codes ${JSON.stringify(result.diagnostics)} to include ${c.expectedCode}`,
-      );
-    }
+    const hasCode = result.diagnostics.some((d) => d.code === c.expectedCode);
+    assert.equal(
+      hasCode,
+      true,
+      `Expected ${c.fixture} diagnostic codes ${JSON.stringify(result.diagnostics)} to include ${c.expectedCode}`,
+    );
   }
 });
 

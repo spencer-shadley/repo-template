@@ -128,11 +128,9 @@ void test("validators fail closed instead of throwing on non-JSON unknown values
   release["foreign"] = 1n;
   const result = validateMaterializerInputV2(input);
   assert.equal(result.ok, false);
-  if (!result.ok) {
-    assertSorted(result.diagnostics);
-    assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
-    assert.ok(result.diagnostics.some((row) => row.code === "E_CANONICAL_JSON"));
-  }
+  assertSorted(result.diagnostics);
+  assert.ok(result.diagnostics.some((row) => row.code === "E_UNKNOWN_PROPERTY"));
+  assert.ok(result.diagnostics.some((row) => row.code === "E_CANONICAL_JSON"));
 });
 
 void test("Template release identity stays distinct from output payload identity", () => {

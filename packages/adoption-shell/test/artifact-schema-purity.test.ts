@@ -95,8 +95,8 @@ void test("generated quality-lint bundle is retained in the artifact fixture clo
     );
     assert.equal(bundles.length, 1);
     assert.equal(bundles[0]?.version, "1.1.0");
-    assert.deepEqual(bundles[0]?.artifacts, expectedArtifacts);
-    assert.deepEqual(bundles[0]?.modes, [
+    assert.deepEqual(bundles[0].artifacts, expectedArtifacts);
+    assert.deepEqual(bundles[0].modes, [
       {
         id: "config",
         entrypoint: "eslint.config.mjs",
@@ -117,8 +117,8 @@ void test("generated quality-lint bundle is retained in the artifact fixture clo
       assert.equal(rows.length, 1, artifactPath);
       const content = fs.readFileSync(path.join(root, ...artifactPath.split("/")));
       assert.equal(rows[0]?.mode, "100644", artifactPath);
-      assert.equal(rows[0]?.bytes, content.byteLength, artifactPath);
-      assert.equal(rows[0]?.sha256, sha256Bytes(content), artifactPath);
+      assert.equal(rows[0].bytes, content.byteLength, artifactPath);
+      assert.equal(rows[0].sha256, sha256Bytes(content), artifactPath);
     }
   } finally {
     fs.rmSync(ownedTemp, { force: true, recursive: true });
