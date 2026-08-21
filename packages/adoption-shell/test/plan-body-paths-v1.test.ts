@@ -21,16 +21,20 @@ const contract = (name: string): URL =>
 const parse = (name: string): unknown =>
   JSON.parse(fs.readFileSync(contract(name), "utf8")) as unknown;
 
+function parseSchema(name: string): AnySchema {
+  const value = parse(name);
+  if (typeof value === "boolean" || (value !== null && typeof value === "object" && !Array.isArray(value))) return value;
+  throw new TypeError(`${name} must be an object or boolean JSON Schema`);
+}
+
 const planExample = parse("plan-record.example.json") as Record<string, unknown>;
 const manifestExample = parse("work-migration-manifest.example.json") as Record<string, unknown>;
 const require = createRequire(import.meta.url);
 const addFormats = require("ajv-formats") as FormatsPlugin;
 const ajv = new Ajv2020({ allErrors: true, strictSchema: true, strictTypes: false });
 addFormats(ajv);
-const validatePlanSchema = ajv.compile(parse("plan-record.schema.json") as AnySchema);
-const validateManifestSchema = ajv.compile(
-  parse("work-migration-manifest.schema.json") as AnySchema,
-);
+const validatePlanSchema = ajv.compile(parseSchema("plan-record.schema.json"));
+const validateManifestSchema = ajv.compile(parseSchema("work-migration-manifest.schema.json"));
 const encoder = new TextEncoder();
 
 function manifestBody(): Record<string, unknown> {
