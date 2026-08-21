@@ -46,7 +46,7 @@ const passOutcome: LocalCiOutcomeV1 = {
 };
 
 void test("the outcome contract declares exactly four states", () => {
-  assert.deepEqual([...LOCAL_CI_OUTCOMES_V1].sort(), ["could-not-execute", "fail", "pass", "skipped"]);
+  assert.deepEqual([...LOCAL_CI_OUTCOMES_V1].toSorted(), ["could-not-execute", "fail", "pass", "skipped"]);
 });
 
 void test("pass outcome validates and matches the published schema", () => {

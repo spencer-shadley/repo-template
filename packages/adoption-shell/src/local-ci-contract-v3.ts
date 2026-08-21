@@ -164,7 +164,7 @@ export function orderedLocalCiCommandsV3(
 ): readonly OrderedLocalCiCommandV3[] {
   const preflight = Object.entries(contract.commands)
     .filter(([id]) => id !== "authoritative-gate")
-    .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+    .toSorted(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
     .map(([id, command], order) => ({
       ...command,
       id,
@@ -225,7 +225,7 @@ function validateCommandsV3(commandsRaw: unknown, diagnostics: Diagnostics): voi
     diagnostics.add("E_TYPE", "/commands", "expected object");
     return;
   }
-  const commandIds = Object.keys(commandsRaw).sort();
+  const commandIds = Object.keys(commandsRaw).toSorted();
   if (commandIds.length === 0) {
     diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
   }
@@ -319,7 +319,7 @@ export function classifyAndMigrateLocalCiV2ToV3(
 
   const v2Result = validateLocalCiContractV2(rawInput);
   if (v2Result.ok) {
-    const commandsMissingDetectionProof = Object.keys(v2Result.value.commands).sort();
+    const commandsMissingDetectionProof = Object.keys(v2Result.value.commands).toSorted();
     return {
       disposition: "rejected",
       legacyLineage: "local-ci-v2",

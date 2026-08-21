@@ -132,7 +132,7 @@ function frame(value: Uint8Array): readonly Uint8Array[] {
 export function archiveAggregateSha256V1(
   members: readonly Readonly<ArchiveMemberV1>[],
 ): string {
-  const ordered = [...members].sort((left, right) =>
+  const ordered = [...members].toSorted((left, right) =>
     left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
   const chunks: Uint8Array[] = [];
   for (const member of ordered) {
@@ -426,17 +426,17 @@ export function createWorkMigrationManifestV1(
   input: Omit<WorkMigrationManifestV1, "manifestSha256">,
 ): WorkMigrationManifestV1 {
   assertNoUnclassifiedEntries(input.unclassifiedCount);
-  const decisions = [...input.decisions].sort((left, right) =>
+  const decisions = [...input.decisions].toSorted((left, right) =>
     left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
   const dispositions = [...input.archive.dispositions];
-  const members = [...input.archive.members].sort((left, right) =>
+  const members = [...input.archive.members].toSorted((left, right) =>
     left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
   const body = {
     ...input,
     decisions,
     archive: { ...input.archive, members, dispositions },
-    changedPaths: [...input.changedPaths].sort(),
-    verification: [...input.verification].sort(),
+    changedPaths: [...input.changedPaths].toSorted(),
+    verification: [...input.verification].toSorted(),
   };
   if (!validManifestBody(body)) {
     throw new TypeError("work migration manifest input is invalid");

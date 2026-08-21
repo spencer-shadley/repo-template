@@ -45,7 +45,7 @@ function framed(value: Uint8Array): readonly Uint8Array[] {
 }
 
 export function payloadFrame(entries: readonly PayloadEntry[]): Uint8Array {
-  const ordered = [...entries].sort((left, right) =>
+  const ordered = [...entries].toSorted((left, right) =>
     left.path < right.path ? -1 : left.path > right.path ? 1 : 0,
   );
   const chunks: Uint8Array[] = [];
