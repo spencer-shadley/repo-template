@@ -108,7 +108,7 @@ export class Diagnostics {
   }
 
   sorted(): readonly Diagnostic[] {
-    return [...this.rows].sort((left, right) => {
+    return [...this.rows].toSorted((left, right) => {
       if (left.pointer !== right.pointer) return left.pointer < right.pointer ? -1 : 1;
       if (left.code !== right.code) return left.code < right.code ? -1 : 1;
       return left.message < right.message ? -1 : left.message > right.message ? 1 : 0;

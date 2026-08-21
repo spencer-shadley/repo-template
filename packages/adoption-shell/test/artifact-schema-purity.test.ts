@@ -185,7 +185,7 @@ void test("artifact policy rejects ambient imports with sorted findings", () => 
 
     const findings = scanPublicCode(ownedTemp, ["b.js", "a.js"]);
 
-    assert.deepEqual(findings, [...findings].sort());
+    assert.deepEqual(findings, [...findings].toSorted());
     assert.ok(findings.some((row) => row.includes("forbidden module import node:fs")));
     assert.ok(findings.some((row) => row.includes("dynamic import is forbidden")));
     assert.ok(findings.some((row) => row.includes("forbidden ambient identifier")));

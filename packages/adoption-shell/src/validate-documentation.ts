@@ -107,7 +107,7 @@ export function mergeDiagnostics(
 ): readonly Diagnostic[] {
   return sets
     .flat()
-    .sort((left, right) =>
+    .toSorted((left, right) =>
       compareStrings(left.pointer, right.pointer) ||
       compareStrings(left.code, right.code) ||
       compareStrings(left.message, right.message),

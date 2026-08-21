@@ -114,7 +114,7 @@ export function orderedLocalCiCommands(
 ): readonly OrderedLocalCiCommandV2[] {
   const preflight = Object.entries(contract.commands)
     .filter(([id]) => id !== "authoritative-gate")
-    .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+    .toSorted(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
     .map(([id, command], order) => ({
       ...command,
       id,
@@ -174,7 +174,7 @@ function validateCommandsV2(commandsRaw: unknown, diagnostics: Diagnostics): voi
     diagnostics.add("E_TYPE", "/commands", "expected object");
     return;
   }
-  const commandIds = Object.keys(commandsRaw).sort();
+  const commandIds = Object.keys(commandsRaw).toSorted();
   if (commandIds.length === 0) {
     diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
   }

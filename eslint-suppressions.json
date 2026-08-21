@@ -6,9 +6,6 @@
     "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
-    "unicorn/no-array-sort": {
-      "count": 1
-    },
     "unicorn/prefer-code-point": {
       "count": 2
     },
@@ -22,9 +19,6 @@
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 2
     },
     "unicorn/require-array-sort-compare": {
       "count": 1
@@ -47,9 +41,6 @@
     }
   },
   "packages/adoption-shell/src/digest.ts": {
-    "unicorn/no-array-sort": {
-      "count": 1
-    },
     "unicorn/prefer-simple-sort-comparator": {
       "count": 1
     }
@@ -63,9 +54,6 @@
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 2
     },
     "unicorn/require-array-sort-compare": {
       "count": 1
@@ -81,9 +69,6 @@
     "sonarjs/no-alphabetical-sort": {
       "count": 2
     },
-    "unicorn/no-array-sort": {
-      "count": 3
-    },
     "unicorn/require-array-sort-compare": {
       "count": 2
     }
@@ -91,11 +76,6 @@
   "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
     "sonarjs/no-selector-parameter": {
       "count": 1
-    }
-  },
-  "packages/adoption-shell/src/materialize.ts": {
-    "unicorn/no-array-sort": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/path-policy.ts": {
@@ -116,9 +96,6 @@
   "packages/adoption-shell/src/validate-documentation.ts": {
     "sonarjs/super-linear-regex": {
       "count": 2
-    },
-    "unicorn/no-array-sort": {
-      "count": 1
     }
   },
   "packages/adoption-shell/src/validate-manifests.ts": {
@@ -137,17 +114,11 @@
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 5
-    },
-    "unicorn/no-array-sort": {
-      "count": 1
     }
   },
   "packages/adoption-shell/src/work-migration-manifest-v1.ts": {
     "sonarjs/no-alphabetical-sort": {
       "count": 2
-    },
-    "unicorn/no-array-sort": {
-      "count": 5
     },
     "unicorn/prefer-simple-sort-comparator": {
       "count": 3
@@ -167,9 +138,6 @@
       "count": 1
     },
     "sonarjs/super-linear-regex": {
-      "count": 1
-    },
-    "unicorn/no-array-sort": {
       "count": 1
     },
     "unicorn/require-array-sort-compare": {
@@ -210,9 +178,6 @@
     "sonarjs/no-alphabetical-sort": {
       "count": 2
     },
-    "unicorn/no-array-sort": {
-      "count": 2
-    },
     "unicorn/require-array-sort-compare": {
       "count": 2
     }
@@ -230,18 +195,12 @@
     "sonarjs/no-alphabetical-sort": {
       "count": 2
     },
-    "unicorn/no-array-sort": {
-      "count": 2
-    },
     "unicorn/require-array-sort-compare": {
       "count": 2
     }
   },
   "packages/adoption-shell/test/local-ci-outcome-v1.test.ts": {
     "sonarjs/no-alphabetical-sort": {
-      "count": 1
-    },
-    "unicorn/no-array-sort": {
       "count": 1
     },
     "unicorn/require-array-sort-compare": {
@@ -325,9 +284,6 @@
       "count": 2
     },
     "sonarjs/no-alphabetical-sort": {
-      "count": 1
-    },
-    "unicorn/no-array-sort": {
       "count": 1
     },
     "unicorn/require-array-sort-compare": {

@@ -183,7 +183,7 @@ function validateBundle(
   const artifacts = validatePaths(rec["artifacts"], `${pointer}/artifacts`, diagnostics);
   const fixtures = validatePaths(rec["fixtures"], `${pointer}/fixtures`, diagnostics);
   const goldens = validatePaths(rec["goldens"], `${pointer}/goldens`, diagnostics);
-  const classifiedPaths = [...artifacts, ...fixtures, ...goldens].sort();
+  const classifiedPaths = [...artifacts, ...fixtures, ...goldens].toSorted();
   assertSortedUnique(classifiedPaths, `${pointer}/closure`, diagnostics);
   validateBundleModes(rec["modes"], pointer, diagnostics);
   validateBundleDigest(rec, pointer, diagnostics);
@@ -401,7 +401,7 @@ export function resolveCapabilityClosure(
     validateBundleModesClosure(bundle, declared, entryByPath, diagnostics);
   }
 
-  const bundles = [...selected.values()].sort((left, right) =>
+  const bundles = [...selected.values()].toSorted((left, right) =>
     referenceKey(left) < referenceKey(right) ? -1 : 1,
   );
   return { bundles, diagnostics: diagnostics.sorted() };

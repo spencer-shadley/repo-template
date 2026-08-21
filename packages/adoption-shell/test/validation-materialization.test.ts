@@ -37,7 +37,7 @@ function diagnosticKey(value: Diagnostic): string {
 function assertSorted(diagnostics: readonly Diagnostic[]): void {
   assert.deepEqual(
     diagnostics.map(diagnosticKey),
-    diagnostics.map(diagnosticKey).sort(),
+    diagnostics.map(diagnosticKey).toSorted(),
   );
 }
 

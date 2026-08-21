@@ -46,7 +46,7 @@ void test("valid LocalCiContractV2 fixture passes validation", () => {
   assert.equal(result.value.contractId, LOCAL_CI_CONTRACT_V2_ID);
   assert.equal(result.value.repository, "spencer-shadley/repo-template");
   assert.equal(result.value.canonicalBranch, "master");
-  assert.deepEqual(Object.keys(result.value.commands).sort(), ["authoritative-gate", "lint", "typecheck"]);
+  assert.deepEqual(Object.keys(result.value.commands).toSorted(), ["authoritative-gate", "lint", "typecheck"]);
   assert.deepEqual(
     orderedLocalCiCommands(result.value).map(({ id, order, isAuthoritativeGate }) => ({
       id,
@@ -91,7 +91,7 @@ void test("all negative V2 contract fixtures fail validation with stable reason 
 void test("published schema and runtime agree on every committed V2 fixture", () => {
   const fixtures = fs.readdirSync(fixturesDir)
     .filter((name) => name.endsWith(".json") && !name.startsWith("legacy-"))
-    .sort();
+    .toSorted();
   for (const fixture of fixtures) {
     const value = readJsonFixture(fixture);
     assert.equal(
