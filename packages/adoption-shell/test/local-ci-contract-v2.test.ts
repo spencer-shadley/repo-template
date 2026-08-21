@@ -18,9 +18,15 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const fixturesDir = path.join(root, "contracts", "local-ci", "v2", "fixtures");
-const schema = JSON.parse(
+function isJsonSchema(value: unknown): value is AnySchema {
+  return typeof value === "boolean" || (value !== null && typeof value === "object" && !Array.isArray(value));
+}
+
+const schemaValue: unknown = JSON.parse(
   fs.readFileSync(path.join(root, "contracts", "local-ci", "v2", "local-ci-contract-v2.schema.json"), "utf8"),
-) as AnySchema;
+);
+if (!isJsonSchema(schemaValue)) throw new TypeError("local-ci v2 schema must be an object or boolean");
+const schema = schemaValue;
 const validateSchema = new Ajv2020({
   allErrors: true,
   strictSchema: true,

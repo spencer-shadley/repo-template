@@ -271,9 +271,6 @@
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 20
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
     },
@@ -297,9 +294,6 @@
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 3
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
     },
@@ -312,9 +306,6 @@
   },
   "packages/adoption-shell/test/local-ci-outcome-v1.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 1
     },
     "sonarjs/no-alphabetical-sort": {
@@ -343,7 +334,7 @@
       "count": 3
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 13
+      "count": 11
     },
     "unicorn/prefer-simple-sort-comparator": {
       "count": 1
@@ -402,7 +393,7 @@
       "count": 12
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 8
+      "count": 7
     },
     "unicorn/prefer-structured-clone": {
       "count": 1

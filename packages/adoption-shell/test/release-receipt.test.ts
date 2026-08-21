@@ -15,17 +15,23 @@ import {
 } from "../../../artifacts/adoption-shell-v2/index.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-const releaseReceiptSchema = JSON.parse(
+function isJsonSchema(value: unknown): value is AnySchema {
+  return typeof value === "boolean" || (value !== null && typeof value === "object" && !Array.isArray(value));
+}
+
+const releaseReceiptSchemaValue: unknown = JSON.parse(
   fs.readFileSync(
     path.join(
       root,
       "contracts",
       "adoption-shell-v2",
       "template-release-receipt.schema.json",
-    ),
+  ),
     "utf8",
   ),
-) as AnySchema;
+);
+if (!isJsonSchema(releaseReceiptSchemaValue)) throw new TypeError("release receipt schema must be an object or boolean");
+const releaseReceiptSchema = releaseReceiptSchemaValue;
 const validateSchema = new Ajv2020({
   allErrors: true,
   strictSchema: true,
