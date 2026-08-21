@@ -13,7 +13,13 @@ const migrationTargets = {
     LEGACY_CLOSED: "closed",
     LEGACY_HELD_COMPLETE: "held-authority",
 };
-const migrateReasons = new Set(Object.keys(migrationTargets));
+const migrateReasons = new Set([
+    "LEGACY_READY",
+    "LEGACY_ACTIVE",
+    "LEGACY_IMPLEMENTED",
+    "LEGACY_CLOSED",
+    "LEGACY_HELD_COMPLETE",
+]);
 const retireReasons = new Set([
     "INCOMPLETE_EVIDENCE",
     "AMBIGUOUS_STATUS",
@@ -63,19 +69,25 @@ export function archiveAggregateSha256V1(members) {
     }
     return sha256Bytes(bytes);
 }
+function isMigrateReason(reason) {
+    return migrateReasons.has(reason);
+}
+function isRetireReason(reason) {
+    return retireReasons.has(reason);
+}
 function validDecision(value) {
     if (!isRecord(value) || !livePlanPath(value["path"]) || !nonEmpty(value["reasonCode"])) {
         return false;
     }
+    const reasonCode = value["reasonCode"];
     if (value["decision"] === "migrate") {
-        const reason = value["reasonCode"];
         return (exactKeys(value, ["path", "decision", "targetStatus", "reasonCode"], ["path", "decision", "targetStatus", "reasonCode"]) &&
-            migrateReasons.has(reason) &&
-            value["targetStatus"] === migrationTargets[reason]);
+            isMigrateReason(reasonCode) &&
+            value["targetStatus"] === migrationTargets[reasonCode]);
     }
     return (value["decision"] === "retire" &&
         exactKeys(value, ["path", "decision", "reasonCode"], ["path", "decision", "reasonCode"]) &&
-        retireReasons.has(value["reasonCode"]));
+        isRetireReason(reasonCode));
 }
 function validCounts(value, keys) {
     return isRecord(value) &&
@@ -126,13 +138,15 @@ function validArchiveHeader(value) {
 function validArchiveMember(member) {
     return (isRecord(member) &&
         exactKeys(member, ["path", "blobSha256"], ["path", "blobSha256"]) &&
+        typeof member["path"] === "string" &&
         archivePlanPath(member["path"]) &&
         typeof member["blobSha256"] === "string" &&
         SHA256_PATTERN.test(member["blobSha256"]));
 }
 function validArchiveMembers(members, count, aggregateSha256) {
-    return (members.every(validArchiveMember) &&
-        sortedUnique(members.map((m) => String(m["path"]))) &&
+    if (!members.every(validArchiveMember))
+        return false;
+    return (sortedUnique(members.map((m) => m.path)) &&
         count === members.length &&
         aggregateSha256 === archiveAggregateSha256V1(members));
 }
@@ -141,6 +155,7 @@ function validArchiveDispositionRow(row) {
         exactKeys(row, ["decision", "reasonCode", "count", "aggregateSha256"], ["decision", "reasonCode", "count", "aggregateSha256"]) &&
         row["decision"] === "archive-receipt-only" &&
         row["reasonCode"] === "ARCHIVE_SEALED" &&
+        typeof row["count"] === "number" &&
         integerAtLeastZero(row["count"]) &&
         typeof row["aggregateSha256"] === "string" &&
         SHA256_PATTERN.test(row["aggregateSha256"]));
@@ -148,31 +163,44 @@ function validArchiveDispositionRow(row) {
 function validArchiveDispositions(dispositions, count, aggregateSha256) {
     if (!dispositions.every(validArchiveDispositionRow))
         return false;
-    const dispositionCount = dispositions.reduce((sum, row) => sum + Number(row["count"]), 0);
+    const dispositionCount = dispositions.reduce((sum, row) => sum + row.count, 0);
     return (dispositionCount === count &&
         (count === 0) === (dispositions.length === 0) &&
         dispositions.length <= 1 &&
         (dispositions.length === 0 ||
-            dispositions[0]["aggregateSha256"] === aggregateSha256));
+            dispositions[0]?.aggregateSha256 === aggregateSha256));
 }
 function archiveInventoryCloses(value) {
     if (!validArchiveHeader(value))
         return false;
     const count = Number(value["count"]);
     const aggregateSha256 = String(value["aggregateSha256"]);
-    return (validArchiveMembers(value["members"], count, aggregateSha256) &&
-        validArchiveDispositions(value["dispositions"], count, aggregateSha256));
+    const members = value["members"];
+    const dispositions = value["dispositions"];
+    return (Array.isArray(members) &&
+        Array.isArray(dispositions) &&
+        validArchiveMembers(members, count, aggregateSha256) &&
+        validArchiveDispositions(dispositions, count, aggregateSha256));
+}
+function isStringArray(arr) {
+    return arr.every((item) => typeof item === "string");
 }
 function validStringLists(value) {
-    return (Array.isArray(value["changedPaths"]) &&
-        sortedUnique(value["changedPaths"]) &&
-        value["changedPaths"].every((path) => livePlanPath(path)) &&
-        Array.isArray(value["verification"]) &&
-        value["verification"].length > 0 &&
-        sortedUnique(value["verification"]));
+    const changedPaths = value["changedPaths"];
+    const verification = value["verification"];
+    return (Array.isArray(changedPaths) &&
+        isStringArray(changedPaths) &&
+        sortedUnique(changedPaths) &&
+        changedPaths.every((path) => livePlanPath(path)) &&
+        Array.isArray(verification) &&
+        isStringArray(verification) &&
+        verification.length > 0 &&
+        sortedUnique(verification));
 }
 function changedPathsClose(value, decisions) {
     const changedPaths = value["changedPaths"];
+    if (!Array.isArray(changedPaths) || !isStringArray(changedPaths))
+        return false;
     return changedPaths.length === decisions.length &&
         changedPaths.every((path, index) => path === decisions[index]?.path);
 }

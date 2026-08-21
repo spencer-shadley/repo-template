@@ -23,7 +23,7 @@ function checkSegmentFailure(segment) {
         return "trailing";
     if (!PORTABLE_SEGMENT.test(segment))
         return "characters";
-    const basename = segment.split(".")[0] ?? segment;
+    const basename = segment.split(".", 1)[0] ?? segment;
     if (WINDOWS_RESERVED.test(basename))
         return "reserved";
     return null;

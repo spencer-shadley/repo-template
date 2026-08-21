@@ -21,7 +21,7 @@ function readJson<T>(relativePath: string): T {
   ) as T;
 }
 
-test("released inert seed closes over exactly its selected safe bytes", () => {
+void test("released inert seed closes over exactly its selected safe bytes", () => {
   const payload = readJson<ReleasePayloadSet>("release/release-payload-set.json");
   const selection = readJson<{
     readonly entryCount: number;
@@ -70,7 +70,7 @@ test("released inert seed closes over exactly its selected safe bytes", () => {
   );
 });
 
-test("released inert seed passes the exact materializer and emits once in memory", () => {
+void test("released inert seed passes the exact materializer and emits once in memory", () => {
   const payload = readJson<ReleasePayloadSet>("release/release-payload-set.json");
   const capabilities = readJson<CapabilityBundleRegistry>(
     "contracts/adoption-shell-v2/capability-bundle-registry.json",

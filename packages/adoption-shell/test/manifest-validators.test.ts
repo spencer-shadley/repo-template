@@ -20,7 +20,7 @@ function readJson<T>(relativePath: string): T {
   ) as T;
 }
 
-test("capability-owned output entries reject a malformed bundleId", () => {
+void test("capability-owned output entries reject a malformed bundleId", () => {
   const golden = readJson<{
     readonly manifest: Record<string, unknown>;
   }>("contracts/adoption-shell-v2/golden/minimal-output.json");
@@ -66,7 +66,7 @@ function withRecomputedDigest(body: Record<string, unknown>): Record<string, unk
   return { ...body, manifestDigest: sha256CanonicalJson(body) };
 }
 
-test("artifact manifest validator rejects every mutated field with a targeted diagnostic", () => {
+void test("artifact manifest validator rejects every mutated field with a targeted diagnostic", () => {
   const cases: readonly {
     readonly name: string;
     readonly mutate: (manifest: Record<string, unknown>) => void;
@@ -284,7 +284,7 @@ function readVerificationReceipt(): Record<string, unknown> {
   );
 }
 
-test("verification receipt validator rejects every mutated field with a targeted diagnostic", () => {
+void test("verification receipt validator rejects every mutated field with a targeted diagnostic", () => {
   const cases: readonly {
     readonly name: string;
     readonly mutate: (receipt: Record<string, unknown>) => void;
@@ -377,7 +377,7 @@ function readOutputManifest(): Record<string, unknown> {
   return golden.manifest;
 }
 
-test("materializer output manifest validator rejects every mutated field with a targeted diagnostic", () => {
+void test("materializer output manifest validator rejects every mutated field with a targeted diagnostic", () => {
   const cases: readonly {
     readonly name: string;
     readonly mutate: (manifest: Record<string, unknown>) => void;
@@ -493,7 +493,7 @@ test("materializer output manifest validator rejects every mutated field with a 
       ? { ...body, manifestDigest: sha256CanonicalJson(body) }
       : manifest;
     const result = validateMaterializerOutputManifestV2(
-      candidate as unknown as MaterializerOutputManifest,
+      candidate,
     );
     assert.equal(result.ok, false, testCase.name);
     if (!result.ok) {

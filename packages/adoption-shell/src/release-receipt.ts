@@ -36,7 +36,7 @@ function validateBundleReferences(
 ): readonly BundleReference[] {
   if (!diagnostics.array(value, "/capabilityBundles", 0, 256)) return [];
   const rows: BundleReference[] = [];
-  value.forEach((reference, index) => {
+  for (const [index, reference] of value.entries()) {
     const pointer = `/capabilityBundles/${index}`;
     if (
       !diagnostics.object(
@@ -46,7 +46,7 @@ function validateBundleReferences(
         ["id", "version", "digest"],
       )
     ) {
-      return;
+      continue;
     }
     diagnostics.string(reference["id"], `${pointer}/id`, {
       min: 1,
@@ -60,9 +60,9 @@ function validateBundleReferences(
     });
     diagnostics.sha(reference["digest"], `${pointer}/digest`);
     rows.push(reference as unknown as BundleReference);
-  });
+  }
   assertSortedUnique(
-    rows.map((row) => `${row.id}\u0000${row.version}\u0000${row.digest}`),
+    rows.map((row) => `${row.id}\u{0}${row.version}\u{0}${row.digest}`),
     "/capabilityBundles",
     diagnostics,
   );
@@ -119,7 +119,7 @@ function validateReceiptProducer(
   let producerTag: string | null = null;
   const fields = ["repository", "origin", "semver", "tag", "commit", "tree"];
   if (diagnostics.object(producer, "/producer", fields, fields)) {
-    const prodRec = producer as Record<string, unknown>;
+    const prodRec = producer;
     diagnostics.string(prodRec["repository"], "/producer/repository", {
       constant: REPO_TEMPLATE_REPOSITORY,
     });
@@ -133,7 +133,7 @@ function validateReceiptProducer(
         pattern: SEMVER_PATTERN,
       })
     ) {
-      semver = prodRec["semver"] as string;
+      semver = prodRec["semver"];
     }
     if (
       diagnostics.string(prodRec["tag"], "/producer/tag", {
@@ -141,7 +141,7 @@ function validateReceiptProducer(
         max: 81,
       })
     ) {
-      producerTag = prodRec["tag"] as string;
+      producerTag = prodRec["tag"];
     }
     diagnostics.string(prodRec["commit"], "/producer/commit", {
       pattern: GIT_SHA1_PATTERN,
@@ -179,14 +179,14 @@ function validateReceiptTransport(
   let transportTag: string | null = null;
   const fields = ["kind", "tagName", "targetObjectType", "bodyEncoding", "bodyCanonicalization"];
   if (diagnostics.object(transport, "/receiptTransport", fields, fields)) {
-    const trRec = transport as Record<string, unknown>;
+    const trRec = transport;
     diagnostics.string(trRec["kind"], "/receiptTransport/kind", {
       constant: "annotated-git-tag-message/v1",
     });
     if (
       diagnostics.string(trRec["tagName"], "/receiptTransport/tagName", { min: 6, max: 81 })
     ) {
-      transportTag = trRec["tagName"] as string;
+      transportTag = trRec["tagName"];
     }
     diagnostics.string(trRec["targetObjectType"], "/receiptTransport/targetObjectType", { constant: "commit" });
     diagnostics.string(trRec["bodyEncoding"], "/receiptTransport/bodyEncoding", { constant: "utf-8" });
@@ -210,7 +210,7 @@ function validateReceiptPayloadSet(
     "manifestDigest", "payloadDigestAlgorithm", "payloadDigest", "entryCount",
   ];
   if (!diagnostics.object(payloadSet, "/payloadSet", fields, fields)) return;
-  const psRec = payloadSet as Record<string, unknown>;
+  const psRec = payloadSet;
   diagnostics.string(psRec["manifestPath"], "/payloadSet/manifestPath", {
     constant: RELEASE_PAYLOAD_MANIFEST_PATH,
   });
@@ -257,7 +257,7 @@ function validateReceiptMaterializer(
     "compatibleReleaseReceiptKind",
   ];
   if (!diagnostics.object(materializer, "/materializer", fields, fields)) return;
-  const matRec = materializer as Record<string, unknown>;
+  const matRec = materializer;
   diagnostics.string(matRec["contractId"], "/materializer/contractId", { constant: CONTRACT_ID });
   diagnostics.string(matRec["contractVersion"], "/materializer/contractVersion", { constant: CONTRACT_VERSION });
   diagnostics.string(matRec["artifactManifestPath"], "/materializer/artifactManifestPath", {
@@ -343,7 +343,7 @@ export function validateTemplateReleaseReceiptV1(
     return finish(value as TemplateReleaseReceipt, diagnostics);
   }
 
-  const rec = value as Record<string, unknown>;
+  const rec = value;
   validateReceiptHeader(rec, diagnostics);
   const { producerTag } = validateReceiptProducer(rec["producer"], rec["releaseId"], diagnostics);
   validateReceiptTransport(rec["receiptTransport"], producerTag, diagnostics);

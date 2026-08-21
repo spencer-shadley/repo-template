@@ -24,7 +24,7 @@ function readJson(relativePath: string): unknown {
   ) as unknown;
 }
 
-test("RFC 8785 published vectors and key ordering are exact", () => {
+void test("RFC 8785 published vectors and key ordering are exact", () => {
   const golden = readJson(
     "contracts/adoption-shell-v2/golden/rfc8785-vectors.json",
   ) as {
@@ -40,14 +40,14 @@ test("RFC 8785 published vectors and key ordering are exact", () => {
   assert.equal(canonicalizeJson(-0), "0");
   assert.equal(canonicalizeJson(1e-7), "1e-7");
   assert.equal(canonicalizeJson(1e-6), "0.000001");
-  assert.equal(canonicalizeJson({ "\uFFFD": 1, "😀": 2 }), "{\"😀\":2,\"\uFFFD\":1}");
+  assert.equal(canonicalizeJson({ "\u{FFFD}": 1, "😀": 2 }), "{\"😀\":2,\"\u{FFFD}\":1}");
 });
 
-test("RFC 8785 rejects values outside its JSON domain", () => {
-  for (const value of [Number.NaN, Number.POSITIVE_INFINITY, 1n, undefined]) {
+void test("RFC 8785 rejects values outside its JSON domain", () => {
+  for (const value of [NaN, Infinity, 1n, undefined]) {
     assert.throws(() => canonicalizeJson(value));
   }
-  assert.throws(() => canonicalizeJson("\uD800"), /lone surrogates/);
+  assert.throws(() => canonicalizeJson("\u{D800}"), /lone surrogates/);
   const sparse = new Array<unknown>(1);
   assert.throws(() => canonicalizeJson(sparse), /sparse arrays/);
   const cyclic: { self?: unknown } = {};
@@ -56,14 +56,14 @@ test("RFC 8785 rejects values outside its JSON domain", () => {
   assert.throws(() => canonicalizeJson(new Map()), /plain objects/);
 });
 
-test("canonical base64 decoder rejects alternate spellings", () => {
+void test("canonical base64 decoder rejects alternate spellings", () => {
   assert.deepEqual([...decodeCanonicalBase64("TWE=")], [0x4d, 0x61]);
   for (const value of ["TWE", "TWE==", "TR==", "TWE=\n"]) {
     assert.throws(() => decodeCanonicalBase64(value), /canonical padded base64/);
   }
 });
 
-test("both named SHA-256 algorithms match committed goldens", () => {
+void test("both named SHA-256 algorithms match committed goldens", () => {
   const golden = readJson(
     "contracts/adoption-shell-v2/golden/digest-vectors.json",
   ) as {
@@ -91,7 +91,7 @@ test("both named SHA-256 algorithms match committed goldens", () => {
   );
 });
 
-test("payload framing is length-prefixed, sorted, and unambiguous", () => {
+void test("payload framing is length-prefixed, sorted, and unambiguous", () => {
   const input = readJson(
     "contracts/adoption-shell-v2/fixtures/multi-bundle-input.json",
   ) as { readonly release: { readonly entries: readonly PayloadEntry[] } };

@@ -44,7 +44,7 @@ function inspectSchema(value: unknown, pointer = ""): void {
   }
 }
 
-test("artifact and all schema identities are closed and content-addressed", () => {
+void test("artifact and all schema identities are closed and content-addressed", () => {
   const manifest = readJson<ArtifactManifest>(
     "artifacts/adoption-shell-v2/artifact-manifest.json",
   );
@@ -69,7 +69,7 @@ test("artifact and all schema identities are closed and content-addressed", () =
   }
 });
 
-test("generated quality-lint bundle is retained in the artifact fixture closure", () => {
+void test("generated quality-lint bundle is retained in the artifact fixture closure", () => {
   const manifest = readJson<ArtifactManifest>(
     "artifacts/adoption-shell-v2/artifact-manifest.json",
   );
@@ -125,7 +125,7 @@ test("generated quality-lint bundle is retained in the artifact fixture closure"
   }
 });
 
-test("public source and committed JavaScript have only the declared import closure", () => {
+void test("public source and committed JavaScript have only the declared import closure", () => {
   const manifest = readJson<ArtifactManifest>(
     "artifacts/adoption-shell-v2/artifact-manifest.json",
   );
@@ -156,7 +156,7 @@ test("public source and committed JavaScript have only the declared import closu
   }
 });
 
-test("artifact policy rejects ambient imports with sorted findings", () => {
+void test("artifact policy rejects ambient imports with sorted findings", () => {
   const ownedTemp = fs.mkdtempSync(
     path.join(os.tmpdir(), "repo-template-artifact-policy-"),
   );
@@ -178,29 +178,31 @@ test("artifact policy rejects ambient imports with sorted findings", () => {
   }
 });
 
-test("runtime tripwires observe no clock, random, fetch, or UUID access", () => {
+void test("runtime tripwires observe no clock, random, fetch, or UUID access", () => {
   const input = readJson<MaterializerInput>(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
   );
   const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, "fetch");
   const dateDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Date");
   const originalRandom = Math.random;
-  const cryptoValue = globalThis.crypto;
+  const cryptoValue = crypto;
   const originalRandomUuid = cryptoValue.randomUUID;
   const accessed: string[] = [];
-  Object.defineProperty(globalThis, "fetch", {
-    configurable: true,
-    get: () => {
-      accessed.push("fetch");
-      throw new Error("fetch tripwire");
-    },
-  });
-  Object.defineProperty(globalThis, "Date", {
-    configurable: true,
-    get: () => {
-      accessed.push("Date");
-      throw new Error("Date tripwire");
-    },
+  Object.defineProperties(globalThis, {
+  	fetch: {
+	    configurable: true,
+	    get: () => {
+	      accessed.push("fetch");
+	      throw new Error("fetch tripwire");
+	    },
+	  },
+  	Date: {
+	    configurable: true,
+	    get: () => {
+	      accessed.push("Date");
+	      throw new Error("Date tripwire");
+	    },
+	  },
   });
   Math.random = () => {
     accessed.push("Math.random");

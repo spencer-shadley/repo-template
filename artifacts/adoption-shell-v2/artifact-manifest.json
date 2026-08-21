@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "dcefcab89d61ce0c2bfe34f9b04463c2aa3edeb3af1004bb13a3589933e2112e",
+  "artifactDigest": "a4ec7a27d74a1ecd8ec882e5ac5f6f89bad573ab71c8a18dadd2be41e4502ee5",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -28,8 +28,8 @@
       "path": "packages/adoption-shell/src/capability-bundles.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2d3c6ea3243156d11bde347e1898357ef880f3d0110984161200ecc5026b99bf",
-      "bytes": 12321
+      "sha256": "867f1c01213aa686e92b28eb4f4589ed425167865d1a0c73d71e7196d0ce8577",
+      "bytes": 12437
     },
     {
       "path": "packages/adoption-shell/src/contract.ts",
@@ -49,15 +49,15 @@
       "path": "packages/adoption-shell/src/delivery-measurement-validation.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6e5c4721a9362a545b17764525ec5f8c2da9fffaace3c3528209ef707af5195e",
-      "bytes": 2929
+      "sha256": "07d563a5b4c9a2e106840fc25921d8ea38660c36c2a46ee3e04b2300b19c2068",
+      "bytes": 2930
     },
     {
       "path": "packages/adoption-shell/src/delivery-measurement.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f0312a1a632be53a2712e9c66a1682fd12b5a145c732d24360dfade694728334",
-      "bytes": 17771
+      "sha256": "a8a526e10ba9cc29038ad357c378ddf0352a1352de9c1b44c1ab469cee2a243d",
+      "bytes": 18067
     },
     {
       "path": "packages/adoption-shell/src/digest.ts",
@@ -77,50 +77,50 @@
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e3f66fe0446dc266fb6fd5a19f309b43d1f3a898abc726ac05b6b7318c017a5e",
-      "bytes": 11977
+      "sha256": "3f3b668d09023c09c6069ed5f36ac04e6e5b1aaee7b7e79cc51defeb16977e1a",
+      "bytes": 11815
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v3.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6044d158c5c4107d2fcd8390277b7865629bd738a692cae2fa69dc99e19b0569",
-      "bytes": 14132
+      "sha256": "2d8a24d43c106e4126c87138f4461a1a44287e4a374c467449a3e6144815f555",
+      "bytes": 13970
     },
     {
       "path": "packages/adoption-shell/src/local-ci-outcome-v1.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "aac5dd2671550eb108df1c546e6794b16c4394663dcfa7639813021fad36ab79",
-      "bytes": 5455
+      "sha256": "df3d69148ecb328ed2b13120408c833806be9dfb6e35c04eba18b1b6af636412",
+      "bytes": 5444
     },
     {
       "path": "packages/adoption-shell/src/materialize.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "43c3fc204077d1c3e7fc742ed842794ec6602d7a1d93d4e17bb8bd7c799c12d4",
-      "bytes": 4772
+      "sha256": "45161ef7d1b22bb48a6840ce524d1d3222abdc67bf959c708534ec14052374d6",
+      "bytes": 4770
     },
     {
       "path": "packages/adoption-shell/src/path-policy.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "50079485a5e5d354aa0d2918a932384652a85c4cf07cb9511e446045befefac0",
-      "bytes": 2580
+      "sha256": "6d44a17d7efa785389705b11d775e8a3fa03b194cdb558f7c8f3466ac8dbc0e4",
+      "bytes": 2583
     },
     {
       "path": "packages/adoption-shell/src/plan-record-v1.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "bb94921505ca094f7d0f3c0b8dbe212ac54019df042ad41cba7cca4b1f9ca93f",
-      "bytes": 16409
+      "sha256": "ef1c2e93bf67e9057243d85074285f6389768d30b4e9a0e766c1426a017047ee",
+      "bytes": 16407
     },
     {
       "path": "packages/adoption-shell/src/release-candidate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a141942b5115bff0832f8dfd53b23d3f7bcf3c80b8d759e554b2e1f59dbca881",
-      "bytes": 10328
+      "sha256": "0165222082bd71399ffeacd0f3e3b7a33064819f2a35e6d21d79987b03e64293",
+      "bytes": 10239
     },
     {
       "path": "packages/adoption-shell/src/release-closure.ts",
@@ -133,36 +133,36 @@
       "path": "packages/adoption-shell/src/release-evidence.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f9a35b910ba88797aeb46e36f54e962ec36f9d79de1be63218ef9fe8522a045f",
-      "bytes": 4561
+      "sha256": "8b7db4dd076fae015d733d5d1625de1eec2e845b3b34680b609f8962efcfaa3f",
+      "bytes": 4402
     },
     {
       "path": "packages/adoption-shell/src/release-receipt.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "75ecf417683a837d324e8341a7f4cbc5a5d3546db152a2ac57e3847881733b0f",
-      "bytes": 13037
+      "sha256": "883bc0f23ba62682f2e1bffb5639c8fd80b9d7833bb47a06fefe783d71d5b13a",
+      "bytes": 12884
     },
     {
       "path": "packages/adoption-shell/src/validate-documentation.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "45673da12e3597f55f5aa358e104bf88573b23b98095790dd0ccd7a0e872a789",
-      "bytes": 3390
+      "sha256": "deb5af0602e2e53eae530da09803de02e6a011fbb025d95f67e76558c95d7b65",
+      "bytes": 3396
     },
     {
       "path": "packages/adoption-shell/src/validate-manifests.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "837741fbd95738bb622c96de7a0418df75c546db3cc94d4ca738fd58535155fe",
-      "bytes": 16791
+      "sha256": "b73400d3a24af74f9a9548bcf0851c810ce76e1ceea5d8586acf2787e295977e",
+      "bytes": 17103
     },
     {
       "path": "packages/adoption-shell/src/validate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f258479c7bd9fa647600aa98ffdb708bb6f993abaab1bee0f188c42f7f2e9483",
-      "bytes": 12614
+      "sha256": "d23103e2f09485c048d67c3b6d45b1fa00b9c527e3b18e3acf07822b841cc5dc",
+      "bytes": 12494
     },
     {
       "path": "packages/adoption-shell/src/validation-helpers.ts",
@@ -175,8 +175,8 @@
       "path": "packages/adoption-shell/src/work-migration-manifest-v1.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "60ff03d462592ad1d33be2f7fa1535928196bcea038cc3a9977d8cb2a1f52736",
-      "bytes": 13283
+      "sha256": "7c745c328e277237fb0df264cce3fcdea0ad7797d16a2ba52a3316902dca3861",
+      "bytes": 14005
     }
   ],
   "schemas": [
@@ -288,8 +288,8 @@
       "path": "capability-bundles.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "19afdfcde62ea4c84a48cb70bc8eb289e9ea73aefc67f5441756f9652f61159c",
-      "bytes": 11353
+      "sha256": "c4bd49e443fa51496fdf430ced0c91d34923994d970756c30c3a24443330a65f",
+      "bytes": 11476
     },
     {
       "path": "contract.d.ts",
@@ -330,8 +330,8 @@
       "path": "delivery-measurement-validation.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "0526b96ddeaf2a5ba7596f472c78be2128dd6a5a830bae5b3b69dcbcd553cee4",
-      "bytes": 2583
+      "sha256": "fab3af0ce95e0ecc478ae25830bc5b318d74110b31dc089bbc3d4c18b2571ed1",
+      "bytes": 2604
     },
     {
       "path": "delivery-measurement.d.ts",
@@ -344,8 +344,8 @@
       "path": "delivery-measurement.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "dfd2c72d0c56207f1d6d1fddd8fc8bbdaf98eaaf63cd9e8e507a37902a262362",
-      "bytes": 17018
+      "sha256": "28d2fd8c8e9d69594349e3030c6eb953f61798202ac243e20ab80cc31263d730",
+      "bytes": 17453
     },
     {
       "path": "digest.d.ts",
@@ -386,8 +386,8 @@
       "path": "local-ci-contract-v2.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "22eade3b57765aca87e42f9999f65d360bd527ac2baedeb4fc5a14d879c61e99",
-      "bytes": 9131
+      "sha256": "ed9f3c04a9174f2272870d0848b483d1db8ff0e6be236764c4b2db90914f7a1a",
+      "bytes": 9145
     },
     {
       "path": "local-ci-contract-v3.d.ts",
@@ -400,8 +400,8 @@
       "path": "local-ci-contract-v3.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d66b6f27f27ef7b9f578c684f9c1786ba40e042daa6f15c7cbfbd629704ca023",
-      "bytes": 11033
+      "sha256": "996678d19bdcea55a5478cf60698fd669bc87ba680351839a32763e978331eae",
+      "bytes": 11047
     },
     {
       "path": "local-ci-outcome-v1.d.ts",
@@ -442,22 +442,22 @@
       "path": "path-policy.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "dd97ed0307321e9b767fa5c37406981e0c4bd12b0e64721e4af5b042b413f142",
-      "bytes": 2531
+      "sha256": "310979d2b9a27b02e0d68a3641f7176483e3f86a721e5ea5d9f6d494080c436c",
+      "bytes": 2534
     },
     {
       "path": "plan-record-v1.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "848c5442741a27057b402898b6f970b88ab8169d10e3d2b124c539c29d5daae0",
-      "bytes": 3214
+      "sha256": "e65e72588ff6e6594cb7691d8d403d599d1671001f4d72c03a90b07ba3093cc1",
+      "bytes": 3025
     },
     {
       "path": "plan-record-v1.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "61c9d3f168d73ba07cef443d95104486c7b020b17a7815f79deb65f55f31b4fc",
-      "bytes": 13413
+      "sha256": "d53e3dfeb8421646ae86eddbb55d89afd2720e2f25436c4cac8b34951f97c3d1",
+      "bytes": 13421
     },
     {
       "path": "release-candidate.d.ts",
@@ -498,8 +498,8 @@
       "path": "release-evidence.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "23d3633ce092ba07850d83f8a958bb5c52510aad85c95272333bf2cc10cb03d6",
-      "bytes": 4103
+      "sha256": "4ad9bdd9ac9d6b9f3a4e6d63e251ec5e68af3e82d5aaa85c71f3ac668b2062e4",
+      "bytes": 4069
     },
     {
       "path": "release-receipt.d.ts",
@@ -512,8 +512,8 @@
       "path": "release-receipt.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "76ef0462d2b3269f33a5b03e0713f826c62a69b90b747a5b9f2f50da3a0de2e0",
-      "bytes": 12364
+      "sha256": "e06dbeed41b46cd8e649c16c48a64037f526098c571781bacc59f2c506044b50",
+      "bytes": 12376
     },
     {
       "path": "validate-documentation.d.ts",
@@ -526,8 +526,8 @@
       "path": "validate-documentation.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "0a93187f3c3b6429c6622869767f08b50c49753040a83e13e58dcb358cd53919",
-      "bytes": 3019
+      "sha256": "1a3daa37def50495702dcace3f4653629020131d5db83da7cf67acf24322bcc3",
+      "bytes": 3025
     },
     {
       "path": "validate-manifests.d.ts",
@@ -540,8 +540,8 @@
       "path": "validate-manifests.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2663f11f0cd5f50d6df6fcddec467cd0c3fe5cfe053a6e76fa81524116b535f0",
-      "bytes": 16160
+      "sha256": "062d67c208fa7d004e78cc7bd18e54491d5c111420d5d8ec35caa17633dd8b1d",
+      "bytes": 16560
     },
     {
       "path": "validate.d.ts",
@@ -554,8 +554,8 @@
       "path": "validate.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "227a59c409282f80c1c6366de8da628d78fa9c8a20348624890fbac752eb554c",
-      "bytes": 11973
+      "sha256": "829e69bcd482a1da14f2f284b2677b76d4afeae10b652cdbd7a9909198577b1a",
+      "bytes": 12011
     },
     {
       "path": "validation-helpers.d.ts",
@@ -582,8 +582,8 @@
       "path": "work-migration-manifest-v1.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d1b70eb2d343d1020b60943100e9c9642a2495f18aa2a84cbd15d78564c91a38",
-      "bytes": 10538
+      "sha256": "107f3d420b394534d9579c90a2e90dc6036dbc19dea39eb5066cc003902a90a4",
+      "bytes": 11301
     }
   ],
   "fixtures": [
@@ -591,8 +591,8 @@
       "path": ".runtime-artifact-registry.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "8bd8928aea50eea700c2eb6cfaaf4ae9e1284fab6df7e46ba78dcb4fa2be72c2",
-      "bytes": 4272
+      "sha256": "53c927afb340fd1d20f41e7c5163afdd8022f331f3dfeb9f24dc3559719297e0",
+      "bytes": 4726
     },
     {
       "path": ".runtime-artifact-registry.schema.json",
@@ -1111,7 +1111,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "9baa54cef35bb43300076f5822e0a300c71c65c445e5347837ec7e112323c269",
+      "sha256": "6240e9f4430b7e780dde4aa01cead513474d56138a85dc850c9f9b076100b24b",
       "bytes": 876
     },
     {
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "74a15bf2655f3b31e141b40a76f2537185bc512a483e6c76e53db7ba732e6c1a"
+  "manifestDigest": "d2db69d9d5eb668486dc636b2e3036ca8206260647960e0c23c568835886380c"
 }

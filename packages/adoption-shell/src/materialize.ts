@@ -123,7 +123,7 @@ export function materializeAdoptionShellV2(inputValue: unknown): Materialization
   );
   const entries = Object.freeze(selected);
   const manifestEntries = Object.freeze(selected.map(manifestEntry));
-  const migrationRefs = Object.freeze([]) as readonly [];
+  const migrationRefs: readonly [] = Object.freeze([]);
   const manifestBody = {
     schemaId: SCHEMA_IDS.materializerOutputManifest,
     schemaVersion: CONTRACT_VERSION,

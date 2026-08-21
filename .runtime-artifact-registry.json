@@ -104,6 +104,18 @@
       "owner": "repo-template",
       "reason": "advisory jscpd wrapper writes the current AI duplicate-code report here so clone findings remain available without dirtying the worktree.",
       "incident": "repo-template#152"
+    },
+    {
+      "pattern": ".ops/issue-deps/**",
+      "owner": "agent-orchestrator",
+      "reason": "transient cache of issue dependency relationships used by queue orchestration.",
+      "incident": "repo-template#172"
+    },
+    {
+      "pattern": ".ops/receipts/work-spine-lag/*.json",
+      "owner": "agent-orchestrator",
+      "reason": "loop-written ephemeral receipts recording work spine lag metrics.",
+      "incident": "repo-template#172"
     }
   ]
 }

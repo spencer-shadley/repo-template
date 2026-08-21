@@ -1,7 +1,7 @@
 import { CONTRACT_ID, CONTRACT_VERSION, ENVELOPE_DIGEST_ALGORITHM, PAYLOAD_DIGEST_ALGORITHM, RELEASE_RECEIPT_KIND, SCHEMA_DIGESTS, SCHEMA_IDS, } from "./contract.js";
 import { sha256CanonicalJson } from "./digest.js";
 import { isIssueTemplateOverride, isPreCustodyWorkflow, portablePathFailure, } from "./path-policy.js";
-import { assertSortedUnique, BUNDLE_ID_PATTERN, Diagnostics, SEMVER_PATTERN, } from "./validation-helpers.js";
+import { assertSortedUnique, BUNDLE_ID_PATTERN, Diagnostics, isRecord, SEMVER_PATTERN, } from "./validation-helpers.js";
 const ENTRY_ROLES = new Set([
     "generic-base-text",
     "generic-base-binary",
@@ -64,10 +64,10 @@ function validateFileRows(value, pointer, diagnostics) {
     if (!diagnostics.array(value, pointer, 0, 4096))
         return [];
     const rows = [];
-    value.forEach((row, index) => {
+    for (const [index, row] of value.entries()) {
         if (validateFileRow(row, `${pointer}/${index}`, diagnostics))
             rows.push(row);
-    });
+    }
     assertSortedUnique(rows.map((row) => row.path), pointer, diagnostics);
     return rows;
 }
@@ -123,31 +123,58 @@ function validateOutputEntry(value, pointer, diagnostics) {
     }
     validateOutputEntryOwnership(value["role"], value["bundleId"], pointer, diagnostics);
     validateOutputEntryEncoding(value["role"], value["encoding"], pointer, diagnostics);
-    return pathValid ? value["path"] : null;
+    return pathValid && typeof value["path"] === "string" ? value["path"] : null;
 }
 function validateOutputSelectedBundles(value, diagnostics) {
-    if (!diagnostics.array(value, "/selectedBundles", 0, 256))
+    if (!diagnostics.array(value, "/selectedBundles", 0, 256) || !Array.isArray(value))
         return;
     const keys = [];
-    value.forEach((reference, index) => {
+    for (const [index, reference] of value.entries()) {
         const pointer = `/selectedBundles/${index}`;
-        if (diagnostics.object(reference, pointer, ["id", "version", "digest"], ["id", "version", "digest"])) {
-            const refRec = reference;
-            diagnostics.string(refRec["id"], `${pointer}/id`, {
+        if (diagnostics.object(reference, pointer, ["id", "version", "digest"], ["id", "version", "digest"]) &&
+            isRecord(reference)) {
+            diagnostics.string(reference["id"], `${pointer}/id`, {
                 min: 1,
                 max: 80,
                 pattern: BUNDLE_ID_PATTERN,
             });
-            diagnostics.string(refRec["version"], `${pointer}/version`, {
+            diagnostics.string(reference["version"], `${pointer}/version`, {
                 min: 5,
                 max: 80,
                 pattern: SEMVER_PATTERN,
             });
-            diagnostics.sha(refRec["digest"], `${pointer}/digest`);
-            keys.push(`${String(refRec["id"])}\u0000${String(refRec["version"])}\u0000${String(refRec["digest"])}`);
+            diagnostics.sha(reference["digest"], `${pointer}/digest`);
+            keys.push(`${String(reference["id"])}\u{0}${String(reference["version"])}\u{0}${String(reference["digest"])}`);
         }
-    });
+    }
     assertSortedUnique(keys, "/selectedBundles", diagnostics);
+}
+function validateManifestDigest(rec, diagnostics) {
+    if (typeof rec["manifestDigest"] !== "string")
+        return;
+    const { manifestDigest: _manifestDigest, ...body } = rec;
+    try {
+        if (sha256CanonicalJson(body) !== rec["manifestDigest"]) {
+            diagnostics.add("E_MANIFEST_DIGEST", "/manifestDigest", "manifest digest mismatch");
+        }
+    }
+    catch {
+        diagnostics.add("E_CANONICAL_JSON", "/manifestDigest", "manifest body is not supported canonical JSON");
+    }
+}
+function validateOutputEntries(entries, entryCount, diagnostics) {
+    const paths = [];
+    if (diagnostics.array(entries, "/entries", 1, 4096) && Array.isArray(entries)) {
+        for (const [index, entry] of entries.entries()) {
+            const rowPath = validateOutputEntry(entry, `/entries/${index}`, diagnostics);
+            if (rowPath !== null)
+                paths.push(rowPath);
+        }
+        assertSortedUnique(paths, "/entries", diagnostics);
+    }
+    if (Number.isInteger(entryCount) && entryCount !== paths.length) {
+        diagnostics.add("E_ENTRY_COUNT", "/entryCount", "entryCount does not match entries");
+    }
 }
 export function validateMaterializerOutputManifestV2(value) {
     const diagnostics = new Diagnostics();
@@ -156,7 +183,7 @@ export function validateMaterializerOutputManifestV2(value) {
         "manifestDigest", "releaseDigest", "releasePayloadDigest", "payloadDigestAlgorithm",
         "outputPayloadDigest", "entryCount", "selectedBundles", "migrationRefs", "entries",
     ];
-    if (!diagnostics.object(value, "", fields, fields)) {
+    if (!diagnostics.object(value, "", fields, fields) || !isRecord(value)) {
         return finish(value, diagnostics);
     }
     const rec = value;
@@ -175,76 +202,55 @@ export function validateMaterializerOutputManifestV2(value) {
     }
     validateOutputSelectedBundles(rec["selectedBundles"], diagnostics);
     diagnostics.array(rec["migrationRefs"], "/migrationRefs", 0, 0);
-    const paths = [];
-    if (diagnostics.array(rec["entries"], "/entries", 1, 4096)) {
-        rec["entries"].forEach((entry, index) => {
-            const rowPath = validateOutputEntry(entry, `/entries/${index}`, diagnostics);
-            if (rowPath !== null)
-                paths.push(rowPath);
-        });
-        assertSortedUnique(paths, "/entries", diagnostics);
-    }
-    if (Number.isInteger(rec["entryCount"]) && rec["entryCount"] !== paths.length) {
-        diagnostics.add("E_ENTRY_COUNT", "/entryCount", "entryCount does not match entries");
-    }
-    if (typeof rec["manifestDigest"] === "string") {
-        const { manifestDigest: _manifestDigest, ...body } = rec;
-        try {
-            if (sha256CanonicalJson(body) !== rec["manifestDigest"]) {
-                diagnostics.add("E_MANIFEST_DIGEST", "/manifestDigest", "manifest digest mismatch");
-            }
-        }
-        catch {
-            diagnostics.add("E_CANONICAL_JSON", "/manifestDigest", "manifest body is not supported canonical JSON");
-        }
-    }
+    validateOutputEntries(rec["entries"], rec["entryCount"], diagnostics);
+    validateManifestDigest(rec, diagnostics);
     return finish(value, diagnostics);
 }
 function validateArtifactToolchain(toolchain, diagnostics) {
-    if (diagnostics.object(toolchain, "/toolchain", ["typescript", "nodeCompatibility", "packageManager"], ["typescript", "nodeCompatibility", "packageManager"])) {
-        const tcRec = toolchain;
-        diagnostics.string(tcRec["typescript"], "/toolchain/typescript", {
-            constant: "7.0.2",
-        });
-        diagnostics.string(tcRec["nodeCompatibility"], "/toolchain/nodeCompatibility", { constant: ">=24.16.0 <25" });
-        diagnostics.string(tcRec["packageManager"], "/toolchain/packageManager", {
-            constant: "pnpm@11.17.0",
-        });
+    if (!(diagnostics.object(toolchain, "/toolchain", ["typescript", "nodeCompatibility", "packageManager"], ["typescript", "nodeCompatibility", "packageManager"]) &&
+        isRecord(toolchain))) {
+        return;
     }
+    diagnostics.string(toolchain["typescript"], "/toolchain/typescript", {
+        constant: "7.0.2",
+    });
+    diagnostics.string(toolchain["nodeCompatibility"], "/toolchain/nodeCompatibility", { constant: ">=24.16.0 <25" });
+    diagnostics.string(toolchain["packageManager"], "/toolchain/packageManager", {
+        constant: "pnpm@11.17.0",
+    });
 }
 function validateArtifactSchemas(schemas, diagnostics) {
-    if (!diagnostics.array(schemas, "/schemas", 9, 9))
+    if (!diagnostics.array(schemas, "/schemas", 9, 9) || !Array.isArray(schemas))
         return;
     const rows = [];
-    schemas.forEach((row, index) => {
+    for (const [index, row] of schemas.entries()) {
         const pointer = `/schemas/${index}`;
         const schemaFields = ["id", "version", "path", "kind", "mode", "sha256", "bytes"];
-        if (!diagnostics.object(row, pointer, schemaFields, schemaFields))
-            return;
-        const rowRec = row;
-        diagnostics.string(rowRec["id"], `${pointer}/id`, {
+        if (!diagnostics.object(row, pointer, schemaFields, schemaFields) || !isRecord(row))
+            continue;
+        diagnostics.string(row["id"], `${pointer}/id`, {
             min: 1,
             max: 240,
             pattern: /^https:\/\/schemas\.repo-template\.dev\//,
         });
-        diagnostics.string(rowRec["version"], `${pointer}/version`, {
+        diagnostics.string(row["version"], `${pointer}/version`, {
             constant: CONTRACT_VERSION,
         });
         const fileRow = {
-            path: rowRec["path"], kind: rowRec["kind"], mode: rowRec["mode"],
-            sha256: rowRec["sha256"], bytes: rowRec["bytes"],
+            path: row["path"], kind: row["kind"], mode: row["mode"],
+            sha256: row["sha256"], bytes: row["bytes"],
         };
         if (validateFileRow(fileRow, pointer, diagnostics)) {
-            if (rowRec["mode"] === "100755") {
+            if (row["mode"] === "100755") {
                 diagnostics.add("E_MODE", `${pointer}/mode`, "schema files must use mode 100644");
             }
-            const schemaBytes = Number(rowRec["bytes"]);
+            const schemaBytes = Number(row["bytes"]);
             if (Number.isSafeInteger(schemaBytes) && (schemaBytes < 1 || schemaBytes > 1_048_576)) {
                 diagnostics.add("E_COUNT", `${pointer}/bytes`, "schema bytes must be 1-1048576");
             }
             rows.push(row);
         }
-    });
+    }
     assertSortedUnique(rows.map((row) => row.path), "/schemas", diagnostics);
 }
 export function validateArtifactManifestV2(value) {
@@ -255,7 +261,7 @@ export function validateArtifactManifestV2(value) {
         "toolchain", "entrypoint", "validatorExport", "runtimeDependencyCount",
         "releaseReceiptKind", "sources", "schemas", "emitted", "fixtures", "goldens",
     ];
-    if (!diagnostics.object(value, "", fields, fields)) {
+    if (!diagnostics.object(value, "", fields, fields) || !isRecord(value)) {
         return finish(value, diagnostics);
     }
     const rec = value;
@@ -310,7 +316,7 @@ export function validateVerificationReceiptV2(value) {
         "independentRunCount",
         "result",
     ];
-    if (!diagnostics.object(value, "", fields, fields)) {
+    if (!diagnostics.object(value, "", fields, fields) || !isRecord(value)) {
         return finish(value, diagnostics);
     }
     schemaIdentity(value, SCHEMA_IDS.verificationReceipt, SCHEMA_DIGESTS.verificationReceipt, diagnostics);

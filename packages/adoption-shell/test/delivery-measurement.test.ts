@@ -30,7 +30,7 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-test("portable declaration binds all six SLIs without owning targets or aggregation", () => {
+void test("portable declaration binds all six SLIs without owning targets or aggregation", () => {
   const declaration = readJson<DeliveryDeclarationV1>("delivery-declaration.json");
   assert.equal(validateDeliveryDeclarationV1(declaration).ok, true);
   assert.deepEqual(
@@ -51,7 +51,7 @@ test("portable declaration binds all six SLIs without owning targets or aggregat
   assert.equal("targetValue" in declaration, false);
 });
 
-test("append-only event captures tokens, outcome, SLO movement, and human attribution", () => {
+void test("append-only event captures tokens, outcome, SLO movement, and human attribution", () => {
   const event = readJson<DeliveryEventV1>("delivery-event.json");
   assert.equal(validateDeliveryEventV1(event).ok, true);
   assert.equal(event.tokenUsage[0]?.totalTokens, 15);
@@ -61,7 +61,7 @@ test("append-only event captures tokens, outcome, SLO movement, and human attrib
   assert.deepEqual(event.coverage, { complete: true, errors: [] });
 });
 
-test("activity proxies and receipts alone never qualify as meaningful delivery", () => {
+void test("activity proxies and receipts alone never qualify as meaningful delivery", () => {
   const event = clone(readJson<DeliveryEventV1>("delivery-event.json")) as unknown as {
     outcome: {
       meaningful: boolean;
@@ -87,7 +87,7 @@ test("activity proxies and receipts alone never qualify as meaningful delivery",
   assert.equal(validateDeliveryEventV1(event).ok, true);
 });
 
-test("coverage errors remain visible without blocking structurally valid source evidence", () => {
+void test("coverage errors remain visible without blocking structurally valid source evidence", () => {
   const event = clone(readJson<DeliveryEventV1>("delivery-event.json")) as unknown as {
     coverage: {
       complete: boolean;
@@ -115,7 +115,7 @@ test("coverage errors remain visible without blocking structurally valid source 
   }
 });
 
-test("declaration rejects a weighted class exceeding the schema's maximum weight", () => {
+void test("declaration rejects a weighted class exceeding the schema's maximum weight", () => {
   const declaration = clone(
     readJson<DeliveryDeclarationV1>("delivery-declaration.json"),
   ) as unknown as {
@@ -142,7 +142,7 @@ test("declaration rejects a weighted class exceeding the schema's maximum weight
   }
 });
 
-test("declaration rejects incomplete SLI coverage and proxy drift", () => {
+void test("declaration rejects incomplete SLI coverage and proxy drift", () => {
   const declaration = clone(
     readJson<DeliveryDeclarationV1>("delivery-declaration.json"),
   ) as unknown as {

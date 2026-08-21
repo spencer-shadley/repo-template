@@ -13,14 +13,14 @@ function stringArray(value, pointer, min, max, diagnostics) {
     if (!diagnostics.array(value, pointer, min, max))
         return;
     const seen = new Set();
-    value.forEach((item, index) => {
+    for (const [index, item] of value.entries()) {
         if (!diagnostics.string(item, `${pointer}/${index}`, { min: 1 }))
-            return;
+            continue;
         if (seen.has(item))
             diagnostics.add("E_DUPLICATE", `${pointer}/${index}`, `duplicate value: ${item}`);
         else
             seen.add(item);
-    });
+    }
 }
 function finish(value, diagnostics) {
     const sorted = diagnostics.sorted();

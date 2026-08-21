@@ -77,9 +77,9 @@ export function exactArray(
   diagnostics: Diagnostics,
 ): void {
   if (!diagnostics.array(value, pointer, expected.length, expected.length)) return;
-  value.forEach((row, index) => oneOf(row, `${pointer}/${index}`, expected, diagnostics));
+  for (const [index, row] of value.entries()) oneOf(row, `${pointer}/${index}`, expected, diagnostics);
   if (value.every((row) => typeof row === "string")) {
-    const actual = value as string[];
+    const actual = value;
     assertSortedUnique(actual, pointer, diagnostics);
     if (actual.some((row, index) => row !== expected[index])) {
       diagnostics.add("E_COVERAGE", pointer, "required closed set does not match");

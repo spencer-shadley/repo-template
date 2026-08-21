@@ -144,14 +144,14 @@ function validateReleaseEntries(entriesValue, diagnostics) {
     const entries = [];
     if (!diagnostics.array(entriesValue, "/entries", 1, 4096))
         return entries;
-    entriesValue.forEach((entry, index) => {
+    for (const [index, entry] of (entriesValue).entries()) {
         if (validatePayloadEntry(entry, `/entries/${index}`, diagnostics))
             entries.push(entry);
-    });
+    }
     const paths = entries.map((entry) => entry.path);
     assertSortedUnique(paths, "/entries", diagnostics);
     const folded = new Map();
-    entries.forEach((entry, index) => {
+    for (const [index, entry] of entries.entries()) {
         const key = entry.path.toLowerCase();
         const prior = folded.get(key);
         if (prior !== undefined && prior !== entry.path) {
@@ -160,7 +160,7 @@ function validateReleaseEntries(entriesValue, diagnostics) {
         else {
             folded.set(key, entry.path);
         }
-    });
+    }
     return entries;
 }
 export function validateReleasePayloadSetV2(value) {
@@ -251,11 +251,11 @@ export function validateMaterializerInputV2(value) {
     }
     if (diagnostics.array(rec["requestedBundles"], "/requestedBundles", 0, 256)) {
         const keys = [];
-        rec["requestedBundles"].forEach((reference, index) => {
+        for (const [index, reference] of (rec["requestedBundles"]).entries()) {
             if (validateBundleReference(reference, `/requestedBundles/${index}`, diagnostics)) {
-                keys.push(`${reference.id}\u0000${reference.version}\u0000${reference.digest}`);
+                keys.push(`${reference.id}\u{0}${reference.version}\u{0}${reference.digest}`);
             }
-        });
+        }
         assertSortedUnique(keys, "/requestedBundles", diagnostics);
     }
     validateConformance(rec["conformance"], diagnostics);

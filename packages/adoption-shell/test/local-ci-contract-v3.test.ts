@@ -35,7 +35,7 @@ function readV3Fixture(name: string): unknown {
   return readJsonFixture(fixturesDir, name);
 }
 
-test("valid LocalCiContractV3 fixture passes validation and carries detectionProof", () => {
+void test("valid LocalCiContractV3 fixture passes validation and carries detectionProof", () => {
   const validFixture = readV3Fixture("valid-local-ci-v3.json");
   const result = validateLocalCiContractV3(validFixture);
   assert.equal(result.ok, true);
@@ -61,7 +61,7 @@ test("valid LocalCiContractV3 fixture passes validation and carries detectionPro
   }
 });
 
-test("all negative V3 contract fixtures fail validation with stable reason codes", () => {
+void test("all negative V3 contract fixtures fail validation with stable reason codes", () => {
   const cases = [
     { fixture: "invalid-missing-field.json", expectedCode: "E_REQUIRED" },
     { fixture: "invalid-duplicate-command-id.json", expectedCode: "E_TYPE" },
@@ -90,7 +90,7 @@ test("all negative V3 contract fixtures fail validation with stable reason codes
   }
 });
 
-test("published V3 schema and runtime agree on every committed non-legacy fixture", () => {
+void test("published V3 schema and runtime agree on every committed non-legacy fixture", () => {
   const fixtures = fs.readdirSync(fixturesDir)
     .filter((name) => name.endsWith(".json") && !name.startsWith("legacy-"))
     .sort();
@@ -104,7 +104,7 @@ test("published V3 schema and runtime agree on every committed non-legacy fixtur
   }
 });
 
-test("a valid V3 declaration classifies as valid-v3 with no migration needed", () => {
+void test("a valid V3 declaration classifies as valid-v3 with no migration needed", () => {
   const value = readV3Fixture("valid-local-ci-v3.json");
   const disposition = classifyAndMigrateLocalCiV2ToV3(value);
   assert.equal(disposition.disposition, "valid-v3");
@@ -112,7 +112,7 @@ test("a valid V3 declaration classifies as valid-v3 with no migration needed", (
   assert.notEqual(disposition.sourceBlobSha256, "");
 });
 
-test("a valid but unmigrated V2 declaration is rejected with an actionable per-command list, never silently defaulted", () => {
+void test("a valid but unmigrated V2 declaration is rejected with an actionable per-command list, never silently defaulted", () => {
   const value = readV3Fixture("legacy-local-ci-v2.json");
   const rawBytes = fs.readFileSync(path.join(fixturesDir, "legacy-local-ci-v2.json"));
   const disposition = classifyAndMigrateLocalCiV2ToV3(value, rawBytes);
@@ -123,7 +123,7 @@ test("a valid but unmigrated V2 declaration is rejected with an actionable per-c
   assert.equal(disposition.contract, undefined);
 });
 
-test("Model Gateway V1 legacy shape still fails closed through the V3 classifier", () => {
+void test("Model Gateway V1 legacy shape still fails closed through the V3 classifier", () => {
   const legacyPath = path.join(root, "contracts", "local-ci", "v2", "fixtures", "legacy-model-gateway-v1.json");
   const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf8"));
   const disposition = classifyAndMigrateLocalCiV2ToV3(legacyData, fs.readFileSync(legacyPath));
@@ -132,14 +132,14 @@ test("Model Gateway V1 legacy shape still fails closed through the V3 classifier
   assert.equal(disposition.reasonCode, "INCOMPLETE_LEGACY_EVIDENCE");
 });
 
-test("completely unknown input fails closed as non-routable rather than guessing", () => {
+void test("completely unknown input fails closed as non-routable rather than guessing", () => {
   const disposition = classifyAndMigrateLocalCiV2ToV3({ randomKey: 123 });
   assert.equal(disposition.disposition, "rejected");
   assert.equal(disposition.legacyLineage, "unknown");
   assert.equal(disposition.reasonCode, "NON_ROUTABLE_DECLARATION");
 });
 
-test("runtime validation rejects adversarial detectionProof shapes the schema also rejects", () => {
+void test("runtime validation rejects adversarial detectionProof shapes the schema also rejects", () => {
   const base: any = readV3Fixture("valid-local-ci-v3.json");
   const cases: readonly [string, (value: any) => void][] = [
     ["neither fixture nor exempt", (v) => { v.commands.lint.detectionProof = {}; }],

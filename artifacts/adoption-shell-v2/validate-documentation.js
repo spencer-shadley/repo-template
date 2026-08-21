@@ -4,8 +4,8 @@ import { compareStrings, Diagnostics } from "./validation-helpers.js";
 const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 function withoutAdrHeadingsOrLinks(text) {
     return text
-        .replace(/^# ADR-\d{4}:[^\n]*$/gm, "")
-        .replace(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
+        .replaceAll(/^# ADR-\d{4}:[^\n]*$/gm, "")
+        .replaceAll(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
 }
 function validateAdrHeadingMatch(entryPath, label, target, diagnostics) {
     if (target.encoding !== "utf-8")

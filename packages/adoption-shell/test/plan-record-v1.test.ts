@@ -113,7 +113,7 @@ function manifestInput() {
   };
 }
 
-test("published schemas pass the draft 2020-12 meta-schema and validate examples", () => {
+void test("published schemas pass the draft 2020-12 meta-schema and validate examples", () => {
   assert.equal(ajv.validateSchema(planRecordSchema), true, JSON.stringify(ajv.errors));
   assert.equal(ajv.validateSchema(migrationManifestSchema), true, JSON.stringify(ajv.errors));
   assert.equal(validatePlanRecordSchema(planRecordExample), true, JSON.stringify(validatePlanRecordSchema.errors));
@@ -126,7 +126,7 @@ test("published schemas pass the draft 2020-12 meta-schema and validate examples
   assert.equal(validateWorkMigrationManifestV1(migrationManifestExample), true);
 });
 
-test("schema and runtime agree for every v1 positive and negative fixture", () => {
+void test("schema and runtime agree for every v1 positive and negative fixture", () => {
   for (const row of cases) {
     if (
       row.record === null ||
@@ -140,7 +140,7 @@ test("schema and runtime agree for every v1 positive and negative fixture", () =
   }
 });
 
-test("plan-host zero and unordered unique effects are valid; duplicate effects are not", () => {
+void test("plan-host zero and unordered unique effects are valid; duplicate effects are not", () => {
   const record = fixture("in-progress-human-plan-host-zero-unsorted-effects").record;
   assert.equal(validatePlanRecordSchema(record), true, JSON.stringify(validatePlanRecordSchema.errors));
   assert.equal(validatePlanRecordV1(record), true);
@@ -149,7 +149,7 @@ test("plan-host zero and unordered unique effects are valid; duplicate effects a
   assert.equal(validatePlanRecordV1(duplicate), false);
 });
 
-test("generated primitive cases keep PlanRecord schema and runtime in parity", () => {
+void test("generated primitive cases keep PlanRecord schema and runtime in parity", () => {
   const planned = validRecord("planned-auto-github-no-claim");
   const completed = validRecord("closed-completed-deployed");
   const invalidCases: readonly [string, unknown][] = [
@@ -180,7 +180,7 @@ test("generated primitive cases keep PlanRecord schema and runtime in parity", (
   assert.equal(validatePlanRecordSchema(offsetTimestamp), true, JSON.stringify(validatePlanRecordSchema.errors));
 });
 
-test("classifies complete legacy evidence with explicit target status and fails closed otherwise", () => {
+void test("classifies complete legacy evidence with explicit target status and fails closed otherwise", () => {
   for (const row of cases) {
     const result = classifyPlanRecordV1(
       row.record,
@@ -204,7 +204,7 @@ test("classifies complete legacy evidence with explicit target status and fails 
   }
 });
 
-test("landed and shipped legacy evidence retain distinct targets and reason codes", () => {
+void test("landed and shipped legacy evidence retain distinct targets and reason codes", () => {
   assert.deepEqual(classifyPlanRecordV1(fixture("legacy-landed-complete").record), {
     kind: "migrate",
     targetStatus: "implemented",
@@ -217,7 +217,7 @@ test("landed and shipped legacy evidence retain distinct targets and reason code
   });
 });
 
-test("fails closed on explicit future schema versions and migrates only absent versions", () => {
+void test("fails closed on explicit future schema versions and migrates only absent versions", () => {
   const future = fixture("future-schema-version").record as Record<string, unknown>;
   assert.deepEqual(classifyPlanRecordV1(future), {
     kind: "retire",
@@ -232,7 +232,7 @@ test("fails closed on explicit future schema versions and migrates only absent v
   });
 });
 
-test("a future-schema classifier decision closes a runtime, schema, and generated manifest", () => {
+void test("a future-schema classifier decision closes a runtime, schema, and generated manifest", () => {
   const path = "plans/001-future.md";
   const future = fixture("future-schema-version").record;
   const decision = classifyPlanRecordV1(future);
@@ -266,7 +266,7 @@ test("a future-schema classifier decision closes a runtime, schema, and generate
   assert.deepEqual(generatedManifest, manifest);
 });
 
-test("claim, receipt, disposition, and supersession evidence is lifecycle-conditional", () => {
+void test("claim, receipt, disposition, and supersession evidence is lifecycle-conditional", () => {
   for (const name of [
     "planned-auto-github-no-claim",
     "in-progress-human-plan-host-zero-unsorted-effects",
@@ -306,7 +306,7 @@ test("claim, receipt, disposition, and supersession evidence is lifecycle-condit
   }
 });
 
-test("admitted enqueue time/source and existing claim/land snapshots are immutable", () => {
+void test("admitted enqueue time/source and existing claim/land snapshots are immutable", () => {
   const planned = validRecord("planned-auto-github-no-claim");
   const active = validRecord("in-progress-human-plan-host-zero-unsorted-effects");
   const implemented = validRecord("implemented-landed");
@@ -336,7 +336,7 @@ test("admitted enqueue time/source and existing claim/land snapshots are immutab
   }), "LAND_SNAPSHOT_IMMUTABLE");
 });
 
-test("a second dry run is byte-identical and schema-valid", () => {
+void test("a second dry run is byte-identical and schema-valid", () => {
   const input = manifestInput();
   const first = createWorkMigrationManifestV1(input);
   const second = createWorkMigrationManifestV1(input);
@@ -346,7 +346,7 @@ test("a second dry run is byte-identical and schema-valid", () => {
   assert.equal(validateMigrationManifestSchema(first), true, JSON.stringify(validateMigrationManifestSchema.errors));
 });
 
-test("manifest closes live inventory and archive disposition counts/hashes", () => {
+void test("manifest closes live inventory and archive disposition counts/hashes", () => {
   const input = manifestInput();
   assert.equal(
     archiveAggregateSha256V1(input.archive.members),
@@ -412,7 +412,7 @@ test("manifest closes live inventory and archive disposition counts/hashes", () 
   );
 });
 
-test("manifest rejects unclassified rows, archive live targets, apply-set drift, and target/reason mismatch", () => {
+void test("manifest rejects unclassified rows, archive live targets, apply-set drift, and target/reason mismatch", () => {
   const input = manifestInput();
   assert.throws(
     () => createWorkMigrationManifestV1({ unclassifiedCount: 1 } as never),
@@ -478,7 +478,7 @@ test("manifest rejects unclassified rows, archive live targets, apply-set drift,
   assert.equal(validateWorkMigrationManifestV1(structurallyWrong), false);
 });
 
-test("generated primitive cases keep manifest schema and runtime fail-closed", () => {
+void test("generated primitive cases keep manifest schema and runtime fail-closed", () => {
   const manifest = createWorkMigrationManifestV1(manifestInput());
   const invalidCases: readonly [string, unknown][] = [
     ["blank verification", { ...manifest, verification: [" "] }],

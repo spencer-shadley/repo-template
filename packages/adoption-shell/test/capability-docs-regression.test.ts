@@ -54,11 +54,11 @@ function decodeEntry(
 /** Same strip as validate-documentation: headings and titled links may keep ADR-NNNN. */
 function withoutAdrHeadingsOrLinks(text: string): string {
   return text
-    .replace(/^# ADR-\d{4}:[^\n]*$/gm, "")
-    .replace(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
+    .replaceAll(/^# ADR-\d{4}:[^\n]*$/gm, "")
+    .replaceAll(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
 }
 
-test("issue #92 bundle materializes both advertised modes from exact closure", async () => {
+void test("issue #92 bundle materializes both advertised modes from exact closure", async () => {
   const input = readJson<MaterializerInput>(
     "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
   );
@@ -118,7 +118,7 @@ test("issue #92 bundle materializes both advertised modes from exact closure", a
   }
 });
 
-test("issue #92 closure is copy-classified and invocation goldens are exact", () => {
+void test("issue #92 closure is copy-classified and invocation goldens are exact", () => {
   const templateManifest = readJson<Record<string, string>>("template-manifest.json");
   const input = readJson<MaterializerInput>(
     "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
@@ -142,7 +142,7 @@ test("issue #92 closure is copy-classified and invocation goldens are exact", ()
   ]);
 });
 
-test("issue #93 fails before on bare ADR / checkout-depth links, passes after titled portable docs", () => {
+void test("issue #93 fails before on bare ADR / checkout-depth links, passes after titled portable docs", () => {
   const unrelated = docEntry(
     "docs/adr/0003-unrelated-local-decision.md",
     `# ${UNRELATED_TITLE}\n\nThis local decision is intentionally unrelated.\n`,
@@ -273,7 +273,7 @@ test("issue #93 fails before on bare ADR / checkout-depth links, passes after ti
   );
 });
 
-test("synthetic v2 payloads contain no local intake override or pre-custody workflow", () => {
+void test("synthetic v2 payloads contain no local intake override or pre-custody workflow", () => {
   for (const name of [
     "minimal-input.json",
     "multi-bundle-input.json",

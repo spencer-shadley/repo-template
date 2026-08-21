@@ -39,29 +39,30 @@ function validateTokenUsage(value, pointer, diagnostics) {
 }
 function validateQualifyingEvidence(value, pointer, diagnostics) {
     const evidenceCount = diagnostics.array(value, `${pointer}/qualifyingEvidence`, 0, 16)
-        ? value.length
+        ? (value).length
         : 0;
     if (Array.isArray(value)) {
-        value.forEach((row, index) => {
+        for (const [index, row] of value.entries()) {
             const rowPointer = `${pointer}/qualifyingEvidence/${index}`;
             if (diagnostics.object(row, rowPointer, ["kind", "verificationRef"], ["kind", "verificationRef"])) {
                 const rec = row;
                 oneOf(rec["kind"], `${rowPointer}/kind`, DELIVERY_EVIDENCE_KINDS, diagnostics);
                 ref(rec["verificationRef"], `${rowPointer}/verificationRef`, diagnostics);
             }
-        });
+        }
     }
     return evidenceCount;
 }
 function validateActivityRefs(value, pointer, diagnostics) {
-    if (diagnostics.array(value, `${pointer}/activityRefs`, 0, 128)) {
-        const refs = [];
-        value.forEach((row, index) => {
-            if (ref(row, `${pointer}/activityRefs/${index}`, diagnostics))
-                refs.push(row);
-        });
-        assertSortedUnique(refs, `${pointer}/activityRefs`, diagnostics);
+    if (!diagnostics.array(value, `${pointer}/activityRefs`, 0, 128)) {
+        return;
     }
+    const refs = [];
+    for (const [index, row] of (value).entries()) {
+        if (ref(row, `${pointer}/activityRefs/${index}`, diagnostics))
+            refs.push(row);
+    }
+    assertSortedUnique(refs, `${pointer}/activityRefs`, diagnostics);
 }
 function validateOutcomeQualification(rec, ctx, pointer, diagnostics) {
     const meaningfulValue = rec["meaningful"];
@@ -143,10 +144,10 @@ function validateHumanMessage(value, pointer, workId, diagnostics) {
     }
     if (diagnostics.array(value["relatedRefs"], `${pointer}/relatedRefs`, 0, 128)) {
         const refs = [];
-        value["relatedRefs"].forEach((row, index) => {
+        for (const [index, row] of value["relatedRefs"].entries()) {
             if (ref(row, `${pointer}/relatedRefs/${index}`, diagnostics))
                 refs.push(row);
-        });
+        }
         assertSortedUnique(refs, `${pointer}/relatedRefs`, diagnostics);
     }
     return id;
@@ -159,16 +160,49 @@ function validateEventCoverage(value, pointer, diagnostics) {
     const complete = bool(rec["complete"], `${pointer}/complete`, diagnostics);
     if (diagnostics.array(rec["errors"], `${pointer}/errors`, 0, 32)) {
         const errors = [];
-        rec["errors"].forEach((row, index) => {
+        for (const [index, row] of (rec["errors"]).entries()) {
             if (oneOf(row, `${pointer}/errors/${index}`, DELIVERY_COVERAGE_ERRORS, diagnostics)) {
                 errors.push(row);
             }
-        });
+        }
         assertSortedUnique(errors, `${pointer}/errors`, diagnostics);
         if (complete && rec["complete"] !== (errors.length === 0)) {
             diagnostics.add("E_COVERAGE", pointer, "complete must be true exactly when coverage errors are empty");
         }
     }
+}
+function validateTokenUsageArray(value, diagnostics) {
+    if (!diagnostics.array(value, "/tokenUsage", 0, 128) || !Array.isArray(value))
+        return;
+    const ids = [];
+    for (const [index, row] of value.entries()) {
+        const id = validateTokenUsage(row, `/tokenUsage/${index}`, diagnostics);
+        if (id !== null)
+            ids.push(id);
+    }
+    assertSortedUnique(ids, "/tokenUsage", diagnostics);
+}
+function validateSloDeltasArray(value, diagnostics) {
+    if (!diagnostics.array(value, "/sloDeltas", 0, 128) || !Array.isArray(value))
+        return;
+    const ids = [];
+    for (const [index, row] of value.entries()) {
+        const id = validateSloDelta(row, `/sloDeltas/${index}`, diagnostics);
+        if (id !== null)
+            ids.push(id);
+    }
+    assertSortedUnique(ids, "/sloDeltas", diagnostics);
+}
+function validateHumanMessagesArray(value, workId, diagnostics) {
+    if (!diagnostics.array(value, "/humanMessages", 0, 128) || !Array.isArray(value))
+        return;
+    const ids = [];
+    for (const [index, row] of value.entries()) {
+        const id = validateHumanMessage(row, `/humanMessages/${index}`, workId, diagnostics);
+        if (id !== null)
+            ids.push(id);
+    }
+    assertSortedUnique(ids, "/humanMessages", diagnostics);
 }
 export function validateDeliveryEventV1(value) {
     const diagnostics = new Diagnostics();
@@ -191,34 +225,10 @@ export function validateDeliveryEventV1(value) {
         !UTC_INSTANT.test(value["recordedAt"])) {
         diagnostics.add("E_FORMAT", "/recordedAt", "must be a UTC RFC 3339 instant");
     }
-    if (diagnostics.array(value["tokenUsage"], "/tokenUsage", 0, 128)) {
-        const ids = [];
-        value["tokenUsage"].forEach((row, index) => {
-            const id = validateTokenUsage(row, `/tokenUsage/${index}`, diagnostics);
-            if (id !== null)
-                ids.push(id);
-        });
-        assertSortedUnique(ids, "/tokenUsage", diagnostics);
-    }
+    validateTokenUsageArray(value["tokenUsage"], diagnostics);
     validateOutcome(value["outcome"], "/outcome", diagnostics);
-    if (diagnostics.array(value["sloDeltas"], "/sloDeltas", 0, 128)) {
-        const ids = [];
-        value["sloDeltas"].forEach((row, index) => {
-            const id = validateSloDelta(row, `/sloDeltas/${index}`, diagnostics);
-            if (id !== null)
-                ids.push(id);
-        });
-        assertSortedUnique(ids, "/sloDeltas", diagnostics);
-    }
-    if (diagnostics.array(value["humanMessages"], "/humanMessages", 0, 128)) {
-        const ids = [];
-        value["humanMessages"].forEach((row, index) => {
-            const id = validateHumanMessage(row, `/humanMessages/${index}`, value["workId"], diagnostics);
-            if (id !== null)
-                ids.push(id);
-        });
-        assertSortedUnique(ids, "/humanMessages", diagnostics);
-    }
+    validateSloDeltasArray(value["sloDeltas"], diagnostics);
+    validateHumanMessagesArray(value["humanMessages"], value["workId"], diagnostics);
     validateEventCoverage(value["coverage"], "/coverage", diagnostics);
     return finish(value, diagnostics);
 }
@@ -232,11 +242,11 @@ function validateClass(value, pointer, diagnostics) {
     diagnostics.string(value["description"], `${pointer}/description`, { min: 1, max: 500 });
     if (diagnostics.array(value["evidenceKinds"], `${pointer}/evidenceKinds`, 1, 4)) {
         const kinds = [];
-        value["evidenceKinds"].forEach((row, index) => {
+        for (const [index, row] of value["evidenceKinds"].entries()) {
             if (oneOf(row, `${pointer}/evidenceKinds/${index}`, DELIVERY_EVIDENCE_KINDS, diagnostics)) {
                 kinds.push(row);
             }
-        });
+        }
         assertSortedUnique(kinds, `${pointer}/evidenceKinds`, diagnostics);
     }
     const mode = oneOf(value["aggregationMode"], `${pointer}/aggregationMode`, ["segmented", "weighted"], diagnostics);
@@ -282,14 +292,14 @@ function validateDeclarationSlis(value, pointer, diagnostics) {
     if (!diagnostics.array(value, pointer, 6, 6))
         return;
     const ids = [];
-    value.forEach((row, index) => {
+    for (const [index, row] of (value).entries()) {
         const rowPointer = `${pointer}/${index}`;
         const sliFields = [
             "id", "scopes", "targetRef", "budgetRef", "windowRef",
             "exceptionPolicyRef", "revisitTrigger", "centralRollupRef",
         ];
         if (!diagnostics.object(row, rowPointer, sliFields, sliFields))
-            return;
+            continue;
         const rec = row;
         if (oneOf(rec["id"], `${rowPointer}/id`, DELIVERY_SLI_IDS, diagnostics))
             ids.push(rec["id"]);
@@ -298,7 +308,7 @@ function validateDeclarationSlis(value, pointer, diagnostics) {
             ref(rec[field], `${rowPointer}/${field}`, diagnostics);
         }
         diagnostics.string(rec["revisitTrigger"], `${rowPointer}/revisitTrigger`, { min: 1, max: 500 });
-    });
+    }
     assertSortedUnique(ids, pointer, diagnostics);
     if (ids.some((row, index) => row !== DELIVERY_SLI_IDS[index])) {
         diagnostics.add("E_COVERAGE", pointer, "all six SLI identities are required exactly once");
@@ -338,11 +348,11 @@ export function validateDeliveryDeclarationV1(value) {
     validateDeclarationRepoBinding(value["repoBinding"], "/repoBinding", diagnostics);
     if (diagnostics.array(value["meaningfulClasses"], "/meaningfulClasses", 1, 128)) {
         const ids = [];
-        value["meaningfulClasses"].forEach((row, index) => {
+        for (const [index, row] of value["meaningfulClasses"].entries()) {
             const id = validateClass(row, `/meaningfulClasses/${index}`, diagnostics);
             if (id !== null)
                 ids.push(id);
-        });
+        }
         assertSortedUnique(ids, "/meaningfulClasses", diagnostics);
     }
     exactArray(value["antiGamingExclusions"], "/antiGamingExclusions", DELIVERY_ANTI_GAMING_EXCLUSIONS, diagnostics);

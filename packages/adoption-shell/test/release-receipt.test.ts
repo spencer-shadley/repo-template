@@ -97,7 +97,7 @@ function receiptWithEvidence(): Record<string, any> {
   };
 }
 
-test("candidate receipt validates but carries no publication authority", () => {
+void test("candidate receipt validates but carries no publication authority", () => {
   const candidate = fixture();
   assert.equal(validateTemplateReleaseReceiptV1(candidate).ok, true);
   const authority = validatePublishedTemplateReleaseReceiptV1(candidate);
@@ -110,13 +110,13 @@ test("candidate receipt validates but carries no publication authority", () => {
   }
 });
 
-test("closed release evidence binds review, canaries, checks, readback, and rollback", () => {
+void test("closed release evidence binds review, canaries, checks, readback, and rollback", () => {
   const receipt = receiptWithEvidence();
   assert.equal(validateSchema(receipt), true);
   assert.equal(validateTemplateReleaseReceiptV1(receipt).ok, true);
 });
 
-test("legacy receipts without optional release evidence remain valid", () => {
+void test("legacy receipts without optional release evidence remain valid", () => {
   const candidate = receiptWithEvidence();
   delete candidate["releaseEvidence"];
   const { receiptDigest: _receiptDigest, ...body } = candidate;
@@ -125,7 +125,7 @@ test("legacy receipts without optional release evidence remain valid", () => {
   assert.equal(validateTemplateReleaseReceiptV1(candidate).ok, true);
 });
 
-test("published schema and runtime fail closed on release-evidence drift", () => {
+void test("published schema and runtime fail closed on release-evidence drift", () => {
   const cases: readonly [string, (value: Record<string, any>) => void][] = [
     ["extra review field", (value) => { value["releaseEvidence"].review.extra = true; }],
     ["non-review URL", (value) => {
@@ -167,7 +167,7 @@ test("published schema and runtime fail closed on release-evidence drift", () =>
   }
 });
 
-test("published receipt binds the same exact body without an ambient clock", () => {
+void test("published receipt binds the same exact body without an ambient clock", () => {
   const candidate = fixture();
   const { receiptDigest: _receiptDigest, ...body } = candidate;
   const published = {
@@ -181,7 +181,7 @@ test("published receipt binds the same exact body without an ambient clock", () 
   assert.equal(validatePublishedTemplateReleaseReceiptV1(receipt).ok, true);
 });
 
-test("identity, transport, authority fields, ordering, and digest fail closed", () => {
+void test("identity, transport, authority fields, ordering, and digest fail closed", () => {
   const releaseId = clone(fixture()) as unknown as Record<string, unknown>;
   releaseId["releaseId"] = "spencer-shadley/repo-template@9.9.9";
   let result = validateTemplateReleaseReceiptV1(releaseId);

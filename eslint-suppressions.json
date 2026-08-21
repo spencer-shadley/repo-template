@@ -20,12 +20,6 @@
     }
   },
   "packages/adoption-shell/src/capability-bundles.ts": {
-    "@typescript-eslint/no-confusing-void-expression": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 8
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 2
     },
@@ -38,30 +32,18 @@
     "unicorn/no-array-sort": {
       "count": 2
     },
-    "unicorn/no-for-each": {
-      "count": 8
-    },
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 6
-    },
     "unicorn/require-array-sort-compare": {
       "count": 1
     }
   },
   "packages/adoption-shell/src/delivery-measurement-validation.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
-      "count": 1
-    },
-    "unicorn/no-for-each": {
       "count": 1
     }
   },
   "packages/adoption-shell/src/delivery-measurement.ts": {
     "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 14
+      "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 4
@@ -70,12 +52,6 @@
       "count": 10
     },
     "unicorn/no-chained-comparison": {
-      "count": 1
-    },
-    "unicorn/no-for-each": {
-      "count": 10
-    },
-    "unicorn/prefer-early-return": {
       "count": 1
     }
   },
@@ -91,9 +67,6 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
     },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 9
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 2
     },
@@ -105,9 +78,6 @@
     },
     "unicorn/no-array-sort": {
       "count": 2
-    },
-    "unicorn/no-for-each": {
-      "count": 1
     },
     "unicorn/require-array-sort-compare": {
       "count": 1
@@ -117,9 +87,6 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
     },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 9
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 2
     },
@@ -132,17 +99,11 @@
     "unicorn/no-array-sort": {
       "count": 3
     },
-    "unicorn/no-for-each": {
-      "count": 1
-    },
     "unicorn/require-array-sort-compare": {
       "count": 2
     }
   },
   "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 4
     },
@@ -151,9 +112,6 @@
     }
   },
   "packages/adoption-shell/src/materialize.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "unicorn/no-array-sort": {
       "count": 2
     }
@@ -161,28 +119,14 @@
   "packages/adoption-shell/src/path-policy.ts": {
     "unicorn/prefer-code-point": {
       "count": 1
-    },
-    "unicorn/prefer-split-limit": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/src/plan-record-v1.ts": {
-    "unicorn/prefer-string-raw": {
-      "count": 1
     }
   },
   "packages/adoption-shell/src/release-candidate.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 5
-    },
     "@typescript-eslint/no-unsafe-return": {
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 8
+      "count": 7
     }
   },
   "packages/adoption-shell/src/release-closure.ts": {
@@ -191,31 +135,16 @@
     }
   },
   "packages/adoption-shell/src/release-evidence.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 5
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
-    },
-    "unicorn/prefer-early-return": {
       "count": 2
     }
   },
   "packages/adoption-shell/src/release-receipt.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 8
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 3
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 1
-    },
-    "unicorn/no-for-each": {
-      "count": 1
-    },
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/validate-documentation.ts": {
@@ -224,46 +153,22 @@
     },
     "unicorn/no-array-sort": {
       "count": 1
-    },
-    "unicorn/prefer-string-replace-all": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/validate-manifests.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 8
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 8
+      "count": 7
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
-    },
-    "unicorn/no-for-each": {
-      "count": 4
-    },
-    "unicorn/prefer-early-return": {
-      "count": 1
-    },
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/validate.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 8
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 4
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 3
-    },
-    "unicorn/no-for-each": {
-      "count": 3
-    },
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 2
     }
   },
   "packages/adoption-shell/src/validation-helpers.ts": {
@@ -282,7 +187,7 @@
       "count": 3
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 10
+      "count": 1
     },
     "sonarjs/no-alphabetical-sort": {
       "count": 2
@@ -298,9 +203,6 @@
     }
   },
   "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 5
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 4
     },
@@ -322,40 +224,19 @@
     "unicorn/no-array-sort": {
       "count": 1
     },
-    "unicorn/no-unnecessary-global-this": {
-      "count": 1
-    },
-    "unicorn/prefer-object-define-properties": {
-      "count": 1
-    },
     "unicorn/require-array-sort-compare": {
       "count": 1
     }
   },
   "packages/adoption-shell/test/canonical-digest.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 5
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 4
     },
     "unicorn/no-array-reverse": {
       "count": 1
-    },
-    "unicorn/no-new-array": {
-      "count": 1
-    },
-    "unicorn/prefer-global-number-constants": {
-      "count": 2
-    },
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 3
     }
   },
   "packages/adoption-shell/test/capability-docs-regression.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 4
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
@@ -364,15 +245,9 @@
     },
     "sonarjs/super-linear-regex": {
       "count": 1
-    },
-    "unicorn/prefer-string-replace-all": {
-      "count": 2
     }
   },
   "packages/adoption-shell/test/delivery-measurement.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 6
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 5
     },
@@ -387,9 +262,6 @@
     }
   },
   "packages/adoption-shell/test/inert-seed-release.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 2
-    },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
@@ -400,9 +272,6 @@
   "packages/adoption-shell/test/local-ci-contract-v2.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 5
-    },
-    "@typescript-eslint/no-floating-promises": {
-      "count": 10
     },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 3
@@ -430,9 +299,6 @@
     "@typescript-eslint/no-explicit-any": {
       "count": 2
     },
-    "@typescript-eslint/no-floating-promises": {
-      "count": 8
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 2
     },
@@ -456,9 +322,6 @@
     }
   },
   "packages/adoption-shell/test/local-ci-outcome-v1.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 7
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
@@ -476,26 +339,17 @@
     }
   },
   "packages/adoption-shell/test/manifest-validators.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 4
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 4
-    },
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
     },
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 18
+      "count": 17
     }
   },
   "packages/adoption-shell/test/plan-body-paths-v1.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 3
-    },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 3
     },
@@ -507,9 +361,6 @@
     }
   },
   "packages/adoption-shell/test/plan-record-v1.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 14
-    },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 9
     },
@@ -521,9 +372,6 @@
     }
   },
   "packages/adoption-shell/test/release-candidate.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 5
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 12
     },
@@ -538,9 +386,6 @@
     }
   },
   "packages/adoption-shell/test/release-closure.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 2
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
@@ -557,9 +402,6 @@
   "packages/adoption-shell/test/release-receipt.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
-    },
-    "@typescript-eslint/no-floating-promises": {
-      "count": 6
     },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 6
@@ -578,9 +420,6 @@
     }
   },
   "packages/adoption-shell/test/validation-materialization.test.ts": {
-    "@typescript-eslint/no-floating-promises": {
-      "count": 7
-    },
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
     },
@@ -595,12 +434,6 @@
     },
     "unicorn/no-array-sort": {
       "count": 1
-    },
-    "unicorn/prefer-string-raw": {
-      "count": 1
-    },
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 2
     },
     "unicorn/require-array-sort-compare": {
       "count": 1

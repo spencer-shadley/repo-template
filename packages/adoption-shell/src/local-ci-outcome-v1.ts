@@ -121,7 +121,7 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
     "recordedAt",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as unknown as LocalCiOutcomeV1, diagnostics);
+    return finish(value as LocalCiOutcomeV1, diagnostics);
   }
 
   diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_OUTCOME_V1_SCHEMA_ID });

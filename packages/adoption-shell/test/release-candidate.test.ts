@@ -73,7 +73,7 @@ function releaseEvidence(): TemplateReleaseEvidence {
   };
 }
 
-test("candidate builder deterministically constructs a valid non-authoritative closure", () => {
+void test("candidate builder deterministically constructs a valid non-authoritative closure", () => {
   const firstInput = input();
   const firstInputBefore = canonicalizeJson(firstInput);
   const first = createTemplateReleaseCandidateV1(firstInput);
@@ -97,7 +97,7 @@ test("candidate builder deterministically constructs a valid non-authoritative c
   assert.equal(canonicalizeJson(firstInput), firstInputBefore);
 });
 
-test("candidate builder fails closed on invalid identity, unknown authority, or payload drift", () => {
+void test("candidate builder fails closed on invalid identity, unknown authority, or payload drift", () => {
   const invalidIdentity = { ...input(), semver: "3" };
   let result = createTemplateReleaseCandidateV1(invalidIdentity);
   assert.equal(result.ok, false);
@@ -130,7 +130,7 @@ test("candidate builder fails closed on invalid identity, unknown authority, or 
   }
 });
 
-test("candidate builder preserves valid closed release evidence", () => {
+void test("candidate builder preserves valid closed release evidence", () => {
   const evidence = releaseEvidence();
   const result = createTemplateReleaseCandidateV1({
     ...input(),
@@ -161,7 +161,7 @@ test("candidate builder preserves valid closed release evidence", () => {
   }
 });
 
-test("payload builder hashes, sorts, and reproduces the canonical release payload set", () => {
+void test("payload builder hashes, sorts, and reproduces the canonical release payload set", () => {
   const canonical = input().payloadSet;
   const drafts = canonical.entries
     .map(({ contentSha256: _contentSha256, ...entry }) => entry)
@@ -174,7 +174,7 @@ test("payload builder hashes, sorts, and reproduces the canonical release payloa
   assert.equal(canonicalizeJson(drafts), original);
 });
 
-test("payload builder rejects malformed drafts without throwing", () => {
+void test("payload builder rejects malformed drafts without throwing", () => {
   const canonical = input().payloadSet;
   const [first] = canonical.entries;
   assert.ok(first);

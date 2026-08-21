@@ -13,7 +13,6 @@ import {
   type ArtifactManifest,
   type CapabilityBundleRegistry,
   type Diagnostic,
-  type PayloadEntry,
   type ReleasePayloadEntryDraftV2,
   type ReleasePayloadSet,
   type TemplateReleaseEvidence,
@@ -191,7 +190,7 @@ export function createTemplateReleaseCandidateV1(
   if (!diagnostics.object(value, "", [...fields, "releaseEvidence"], fields)) {
     return finish(value as TemplateReleaseClosure, diagnostics);
   }
-  const inputRec = value as Record<string, unknown>;
+  const inputRec = value;
   const {
     payloadResult, capabilityResult, artifactResult, evidenceResult, valid,
   } = validateCandidateInputs(inputRec, diagnostics);
@@ -206,9 +205,9 @@ export function createTemplateReleaseCandidateV1(
     return finish(value as unknown as TemplateReleaseClosure, diagnostics);
   }
 
-  const payloadSet: ReleasePayloadSet = payloadResult.value!;
-  const capabilityRegistry: CapabilityBundleRegistry = capabilityResult.value!;
-  const artifactManifest: ArtifactManifest = artifactResult.value!;
+  const payloadSet: ReleasePayloadSet = payloadResult.value;
+  const capabilityRegistry: CapabilityBundleRegistry = capabilityResult.value;
+  const artifactManifest: ArtifactManifest = artifactResult.value;
   const releaseEvidence: TemplateReleaseEvidence | undefined =
     evidenceResult?.ok ? evidenceResult.value : undefined;
   const receiptParams = {
@@ -275,7 +274,7 @@ export function createReleasePayloadSetV2(
   let payloadDigest = "0".repeat(64);
   try {
     payloadDigest = sha256PayloadEntries(
-      entries as unknown as readonly PayloadEntry[],
+      entries,
     );
   } catch {
     // The canonical validator reports malformed entries without throwing.

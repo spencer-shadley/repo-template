@@ -68,11 +68,11 @@ function codes(value: unknown): readonly string[] {
   return result.ok ? [] : result.diagnostics.map((row) => row.code);
 }
 
-test("release closure authenticates payload, bundles, and compiled artifact together", () => {
+void test("release closure authenticates payload, bundles, and compiled artifact together", () => {
   assert.equal(validateTemplateReleaseClosureV1(closure()).ok, true);
 });
 
-test("independently valid but mismatched closure identities fail closed", () => {
+void test("independently valid but mismatched closure identities fail closed", () => {
   const payloadBase = clone(closure());
   const { receiptDigest: _payloadDigest, ...payloadBody } = payloadBase.receipt;
   const payloadReceiptBody = {

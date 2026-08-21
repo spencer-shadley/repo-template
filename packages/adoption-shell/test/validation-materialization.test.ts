@@ -31,7 +31,7 @@ function readJson<T>(relativePath: string): T {
 }
 
 function diagnosticKey(value: Diagnostic): string {
-  return `${value.pointer}\u0000${value.code}\u0000${value.message}`;
+  return `${value.pointer}\u{0}${value.code}\u{0}${value.message}`;
 }
 
 function assertSorted(diagnostics: readonly Diagnostic[]): void {
@@ -41,7 +41,7 @@ function assertSorted(diagnostics: readonly Diagnostic[]): void {
   );
 }
 
-test("valid fixtures materialize deterministically without mutating inputs", () => {
+void test("valid fixtures materialize deterministically without mutating inputs", () => {
   for (const name of [
     "minimal-input.json",
     "minimal-input-shuffled-keys.json",
@@ -68,7 +68,7 @@ test("valid fixtures materialize deterministically without mutating inputs", () 
   }
 });
 
-test("object key order cannot influence output bytes or receipts", () => {
+void test("object key order cannot influence output bytes or receipts", () => {
   const ordinary = readJson<MaterializerInput>(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
   );
@@ -91,7 +91,7 @@ test("object key order cannot influence output bytes or receipts", () => {
   assert.equal("updatedAt" in receipt, false);
 });
 
-test("all committed negative fixtures fail with sorted targeted diagnostics", () => {
+void test("all committed negative fixtures fail with sorted targeted diagnostics", () => {
   const fixtures = readJson<
     readonly {
       readonly name: string;
@@ -120,7 +120,7 @@ test("all committed negative fixtures fail with sorted targeted diagnostics", ()
   }
 });
 
-test("validators fail closed instead of throwing on non-JSON unknown values", () => {
+void test("validators fail closed instead of throwing on non-JSON unknown values", () => {
   const input = readJson<Record<string, unknown>>(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
   );
@@ -135,7 +135,7 @@ test("validators fail closed instead of throwing on non-JSON unknown values", ()
   }
 });
 
-test("Template release identity stays distinct from output payload identity", () => {
+void test("Template release identity stays distinct from output payload identity", () => {
   const input = readJson<MaterializerInput>(
     "contracts/adoption-shell-v2/fixtures/multi-bundle-input.json",
   );
@@ -154,7 +154,7 @@ test("Template release identity stays distinct from output payload identity", ()
   assert.equal("outputTreeDigest" in result.manifest, false);
 });
 
-test("documentation link validation ignores absolute URI schemes", () => {
+void test("documentation link validation ignores absolute URI schemes", () => {
   const contentBase64 = Buffer.from(
     "[HTTP](http://example.com) [Mail](mailto:dev@example.com) [FTP](ftp://example.com)",
     "utf8",
@@ -175,12 +175,12 @@ test("documentation link validation ignores absolute URI schemes", () => {
   assert.deepEqual(validateDocumentationLinks(entries), []);
 });
 
-test("compiled path policy remains portable across Windows and relative-doc boundaries", () => {
+void test("compiled path policy remains portable across Windows and relative-doc boundaries", () => {
   for (const [value, expected] of [
     ["docs/guide.md", null],
     ["", "empty"],
     ["C:/work/guide.md", "absolute"],
-    ["docs\\guide.md", "characters"],
+    [String.raw`docs\guide.md`, "characters"],
     ["docs//guide.md", "segment"],
     ["docs/COM1.txt", "reserved"],
     ["docs/guide.", "trailing"],

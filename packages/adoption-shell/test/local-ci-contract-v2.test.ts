@@ -31,7 +31,7 @@ function readJsonFixture(name: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(fixturesDir, name), "utf8"));
 }
 
-test("valid LocalCiContractV2 fixture passes validation", () => {
+void test("valid LocalCiContractV2 fixture passes validation", () => {
   const validFixture = readJsonFixture("valid-local-ci-v2.json");
   const result = validateLocalCiContractV2(validFixture);
   assert.equal(result.ok, true);
@@ -60,7 +60,7 @@ test("valid LocalCiContractV2 fixture passes validation", () => {
   }
 });
 
-test("all negative V2 contract fixtures fail validation with stable reason codes", () => {
+void test("all negative V2 contract fixtures fail validation with stable reason codes", () => {
   const cases = [
     { fixture: "invalid-missing-field.json", expectedCode: "E_REQUIRED" },
     { fixture: "invalid-duplicate-command-id.json", expectedCode: "E_TYPE" },
@@ -86,7 +86,7 @@ test("all negative V2 contract fixtures fail validation with stable reason codes
   }
 });
 
-test("published schema and runtime agree on every committed V2 fixture", () => {
+void test("published schema and runtime agree on every committed V2 fixture", () => {
   const fixtures = fs.readdirSync(fixturesDir)
     .filter((name) => name.endsWith(".json") && !name.startsWith("legacy-"))
     .sort();
@@ -100,7 +100,7 @@ test("published schema and runtime agree on every committed V2 fixture", () => {
   }
 });
 
-test("Model Gateway V1 legacy shape is rejected rather than guessing closed V2 evidence", () => {
+void test("Model Gateway V1 legacy shape is rejected rather than guessing closed V2 evidence", () => {
   const legacyData = readJsonFixture("legacy-model-gateway-v1.json");
   const rawBytes = fs.readFileSync(path.join(fixturesDir, "legacy-model-gateway-v1.json"));
   const disposition = classifyAndMigrateLegacyLocalCiV1(legacyData, rawBytes);
@@ -112,7 +112,7 @@ test("Model Gateway V1 legacy shape is rejected rather than guessing closed V2 e
   assert.equal(disposition.contract, undefined);
 });
 
-test("Repo Factory V1 legacy shape is rejected rather than guessing closed V2 evidence", () => {
+void test("Repo Factory V1 legacy shape is rejected rather than guessing closed V2 evidence", () => {
   const legacyData = readJsonFixture("legacy-repo-factory-v1.json");
   const rawBytes = fs.readFileSync(path.join(fixturesDir, "legacy-repo-factory-v1.json"));
   const disposition = classifyAndMigrateLegacyLocalCiV1(legacyData, rawBytes);
@@ -124,7 +124,7 @@ test("Repo Factory V1 legacy shape is rejected rather than guessing closed V2 ev
   assert.equal(disposition.contract, undefined);
 });
 
-test("runtime validation rejects every adversarial schema-parity probe", () => {
+void test("runtime validation rejects every adversarial schema-parity probe", () => {
   const base: any = readJsonFixture("valid-local-ci-v2.json");
   const cases: readonly [string, (value: any) => void, string][] = [
     ["non-string command argument", (v) => { v.commands.lint.args = [42]; }, "E_TYPE"],
@@ -149,7 +149,7 @@ test("runtime validation rejects every adversarial schema-parity probe", () => {
   }
 });
 
-test("published schema and runtime agree on closed command semantics", () => {
+void test("published schema and runtime agree on closed command semantics", () => {
   const base: any = readJsonFixture("valid-local-ci-v2.json");
   const cases: readonly [string, (value: any) => void][] = [
     ["duplicate command order", (v) => {
@@ -179,7 +179,7 @@ test("published schema and runtime agree on closed command semantics", () => {
   }
 });
 
-test("legacy boolean-like strings and missing effects never coerce into a migrated contract", () => {
+void test("legacy boolean-like strings and missing effects never coerce into a migrated contract", () => {
   const legacy: any = readJsonFixture("legacy-model-gateway-v1.json");
   legacy.effects.credentials = "false";
   delete legacy.effects.spend;
@@ -189,7 +189,7 @@ test("legacy boolean-like strings and missing effects never coerce into a migrat
   assert.equal(result.contract, undefined);
 });
 
-test("invalid/malformed legacy shapes fail closed with non-routable disposition", () => {
+void test("invalid/malformed legacy shapes fail closed with non-routable disposition", () => {
   const invalidLegacy = readJsonFixture("legacy-invalid-v1.json");
   const disposition = classifyAndMigrateLegacyLocalCiV1(invalidLegacy);
 
@@ -199,7 +199,7 @@ test("invalid/malformed legacy shapes fail closed with non-routable disposition"
   assert.equal(disposition.contract, undefined);
 });
 
-test("completely unknown / garbage input fails closed as non-routable", () => {
+void test("completely unknown / garbage input fails closed as non-routable", () => {
   const disposition = classifyAndMigrateLegacyLocalCiV1({ randomKey: 123 });
   assert.equal(disposition.disposition, "rejected");
   assert.equal(disposition.legacyLineage, "unknown");

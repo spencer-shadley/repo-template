@@ -177,7 +177,7 @@ function validatePayloadEntryContent(
   if (!diagnostics.string(contentBase64, `${pointer}/contentBase64`)) return;
   const expectedEncoding = role === "generic-base-binary" ? "binary" : "utf-8";
   try {
-    const bytes = decodeCanonicalBase64(contentBase64 as string);
+    const bytes = decodeCanonicalBase64(contentBase64);
     if (
       typeof contentSha256 === "string" &&
       sha256Bytes(bytes) !== contentSha256
@@ -219,7 +219,7 @@ function validatePayloadEntry(
   if (!diagnostics.object(value, pointer, fields, fields)) {
     return false;
   }
-  const rec = value as Record<string, unknown>;
+  const rec = value;
   const pathValid = validatePath(rec["path"], `${pointer}/path`, diagnostics);
   diagnostics.string(rec["kind"], `${pointer}/kind`, { constant: "file" });
   if (
@@ -232,7 +232,7 @@ function validatePayloadEntry(
   diagnostics.sha(rec["contentSha256"], `${pointer}/contentSha256`);
   if (
     diagnostics.string(rec["role"], `${pointer}/role`) &&
-    !ENTRY_ROLES.has(rec["role"] as string)
+    !ENTRY_ROLES.has(rec["role"])
   ) {
     diagnostics.add("E_ROLE", `${pointer}/role`, "unsupported payload role");
   }
@@ -261,13 +261,13 @@ function validateReleaseEntries(
 ): PayloadEntry[] {
   const entries: PayloadEntry[] = [];
   if (!diagnostics.array(entriesValue, "/entries", 1, 4096)) return entries;
-  (entriesValue as unknown[]).forEach((entry, index) => {
+  for (const [index, entry] of (entriesValue).entries()) {
     if (validatePayloadEntry(entry, `/entries/${index}`, diagnostics)) entries.push(entry);
-  });
+  }
   const paths = entries.map((entry) => entry.path);
   assertSortedUnique(paths, "/entries", diagnostics);
   const folded = new Map<string, string>();
-  entries.forEach((entry, index) => {
+  for (const [index, entry] of entries.entries()) {
     const key = entry.path.toLowerCase();
     const prior = folded.get(key);
     if (prior !== undefined && prior !== entry.path) {
@@ -279,7 +279,7 @@ function validateReleaseEntries(
     } else {
       folded.set(key, entry.path);
     }
-  });
+  }
   return entries;
 }
 
@@ -293,7 +293,7 @@ export function validateReleasePayloadSetV2(value: unknown): ValidationResult<Re
   if (!diagnostics.object(value, "", fields, fields)) {
     return finish(value as ReleasePayloadSet, diagnostics);
   }
-  const rec = value as Record<string, unknown>;
+  const rec = value;
   schemaIdentity(rec, "", SCHEMA_IDS.releasePayloadSet, SCHEMA_DIGESTS.releasePayloadSet, diagnostics);
   diagnostics.string(rec["contractId"], "/contractId", { constant: CONTRACT_ID });
   diagnostics.string(rec["digestAlgorithm"], "/digestAlgorithm", { constant: ENVELOPE_DIGEST_ALGORITHM });
@@ -335,7 +335,7 @@ export function validateReleasePayloadSetV2(value: unknown): ValidationResult<Re
 function validateConformance(conformance: unknown, diagnostics: Diagnostics): void {
   const fields = ["noLocalIssueTemplateOverride", "noPreCustodyWorkflows"];
   if (diagnostics.object(conformance, "/conformance", fields, fields)) {
-    const confRec = conformance as Record<string, unknown>;
+    const confRec = conformance;
     if (confRec["noLocalIssueTemplateOverride"] !== true) {
       diagnostics.add("E_CONST", "/conformance/noLocalIssueTemplateOverride", "must be true");
     }
@@ -354,7 +354,7 @@ export function validateMaterializerInputV2(value: unknown): ValidationResult<Ma
   if (!diagnostics.object(value, "", fields, fields)) {
     return finish(value as MaterializerInput, diagnostics);
   }
-  const rec = value as Record<string, unknown>;
+  const rec = value;
   schemaIdentity(rec, "", SCHEMA_IDS.materializerInput, SCHEMA_DIGESTS.materializerInput, diagnostics);
   diagnostics.string(rec["contractId"], "/contractId", { constant: CONTRACT_ID });
   const releaseResult = validateReleasePayloadSetV2(rec["release"]);
@@ -371,11 +371,11 @@ export function validateMaterializerInputV2(value: unknown): ValidationResult<Ma
   }
   if (diagnostics.array(rec["requestedBundles"], "/requestedBundles", 0, 256)) {
     const keys: string[] = [];
-    (rec["requestedBundles"] as unknown[]).forEach((reference, index) => {
+    for (const [index, reference] of (rec["requestedBundles"]).entries()) {
       if (validateBundleReference(reference, `/requestedBundles/${index}`, diagnostics)) {
-        keys.push(`${reference.id}\u0000${reference.version}\u0000${reference.digest}`);
+        keys.push(`${reference.id}\u{0}${reference.version}\u{0}${reference.digest}`);
       }
-    });
+    }
     assertSortedUnique(keys, "/requestedBundles", diagnostics);
   }
   validateConformance(rec["conformance"], diagnostics);

@@ -45,10 +45,10 @@ function validatePaths(value, pointer, diagnostics) {
     if (!diagnostics.array(value, pointer, 0, 4096))
         return [];
     const paths = [];
-    value.forEach((path, index) => {
+    for (const [index, path] of value.entries()) {
         if (validatePath(path, `${pointer}/${index}`, diagnostics))
             paths.push(path);
-    });
+    }
     assertSortedUnique(paths, pointer, diagnostics);
     return paths;
 }
@@ -56,10 +56,10 @@ function validateBundleModes(value, pointer, diagnostics) {
     if (!diagnostics.array(value, `${pointer}/modes`, 0, 64))
         return;
     const modeIds = [];
-    value.forEach((mode, index) => {
+    for (const [index, mode] of (value).entries()) {
         const modePointer = `${pointer}/modes/${index}`;
         if (!diagnostics.object(mode, modePointer, ["id", "entrypoint", "requiredPaths"], ["id", "entrypoint", "requiredPaths"])) {
-            return;
+            continue;
         }
         const modeRec = mode;
         if (diagnostics.string(modeRec["id"], `${modePointer}/id`, {
@@ -71,7 +71,7 @@ function validateBundleModes(value, pointer, diagnostics) {
         }
         validatePath(modeRec["entrypoint"], `${modePointer}/entrypoint`, diagnostics);
         validatePaths(modeRec["requiredPaths"], `${modePointer}/requiredPaths`, diagnostics);
-    });
+    }
     assertSortedUnique(modeIds, `${pointer}/modes`, diagnostics);
 }
 function validateBundleDigest(value, pointer, diagnostics) {
@@ -103,11 +103,11 @@ function validateBundle(value, pointer, diagnostics) {
     diagnostics.sha(rec["digest"], `${pointer}/digest`);
     if (diagnostics.array(rec["dependencies"], `${pointer}/dependencies`, 0, 128)) {
         const keys = [];
-        rec["dependencies"].forEach((dependency, index) => {
+        for (const [index, dependency] of (rec["dependencies"]).entries()) {
             if (validateReference(dependency, `${pointer}/dependencies/${index}`, diagnostics)) {
-                keys.push(`${dependency.id}\u0000${dependency.version}\u0000${dependency.digest}`);
+                keys.push(`${(dependency).id}\u{0}${(dependency).version}\u{0}${(dependency).digest}`);
             }
-        });
+        }
         assertSortedUnique(keys, `${pointer}/dependencies`, diagnostics);
     }
     const artifacts = validatePaths(rec["artifacts"], `${pointer}/artifacts`, diagnostics);
@@ -154,11 +154,11 @@ export function validateCapabilityBundleRegistryV2(value) {
     diagnostics.sha(value["registryDigest"], "/registryDigest");
     if (diagnostics.array(value["bundles"], "/bundles", 0, 256)) {
         const keys = [];
-        value["bundles"].forEach((bundle, index) => {
+        for (const [index, bundle] of value["bundles"].entries()) {
             if (validateBundle(bundle, `/bundles/${index}`, diagnostics)) {
-                keys.push(`${bundle.id}\u0000${bundle.version}\u0000${bundle.digest}`);
+                keys.push(`${bundle.id}\u{0}${bundle.version}\u{0}${bundle.digest}`);
             }
-        });
+        }
         assertSortedUnique(keys, "/bundles", diagnostics);
     }
     if (typeof value["registryDigest"] === "string") {
@@ -175,7 +175,27 @@ export function validateCapabilityBundleRegistryV2(value) {
     return finish(value, diagnostics);
 }
 function referenceKey(reference) {
-    return `${reference.id}\u0000${reference.version}\u0000${reference.digest}`;
+    return `${reference.id}\u{0}${reference.version}\u{0}${reference.digest}`;
+}
+const CATEGORY_ROLES = {
+    ARTIFACT: new Set(["capability-executable", "capability-config"]),
+    FIXTURE: new Set(["capability-fixture"]),
+    GOLDEN: new Set(["capability-golden"]),
+};
+function validateSingleCategoryPath(bundle, category, path, entryByPath, diagnostics) {
+    const entry = entryByPath.get(path);
+    if (entry === undefined) {
+        diagnostics.add(`E_BUNDLE_${category}_MISSING`, `/bundles/${bundle.id}/${path}`, `${category.toLowerCase()} path is absent from the release`);
+        return;
+    }
+    if (entry.bundleId !== bundle.id) {
+        diagnostics.add("E_BUNDLE_OWNERSHIP", `/entries/${path}/bundleId`, `entry is not owned by ${bundle.id}`);
+        return;
+    }
+    const expectedRoles = CATEGORY_ROLES[category];
+    if (!expectedRoles?.has(entry.role)) {
+        diagnostics.add("E_BUNDLE_ROLE", `/entries/${path}/role`, `entry role does not match ${category.toLowerCase()} classification`);
+    }
 }
 function validateBundleCategoryPaths(bundle, entryByPath, diagnostics) {
     for (const [category, paths] of [
@@ -183,29 +203,13 @@ function validateBundleCategoryPaths(bundle, entryByPath, diagnostics) {
         ["FIXTURE", bundle.fixtures],
         ["GOLDEN", bundle.goldens],
     ]) {
-        paths.forEach((path) => {
-            const entry = entryByPath.get(path);
-            if (entry === undefined) {
-                diagnostics.add(`E_BUNDLE_${category}_MISSING`, `/bundles/${bundle.id}/${path}`, `${category.toLowerCase()} path is absent from the release`);
-            }
-            else if (entry.bundleId !== bundle.id) {
-                diagnostics.add("E_BUNDLE_OWNERSHIP", `/entries/${path}/bundleId`, `entry is not owned by ${bundle.id}`);
-            }
-            else {
-                const expectedRoles = category === "ARTIFACT"
-                    ? new Set(["capability-executable", "capability-config"])
-                    : category === "FIXTURE"
-                        ? new Set(["capability-fixture"])
-                        : new Set(["capability-golden"]);
-                if (!expectedRoles.has(entry.role)) {
-                    diagnostics.add("E_BUNDLE_ROLE", `/entries/${path}/role`, `entry role does not match ${category.toLowerCase()} classification`);
-                }
-            }
-        });
+        for (const path of paths) {
+            validateSingleCategoryPath(bundle, category, path, entryByPath, diagnostics);
+        }
     }
 }
 function validateBundleModesClosure(bundle, declared, entryByPath, diagnostics) {
-    bundle.modes.forEach((mode) => {
+    for (const mode of bundle.modes) {
         if (!bundle.artifacts.includes(mode.entrypoint)) {
             diagnostics.add("E_MODE_ENTRYPOINT", `/bundles/${bundle.id}/modes/${mode.id}/entrypoint`, "mode entrypoint must be a bundle artifact");
         }
@@ -214,7 +218,7 @@ function validateBundleModesClosure(bundle, declared, entryByPath, diagnostics) 
                 diagnostics.add("E_MODE_CLOSURE", `/bundles/${bundle.id}/modes/${mode.id}/requiredPaths`, `mode dependency is absent from the materializable closure: ${path}`);
             }
         }
-    });
+    }
 }
 export function resolveCapabilityClosure(registry, requested, entries) {
     const diagnostics = new Diagnostics();
@@ -236,11 +240,13 @@ export function resolveCapabilityClosure(registry, requested, entries) {
             return;
         }
         visiting.add(key);
-        bundle.dependencies.forEach((dependency, index) => visit(dependency, `${pointer}/dependencies/${index}`));
+        for (const [index, dependency] of bundle.dependencies.entries())
+            visit(dependency, `${pointer}/dependencies/${index}`);
         visiting.delete(key);
         selected.set(key, bundle);
     };
-    requested.forEach((reference, index) => visit(reference, `/requestedBundles/${index}`));
+    for (const [index, reference] of requested.entries())
+        visit(reference, `/requestedBundles/${index}`);
     for (const bundle of selected.values()) {
         const declared = new Set([
             ...bundle.artifacts,

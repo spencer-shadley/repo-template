@@ -35,7 +35,7 @@ function checkSegmentFailure(segment: string): PathFailure | null {
   if (segment.length === 0 || segment === "." || segment === "..") return "segment";
   if (segment.endsWith(".") || segment.endsWith(" ")) return "trailing";
   if (!PORTABLE_SEGMENT.test(segment)) return "characters";
-  const basename = segment.split(".")[0] ?? segment;
+  const basename = segment.split(".", 1)[0] ?? segment;
   if (WINDOWS_RESERVED.test(basename)) return "reserved";
   return null;
 }

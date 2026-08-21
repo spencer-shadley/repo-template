@@ -71,9 +71,13 @@ const migrationTargets: Readonly<Record<MigrateReasonCode, PlanRecordStatus>> = 
   LEGACY_CLOSED: "closed",
   LEGACY_HELD_COMPLETE: "held-authority",
 };
-const migrateReasons = new Set<MigrateReasonCode>(
-  Object.keys(migrationTargets) as MigrateReasonCode[],
-);
+const migrateReasons = new Set<string>([
+  "LEGACY_READY",
+  "LEGACY_ACTIVE",
+  "LEGACY_IMPLEMENTED",
+  "LEGACY_CLOSED",
+  "LEGACY_HELD_COMPLETE",
+]);
 const retireReasons = new Set<RetireReasonCode>([
   "INCOMPLETE_EVIDENCE",
   "AMBIGUOUS_STATUS",
@@ -148,20 +152,28 @@ export function archiveAggregateSha256V1(
   return sha256Bytes(bytes);
 }
 
+function isMigrateReason(reason: string): reason is MigrateReasonCode {
+  return migrateReasons.has(reason);
+}
+
+function isRetireReason(reason: string): reason is RetireReasonCode {
+  return retireReasons.has(reason as RetireReasonCode);
+}
+
 function validDecision(value: unknown): value is WorkMigrationDecisionV1 {
   if (!isRecord(value) || !livePlanPath(value["path"]) || !nonEmpty(value["reasonCode"])) {
     return false;
   }
+  const reasonCode = value["reasonCode"];
   if (value["decision"] === "migrate") {
-    const reason = value["reasonCode"] as MigrateReasonCode;
     return (
       exactKeys(
         value,
         ["path", "decision", "targetStatus", "reasonCode"],
         ["path", "decision", "targetStatus", "reasonCode"],
       ) &&
-      migrateReasons.has(reason) &&
-      value["targetStatus"] === migrationTargets[reason]
+      isMigrateReason(reasonCode) &&
+      value["targetStatus"] === migrationTargets[reasonCode]
     );
   }
   return (
@@ -171,7 +183,7 @@ function validDecision(value: unknown): value is WorkMigrationDecisionV1 {
       ["path", "decision", "reasonCode"],
       ["path", "decision", "reasonCode"],
     ) &&
-    retireReasons.has(value["reasonCode"] as RetireReasonCode)
+    isRetireReason(reasonCode)
   );
 }
 
@@ -235,10 +247,11 @@ function validArchiveHeader(value: unknown): value is Record<string, unknown> {
   );
 }
 
-function validArchiveMember(member: unknown): boolean {
+function validArchiveMember(member: unknown): member is ArchiveMemberV1 {
   return (
     isRecord(member) &&
     exactKeys(member, ["path", "blobSha256"], ["path", "blobSha256"]) &&
+    typeof member["path"] === "string" &&
     archivePlanPath(member["path"]) &&
     typeof member["blobSha256"] === "string" &&
     SHA256_PATTERN.test(member["blobSha256"])
@@ -250,15 +263,22 @@ function validArchiveMembers(
   count: number,
   aggregateSha256: string,
 ): boolean {
+  if (!members.every(validArchiveMember)) return false;
   return (
-    members.every(validArchiveMember) &&
-    sortedUnique(members.map((m) => String((m as Record<string, unknown>)["path"]))) &&
+    sortedUnique(members.map((m) => m.path)) &&
     count === members.length &&
-    aggregateSha256 === archiveAggregateSha256V1(members as unknown as readonly ArchiveMemberV1[])
+    aggregateSha256 === archiveAggregateSha256V1(members)
   );
 }
 
-function validArchiveDispositionRow(row: unknown): boolean {
+interface ArchiveDispositionRow {
+  readonly decision: "archive-receipt-only";
+  readonly reasonCode: "ARCHIVE_SEALED";
+  readonly count: number;
+  readonly aggregateSha256: string;
+}
+
+function validArchiveDispositionRow(row: unknown): row is ArchiveDispositionRow {
   return (
     isRecord(row) &&
     exactKeys(
@@ -268,6 +288,7 @@ function validArchiveDispositionRow(row: unknown): boolean {
     ) &&
     row["decision"] === "archive-receipt-only" &&
     row["reasonCode"] === "ARCHIVE_SEALED" &&
+    typeof row["count"] === "number" &&
     integerAtLeastZero(row["count"]) &&
     typeof row["aggregateSha256"] === "string" &&
     SHA256_PATTERN.test(row["aggregateSha256"])
@@ -281,7 +302,7 @@ function validArchiveDispositions(
 ): boolean {
   if (!dispositions.every(validArchiveDispositionRow)) return false;
   const dispositionCount = dispositions.reduce<number>(
-    (sum, row) => sum + Number((row as Record<string, unknown>)["count"]),
+    (sum, row) => sum + row.count,
     0,
   );
   return (
@@ -289,7 +310,7 @@ function validArchiveDispositions(
     (count === 0) === (dispositions.length === 0) &&
     dispositions.length <= 1 &&
     (dispositions.length === 0 ||
-      (dispositions[0] as Record<string, unknown>)["aggregateSha256"] === aggregateSha256)
+      dispositions[0]?.aggregateSha256 === aggregateSha256)
   );
 }
 
@@ -297,21 +318,32 @@ function archiveInventoryCloses(value: unknown): boolean {
   if (!validArchiveHeader(value)) return false;
   const count = Number(value["count"]);
   const aggregateSha256 = String(value["aggregateSha256"]);
+  const members = value["members"];
+  const dispositions = value["dispositions"];
   return (
-    validArchiveMembers(value["members"] as unknown[], count, aggregateSha256) &&
-    validArchiveDispositions(value["dispositions"] as unknown[], count, aggregateSha256)
+    Array.isArray(members) &&
+    Array.isArray(dispositions) &&
+    validArchiveMembers(members, count, aggregateSha256) &&
+    validArchiveDispositions(dispositions, count, aggregateSha256)
   );
 }
 
+function isStringArray(arr: unknown[]): arr is string[] {
+  return arr.every((item) => typeof item === "string");
+}
+
 function validStringLists(value: Record<string, unknown>): boolean {
+  const changedPaths = value["changedPaths"];
+  const verification = value["verification"];
   return (
-    Array.isArray(value["changedPaths"]) &&
-    sortedUnique(value["changedPaths"] as readonly string[]) &&
-    (value["changedPaths"] as readonly unknown[]).every((path) =>
-      livePlanPath(path)) &&
-    Array.isArray(value["verification"]) &&
-    value["verification"].length > 0 &&
-    sortedUnique(value["verification"] as readonly string[])
+    Array.isArray(changedPaths) &&
+    isStringArray(changedPaths) &&
+    sortedUnique(changedPaths) &&
+    changedPaths.every((path) => livePlanPath(path)) &&
+    Array.isArray(verification) &&
+    isStringArray(verification) &&
+    verification.length > 0 &&
+    sortedUnique(verification)
   );
 }
 
@@ -319,7 +351,8 @@ function changedPathsClose(
   value: Record<string, unknown>,
   decisions: readonly WorkMigrationDecisionV1[],
 ): boolean {
-  const changedPaths = value["changedPaths"] as readonly string[];
+  const changedPaths = value["changedPaths"];
+  if (!Array.isArray(changedPaths) || !isStringArray(changedPaths)) return false;
   return changedPaths.length === decisions.length &&
     changedPaths.every((path, index) => path === decisions[index]?.path);
 }

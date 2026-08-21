@@ -4,7 +4,7 @@ import { isRecord, SHA256_PATTERN } from "./validation-helpers.ts";
 
 export const PLAN_RECORD_SCHEMA_VERSION = "plan-record/v1" as const;
 export const PLAN_BODY_BASENAME_PATTERN_SOURCE =
-  "^(?!.*\\.(?:[Ll][Oo][Gg]|[Rr][Ee][Ss][Uu][Ll][Tt]|[Cc][Rr][Ii][Tt][Ii][Cc]|[Ff][Ee][Ee][Dd][Bb][Aa][Cc][Kk]|[Dd][Ee][Aa][Dd][Ll][Ee][Tt][Tt][Ee][Rr])\\.md$)[0-9]{3,}-[A-Za-z0-9._@()+,=-]+\\.md$" as const;
+  String.raw`^(?!.*\.(?:[Ll][Oo][Gg]|[Rr][Ee][Ss][Uu][Ll][Tt]|[Cc][Rr][Ii][Tt][Ii][Cc]|[Ff][Ee][Ee][Dd][Bb][Aa][Cc][Kk]|[Dd][Ee][Aa][Dd][Ll][Ee][Tt][Tt][Ee][Rr])\.md$)[0-9]{3,}-[A-Za-z0-9._@()+,=-]+\.md$`;
 export const PLAN_RECORD_STATUSES = [
   "planned",
   "in-progress",

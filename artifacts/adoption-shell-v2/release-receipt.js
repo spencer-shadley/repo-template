@@ -11,10 +11,10 @@ function validateBundleReferences(value, diagnostics) {
     if (!diagnostics.array(value, "/capabilityBundles", 0, 256))
         return [];
     const rows = [];
-    value.forEach((reference, index) => {
+    for (const [index, reference] of value.entries()) {
         const pointer = `/capabilityBundles/${index}`;
         if (!diagnostics.object(reference, pointer, ["id", "version", "digest"], ["id", "version", "digest"])) {
-            return;
+            continue;
         }
         diagnostics.string(reference["id"], `${pointer}/id`, {
             min: 1,
@@ -28,8 +28,8 @@ function validateBundleReferences(value, diagnostics) {
         });
         diagnostics.sha(reference["digest"], `${pointer}/digest`);
         rows.push(reference);
-    });
-    assertSortedUnique(rows.map((row) => `${row.id}\u0000${row.version}\u0000${row.digest}`), "/capabilityBundles", diagnostics);
+    }
+    assertSortedUnique(rows.map((row) => `${row.id}\u{0}${row.version}\u{0}${row.digest}`), "/capabilityBundles", diagnostics);
     return rows;
 }
 function validateReceiptHeader(value, diagnostics) {

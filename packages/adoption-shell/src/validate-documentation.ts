@@ -7,8 +7,8 @@ const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 
 function withoutAdrHeadingsOrLinks(text: string): string {
   return text
-    .replace(/^# ADR-\d{4}:[^\n]*$/gm, "")
-    .replace(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
+    .replaceAll(/^# ADR-\d{4}:[^\n]*$/gm, "")
+    .replaceAll(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
 }
 
 function validateAdrHeadingMatch(

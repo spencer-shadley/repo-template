@@ -39,23 +39,23 @@ const passOutcome: LocalCiOutcomeV1 = {
   recordedAt: "2026-08-12T00:00:00Z",
 };
 
-test("the outcome contract declares exactly four states", () => {
+void test("the outcome contract declares exactly four states", () => {
   assert.deepEqual([...LOCAL_CI_OUTCOMES_V1].sort(), ["could-not-execute", "fail", "pass", "skipped"]);
 });
 
-test("pass outcome validates and matches the published schema", () => {
+void test("pass outcome validates and matches the published schema", () => {
   const result = validateLocalCiOutcomeV1(passOutcome);
   assert.equal(result.ok, true);
   assert.equal(validateSchema(passOutcome), true);
 });
 
-test("fail outcome requires a non-null exit code and a null reason", () => {
+void test("fail outcome requires a non-null exit code and a null reason", () => {
   const fail: LocalCiOutcomeV1 = { ...passOutcome, outcome: "fail", exitCode: 1 };
   assert.equal(validateLocalCiOutcomeV1(fail).ok, true);
   assert.equal(validateSchema(fail), true);
 });
 
-test("skipped and could-not-execute never carry pass's shape -- they are never fewer than distinct from pass", () => {
+void test("skipped and could-not-execute never carry pass's shape -- they are never fewer than distinct from pass", () => {
   for (const outcome of ["skipped", "could-not-execute"] as const) {
     const value: unknown = {
       ...passOutcome,
@@ -70,7 +70,7 @@ test("skipped and could-not-execute never carry pass's shape -- they are never f
   }
 });
 
-test("a skipped/could-not-execute outcome can never be read as pass by carrying pass's field shape", () => {
+void test("a skipped/could-not-execute outcome can never be read as pass by carrying pass's field shape", () => {
   const cases: readonly [string, unknown][] = [
     ["skipped with exit code 0 (would read as pass)", { ...passOutcome, outcome: "skipped", exitCode: 0, reason: "x" }],
     ["skipped with null reason (silently equals pass)", { ...passOutcome, outcome: "skipped", exitCode: null, reason: null }],
@@ -83,13 +83,13 @@ test("a skipped/could-not-execute outcome can never be read as pass by carrying 
   }
 });
 
-test("pass/fail outcomes reject a non-null reason (never silently equal skipped)", () => {
+void test("pass/fail outcomes reject a non-null reason (never silently equal skipped)", () => {
   const value = { ...passOutcome, reason: "should be null" };
   assert.equal(validateLocalCiOutcomeV1(value).ok, false);
   assert.equal(validateSchema(value), false);
 });
 
-test("unsupported outcome strings fail closed", () => {
+void test("unsupported outcome strings fail closed", () => {
   const value = { ...passOutcome, outcome: "green", exitCode: 0 };
   const result = validateLocalCiOutcomeV1(value);
   assert.equal(result.ok, false);

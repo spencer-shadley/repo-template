@@ -67,7 +67,7 @@ function archivePathCandidate(path: string): Record<string, unknown> {
   return body;
 }
 
-test("canonical live plan bodies reject indexes, empty names, and sidecars", () => {
+void test("canonical live plan bodies reject indexes, empty names, and sidecars", () => {
   const invalid = [
     "plans/QUEUE.md",
     "plans/README.md",
@@ -92,7 +92,7 @@ test("canonical live plan bodies reject indexes, empty names, and sidecars", () 
   }
 });
 
-test("canonical archive plan bodies reject indexes, empty names, and sidecars", () => {
+void test("canonical archive plan bodies reject indexes, empty names, and sidecars", () => {
   const invalid = [
     "plans/archive/README.md",
     "plans/archive/.md",
@@ -113,7 +113,7 @@ test("canonical archive plan bodies reject indexes, empty names, and sidecars", 
   }
 });
 
-test("canonical plan bodies preserve version and incident slug shapes", () => {
+void test("canonical plan bodies preserve version and incident slug shapes", () => {
   for (const path of [
     "plans/004-adopt-repo-template-v2.2.0-overlay-migration.md",
     "plans/294-_incident-manager-timeout-plan.md",

@@ -25,29 +25,31 @@ function validateNamedRecord(value, pointer, diagnostics, visit) {
     }
 }
 function validateEvidenceReview(review, diagnostics) {
-    if (diagnostics.object(review, "/review", ["subject", "url", "result"], ["subject", "url", "result"])) {
-        const revRec = review;
-        diagnostics.string(revRec["subject"], "/review/subject", {
-            constant: "producer-commit",
-        });
-        diagnostics.string(revRec["url"], "/review/url", {
-            min: 1,
-            max: 512,
-            pattern: REVIEW_URL_PATTERN,
-        });
-        diagnostics.string(revRec["result"], "/review/result", { constant: "approved" });
+    if (!diagnostics.object(review, "/review", ["subject", "url", "result"], ["subject", "url", "result"])) {
+        return;
     }
+    const revRec = review;
+    diagnostics.string(revRec["subject"], "/review/subject", {
+        constant: "producer-commit",
+    });
+    diagnostics.string(revRec["url"], "/review/url", {
+        min: 1,
+        max: 512,
+        pattern: REVIEW_URL_PATTERN,
+    });
+    diagnostics.string(revRec["result"], "/review/result", { constant: "approved" });
 }
 function validateEvidenceRollback(rollback, diagnostics) {
-    if (diagnostics.object(rollback, "/rollback", ["disposition", "supersession"], ["disposition", "supersession"])) {
-        const rbRec = rollback;
-        diagnostics.string(rbRec["disposition"], "/rollback/disposition", {
-            constant: "immutable-correct-forward",
-        });
-        diagnostics.string(rbRec["supersession"], "/rollback/supersession", {
-            constant: "new-semver-only",
-        });
+    if (!diagnostics.object(rollback, "/rollback", ["disposition", "supersession"], ["disposition", "supersession"])) {
+        return;
     }
+    const rbRec = rollback;
+    diagnostics.string(rbRec["disposition"], "/rollback/disposition", {
+        constant: "immutable-correct-forward",
+    });
+    diagnostics.string(rbRec["supersession"], "/rollback/supersession", {
+        constant: "new-semver-only",
+    });
 }
 export function validateTemplateReleaseEvidenceV1(value) {
     const diagnostics = new Diagnostics();
