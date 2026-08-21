@@ -435,8 +435,8 @@ export function createWorkMigrationManifestV1(
     ...input,
     decisions,
     archive: { ...input.archive, members, dispositions },
-    changedPaths: [...input.changedPaths].toSorted(),
-    verification: [...input.verification].toSorted(),
+    changedPaths: [...input.changedPaths].toSorted((left, right) => left.localeCompare(right)),
+    verification: [...input.verification].toSorted((left, right) => left.localeCompare(right)),
   };
   if (!validManifestBody(body)) {
     throw new TypeError("work migration manifest input is invalid");
