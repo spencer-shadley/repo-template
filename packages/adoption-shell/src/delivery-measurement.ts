@@ -27,6 +27,11 @@ import {
   Diagnostics,
 } from "./validation-helpers.ts";
 
+function hasValidatedEvent(value: unknown, diagnostics: Diagnostics): value is DeliveryEventV1 { return diagnostics.rows.length === 0; }
+function hasValidatedDeclaration(value: unknown, diagnostics: Diagnostics): value is DeliveryDeclarationV1 { return diagnostics.rows.length === 0; }
+function finishEvent(value: unknown, diagnostics: Diagnostics): ValidationResult<DeliveryEventV1> { return hasValidatedEvent(value, diagnostics) ? finish(value, diagnostics) : { ok: false, diagnostics: diagnostics.sorted() }; }
+function finishDeclaration(value: unknown, diagnostics: Diagnostics): ValidationResult<DeliveryDeclarationV1> { return hasValidatedDeclaration(value, diagnostics) ? finish(value, diagnostics) : { ok: false, diagnostics: diagnostics.sorted() }; }
+
 const UTC_INSTANT =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/;
 
@@ -321,7 +326,7 @@ export function validateDeliveryEventV1(
     "tokenUsage", "outcome", "sloDeltas", "humanMessages", "coverage",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as unknown as DeliveryEventV1, diagnostics);
+    return finishEvent(value, diagnostics);
   }
   schemaIdentity(value, SCHEMA_IDS.deliveryEvent, SCHEMA_DIGESTS.deliveryEvent, diagnostics);
   diagnostics.string(value["eventKind"], "/eventKind", {
@@ -341,7 +346,7 @@ export function validateDeliveryEventV1(
   validateSloDeltasArray(value["sloDeltas"], diagnostics);
   validateHumanMessagesArray(value["humanMessages"], value["workId"], diagnostics);
   validateEventCoverage(value["coverage"], "/coverage", diagnostics);
-  return finish(value as unknown as DeliveryEventV1, diagnostics);
+  return finishEvent(value, diagnostics);
 }
 
 function validateClass(
@@ -480,7 +485,7 @@ export function validateDeliveryDeclarationV1(
     "antiGamingExclusions", "tokenAttribution", "slis", "eventCapture",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as DeliveryDeclarationV1, diagnostics);
+    return finishDeclaration(value, diagnostics);
   }
   schemaIdentity(
     value,
@@ -510,5 +515,5 @@ export function validateDeliveryDeclarationV1(
   validateDeclarationTokenAttribution(value["tokenAttribution"], "/tokenAttribution", diagnostics);
   validateDeclarationSlis(value["slis"], "/slis", diagnostics);
   validateDeclarationEventCapture(value["eventCapture"], "/eventCapture", diagnostics);
-  return finish(value as unknown as DeliveryDeclarationV1, diagnostics);
+  return finishDeclaration(value, diagnostics);
 }

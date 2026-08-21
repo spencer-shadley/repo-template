@@ -14,9 +14,15 @@ const REVIEW_URL_PATTERN =
 const RECEIPT_URL_PATTERN =
   /^https:\/\/github\.com\/spencer-shadley\/[A-Za-z0-9_.-]+\/(?:issues|pull)\/[1-9][0-9]*#(?:issuecomment|pullrequestreview)-[1-9][0-9]*$/;
 
-function finish<T>(value: T, diagnostics: Diagnostics): ValidationResult<T> {
+function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();
-  return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+  return rows.length === 0 && value !== undefined
+    ? { ok: true, value }
+    : { ok: false, diagnostics: rows };
+}
+
+function hasValidatedShape(value: unknown, diagnostics: Diagnostics): value is TemplateReleaseEvidence {
+  return diagnostics.rows.length === 0;
 }
 
 function validateNamedRecord(
@@ -91,7 +97,7 @@ export function validateTemplateReleaseEvidenceV1(
     "review", "canaryReceipts", "checks", "publicationReadback", "rollback",
   ];
   if (!diagnostics.object(value, "", fields, fields)) {
-    return finish(value as TemplateReleaseEvidence, diagnostics);
+    return finish<TemplateReleaseEvidence>(undefined, diagnostics);
   }
 
   validateEvidenceReview(value["review"], diagnostics);
@@ -141,5 +147,8 @@ export function validateTemplateReleaseEvidenceV1(
 
   validateEvidenceRollback(value["rollback"], diagnostics);
 
-  return finish(value as unknown as TemplateReleaseEvidence, diagnostics);
+  return finish(
+    hasValidatedShape(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }

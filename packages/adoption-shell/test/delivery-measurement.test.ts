@@ -17,21 +17,37 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
-function readJson<T>(name: string): T {
-  return JSON.parse(
+function readJson(name: string): unknown {
+  const value: unknown = JSON.parse(
     fs.readFileSync(
       path.join(root, "contracts", "adoption-shell-v2", "fixtures", name),
       "utf8",
     ),
-  ) as T;
+  );
+  return value;
 }
 
-function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
+function readDeclaration(name: string): DeliveryDeclarationV1 {
+  const result = validateDeliveryDeclarationV1(readJson(name));
+  if (!result.ok) throw new Error("fixture must be a delivery declaration");
+  return result.value;
+}
+
+function readEvent(name: string): DeliveryEventV1 {
+  const result = validateDeliveryEventV1(readJson(name));
+  if (!result.ok) throw new Error("fixture must be a delivery event");
+  return result.value;
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  const isRecord = (candidate: unknown): candidate is Record<string, unknown> =>
+    candidate !== null && typeof candidate === "object" && !Array.isArray(candidate);
+  assert.ok(isRecord(value));
+  return value;
 }
 
 void test("portable declaration binds all six SLIs without owning targets or aggregation", () => {
-  const declaration = readJson<DeliveryDeclarationV1>("delivery-declaration.json");
+  const declaration = readDeclaration("delivery-declaration.json");
   assert.equal(validateDeliveryDeclarationV1(declaration).ok, true);
   assert.deepEqual(
     declaration.slis.map((row) => row.id),
@@ -52,7 +68,7 @@ void test("portable declaration binds all six SLIs without owning targets or agg
 });
 
 void test("append-only event captures tokens, outcome, SLO movement, and human attribution", () => {
-  const event = readJson<DeliveryEventV1>("delivery-event.json");
+  const event = readEvent("delivery-event.json");
   assert.equal(validateDeliveryEventV1(event).ok, true);
   assert.equal(event.tokenUsage[0]?.totalTokens, 15);
   assert.equal(event.outcome.meaningful, true);
@@ -62,15 +78,9 @@ void test("append-only event captures tokens, outcome, SLO movement, and human a
 });
 
 void test("activity proxies and receipts alone never qualify as meaningful delivery", () => {
-  const event = clone(readJson<DeliveryEventV1>("delivery-event.json")) as unknown as {
-    outcome: {
-      meaningful: boolean;
-      meaningfulClass: string | null;
-      weight: number;
-      qualifyingEvidence: unknown[];
-    };
-  };
-  event.outcome.qualifyingEvidence = [];
+  const event = structuredClone(readJson("delivery-event.json"));
+  const outcome = asRecord(asRecord(event)["outcome"]);
+  outcome["qualifyingEvidence"] = [];
   const result = validateDeliveryEventV1(event);
   assert.equal(result.ok, false);
   assert.ok(
@@ -79,51 +89,44 @@ void test("activity proxies and receipts alone never qualify as meaningful deliv
     ),
   );
 
-  event.outcome.meaningful = false;
-  event.outcome.meaningfulClass = null;
-  event.outcome.weight = 0;
+  outcome["meaningful"] = false;
+  outcome["meaningfulClass"] = null;
+  outcome["weight"] = 0;
   assert.equal(validateDeliveryEventV1(event).ok, true);
 });
 
 void test("coverage errors remain visible without blocking structurally valid source evidence", () => {
-  const event = clone(readJson<DeliveryEventV1>("delivery-event.json")) as unknown as {
-    coverage: {
-      complete: boolean;
-      errors: string[];
-    };
-  };
-  event.coverage = {
+  const event = structuredClone(readJson("delivery-event.json"));
+  const eventRecord = asRecord(event);
+  eventRecord["coverage"] = {
     complete: false,
     errors: ["unattributed-token-usage"],
   };
   assert.equal(validateDeliveryEventV1(event).ok, true);
-  event.coverage.complete = true;
+  asRecord(eventRecord["coverage"])["complete"] = true;
   const inconsistent = validateDeliveryEventV1(event);
   assert.equal(inconsistent.ok, false);
   assert.ok(inconsistent.diagnostics.some((row) => row.code === "E_COVERAGE"));
 
-  event.coverage.complete = false;
-  event.coverage.errors = [];
+  asRecord(eventRecord["coverage"])["complete"] = false;
+  asRecord(eventRecord["coverage"])["errors"] = [];
   const omitted = validateDeliveryEventV1(event);
   assert.equal(omitted.ok, false);
   assert.ok(omitted.diagnostics.some((row) => row.code === "E_COVERAGE"));
 });
 
 void test("declaration rejects a weighted class exceeding the schema's maximum weight", () => {
-  const declaration = clone(
-    readJson<DeliveryDeclarationV1>("delivery-declaration.json"),
-  ) as unknown as {
-    meaningfulClasses: { aggregationMode: string; weight: number | null }[];
-  };
-  const declaredClass = declaration.meaningfulClasses[0];
-  if (declaredClass === undefined) {
+  const declaration = asRecord(structuredClone(readJson("delivery-declaration.json")));
+  const meaningfulClasses = declaration["meaningfulClasses"];
+  if (!Array.isArray(meaningfulClasses) || meaningfulClasses.length === 0) {
     throw new Error("fixture must declare at least one meaningful class");
   }
-  declaredClass.aggregationMode = "weighted";
-  declaredClass.weight = 1000;
+  const declaredClass = asRecord(meaningfulClasses[0]);
+  declaredClass["aggregationMode"] = "weighted";
+  declaredClass["weight"] = 1000;
   assert.equal(validateDeliveryDeclarationV1(declaration).ok, true);
 
-  declaredClass.weight = 1000.01;
+  declaredClass["weight"] = 1000.01;
   const result = validateDeliveryDeclarationV1(declaration);
   assert.equal(result.ok, false);
   assert.ok(
@@ -135,14 +138,13 @@ void test("declaration rejects a weighted class exceeding the schema's maximum w
 });
 
 void test("declaration rejects incomplete SLI coverage and proxy drift", () => {
-  const declaration = clone(
-    readJson<DeliveryDeclarationV1>("delivery-declaration.json"),
-  ) as unknown as {
-    slis: unknown[];
-    antiGamingExclusions: string[];
-  };
-  declaration.slis.pop();
-  declaration.antiGamingExclusions.pop();
+  const declaration = asRecord(structuredClone(readJson("delivery-declaration.json")));
+  const slis = declaration["slis"];
+  const exclusions = declaration["antiGamingExclusions"];
+  assert.ok(Array.isArray(slis));
+  assert.ok(Array.isArray(exclusions));
+  slis.pop();
+  exclusions.pop();
   const result = validateDeliveryDeclarationV1(declaration);
   assert.equal(result.ok, false);
   assert.ok(result.diagnostics.some((row) => row.pointer === "/slis"));

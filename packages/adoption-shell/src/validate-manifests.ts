@@ -43,6 +43,26 @@ function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationRe
     : { ok: false, diagnostics: rows };
 }
 
+function hasValidatedOutput(value: unknown, diagnostics: Diagnostics): value is MaterializerOutputManifest {
+  return diagnostics.rows.length === 0;
+}
+
+function hasValidatedArtifact(value: unknown, diagnostics: Diagnostics): value is ArtifactManifest {
+  return diagnostics.rows.length === 0;
+}
+
+function hasValidatedReceipt(value: unknown, diagnostics: Diagnostics): value is VerificationReceipt {
+  return diagnostics.rows.length === 0;
+}
+
+function isSchemaClosureRow(value: unknown): value is SchemaClosureRow {
+  return isRecord(value);
+}
+
+function appendSchemaClosureRow(rows: SchemaClosureRow[], value: unknown): void {
+  if (isSchemaClosureRow(value)) rows.push(value);
+}
+
 function schemaIdentity(
   record: Record<string, unknown>,
   expectedId: string,
@@ -315,7 +335,10 @@ export function validateMaterializerOutputManifestV2(
   diagnostics.array(rec["migrationRefs"], "/migrationRefs", 0, 0);
   validateOutputEntries(rec["entries"], rec["entryCount"], diagnostics);
   validateManifestDigest(rec, diagnostics);
-  return finish(value as unknown as MaterializerOutputManifest, diagnostics);
+  return finish(
+    hasValidatedOutput(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }
 
 function validateArtifactToolchain(toolchain: unknown, diagnostics: Diagnostics): void {
@@ -343,12 +366,12 @@ function validateArtifactToolchain(toolchain: unknown, diagnostics: Diagnostics)
 }
 
 function validateArtifactSchemas(schemas: unknown, diagnostics: Diagnostics): void {
-  if (!diagnostics.array(schemas, "/schemas", 9, 9) || !Array.isArray(schemas)) return;
+  if (!diagnostics.array(schemas, "/schemas", 9, 9)) return;
   const rows: SchemaClosureRow[] = [];
   for (const [index, row] of schemas.entries()) {
     const pointer = `/schemas/${index}`;
     const schemaFields = ["id", "version", "path", "kind", "mode", "sha256", "bytes"];
-    if (!diagnostics.object(row, pointer, schemaFields, schemaFields) || !isRecord(row)) continue;
+    if (!diagnostics.object(row, pointer, schemaFields, schemaFields)) continue;
     diagnostics.string(row["id"], `${pointer}/id`, {
       min: 1,
       max: 240,
@@ -369,7 +392,7 @@ function validateArtifactSchemas(schemas: unknown, diagnostics: Diagnostics): vo
       if (Number.isSafeInteger(schemaBytes) && (schemaBytes < 1 || schemaBytes > 1_048_576)) {
         diagnostics.add("E_COUNT", `${pointer}/bytes`, "schema bytes must be 1-1048576");
       }
-      rows.push(row as unknown as SchemaClosureRow);
+      appendSchemaClosureRow(rows, row);
     }
   }
   assertSortedUnique(rows.map((row) => row.path), "/schemas", diagnostics);
@@ -420,7 +443,10 @@ export function validateArtifactManifestV2(
       diagnostics.add("E_CANONICAL_JSON", "/manifestDigest", "manifest body is not supported canonical JSON");
     }
   }
-  return finish(value as unknown as ArtifactManifest, diagnostics);
+  return finish(
+    hasValidatedArtifact(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }
 
 export function validateVerificationReceiptV2(
@@ -481,5 +507,8 @@ export function validateVerificationReceiptV2(
       );
     }
   }
-  return finish(value as unknown as VerificationReceipt, diagnostics);
+  return finish(
+    hasValidatedReceipt(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }

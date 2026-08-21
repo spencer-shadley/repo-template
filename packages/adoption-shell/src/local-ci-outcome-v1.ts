@@ -50,6 +50,10 @@ function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationRe
     : { ok: false, diagnostics: sorted };
 }
 
+function hasValidatedShape(value: unknown, diagnostics: Diagnostics): value is LocalCiOutcomeV1 {
+  return diagnostics.rows.length === 0;
+}
+
 function validateExecutedOutcome(
   exitCode: unknown,
   reason: unknown,
@@ -154,7 +158,10 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
     value["reason"],
     diagnostics,
   );
-  return finish(value as unknown as LocalCiOutcomeV1, diagnostics);
+  return finish(
+    hasValidatedShape(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }
 
 export function isNotExecutedOutcomeV1(outcome: LocalCiOutcomeStateV1): boolean {

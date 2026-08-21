@@ -40,6 +40,18 @@ const ENTRY_ROLES = new Set([
 ]);
 const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 
+function hasValidatedPayload(value: unknown, diagnostics: Diagnostics): value is ReleasePayloadSet {
+  return diagnostics.rows.length === 0;
+}
+
+function hasValidatedInput(value: unknown, diagnostics: Diagnostics): value is MaterializerInput {
+  return diagnostics.rows.length === 0;
+}
+
+function finishPayload(value: unknown, diagnostics: Diagnostics): ValidationResult<ReleasePayloadSet> {
+  return finish(hasValidatedPayload(value, diagnostics) ? value : undefined, diagnostics);
+}
+
 function schemaIdentity(
   record: Record<string, unknown>,
   pointer: string,
@@ -331,7 +343,7 @@ export function validateReleasePayloadSetV2(value: unknown): ValidationResult<Re
       diagnostics.add("E_CANONICAL_JSON", "/releaseDigest", "release body is not supported canonical JSON");
     }
   }
-  return finish(value as unknown as ReleasePayloadSet, diagnostics);
+  return finishPayload(value, diagnostics);
 }
 
 function validateConformance(conformance: unknown, diagnostics: Diagnostics): void {
@@ -381,5 +393,8 @@ export function validateMaterializerInputV2(value: unknown): ValidationResult<Ma
     assertSortedUnique(keys, "/requestedBundles", diagnostics);
   }
   validateConformance(rec["conformance"], diagnostics);
-  return finish(value as unknown as MaterializerInput, diagnostics);
+  return finish(
+    hasValidatedInput(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }

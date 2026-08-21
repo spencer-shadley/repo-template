@@ -10,6 +10,7 @@ import {
   materializeAdoptionShellV2,
   validateCapabilityBundleRegistryV2,
   validateDocumentationLinks,
+  validateMaterializerInputV2,
   type MaterializerInput,
   type PayloadEntry,
 } from "../../../artifacts/adoption-shell-v2/index.js";
@@ -23,10 +24,38 @@ const FILE_FORMAT_TITLE =
   "ADR-0003: File-format selection (md / json / jsonl / tsv / csv)";
 const UNRELATED_TITLE = "ADR-0003: Unrelated local decision";
 
-function readJson<T>(relativePath: string): T {
-  return JSON.parse(
+function readJson(relativePath: string): unknown {
+  const value: unknown = JSON.parse(
     fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
-  ) as T;
+  );
+  return value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function readMaterializerInput(relativePath: string): MaterializerInput {
+  const result = validateMaterializerInputV2(readJson(relativePath));
+  if (!result.ok) throw new Error("fixture must be a materializer input");
+  return result.value;
+}
+
+function readStringRecord(relativePath: string): Record<string, string> {
+  const value = readJson(relativePath);
+  const isStringRecord = (candidate: unknown): candidate is Record<string, string> =>
+    isRecord(candidate) && Object.values(candidate).every((entry) => typeof entry === "string");
+  assert.ok(isStringRecord(value));
+  return value;
+}
+
+interface LintModule {
+  readonly runLint: (options: { readonly root: string; readonly configPath: string; readonly stdout: (line: string) => void; readonly stderr: (line: string) => void }) => number;
+  readonly selfTest: (fixtureRoot?: string, stdout?: (line: string) => void) => void;
+}
+
+function isLintModule(value: unknown): value is LintModule {
+  return isRecord(value) && typeof value["runLint"] === "function" && typeof value["selfTest"] === "function";
 }
 
 function docEntry(filePath: string, text: string): PayloadEntry {
@@ -59,7 +88,7 @@ function withoutAdrHeadingsOrLinks(text: string): string {
 }
 
 void test("issue #92 bundle materializes both advertised modes from exact closure", async () => {
-  const input = readJson<MaterializerInput>(
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
   );
   assert.equal(validateCapabilityBundleRegistryV2(input.capabilities).ok, true);
@@ -84,18 +113,8 @@ void test("issue #92 bundle materializes both advertised modes from exact closur
     const scriptUrl = pathToFileURL(
       path.join(ownedTemp, "scripts", "lint-user-surface-leaks.ts"),
     ).href;
-    const lintModule = (await import(scriptUrl)) as {
-      readonly runLint: (options: {
-        readonly root: string;
-        readonly configPath: string;
-        readonly stdout: (line: string) => void;
-        readonly stderr: (line: string) => void;
-      }) => number;
-      readonly selfTest: (
-        fixtureRoot?: string,
-        stdout?: (line: string) => void,
-      ) => void;
-    };
+    const lintModule: unknown = await import(scriptUrl);
+    assert.ok(isLintModule(lintModule));
     const configOutput: string[] = [];
     assert.equal(
       lintModule.runLint({
@@ -119,17 +138,19 @@ void test("issue #92 bundle materializes both advertised modes from exact closur
 });
 
 void test("issue #92 closure is copy-classified and invocation goldens are exact", () => {
-  const templateManifest = readJson<Record<string, string>>("template-manifest.json");
-  const input = readJson<MaterializerInput>(
+  const templateManifest = readStringRecord("template-manifest.json");
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
   );
   for (const entry of input.release.entries.filter((row) => row.bundleId !== null)) {
     assert.equal(templateManifest[entry.path], "copy", entry.path);
   }
-  const modes = readJson<{
-    readonly modes: readonly { readonly id: string; readonly invocation: string }[];
-  }>("contracts/adoption-shell-v2/golden/user-surface-lint-modes.json");
-  assert.deepEqual(modes.modes, [
+  const modesValue = readJson("contracts/adoption-shell-v2/golden/user-surface-lint-modes.json");
+  assert.ok(isRecord(modesValue));
+  assert.ok(Array.isArray(modesValue["modes"]));
+  assert.ok(modesValue["modes"].every((mode) => isRecord(mode) && typeof mode["id"] === "string" && typeof mode["invocation"] === "string"));
+  const modes = modesValue;
+  assert.deepEqual(modes["modes"], [
     {
       id: "config",
       invocation:
@@ -191,7 +212,7 @@ void test("issue #93 fails before on bare ADR / checkout-depth links, passes aft
   );
 
   // AFTER: titled link + unrelated local ADR 0003 materializes without false attribution.
-  const input = readJson<MaterializerInput>(
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/portable-docs-input.json",
   );
   const result = materializeAdoptionShellV2(input);
@@ -214,22 +235,23 @@ void test("issue #93 fails before on bare ADR / checkout-depth links, passes aft
   );
 
   // Committed negative fixtures: materialize fails before with the exact class codes.
-  const negatives = readJson<
-    readonly {
-      readonly name: string;
-      readonly expectedCodes: readonly string[];
-      readonly input: MaterializerInput;
-    }[]
-  >("contracts/adoption-shell-v2/fixtures/negative-inputs.json");
+  const negatives = readJson("contracts/adoption-shell-v2/fixtures/negative-inputs.json");
+  const isNegativeRow = (row: unknown): row is Record<string, unknown> => isRecord(row) &&
+    typeof row["name"] === "string" && Array.isArray(row["expectedCodes"]) &&
+    row["expectedCodes"].every((code) => typeof code === "string");
+  if (!Array.isArray(negatives) || !negatives.every(isNegativeRow)) {
+    throw new Error("negative fixtures must be records");
+  }
   for (const [name, code] of [
     ["bare-adr-authority", "E_DOC_BARE_ADR"],
     ["checkout-depth-link", "E_DOC_CHECKOUT_LINK"],
   ] as const) {
-    const fixture = negatives.find((row) => row.name === name);
+    const fixture = negatives.find((row) => row["name"] === name);
     assert.ok(fixture, name);
-    assert.ok(fixture.expectedCodes.includes(code), name);
+    const expectedCodes = fixture["expectedCodes"];
+    assert.ok(Array.isArray(expectedCodes) && expectedCodes.includes(code), name);
     try {
-      materializeAdoptionShellV2(fixture.input);
+      materializeAdoptionShellV2(fixture["input"]);
       assert.fail(`${name} unexpectedly materialized`);
     } catch (error) {
       assert.ok(error instanceof AdoptionShellValidationError, name);
@@ -280,7 +302,7 @@ void test("synthetic v2 payloads contain no local intake override or pre-custody
     "portable-docs-input.json",
     "user-surface-lint-input.json",
   ]) {
-    const input = readJson<MaterializerInput>(
+    const input = readMaterializerInput(
       `contracts/adoption-shell-v2/fixtures/${name}`,
     );
     assert.ok(

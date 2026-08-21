@@ -105,6 +105,10 @@ function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationRe
     : { ok: false, diagnostics: sorted };
 }
 
+function hasValidatedShape(value: unknown, diagnostics: Diagnostics): value is LocalCiContractV2 {
+  return diagnostics.rows.length === 0;
+}
+
 export function orderedLocalCiCommands(
   contract: LocalCiContractV2,
 ): readonly OrderedLocalCiCommandV2[] {
@@ -246,7 +250,10 @@ export function validateLocalCiContractV2(value: unknown): ValidationResult<Loca
   validateEnvironmentV2(value["environment"], diagnostics);
   validateEffectsV2(value["effects"], diagnostics);
 
-  return finish(value as unknown as LocalCiContractV2, diagnostics);
+  return finish(
+    hasValidatedShape(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }
 
 export function classifyAndMigrateLegacyLocalCiV1(rawInput: unknown, sourceBlob?: Uint8Array | string): LegacyLocalCiDisposition {

@@ -11,8 +11,8 @@ import {
   materializeAdoptionShellV2,
   sha256Bytes,
   validateArtifactManifestV2,
-  type ArtifactManifest,
-  type CapabilityBundleRegistry,
+  validateCapabilityBundleRegistryV2,
+  validateMaterializerInputV2,
   type MaterializerInput,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 import { scanPublicCode } from "../../../tools/artifact-policy.ts";
@@ -21,15 +21,35 @@ import { generateContractFixtures } from "../../../tools/generate-contract-fixtu
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const artifactRoot = path.join(root, "artifacts", "adoption-shell-v2");
 
-function readJson<T>(relativePath: string): T {
-  return JSON.parse(
+function readJson(relativePath: string): unknown {
+  const value: unknown = JSON.parse(
     fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
-  ) as T;
+  );
+  return value;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function readManifest() {
+  const result = validateArtifactManifestV2(
+    readJson("artifacts/adoption-shell-v2/artifact-manifest.json"),
+  );
+  if (!result.ok) throw new Error("artifact manifest must be valid");
+  return result.value;
+}
+
+function readMaterializerInput(relativePath: string): MaterializerInput {
+  const result = validateMaterializerInputV2(readJson(relativePath));
+  if (!result.ok) throw new Error("fixture must be a materializer input");
+  return result.value;
 }
 
 function inspectSchema(value: unknown, pointer = ""): void {
   if (value === null || typeof value !== "object") return;
-  const record = value as Record<string, unknown>;
+  if (!isRecord(value)) return;
+  const record = value;
   if (record["type"] === "object") {
     assert.equal(record["additionalProperties"], false, pointer);
   }
@@ -45,34 +65,29 @@ function inspectSchema(value: unknown, pointer = ""): void {
 }
 
 void test("artifact and all schema identities are closed and content-addressed", () => {
-  const manifest = readJson<ArtifactManifest>(
-    "artifacts/adoption-shell-v2/artifact-manifest.json",
-  );
-  assert.equal(validateArtifactManifestV2(manifest).ok, true);
+  const manifest = readManifest();
   assert.equal(manifest.runtimeDependencyCount, 0);
   assert.equal(manifest.entrypoint, "index.js");
   assert.equal(manifest.validatorExport, "validateMaterializerInputV2");
   assert.equal(manifest.schemas.length, 9);
-  const ids = new Set(Object.values(SCHEMA_IDS));
-  const digests = new Set(Object.values(SCHEMA_DIGESTS));
+  const ids = new Set<string>(Object.values(SCHEMA_IDS));
+  const digests = new Set<string>(Object.values(SCHEMA_DIGESTS));
   for (const row of manifest.schemas) {
     const schemaBytes = fs.readFileSync(path.join(root, ...row.path.split("/")));
-    const schema = JSON.parse(schemaBytes.toString("utf8")) as Record<string, unknown>;
+    const schemaValue: unknown = JSON.parse(schemaBytes.toString("utf8"));
+    assert.ok(isRecord(schemaValue));
+    const schema = schemaValue;
     assert.equal(schema["$schema"], "https://json-schema.org/draft/2020-12/schema");
     assert.equal(schema["$id"], row.id);
-    assert.ok(ids.has(row.id as (typeof SCHEMA_IDS)[keyof typeof SCHEMA_IDS]));
-    assert.ok(
-      digests.has(row.sha256 as (typeof SCHEMA_DIGESTS)[keyof typeof SCHEMA_DIGESTS]),
-    );
+    assert.ok(ids.has(row.id));
+    assert.ok(digests.has(row.sha256));
     assert.equal(sha256Bytes(schemaBytes), row.sha256);
     inspectSchema(schema);
   }
 });
 
 void test("generated quality-lint bundle is retained in the artifact fixture closure", () => {
-  const manifest = readJson<ArtifactManifest>(
-    "artifacts/adoption-shell-v2/artifact-manifest.json",
-  );
+  const manifest = readManifest();
   const expectedArtifacts = [
     "docs/QUALITY-LINT.md",
     "eslint.config.mjs",
@@ -84,12 +99,15 @@ void test("generated quality-lint bundle is retained in the artifact fixture clo
   );
   try {
     generateContractFixtures(ownedTemp, manifest.artifactDigest);
-    const registry = JSON.parse(
+    const registryValue: unknown = JSON.parse(
       fs.readFileSync(
         path.join(ownedTemp, "capability-bundle-registry.json"),
         "utf8",
       ),
-    ) as CapabilityBundleRegistry;
+    );
+    const registryResult = validateCapabilityBundleRegistryV2(registryValue);
+    if (!registryResult.ok) throw new Error("generated registry must be valid");
+    const registry = registryResult.value;
     const bundles = registry.bundles.filter(
       (bundle) => bundle.id === "repo-template/quality-lint",
     );
@@ -126,9 +144,7 @@ void test("generated quality-lint bundle is retained in the artifact fixture clo
 });
 
 void test("public source and committed JavaScript have only the declared import closure", () => {
-  const manifest = readJson<ArtifactManifest>(
-    "artifacts/adoption-shell-v2/artifact-manifest.json",
-  );
+  const manifest = readManifest();
   const findings = [
     ...scanPublicCode(
       root,
@@ -179,7 +195,7 @@ void test("artifact policy rejects ambient imports with sorted findings", () => 
 });
 
 void test("runtime tripwires observe no clock, random, fetch, or UUID access", () => {
-  const input = readJson<MaterializerInput>(
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
   );
   const fetchDescriptor = Object.getOwnPropertyDescriptor(globalThis, "fetch");

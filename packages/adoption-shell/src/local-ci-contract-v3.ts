@@ -113,6 +113,10 @@ function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationRe
     : { ok: false, diagnostics: sorted };
 }
 
+function hasValidatedShape(value: unknown, diagnostics: Diagnostics): value is LocalCiContractV3 {
+  return diagnostics.rows.length === 0;
+}
+
 function validateDetectionProof(value: unknown, pointer: string, diagnostics: Diagnostics): void {
   if (!isRecord(value)) {
     diagnostics.add("E_TYPE", pointer, "expected object");
@@ -297,7 +301,10 @@ export function validateLocalCiContractV3(value: unknown): ValidationResult<Loca
   validateEnvironmentV3(value["environment"], diagnostics);
   validateEffectsV3(value["effects"], diagnostics);
 
-  return finish(value as unknown as LocalCiContractV3, diagnostics);
+  return finish(
+    hasValidatedShape(value, diagnostics) ? value : undefined,
+    diagnostics,
+  );
 }
 
 export function classifyAndMigrateLocalCiV2ToV3(
