@@ -69,7 +69,7 @@ function escapeRegExp(s: string): string {
 }
 
 function stripFrontmatter(markdown: string): string {
-  const text = String(markdown || "").replaceAll("\r\n", "\n").replace(/^\uFEFF/, "");
+  const text = markdown.replaceAll("\r\n", "\n").replace(/^\uFEFF/, "");
   if (!text.startsWith("---\n")) return text;
   const end = text.indexOf("\n---\n", 4);
   if (end === -1) return text;

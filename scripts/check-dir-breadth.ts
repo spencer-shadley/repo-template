@@ -113,7 +113,7 @@ function walk(
 }
 
 function allowlistCap(rel: string, cfg: DirBreadthConfig): AllowlistCapResult | null {
-  const row = cfg.allowlist.find((a) => String(a.path || "").replace(/\\/g, "/") === rel);
+  const row = cfg.allowlist.find((a) => (a.path ?? "").replace(/\\/g, "/") === rel);
   if (!row) return null;
   const max = Number(row.maxFiles);
   return {
