@@ -38,7 +38,7 @@ function relativeLuminance([r, g, b]) {
 // mode: "luminance" (current, correct) scans hex AND rgb()/rgba() colors.
 // mode: "hex-only" (historical, blind) reproduces the exact regression that let
 // 22 dark `rgb()` surfaces ship undetected: /#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\b/g
-export function scanForDarkSurfaces(cssText, { mode = 'luminance' } = {}) {
+function scanForDarkSurfaces(cssText, { mode = 'luminance' } = {}) {
   const findings = [];
   for (const match of cssText.matchAll(HEX_PATTERN)) {
     const luminance = relativeLuminance(hexToRgb(match[0]));

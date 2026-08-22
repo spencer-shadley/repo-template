@@ -15,21 +15,21 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const TAG_PATTERN = /^#\s*runtime-artifact:\s*owner=(\S+)\s+incident=(\S+)\s*$/;
 
-export interface GitignoreTag {
+interface GitignoreTag {
   readonly pattern: string;
   readonly owner: string;
   readonly incident: string | null;
   readonly line: number;
 }
 
-export interface RegistryEntry {
+interface RegistryEntry {
   readonly pattern: string;
   readonly owner: string;
   readonly reason?: string;
   readonly incident: string | null;
 }
 
-export interface RuntimeArtifactRegistry {
+interface RuntimeArtifactRegistry {
   readonly contractId?: string;
   readonly schemaVersion?: string;
   readonly entries: readonly RegistryEntry[];
@@ -59,7 +59,7 @@ function isRuntimeArtifactRegistry(value: unknown): value is RuntimeArtifactRegi
   );
 }
 
-export function parseGitignoreTags(text: string): GitignoreTag[] {
+function parseGitignoreTags(text: string): GitignoreTag[] {
   const lines = text.split(/\r?\n/);
   const tagged: GitignoreTag[] = [];
   for (let i = 0; i < lines.length; i += 1) {
@@ -80,7 +80,7 @@ export function parseGitignoreTags(text: string): GitignoreTag[] {
   return tagged;
 }
 
-export function checkRegistry({
+function checkRegistry({
   gitignoreText,
   registry,
 }: {

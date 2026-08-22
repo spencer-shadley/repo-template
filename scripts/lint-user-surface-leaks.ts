@@ -8,12 +8,12 @@ import { pathToFileURL } from "node:url";
 const DEFAULT_CONFIG = ".user-surface-lint.json";
 const SKIP_DIRS = new Set([".git", "node_modules", "vendor", "dist", "build", "coverage"]);
 
-export interface Rule { readonly id: string; readonly description: string; readonly pattern: RegExp; }
-export interface AllowlistEntry { readonly path: string; readonly line?: number; readonly rule?: string; readonly match?: string; readonly justification: string; }
-export interface Config { readonly include: readonly string[]; readonly allowlist: readonly AllowlistEntry[]; readonly userSurface?: "none"; }
-export interface Finding { readonly path: string; readonly line: number; readonly rule: string; readonly match: string; readonly description: string; }
-export interface StringLiteral { readonly value: string; readonly line: number; }
-export interface FileEntry { readonly abs: string; readonly rel: string; }
+interface Rule { readonly id: string; readonly description: string; readonly pattern: RegExp; }
+interface AllowlistEntry { readonly path: string; readonly line?: number; readonly rule?: string; readonly match?: string; readonly justification: string; }
+interface Config { readonly include: readonly string[]; readonly allowlist: readonly AllowlistEntry[]; readonly userSurface?: "none"; }
+interface Finding { readonly path: string; readonly line: number; readonly rule: string; readonly match: string; readonly description: string; }
+interface StringLiteral { readonly value: string; readonly line: number; }
+interface FileEntry { readonly abs: string; readonly rel: string; }
 
 const RULES: readonly Rule[] = [
   { id: "env-var", description: "environment-variable name in user-visible literal", pattern: /\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/g },
@@ -424,7 +424,7 @@ function collectFindings(
   return { files, findings: findings.filter((finding) => !isAllowed(finding, config.allowlist)) };
 }
 
-export function runLint({
+function runLint({
   root: targetRoot,
   configPath,
   stdout = console.log,
@@ -478,7 +478,7 @@ const TEST_CASES = [
   { name: "explicit userSurface: none passes", subDir: "declared-none", wantCode: 0, want: "explicitly declared" },
 ] as const;
 
-export function selfTest(targetRoot = process.cwd(), stdout = console.log): void {
+function selfTest(targetRoot = process.cwd(), stdout = console.log): void {
   const fixtureRoot = path.resolve(targetRoot, "tests/fixtures/user-surface-lint");
   for (const tc of TEST_CASES) {
     const output: string[] = [];
