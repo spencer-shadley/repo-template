@@ -267,7 +267,8 @@ function validateEventCoverage(
       }
     }
     assertSortedUnique(errors, `${pointer}/errors`, diagnostics);
-    if (complete && rec["complete"] !== (errors.length === 0)) {
+    const errorsAreEmpty = errors.length === 0;
+    if (complete && rec["complete"] !== errorsAreEmpty) {
       diagnostics.add(
         "E_COVERAGE",
         pointer,
