@@ -43,7 +43,7 @@ function serializeArray(value: unknown[], ancestors: Set<object>): string {
 }
 
 function serializeObject(value: object, ancestors: Set<object>): string {
-  const prototype = Object.getPrototypeOf(value);
+  const prototype = Reflect.getPrototypeOf(value);
   if (prototype !== Object.prototype && prototype !== null) {
     throw new TypeError("RFC 8785 accepts only plain objects");
   }

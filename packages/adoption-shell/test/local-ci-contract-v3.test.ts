@@ -127,7 +127,7 @@ void test("a valid but unmigrated V2 declaration is rejected with an actionable 
 
 void test("Model Gateway V1 legacy shape still fails closed through the V3 classifier", () => {
   const legacyPath = path.join(root, "contracts", "local-ci", "v2", "fixtures", "legacy-model-gateway-v1.json");
-  const legacyData = JSON.parse(fs.readFileSync(legacyPath, "utf8"));
+  const legacyData: unknown = JSON.parse(fs.readFileSync(legacyPath, "utf8"));
   const disposition = classifyAndMigrateLocalCiV2ToV3(legacyData, fs.readFileSync(legacyPath));
   assert.equal(disposition.disposition, "rejected");
   assert.equal(disposition.legacyLineage, "model-gateway-v1");
@@ -151,7 +151,7 @@ void test("runtime validation rejects adversarial detectionProof shapes the sche
     }],
   ];
   for (const [name, mutate] of cases) {
-    const value = structuredClone(base);
+    const value = structuredClone<unknown>(base);
     mutate(value);
     const schemaAccepted = validateSchema(value);
     const runtimeAccepted = validateLocalCiContractV3(value).ok;

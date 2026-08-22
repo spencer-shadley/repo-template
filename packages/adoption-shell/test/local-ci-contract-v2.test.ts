@@ -143,7 +143,7 @@ void test("runtime validation rejects every adversarial schema-parity probe", ()
     ["invalid repository grammar", (v) => { v.repository = "not-a-repository"; }, "E_FORMAT"],
   ];
   for (const [name, mutate, code] of cases) {
-    const value = structuredClone(base);
+    const value = structuredClone<unknown>(base);
     mutate(value);
     const result = validateLocalCiContractV2(value);
     assert.equal(result.ok, false, name);
@@ -172,7 +172,7 @@ void test("published schema and runtime agree on closed command semantics", () =
   ];
 
   for (const [name, mutate] of cases) {
-    const value = structuredClone(base);
+    const value = structuredClone<unknown>(base);
     mutate(value);
     const schemaAccepted = validateSchema(value);
     const runtimeAccepted = validateLocalCiContractV2(value).ok;

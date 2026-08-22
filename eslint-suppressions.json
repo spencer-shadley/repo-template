@@ -1,8 +1,5 @@
 {
   "packages/adoption-shell/src/canonical-json.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    },
     "unicorn/prefer-code-point": {
       "count": 2
     }
@@ -50,11 +47,6 @@
       "count": 2
     }
   },
-  "packages/adoption-shell/src/validation-helpers.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/src/work-migration-manifest-v1.ts": {
     "unicorn/prefer-simple-sort-comparator": {
       "count": 3
@@ -96,18 +88,12 @@
     "@typescript-eslint/no-explicit-any": {
       "count": 5
     },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 2
-    },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 20
     }
   },
   "packages/adoption-shell/test/local-ci-contract-v3.test.ts": {
     "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
       "count": 2
     },
     "@typescript-eslint/no-unsafe-member-access": {
@@ -154,9 +140,6 @@
   "packages/adoption-shell/test/release-receipt.test.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 2
-    },
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 1
     },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 12
