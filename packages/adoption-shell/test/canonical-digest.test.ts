@@ -114,7 +114,7 @@ void test("payload framing is length-prefixed, sorted, and unambiguous", () => {
     "contracts/adoption-shell-v2/fixtures/multi-bundle-input.json",
   );
   const forward = input.release.entries;
-  const reversed = [...forward].reverse();
+  const reversed = forward.toReversed();
   assert.deepEqual(payloadFrame(forward), payloadFrame(reversed));
   assert.equal(sha256PayloadEntries(forward), sha256PayloadEntries(reversed));
 

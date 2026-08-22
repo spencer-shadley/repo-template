@@ -1,16 +1,6 @@
 {
-  "packages/adoption-shell/test/canonical-digest.test.ts": {
-    "unicorn/no-array-reverse": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/test/plan-record-v1.test.ts": {
     "unicorn/no-declarations-before-early-exit": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/test/release-candidate.test.ts": {
-    "unicorn/no-array-reverse": {
       "count": 1
     }
   },

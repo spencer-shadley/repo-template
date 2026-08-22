@@ -167,7 +167,7 @@ void test("payload builder hashes, sorts, and reproduces the canonical release p
   const canonical = input().payloadSet;
   const drafts = canonical.entries
     .map(({ contentSha256: _contentSha256, ...entry }) => entry)
-    .reverse();
+    .toReversed();
   const original = canonicalizeJson(drafts);
   const result = createReleasePayloadSetV2(drafts);
   assert.equal(result.ok, true);
