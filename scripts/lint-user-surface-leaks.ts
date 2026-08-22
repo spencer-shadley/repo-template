@@ -113,7 +113,7 @@ function optionalPositiveInteger(value: unknown, error: string): number | undefi
 
 function optionalKnownRule(value: unknown, error: string): string | undefined {
   if (value === undefined) return undefined;
-  if (!isString(value) || !RULES.some((candidate) => candidate.id === value)) throw new Error(error);
+  if (!isString(value) || RULES.every((candidate) => candidate.id !== value)) throw new Error(error);
   return value;
 }
 
@@ -360,7 +360,7 @@ function extractStringLiterals(text: string): StringLiteral[] {
 
 function isAllowed(finding: Finding, allowlist: readonly AllowlistEntry[]): boolean {
   return allowlist.some((entry) => {
-    if (!compileGlobs([entry.path]).some((matcher) => matcher.test(finding.path))) return false;
+    if (compileGlobs([entry.path]).every((matcher) => !matcher.test(finding.path))) return false;
     if (entry.line !== undefined && entry.line !== finding.line) return false;
     if (entry.rule !== undefined && entry.rule !== finding.rule) return false;
     if (entry.match !== undefined && entry.match !== finding.match) return false;
