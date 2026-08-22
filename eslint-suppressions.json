@@ -14,9 +14,6 @@
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
     },
-    "unicorn/no-useless-coercion": {
-      "count": 1
-    },
     "unicorn/prefer-string-replace-all": {
       "count": 2
     }
@@ -24,9 +21,6 @@
   "scripts/check-issue-template-intake.ts": {
     "sonarjs/super-linear-regex": {
       "count": 3
-    },
-    "unicorn/no-useless-coercion": {
-      "count": 1
     },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 1
