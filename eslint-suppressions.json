@@ -1,9 +1,4 @@
 {
-  "packages/repo-quality/index.d.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 5
-    }
-  },
   "packages/repo-quality/index.mjs": {
     "complexity": {
       "count": 2
@@ -50,15 +45,6 @@
     }
   },
   "scripts/check-prefer-typescript.selfcheck.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-call": {
-      "count": 3
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    },
     "sonarjs/todo-tag": {
       "count": 1
     }
