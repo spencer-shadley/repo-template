@@ -12,11 +12,6 @@
       "count": 1
     }
   },
-  "tools/contract-fixtures-data.ts": {
-    "unicorn/require-array-sort-compare": {
-      "count": 2
-    }
-  },
   "tools/generate-contract-fixtures.ts": {
     "unicorn/prefer-string-raw": {
       "count": 1
@@ -30,9 +25,6 @@
       "count": 2
     },
     "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 1
-    },
-    "unicorn/require-array-sort-compare": {
       "count": 1
     }
   },

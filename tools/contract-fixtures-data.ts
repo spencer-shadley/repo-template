@@ -20,6 +20,10 @@ import {
   textEntry,
 } from "./generate-contract-fixtures.ts";
 
+function compare(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 export const baseEntry = textEntry(
   "README.md",
   "# Generic shell\n\nTarget-specific setup happens after materialization.\n",
@@ -266,7 +270,7 @@ export const localCiBundle = bundle({
   artifacts: localCiArtifacts,
   fixtures: localCiFixtures,
   goldens: [],
-  modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v2.js", requiredPaths: [...localCiArtifacts, ...localCiFixtures].sort() }],
+  modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v2.js", requiredPaths: [...localCiArtifacts, ...localCiFixtures].sort(compare) }],
 });
 export const localCiV3Id = "repo-template/local-ci-contract-v3";
 export const localCiV3Artifacts = [
@@ -298,7 +302,7 @@ export const localCiV3Bundle = bundle({
   artifacts: localCiV3Artifacts,
   fixtures: localCiV3Fixtures,
   goldens: [],
-  modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v3.js", requiredPaths: [...localCiV3Artifacts, ...localCiV3Fixtures].sort() }],
+  modes: [{ id: "validate", entrypoint: "artifacts/adoption-shell-v2/local-ci-contract-v3.js", requiredPaths: [...localCiV3Artifacts, ...localCiV3Fixtures].sort(compare) }],
 });
 export const proofOfDetectionId = "repo-template/proof-of-detection";
 export const proofOfDetectionArtifacts = [
