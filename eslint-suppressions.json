@@ -8,14 +8,8 @@
     }
   },
   "tools/artifact-build.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 14
-    },
     "max-lines": {
       "count": 1
-    },
-    "unicorn/prefer-type-error": {
-      "count": 2
     }
   },
   "tools/artifact-policy.ts": {
@@ -32,16 +26,7 @@
     }
   },
   "tools/generate-contract-fixtures.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "unicorn/prefer-string-raw": {
-      "count": 1
-    },
-    "unicorn/prefer-structured-clone": {
       "count": 1
     },
     "unicorn/prefer-unicode-code-point-escapes": {
@@ -49,9 +34,6 @@
     }
   },
   "tools/generate-negative-fixtures.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 12
-    },
     "unicorn/prefer-string-raw": {
       "count": 2
     },
@@ -62,15 +44,7 @@
       "count": 1
     }
   },
-  "tools/release-payload.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 3
-    }
-  },
   "tools/verify-template-self.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 3
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
     },

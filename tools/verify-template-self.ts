@@ -12,6 +12,14 @@ function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isStringRecord(value: unknown): value is Record<string, string> {
+  return isRecord(value) && Object.values(value).every((entry) => typeof entry === "string");
+}
+
 function git(...args: readonly string[]): string {
   return execFileSync("git", args, { cwd: root, encoding: "utf8" });
 }
@@ -88,9 +96,10 @@ for (const relativePath of listTextFiles()) {
     });
 }
 
-const manifest = JSON.parse(
+const manifest: unknown = JSON.parse(
   fs.readFileSync(path.join(root, "template-manifest.json"), "utf8"),
-) as Record<string, string>;
+);
+if (!isStringRecord(manifest)) throw new Error("template-manifest.json must map paths to strings");
 const trackedFiles = git("ls-files", "-z")
   .split("\0")
   .filter(Boolean)
@@ -341,7 +350,8 @@ try {
   if (/TODO\(setup!?\):|\{\{[A-Z0-9_]+\}\}/.test(raw)) {
     boundaryErrors.push("model-boundary.json has unresolved setup placeholders");
   }
-  const boundary = JSON.parse(raw) as Record<string, unknown>;
+  const boundary: unknown = JSON.parse(raw);
+  if (!isRecord(boundary)) throw new Error("model-boundary.json must be an object");
   if (boundary["schemaVersion"] !== 1) boundaryErrors.push("schemaVersion must be 1");
   if (boundary["servesModelTasks"] !== false) {
     boundaryErrors.push("default servesModelTasks must be false");
@@ -363,7 +373,7 @@ try {
     boundaryErrors.push("allowedProviderSpecificPaths required");
   } else {
     for (const key of ["adapters", "catalogs", "configuration", "fixtures", "history"]) {
-      if (!Array.isArray((paths as Record<string, unknown>)[key])) {
+      if (!Array.isArray(paths[key])) {
         boundaryErrors.push(`allowedProviderSpecificPaths.${key} must be an array`);
       }
     }

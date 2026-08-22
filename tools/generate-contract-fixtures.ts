@@ -51,7 +51,7 @@ function writeJson(filePath: string, value: unknown): void {
 }
 
 export function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
+  return structuredClone(value);
 }
 
 export type MutableMaterializerInput = {
@@ -59,7 +59,7 @@ export type MutableMaterializerInput = {
 };
 
 export function mutableInput(value: MaterializerInput): MutableMaterializerInput {
-  return clone(value) as MutableMaterializerInput;
+  return clone(value);
 }
 
 function entry(

@@ -125,6 +125,14 @@ function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isCallable(value: unknown): value is (input: unknown) => unknown {
+  return typeof value === "function";
+}
+
 function portable(rootPath: string, filePath: string): string {
   return path.relative(rootPath, filePath).split(path.sep).join("/");
 }
@@ -167,18 +175,14 @@ function tempDirectory(): string {
 }
 
 function controlledBuildRootFromConfig(): string {
-  const config = JSON.parse(
+  const config: unknown = JSON.parse(
     fs.readFileSync(buildConfigPath, "utf8"),
-  ) as Record<string, unknown>;
+  );
+  if (!isRecord(config)) throw new TypeError("temporary build config must be an object");
   const compilerOptions = config["compilerOptions"];
-  const outDir =
-    compilerOptions !== null &&
-    typeof compilerOptions === "object" &&
-    !Array.isArray(compilerOptions)
-      ? (compilerOptions as Record<string, unknown>)["outDir"]
-      : undefined;
+  const outDir = isRecord(compilerOptions) ? compilerOptions["outDir"] : undefined;
   if (typeof outDir !== "string") {
-    throw new Error("temporary build config has no outDir");
+    throw new TypeError("temporary build config has no outDir");
   }
   const emittedRoot = path.resolve(outDir);
   const ownedRoot = path.dirname(emittedRoot);
@@ -227,9 +231,10 @@ function sourceRows(): readonly FileClosureRow[] {
 
 function schemaRows(): readonly SchemaClosureRow[] {
   return SCHEMA_FILES.map((relativePath) => {
-    const value = JSON.parse(
+    const value: unknown = JSON.parse(
       fs.readFileSync(path.join(contractRoot, relativePath), "utf8"),
-    ) as Record<string, unknown>;
+    );
+    if (!isRecord(value)) throw new Error(`${relativePath} must be a JSON object`);
     return {
       ...closureRow(
         contractRoot,
@@ -406,9 +411,10 @@ function verifyRows(
 function verifySchemas(manifest: ArtifactManifest): void {
   const ids = new Set<string>(Object.values(SCHEMA_IDS));
   for (const schemaRow of manifest.schemas) {
-    const schema = JSON.parse(
+    const schema: unknown = JSON.parse(
       fs.readFileSync(path.join(root, ...schemaRow.path.split("/")), "utf8"),
-    ) as Record<string, unknown>;
+    );
+    if (!isRecord(schema)) throw new Error(`${schemaRow.path} must be a JSON object`);
     if (schema["$schema"] !== "https://json-schema.org/draft/2020-12/schema") {
       throw new Error(`${schemaRow.path} does not declare Draft 2020-12`);
     }
@@ -416,14 +422,14 @@ function verifySchemas(manifest: ArtifactManifest): void {
       throw new Error(`${schemaRow.path} has an unexpected schema ID`);
     }
     const visit = (value: unknown, pointer: string): void => {
-      if (value === null || typeof value !== "object") return;
+      if (!isRecord(value)) return;
       if (
-        (value as Record<string, unknown>)["type"] === "object" &&
-        (value as Record<string, unknown>)["additionalProperties"] !== false
+        value["type"] === "object" &&
+        value["additionalProperties"] !== false
       ) {
         throw new Error(`${schemaRow.path}${pointer} is not closed`);
       }
-      const reference = (value as Record<string, unknown>)["$ref"];
+      const reference = value["$ref"];
       if (
         typeof reference === "string" &&
         !reference.startsWith("#") &&
@@ -477,9 +483,10 @@ function verifyJsonClosure(manifest: ArtifactManifest): void {
     );
     requireValid(validateMaterializerInputV2(value), name);
   }
-  const minimalOutput = JSON.parse(
+  const minimalOutput: unknown = JSON.parse(
     fs.readFileSync(path.join(contractRoot, "golden", "minimal-output.json"), "utf8"),
-  ) as Record<string, unknown>;
+  );
+  if (!isRecord(minimalOutput)) throw new Error("minimal output golden must be an object");
   requireValid(
     validateMaterializerOutputManifestV2(minimalOutput["manifest"]),
     "minimal output golden manifest",
@@ -501,9 +508,10 @@ function verifyJsonClosure(manifest: ArtifactManifest): void {
 }
 
 function verifyPackage(): void {
-  const packageJson = JSON.parse(
+  const packageJson: unknown = JSON.parse(
     fs.readFileSync(path.join(root, "package.json"), "utf8"),
-  ) as Record<string, unknown>;
+  );
+  if (!isRecord(packageJson)) throw new Error("package.json must be an object");
   const expectedDev = {
     "@spencer-shadley/repo-quality": "workspace:*",
     "@types/node": "24.13.3",
@@ -512,12 +520,12 @@ function verifyPackage(): void {
     eslint: "10.8.1",
     typescript: "7.0.2",
   };
+  const engines = packageJson["engines"];
   if (
     packageJson["private"] !== true ||
     packageJson["type"] !== "module" ||
     packageJson["packageManager"] !== "pnpm@11.17.0" ||
-    (packageJson["engines"] as Record<string, unknown> | undefined)?.["node"] !==
-      ">=24.16.0 <25" ||
+    (isRecord(engines) ? engines["node"] : undefined) !== ">=24.16.0 <25" ||
     packageJson["dependencies"] !== undefined ||
     JSON.stringify(packageJson["devDependencies"]) !== JSON.stringify(expectedDev)
   ) {
@@ -539,9 +547,10 @@ function verifyPackage(): void {
 }
 
 function verifyTemplateCapabilityClosure(): void {
-  const templateManifest = JSON.parse(
+  const templateManifest: unknown = JSON.parse(
     fs.readFileSync(path.join(root, "template-manifest.json"), "utf8"),
-  ) as Record<string, unknown>;
+  );
+  if (!isRecord(templateManifest)) throw new Error("template manifest must be an object");
   for (const relativePath of PORTABLE_CAPABILITY_PATHS) {
     if (templateManifest[relativePath] !== "copy") {
       throw new Error(
@@ -575,8 +584,10 @@ async function smokeDeclaredClosure(manifest: ArtifactManifest): Promise<void> {
     const moduleUrl = pathToFileURL(
       path.join(ownedTemp, ...manifest.entrypoint.split("/")),
     ).href;
-    const artifact = (await import(moduleUrl)) as Record<string, unknown>;
-    if (typeof artifact[manifest.validatorExport] !== "function") {
+    const artifact: unknown = await import(moduleUrl);
+    if (!isRecord(artifact)) throw new Error("declared artifact module must be an object");
+    const validate = artifact[manifest.validatorExport];
+    if (!isCallable(validate)) {
       throw new Error("declared validator export is missing");
     }
     const fixture: unknown = JSON.parse(
@@ -585,16 +596,12 @@ async function smokeDeclaredClosure(manifest: ArtifactManifest): Promise<void> {
         "utf8",
       ),
     );
-    const validate = artifact[manifest.validatorExport] as (value: unknown) => {
-      readonly ok: boolean;
-    };
-    if (!validate(fixture).ok) {
+    const validationResult: unknown = validate(fixture);
+    if (!isRecord(validationResult) || validationResult["ok"] !== true) {
       throw new Error("declared-closure consumer rejected the valid fixture");
     }
-    const materialize = artifact["materializeAdoptionShellV2"] as
-      | ((value: unknown) => unknown)
-      | undefined;
-    if (typeof materialize !== "function" || materialize(fixture) === undefined) {
+    const materialize = artifact["materializeAdoptionShellV2"];
+    if (!isCallable(materialize) || materialize(fixture) === undefined) {
       throw new Error("declared-closure consumer materialization smoke failed");
     }
   } finally {
