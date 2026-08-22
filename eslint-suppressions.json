@@ -7,11 +7,6 @@
       "count": 1
     }
   },
-  "scripts/check-prefer-typescript.selfcheck.ts": {
-    "sonarjs/todo-tag": {
-      "count": 1
-    }
-  },
   "scripts/check-runtime-artifact-registry.ts": {
     "unicorn/no-exports-in-scripts": {
       "count": 5

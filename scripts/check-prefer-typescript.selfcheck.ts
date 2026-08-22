@@ -109,7 +109,7 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
         },
       ],
     },
-    // 6. File with generic TODO without gh issue number
+    // 6. File with a generic task marker without a GitHub issue number
     {
       code: "// TODO: migrate this file to typescript eventually\nexport const x = 1;",
       filename: "tools/generic-todo.mjs",
