@@ -67,11 +67,12 @@ function parseGitignoreTags(text: string): GitignoreTag[] {
     const match = TAG_PATTERN.exec(line ?? "");
     if (!match || !match[1] || !match[2]) continue;
     const patternLine = lines[i + 1];
-    if (patternLine === undefined || patternLine.trim().length === 0 || patternLine.trim().startsWith("#")) {
+    const pattern = patternLine?.trim();
+    if (!pattern || pattern.startsWith("#")) {
       throw new Error(`runtime-artifact tag at .gitignore:${String(i + 1)} is not immediately followed by a pattern line`);
     }
     tagged.push({
-      pattern: patternLine.trim(),
+      pattern,
       owner: match[1],
       incident: match[2] === "none" ? null : match[2],
       line: i + 1,
