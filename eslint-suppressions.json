@@ -1,9 +1,4 @@
 {
-  "packages/adoption-shell/src/canonical-json.ts": {
-    "unicorn/prefer-code-point": {
-      "count": 2
-    }
-  },
   "packages/adoption-shell/src/delivery-measurement.ts": {
     "unicorn/no-chained-comparison": {
       "count": 1
@@ -26,11 +21,6 @@
   },
   "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
     "sonarjs/no-selector-parameter": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/src/path-policy.ts": {
-    "unicorn/prefer-code-point": {
       "count": 1
     }
   },
