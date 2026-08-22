@@ -2,15 +2,12 @@ const encoder = new TextEncoder();
 
 function assertUnicodeScalarString(value: string): void {
   for (let index = 0; index < value.length; index += 1) {
-    const code = value.charCodeAt(index);
-    if (code >= 0xd800 && code <= 0xdbff) {
-      const next = value.charCodeAt(index + 1);
-      if (!Number.isInteger(next) || next < 0xdc00 || next > 0xdfff) {
-        throw new TypeError("RFC 8785 strings must not contain lone surrogates");
-      }
-      index += 1;
-    } else if (code >= 0xdc00 && code <= 0xdfff) {
+    const codePoint = value.codePointAt(index);
+    if (codePoint === undefined || (codePoint >= 0xd800 && codePoint <= 0xdfff)) {
       throw new TypeError("RFC 8785 strings must not contain lone surrogates");
+    }
+    if (codePoint > 0xffff) {
+      index += 1;
     }
   }
 }
