@@ -19,3 +19,5 @@
 2026-08-21T00:00:00-07:00 lane heartbeat: started issue #196 shard @typescript-eslint/no-unsafe-type-assertion x packages on feat/ezlint-196.
 2026-08-21T00:12:00-07:00 lane heartbeat: replaced all 47 package test assertions with checked JSON fixtures and runtime guards; pruning seven matching suppression entries.
 2026-08-21T00:25:00-07:00 lane heartbeat: all seven changed package test modules pass (41/41). Required pnpm lint reaches only the pre-existing stale-suppressions exit after ESLint emits zero errors and the existing repo-quality console warning.
+2026-08-21T00:00:00-07:00 lane=EZLINT issue=#198 rule=@typescript-eslint/no-unsafe-assignment scope=packages status=started base=b844d33fcea5e0b971819ec57937e92e2a48654d
+2026-08-21T18:30:53-07:00 lane=EZLINT issue=#198 rule=@typescript-eslint/no-unsafe-assignment scope=packages status=verified-packages command="pnpm exec eslint packages --pass-on-unpruned-suppressions" result=pass note="full pnpm lint has no errors; fails only on unchanged unused suppressions in scripts/check-prefer-typescript.selfcheck.ts and tools/artifact-build.ts present at origin/master"

@@ -141,7 +141,7 @@ void test("published schema and runtime fail closed on release-evidence drift", 
     ["empty canary receipts", (value) => { value["releaseEvidence"].canaryReceipts = {}; }],
     ["invalid canary identity", (value) => {
       value["releaseEvidence"].canaryReceipts["bad/id"] =
-        value["releaseEvidence"].canaryReceipts["model-gateway-v1"];
+        structuredClone<unknown>(value["releaseEvidence"].canaryReceipts["model-gateway-v1"]);
     }],
     ["invalid canary URL", (value) => {
       value["releaseEvidence"].canaryReceipts["model-gateway-v1"].url =
