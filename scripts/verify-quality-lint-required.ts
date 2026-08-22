@@ -121,7 +121,7 @@ function readSimpleDiff(): Record<string, unknown> | undefined {
 
 function coversQualityLint(simpleDiff: Record<string, unknown>): boolean {
   const representativePaths = [
-    "eslint.config.mjs",
+    "eslint.config.ts",
     "eslint.quality.mjs",
     "eslint-suppressions.json",
     "package.json",
@@ -226,7 +226,7 @@ const configCandidates = [
 const configPath = configCandidates.map((n) => join(root, n)).find((p) => existsSync(p));
 if (!configPath) {
   errors.push(
-    `missing eslint.config.mjs (or .js) that imports qualityRules from ${kitName}`,
+    `missing eslint.config.ts (or .mjs/.js) that imports qualityRules from ${kitName}`,
   );
 } else {
   const cfg = read(configPath);
@@ -316,7 +316,7 @@ errors.push(...qualityLintSimpleDiffErrors());
 
 if (process.argv.includes("--self-test")) {
   const kitPackagePath = join(kitRoot, "package.json");
-  const templateConfigPath = join(templateRoot, "eslint.config.mjs");
+  const templateConfigPath = join(templateRoot, "eslint.config.ts");
   const selfTestErrors = [
     !existsSync(kitPackagePath)
       ? "packages/repo-quality/package.json must ship in template"
@@ -337,7 +337,7 @@ if (process.argv.includes("--self-test")) {
       ? "packages/repo-quality must ship the Betterleaks secret-scan wrapper"
       : undefined,
     !existsSync(templateConfigPath) || !read(templateConfigPath).includes(kitName)
-      ? `eslint.config.mjs must import from ${kitName}`
+      ? `eslint.config.ts must import from ${kitName}`
       : undefined,
     existsSync(join(templateRoot, "eslint.quality.mjs"))
       ? "template root must not ship a copied eslint.quality.mjs factory"

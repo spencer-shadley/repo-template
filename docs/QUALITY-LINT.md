@@ -8,7 +8,7 @@ are not optional style preference — they are the parallel-land and agent-maint
 | Path | Role |
 |------|------|
 | `@spencer-shadley/repo-quality` | Git-consumed kit: `qualityRules()`, Knip, Betterleaks, and advisory jscpd wrappers/config — max-lines 500, complexity, sonarjs, Unicorn's unopinionated safety baseline, exhaustive core rules |
-| `eslint.config.mjs` (or `.js`) | Flat config that **imports and spreads** `qualityRules()` from the kit |
+| `eslint.config.ts` (or `.mjs` / `.js`) | Flat config that **imports and spreads** `qualityRules()` from the kit |
 | `package.json` scripts | `"lint": "eslint ."` (or equivalent) and **`verify` must run lint** |
 | `eslint-suppressions.json` | Required central baseline for grandfathered lint debt; generated with `eslint . --suppress-all` |
 
@@ -144,7 +144,7 @@ Only these representation-only rules are disabled by the kit: `consistent-compou
 ## Bootstrap checklist
 
 1. Add the Git dependency above (pin to a reviewed template commit or release tag in production).
-2. Copy only the thin `eslint.config.mjs` from this template and retain its kit import.
+2. Copy only the thin `eslint.config.ts` from this template and retain its kit import. ESLint loads TypeScript flat configs via its optional `jiti` peer (or `--flag unstable_native_nodejs_ts_config` on Node with type stripping).
 3. Add scripts:
    ```json
    "knip": "node ./node_modules/@spencer-shadley/repo-quality/knip.mjs",

@@ -24,6 +24,7 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
+    "eslint.config.ts",
     "packages/adoption-shell/src/**/*.ts",
     "packages/adoption-shell/test/**/*.ts",
     "packages/repo-quality/**/*.d.ts",
