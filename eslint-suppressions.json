@@ -6,9 +6,6 @@
     "max-lines-per-function": {
       "count": 1
     },
-    "unicorn/prefer-single-call": {
-      "count": 1
-    },
     "unicorn/prefer-string-replace-all": {
       "count": 1
     }

@@ -154,14 +154,10 @@ export const preferTypeScriptRule = {
 
         // Restrict waiver/justification comments to the leading file header (default: first 30 lines)
         const maxLeadingLine = typeof options.maxLeadingLine === "number" ? options.maxLeadingLine : 30;
-        const leadingComments = comments.filter((comment) => {
-          if (comment.loc && typeof comment.loc.start?.line === "number") {
-            return comment.loc.start.line <= maxLeadingLine;
+        const hasValidJustification = comments.some((comment) => {
+          if (comment.loc && typeof comment.loc.start?.line === "number" && comment.loc.start.line > maxLeadingLine) {
+            return false;
           }
-          return true;
-        });
-
-        const hasValidJustification = leadingComments.some((comment) => {
           // Normalize JSDoc / multi-line comment text by stripping leading '*' and trimming lines
           const text = comment.value
             .split("\n")
@@ -502,33 +498,34 @@ export function qualityRules(options = {}) {
     });
   }
 
-  blocks.push({
-    files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
-    rules: sizeRules,
-  });
-
-  // Tests: size/complexity noise off; keep bug rules
-  blocks.push({
-    files: [
-      "**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
-      "**/__tests__/**",
-      "**/tests/**",
-      "**/e2e/**",
-      "**/fixtures/**",
-    ],
-    rules: {
-      "max-lines": "off",
-      "max-lines-per-function": "off",
-      "max-statements": "off",
-      "max-classes-per-file": "off",
-      "max-nested-callbacks": "off",
-      complexity: "off",
-      "sonarjs/cognitive-complexity": "off",
-      "sonarjs/no-duplicate-string": "off",
-      "no-await-in-loop": "off",
-      "no-console": "off",
+  blocks.push(
+    {
+      files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
+      rules: sizeRules,
     },
-  });
+    // Tests: size/complexity noise off; keep bug rules
+    {
+      files: [
+        "**/*.{test,spec}.{js,jsx,ts,tsx,mjs,cjs}",
+        "**/__tests__/**",
+        "**/tests/**",
+        "**/e2e/**",
+        "**/fixtures/**",
+      ],
+      rules: {
+        "max-lines": "off",
+        "max-lines-per-function": "off",
+        "max-statements": "off",
+        "max-classes-per-file": "off",
+        "max-nested-callbacks": "off",
+        complexity: "off",
+        "sonarjs/cognitive-complexity": "off",
+        "sonarjs/no-duplicate-string": "off",
+        "no-await-in-loop": "off",
+        "no-console": "off",
+      },
+    },
+  );
 
   return blocks;
 }
