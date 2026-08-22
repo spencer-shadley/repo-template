@@ -121,10 +121,12 @@ export function orderedLocalCiCommands(
       order,
       isAuthoritativeGate: false,
     }));
+  const authoritativeGate = contract.commands["authoritative-gate"];
+  if (authoritativeGate === undefined) throw new TypeError("authoritative gate must be defined");
   return [
     ...preflight,
     {
-      ...contract.commands["authoritative-gate"]!,
+      ...authoritativeGate,
       id: "authoritative-gate",
       order: preflight.length,
       isAuthoritativeGate: true,

@@ -49,6 +49,11 @@ function record(value: unknown, label: string): Record<string, unknown> {
   return value;
 }
 
+function required<T>(value: T | undefined, label: string): T {
+  if (value === undefined) throw new TypeError(`${label} must be defined`);
+  return value;
+}
+
 function isSchema(value: unknown): value is AnySchema {
   return typeof value === "boolean" || isRecord(value);
 }
@@ -204,7 +209,7 @@ void test("generated primitive cases keep PlanRecord schema and runtime in parit
     ["leap second", { ...planned, enqueuedAt: "2026-07-28T23:59:60Z" }],
     ["deployment leap second", {
       ...completed,
-      receipt: { ...completed.receipt!, deployedAt: "2026-07-28T23:59:60Z" },
+      receipt: { ...required(completed.receipt, "completed receipt"), deployedAt: "2026-07-28T23:59:60Z" },
     }],
     ["invalid calendar day", { ...planned, enqueuedAt: "2026-02-30T00:00:00Z" }],
     ["windows reserved path", { ...planned, sourcePath: "plans/CON.md" }],
@@ -369,7 +374,7 @@ void test("admitted enqueue time/source and existing claim/land snapshots are im
   assert.equal(planRecordTransitionReasonV1(implemented, {
     ...implemented,
     contractSnapshots: {
-      claim: implemented.contractSnapshots!.claim,
+      claim: required(implemented.contractSnapshots, "implemented contract snapshots").claim,
       land: { algorithm: "sha256", digest: "e".repeat(64) },
     },
   }), "LAND_SNAPSHOT_IMMUTABLE");
@@ -411,7 +416,7 @@ void test("manifest closes live inventory and archive disposition counts/hashes"
       ...input,
       archive: {
         ...input.archive,
-        dispositions: [{ ...input.archive.dispositions[0]!, count: 1 }],
+        dispositions: [{ ...required(input.archive.dispositions[0], "first archive disposition"), count: 1 }],
       },
     }),
     /input is invalid/,
@@ -422,7 +427,7 @@ void test("manifest closes live inventory and archive disposition counts/hashes"
       archive: {
         ...input.archive,
         dispositions: [{
-          ...input.archive.dispositions[0]!,
+          ...required(input.archive.dispositions[0], "first archive disposition"),
           aggregateSha256: "e".repeat(64),
         }],
       },
@@ -444,7 +449,7 @@ void test("manifest closes live inventory and archive disposition counts/hashes"
       ...input,
       archive: {
         ...input.archive,
-        members: [{ ...input.archive.members[0]!, blobSha256: "f".repeat(64) }],
+        members: [{ ...required(input.archive.members[0], "first archive member"), blobSha256: "f".repeat(64) }],
       },
     }),
     /input is invalid/,
@@ -538,8 +543,8 @@ void test("generated primitive cases keep manifest schema and runtime fail-close
       archive: {
         ...manifest.archive,
         members: [
-          { ...manifest.archive.members[0]!, path: "plans/archive/CON.md" },
-          manifest.archive.members[1]!,
+          { ...required(manifest.archive.members[0], "first archive member"), path: "plans/archive/CON.md" },
+          required(manifest.archive.members[1], "second archive member"),
         ],
       },
     }],
@@ -548,8 +553,8 @@ void test("generated primitive cases keep manifest schema and runtime fail-close
       archive: {
         ...manifest.archive,
         members: [
-          { ...manifest.archive.members[0]!, path: "plans/archive/bad./001.md" },
-          manifest.archive.members[1]!,
+          { ...required(manifest.archive.members[0], "first archive member"), path: "plans/archive/bad./001.md" },
+          required(manifest.archive.members[1], "second archive member"),
         ],
       },
     }],

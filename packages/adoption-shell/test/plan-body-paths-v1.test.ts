@@ -82,7 +82,9 @@ function signed(body: Record<string, unknown>): Record<string, unknown> {
 function livePathCandidate(path: string): Record<string, unknown> {
   const body = manifestBody();
   const decisions = records(body["decisions"], "decisions");
-  decisions[0]!["path"] = path;
+  const decision = decisions[0];
+  if (decision === undefined) throw new TypeError("decisions must contain an entry");
+  decision["path"] = path;
   body["changedPaths"] = [path];
   return body;
 }
@@ -92,12 +94,16 @@ function archivePathCandidate(path: string): Record<string, unknown> {
   const archive = record(body["archive"], "archive");
   const members = archiveMembers(archive["members"]);
   archive["members"] = members;
-  members[0] = { ...members[0]!, path };
+  const firstMember = members[0];
+  if (firstMember === undefined) throw new TypeError("archive members must contain an entry");
+  members[0] = { ...firstMember, path };
   members.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
   const aggregate = archiveAggregateSha256V1(members);
   archive["aggregateSha256"] = aggregate;
   const dispositions = records(archive["dispositions"], "archive dispositions");
-  dispositions[0]!["aggregateSha256"] = aggregate;
+  const disposition = dispositions[0];
+  if (disposition === undefined) throw new TypeError("archive dispositions must contain an entry");
+  disposition["aggregateSha256"] = aggregate;
   return body;
 }
 
