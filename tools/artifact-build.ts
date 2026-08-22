@@ -114,7 +114,7 @@ const PROOF_OF_DETECTION_ARTIFACT_PATHS = [
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
   "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
-  "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
+  "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts",
   "scripts/proof-of-detection/run-meta-gate.ts",
   "scripts/check-runtime-artifact-registry.ts",
   ".runtime-artifact-registry.json",

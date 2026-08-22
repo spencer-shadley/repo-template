@@ -626,8 +626,8 @@
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "3e4297b8743a0790499886f5d6543d9419cf1a70af1f6fa3feb4ee2728634089",
-      "bytes": 12166
+      "sha256": "a523691340abc0fcf6601ac602e1cd33d96c02c08680fd1417b2813fd3756931",
+      "bytes": 12164
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/delivery-declaration.json",
@@ -941,15 +941,15 @@
       "path": "scripts/check-runtime-artifact-registry.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f97d2af7811bec08aa60f4efb7173792ace46ce81f0a62727d19f32cb142293a",
-      "bytes": 7179
+      "sha256": "a34cbafc96ee70abea468cc4acea45622546093ca78ae3d8ecdf8ea3a988bb08",
+      "bytes": 8174
     },
     {
       "path": "scripts/lint-user-surface-leaks.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "29644aeae482902afcab93d6da505abf8775be9c3cdc1a12ee35d0cdb63f3cff",
-      "bytes": 18463
+      "sha256": "24b6eb955e30bce2c6afe486690c30e96cc8d7078a7fa6bb45550fbf30a21d6c",
+      "bytes": 19246
     },
     {
       "path": "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
@@ -973,18 +973,18 @@
       "bytes": 76
     },
     {
-      "path": "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs",
+      "path": "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6c6d772c6c895973aa250aef1de1990f0caf67c4a2970306396ef0c98d77ba8e",
-      "bytes": 3669
+      "sha256": "030e3a4320e99db2116abea6472718cc7fb4076ba4d3f020084102e806e152b9",
+      "bytes": 3909
     },
     {
       "path": "scripts/proof-of-detection/run-meta-gate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "667c2545c6870f9d13e85ec006492926fa956a98f42d1ba2f8ebb5f25b705619",
-      "bytes": 13995
+      "sha256": "29c479142dfbb5d28f70b90220d629c0f8bdcf3145b26eaf3639124273f86721",
+      "bytes": 15741
     },
     {
       "path": "scripts/verify-quality-lint-required.ts",
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "0547356a14ed4077cc568961a166ed3a971feaec7bc2e09f1056f08238fa9672"
+  "manifestDigest": "8518ccbb78e628c71942e28826a31c0930d9c9bd06bff8c0e348d222930253f5"
 }
