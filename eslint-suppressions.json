@@ -1,9 +1,4 @@
 {
-  "packages/adoption-shell/src/release-candidate.ts": {
-    "@typescript-eslint/no-unsafe-return": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/src/validate-documentation.ts": {
     "sonarjs/super-linear-regex": {
       "count": 2
