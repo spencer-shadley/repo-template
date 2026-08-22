@@ -68,11 +68,55 @@ export interface SummaryRecord {
   readonly metaGateFailed: boolean;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isDetectionProof(value: unknown): value is DetectionProof {
+  if (!isRecord(value)) return false;
+  if (typeof value["exempt"] === "string") return true;
+  const fixture = value["fixture"];
+  return (
+    isRecord(fixture) &&
+    typeof fixture["path"] === "string" &&
+    typeof fixture["description"] === "string" &&
+    typeof fixture["expectation"] === "string"
+  );
+}
+
+function isCommandDeclaration(value: unknown): value is CommandDeclaration {
+  return (
+    isRecord(value) &&
+    typeof value["name"] === "string" &&
+    typeof value["executable"] === "string" &&
+    Array.isArray(value["args"]) &&
+    value["args"].every((arg) => typeof arg === "string") &&
+    typeof value["shell"] === "string" &&
+    typeof value["cwd"] === "string" &&
+    typeof value["timeoutSeconds"] === "number" &&
+    typeof value["expectedExitCode"] === "number" &&
+    typeof value["failureDisposition"] === "string" &&
+    isDetectionProof(value["detectionProof"])
+  );
+}
+
+function isLocalCiContract(value: unknown): value is LocalCiContractV3Like {
+  return isRecord(value) && isRecord(value["commands"]) && Object.values(value["commands"]).every(isCommandDeclaration);
+}
+
 function readLedger(targetRoot: string): Record<string, { readonly plantedAt: string }> {
   const ledgerPath = path.join(targetRoot, LEDGER_PATH);
   if (!fs.existsSync(ledgerPath)) return {};
   try {
-    return JSON.parse(fs.readFileSync(ledgerPath, "utf8")) as Record<string, { readonly plantedAt: string }>;
+    const parsed: unknown = JSON.parse(fs.readFileSync(ledgerPath, "utf8"));
+    if (!isRecord(parsed)) return {};
+    const ledger: Record<string, { readonly plantedAt: string }> = {};
+    for (const [path, entry] of Object.entries(parsed)) {
+      if (isRecord(entry) && typeof entry["plantedAt"] === "string") {
+        ledger[path] = { plantedAt: entry["plantedAt"] };
+      }
+    }
+    return ledger;
   } catch {
     return {};
   }
@@ -345,7 +389,11 @@ if (invokedAsMain) {
       process.exit(2);
     }
     const targetRoot = process.cwd();
-    const contract = JSON.parse(fs.readFileSync(contractPathArg, "utf8")) as LocalCiContractV3Like;
+    const parsed: unknown = JSON.parse(fs.readFileSync(contractPathArg, "utf8"));
+    if (!isLocalCiContract(parsed)) {
+      throw new Error("local-ci-v3 contract has an invalid shape");
+    }
+    const contract = parsed;
     const results = runDetectionProofs(contract, {
       root: targetRoot,
       bytesForFixture: (_commandId, fixture) => fs.readFileSync(path.join(targetRoot, `${fixture.path}.source`)),

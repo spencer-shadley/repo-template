@@ -31,8 +31,32 @@ export interface RegistryEntry {
 
 export interface RuntimeArtifactRegistry {
   readonly contractId?: string;
-  readonly schemaVersion?: number;
+  readonly schemaVersion?: string;
   readonly entries: readonly RegistryEntry[];
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isRegistryEntry(value: unknown): value is RegistryEntry {
+  return (
+    isRecord(value) &&
+    typeof value["pattern"] === "string" &&
+    typeof value["owner"] === "string" &&
+    (value["reason"] === undefined || typeof value["reason"] === "string") &&
+    (value["incident"] === null || typeof value["incident"] === "string")
+  );
+}
+
+function isRuntimeArtifactRegistry(value: unknown): value is RuntimeArtifactRegistry {
+  return (
+    isRecord(value) &&
+    (value["contractId"] === undefined || typeof value["contractId"] === "string") &&
+    (value["schemaVersion"] === undefined || typeof value["schemaVersion"] === "string") &&
+    Array.isArray(value["entries"]) &&
+    value["entries"].every(isRegistryEntry)
+  );
 }
 
 export function parseGitignoreTags(text: string): GitignoreTag[] {
@@ -109,7 +133,11 @@ function loadRegistry(repoRoot: string): RuntimeArtifactRegistry {
   if (!existsSync(registryPath)) {
     throw new Error("missing .runtime-artifact-registry.json");
   }
-  const registry = JSON.parse(readFileSync(registryPath, "utf8")) as RuntimeArtifactRegistry;
+  const parsed: unknown = JSON.parse(readFileSync(registryPath, "utf8"));
+  if (!isRuntimeArtifactRegistry(parsed)) {
+    throw new Error(".runtime-artifact-registry.json has an invalid shape");
+  }
+  const registry = parsed;
   if (registry.contractId !== "repo-template/runtime-artifact-registry-v1") {
     throw new Error(".runtime-artifact-registry.json has an unexpected contractId");
   }

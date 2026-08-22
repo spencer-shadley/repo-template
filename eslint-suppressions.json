@@ -8,9 +8,6 @@
     }
   },
   "scripts/check-dir-breadth.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 4
     },
@@ -32,9 +29,6 @@
     }
   },
   "scripts/check-runtime-artifact-registry.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 1
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 6
     },
@@ -54,9 +48,6 @@
     },
     "@typescript-eslint/no-unsafe-argument": {
       "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 10
     },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 12
@@ -98,9 +89,6 @@
     }
   },
   "scripts/proof-of-detection/run-meta-gate.ts": {
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
-    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 8
     },
