@@ -8,9 +8,6 @@
     }
   },
   "scripts/lint-user-surface-leaks.ts": {
-    "sonarjs/prefer-regexp-exec": {
-      "count": 1
-    },
     "unicorn/no-array-sort": {
       "count": 1
     },
