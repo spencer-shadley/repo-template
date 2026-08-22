@@ -90,7 +90,7 @@ function parseArgs(argv: readonly string[]): { configPath: string; selfTest: boo
       console.log(usage());
       process.exit(0);
     } else {
-      throw new Error(`unknown argument: ${arg}`);
+      throw new Error(`unknown argument: ${String(arg)}`);
     }
   }
   return args;
@@ -124,21 +124,21 @@ function optionalString(value: unknown, error: string): string | undefined {
 }
 
 function validateAllowlistRecord(entry: Record<string, unknown>, index: number): AllowlistEntry {
-  const line = optionalPositiveInteger(entry["line"], `config.allowlist[${index}].line must be a positive integer`);
-  const rule = optionalKnownRule(entry["rule"], `config.allowlist[${index}].rule is not a known rule`);
-  const match = optionalString(entry["match"], `config.allowlist[${index}].match must be a string`);
+  const line = optionalPositiveInteger(entry["line"], `config.allowlist[${String(index)}].line must be a positive integer`);
+  const rule = optionalKnownRule(entry["rule"], `config.allowlist[${String(index)}].rule is not a known rule`);
+  const match = optionalString(entry["match"], `config.allowlist[${String(index)}].match must be a string`);
   return {
-    path: requiredNonBlankString(entry["path"], `config.allowlist[${index}].path must be a non-empty string`),
+    path: requiredNonBlankString(entry["path"], `config.allowlist[${String(index)}].path must be a non-empty string`),
     ...(line !== undefined ? { line } : {}),
     ...(rule !== undefined ? { rule } : {}),
     ...(match !== undefined ? { match } : {}),
-    justification: requiredNonBlankString(entry["justification"], `config.allowlist[${index}].justification is required`),
+    justification: requiredNonBlankString(entry["justification"], `config.allowlist[${String(index)}].justification is required`),
   };
 }
 
 function validateAllowlistEntry(entry: unknown, index: number): AllowlistEntry {
   if (!isRecord(entry)) {
-    throw new Error(`config.allowlist[${index}] must be an object`);
+    throw new Error(`config.allowlist[${String(index)}] must be an object`);
   }
   return validateAllowlistRecord(entry, index);
 }
@@ -455,13 +455,13 @@ export function runLint({
   }
 
   if (findings.length === 0) {
-    stdout(`user-surface-lint: scanned ${files.length} file(s); no developer/operator leaks found`);
+    stdout(`user-surface-lint: scanned ${String(files.length)} file(s); no developer/operator leaks found`);
     return 0;
   }
 
-  stderr(`user-surface-lint: found ${findings.length} possible user-surface leak(s)`);
+  stderr(`user-surface-lint: found ${String(findings.length)} possible user-surface leak(s)`);
   for (const finding of findings) {
-    stderr(`${finding.path}:${finding.line}: ${finding.rule}: ${finding.description}: ${JSON.stringify(finding.match)}`);
+    stderr(`${finding.path}:${String(finding.line)}: ${finding.rule}: ${finding.description}: ${JSON.stringify(finding.match)}`);
   }
   return 1;
 }
@@ -490,7 +490,7 @@ export function selfTest(targetRoot = process.cwd(), stdout = console.log): void
     });
     const joined = output.join(os.EOL);
     if (code !== tc.wantCode) {
-      throw new Error(`${tc.name}: expected exit ${tc.wantCode}, got ${code}\n${joined}`);
+      throw new Error(`${tc.name}: expected exit ${String(tc.wantCode)}, got ${String(code)}\n${joined}`);
     }
     const expectations = Array.isArray(tc.want) ? tc.want : [tc.want];
     for (const expected of expectations) {
