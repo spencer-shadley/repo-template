@@ -1,14 +1,4 @@
 {
-  "packages/adoption-shell/src/local-ci-contract-v2.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/src/local-ci-contract-v3.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/src/local-ci-outcome-v1.ts": {
     "sonarjs/no-selector-parameter": {
       "count": 1
@@ -42,15 +32,7 @@
       "count": 1
     }
   },
-  "packages/adoption-shell/test/plan-body-paths-v1.test.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 3
-    }
-  },
   "packages/adoption-shell/test/plan-record-v1.test.ts": {
-    "@typescript-eslint/no-non-null-assertion": {
-      "count": 9
-    },
     "unicorn/no-declarations-before-early-exit": {
       "count": 1
     }
