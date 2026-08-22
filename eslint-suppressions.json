@@ -13,9 +13,6 @@
     }
   },
   "tools/artifact-policy.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 2
-    },
     "sonarjs/super-linear-regex": {
       "count": 1
     }
@@ -45,9 +42,6 @@
     }
   },
   "tools/verify-template-self.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 4
-    },
     "sonarjs/hashing": {
       "count": 1
     },

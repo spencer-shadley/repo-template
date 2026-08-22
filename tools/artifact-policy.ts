@@ -22,7 +22,7 @@ function scanFile(filePath: string): readonly string[] {
     const prefix = text.slice(0, index);
     const line = prefix.split("\n").length;
     const column = index - prefix.lastIndexOf("\n");
-    findings.push(`${filePath}:${line}:${column}: ${message}`);
+    findings.push(`${filePath}:${String(line)}:${String(column)}: ${message}`);
   };
   for (const match of text.matchAll(
     /\b(?:import|export)\s+(?:[^"'`;]*?\sfrom\s*)?["']([^"']+)["']/g,

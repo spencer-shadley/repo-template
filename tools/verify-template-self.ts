@@ -47,7 +47,7 @@ function listTextFiles(): readonly string[] {
 }
 
 function gitBlobId(content: Uint8Array): string {
-  const header = Buffer.from(`blob ${content.byteLength}\0`, "utf8");
+  const header = Buffer.from(`blob ${String(content.byteLength)}\0`, "utf8");
   return createHash("sha1").update(header).update(content).digest("hex");
 }
 
@@ -91,7 +91,7 @@ for (const relativePath of listTextFiles()) {
     .split(/\r?\n/)
     .forEach((line, index) => {
       if (isConflictMarker(line)) {
-        conflicts.push(`${relativePath}:${index + 1}:${line}`);
+        conflicts.push(`${relativePath}:${String(index + 1)}:${line}`);
       }
     });
 }
@@ -401,7 +401,7 @@ if (process.argv.includes("--portable-charter")) {
     process.exitCode = 1;
   } else {
     console.log(
-      `portable charter: ${portableCharterHeadings.length} headings, placeholders, priorities pointer, and removal checks passed`,
+      `portable charter: ${String(portableCharterHeadings.length)} headings, placeholders, priorities pointer, and removal checks passed`,
     );
   }
 } else if (process.argv.includes("--direct-l0-defaults")) {
@@ -410,7 +410,7 @@ if (process.argv.includes("--portable-charter")) {
     process.exitCode = 1;
   } else {
     console.log(
-      `direct-L0 defaults: ${requiredDirectL0Defaults.length} clauses and removal checks passed`,
+      `direct-L0 defaults: ${String(requiredDirectL0Defaults.length)} clauses and removal checks passed`,
     );
   }
 } else if (
