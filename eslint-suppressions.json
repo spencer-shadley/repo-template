@@ -8,9 +8,6 @@
     }
   },
   "scripts/lint-user-surface-leaks.ts": {
-    "unicorn/no-array-sort": {
-      "count": 1
-    },
     "unicorn/no-declarations-before-early-exit": {
       "count": 1
     },
@@ -21,11 +18,6 @@
       "count": 1
     },
     "unicorn/prefer-type-error": {
-      "count": 1
-    }
-  },
-  "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs": {
-    "unicorn/no-array-sort": {
       "count": 1
     }
   },

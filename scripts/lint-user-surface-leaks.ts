@@ -244,7 +244,7 @@ function matchingFiles(searchRoot: string, include: readonly string[]): FileEntr
     const rel = normalizeRel(path.relative(searchRoot, file));
     if (matchers.some((matcher) => matcher.test(rel))) files.push({ abs: file, rel });
   }
-  return files.sort((a, b) => a.rel.localeCompare(b.rel));
+  return files.toSorted((a, b) => a.rel.localeCompare(b.rel));
 }
 
 function lineForIndex(text: string, index: number): number {

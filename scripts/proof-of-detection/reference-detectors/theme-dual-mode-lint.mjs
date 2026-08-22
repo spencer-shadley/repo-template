@@ -56,7 +56,7 @@ function scanForDarkSurfaces(cssText, { mode = 'luminance' } = {}) {
   } else if (mode !== 'hex-only') {
     throw new Error(`unknown mode: ${mode}`);
   }
-  return findings.sort((a, b) => a.index - b.index);
+  return findings.toSorted((a, b) => a.index - b.index);
 }
 
 function runCli(filePath, mode) {
