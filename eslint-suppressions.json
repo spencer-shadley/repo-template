@@ -1,9 +1,4 @@
 {
-  "packages/adoption-shell/src/delivery-measurement.ts": {
-    "unicorn/no-chained-comparison": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/src/local-ci-contract-v2.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
