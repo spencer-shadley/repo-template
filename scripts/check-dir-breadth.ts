@@ -118,7 +118,7 @@ function walk(
 }
 
 function allowlistCap(rel: string, cfg: DirBreadthConfig): AllowlistCapResult | null {
-  const row = cfg.allowlist.find((a) => (a.path ?? "").replace(/\\/g, "/") === rel);
+  const row = cfg.allowlist.find((a) => (a.path ?? "").replaceAll("\\", "/") === rel);
   if (!row) return null;
   const max = Number(row.maxFiles);
   return {
@@ -144,7 +144,7 @@ function main(): void {
   for (const r of cfg.roots) {
     const abs = join(root, r);
     if (!existsSync(abs) || !statSync(abs).isDirectory()) continue;
-    walk(abs, r.replace(/\\/g, "/"), cfg, hits);
+    walk(abs, r.replaceAll("\\", "/"), cfg, hits);
   }
 
   const violations: string[] = [];

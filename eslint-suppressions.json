@@ -7,11 +7,6 @@
       "count": 1
     }
   },
-  "scripts/check-dir-breadth.ts": {
-    "unicorn/prefer-string-replace-all": {
-      "count": 2
-    }
-  },
   "scripts/check-issue-template-intake.ts": {
     "sonarjs/super-linear-regex": {
       "count": 3
