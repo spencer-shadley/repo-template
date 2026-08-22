@@ -18,18 +18,18 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const LEDGER_PATH = ".ops/proof-of-detection-plant-ledger.json";
 
-export interface DetectionProofFixture {
+interface DetectionProofFixture {
   readonly path: string;
   readonly description: string;
   readonly expectation: string;
 }
 
-export interface DetectionProof {
+interface DetectionProof {
   readonly exempt?: string;
   readonly fixture?: DetectionProofFixture;
 }
 
-export interface CommandDeclaration {
+interface CommandDeclaration {
   readonly name: string;
   readonly executable: string;
   readonly args: readonly string[];
@@ -41,11 +41,11 @@ export interface CommandDeclaration {
   readonly detectionProof: DetectionProof;
 }
 
-export interface LocalCiContractV3Like {
+interface LocalCiContractV3Like {
   readonly commands: Readonly<Record<string, CommandDeclaration>>;
 }
 
-export interface OutcomeRecord {
+interface OutcomeRecord {
   readonly schemaId: string;
   readonly schemaVersion: string;
   readonly contractId: string;
@@ -57,7 +57,7 @@ export interface OutcomeRecord {
   readonly recordedAt: string;
 }
 
-export interface SummaryRecord {
+interface SummaryRecord {
   readonly counts: {
     readonly pass: number;
     readonly fail: number;
@@ -134,7 +134,7 @@ function writeLedger(targetRoot: string, ledger: Record<string, { readonly plant
 
 // Self-heal: delete any planted path left behind by a crashed prior run and clear
 // its ledger entry. Safe to call at the start of every invocation.
-export function restoreOrphans(
+function restoreOrphans(
   targetRoot: string,
   { stderr = console.error }: { readonly stderr?: (line: string) => void } = {},
 ): string[] {
@@ -249,7 +249,7 @@ function executeProofForCommand(
 
 // `bytesForFixture` resolves the known-bad content to plant: a function so callers can
 // keep fixture bytes wherever fits the contract (checked-in file, inline buffer, ...).
-export function runDetectionProofs(
+function runDetectionProofs(
   contract: LocalCiContractV3Like,
   {
     root: targetRoot,
@@ -269,7 +269,7 @@ export function runDetectionProofs(
   return results;
 }
 
-export function summarizeDetectionProofs(results: readonly OutcomeRecord[]): SummaryRecord {
+function summarizeDetectionProofs(results: readonly OutcomeRecord[]): SummaryRecord {
   const counts = { pass: 0, fail: 0, skipped: 0, "could-not-execute": 0 };
   for (const row of results) counts[row.outcome] += 1;
   const metaGateFailed = counts.fail > 0 || counts["could-not-execute"] > 0;

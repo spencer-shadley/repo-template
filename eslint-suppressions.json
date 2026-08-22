@@ -8,9 +8,6 @@
     }
   },
   "scripts/check-runtime-artifact-registry.ts": {
-    "unicorn/no-exports-in-scripts": {
-      "count": 5
-    },
     "unicorn/no-negated-array-predicate": {
       "count": 3
     },
@@ -37,9 +34,6 @@
     "unicorn/no-declarations-before-early-exit": {
       "count": 1
     },
-    "unicorn/no-exports-in-scripts": {
-      "count": 8
-    },
     "unicorn/no-negated-array-predicate": {
       "count": 2
     },
@@ -56,14 +50,6 @@
   "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.mjs": {
     "unicorn/no-array-sort": {
       "count": 1
-    },
-    "unicorn/no-exports-in-scripts": {
-      "count": 1
-    }
-  },
-  "scripts/proof-of-detection/run-meta-gate.ts": {
-    "unicorn/no-exports-in-scripts": {
-      "count": 9
     }
   },
   "tools/artifact-build.ts": {

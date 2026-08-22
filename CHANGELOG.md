@@ -16,6 +16,8 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Fixed
 
+- Removed legacy exports from standalone scripts so the shared lint configuration
+  enforces script encapsulation without suppressions. PATCH. Fixes #243.
 - **`@spencer-shadley/repo-quality` resolves Betterleaks host shims outside `PATH`:** the
   secret-scan wrapper checks PATH candidates and the operator's `.local/bin` location, then uses
   the resolved absolute binary; Windows `.cmd` shims run through an explicit `cmd.exe` process
