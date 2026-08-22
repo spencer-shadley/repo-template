@@ -12,6 +12,15 @@ const ENTRY_ROLES = new Set([
     "capability-golden",
 ]);
 const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
+function hasValidatedPayload(value, diagnostics) {
+    return diagnostics.rows.length === 0;
+}
+function hasValidatedInput(value, diagnostics) {
+    return diagnostics.rows.length === 0;
+}
+function finishPayload(value, diagnostics) {
+    return finish(hasValidatedPayload(value, diagnostics) ? value : undefined, diagnostics);
+}
 function schemaIdentity(record, pointer, expectedId, expectedDigest, diagnostics) {
     diagnostics.string(record["schemaId"], `${pointer}/schemaId`, {
         constant: expectedId,
@@ -138,14 +147,16 @@ function validatePayloadEntry(value, pointer, diagnostics) {
 }
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
-    return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+    return rows.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: rows };
 }
 function validateReleaseEntries(entriesValue, diagnostics) {
     const entries = [];
     if (!diagnostics.array(entriesValue, "/entries", 1, 4096))
         return entries;
     for (const [index, entry] of (entriesValue).entries()) {
-        if (validatePayloadEntry(entry, `/entries/${index}`, diagnostics))
+        if (validatePayloadEntry(entry, `/entries/${String(index)}`, diagnostics))
             entries.push(entry);
     }
     const paths = entries.map((entry) => entry.path);
@@ -155,7 +166,7 @@ function validateReleaseEntries(entriesValue, diagnostics) {
         const key = entry.path.toLowerCase();
         const prior = folded.get(key);
         if (prior !== undefined && prior !== entry.path) {
-            diagnostics.add("E_PATH_CASE_COLLISION", `/entries/${index}/path`, `case-fold collision with ${prior}`);
+            diagnostics.add("E_PATH_CASE_COLLISION", `/entries/${String(index)}/path`, `case-fold collision with ${prior}`);
         }
         else {
             folded.set(key, entry.path);
@@ -171,7 +182,7 @@ export function validateReleasePayloadSetV2(value) {
         "migrationRefs", "entries",
     ];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const rec = value;
     schemaIdentity(rec, "", SCHEMA_IDS.releasePayloadSet, SCHEMA_DIGESTS.releasePayloadSet, diagnostics);
@@ -211,7 +222,7 @@ export function validateReleasePayloadSetV2(value) {
             diagnostics.add("E_CANONICAL_JSON", "/releaseDigest", "release body is not supported canonical JSON");
         }
     }
-    return finish(value, diagnostics);
+    return finishPayload(value, diagnostics);
 }
 function validateConformance(conformance, diagnostics) {
     const fields = ["noLocalIssueTemplateOverride", "noPreCustodyWorkflows"];
@@ -232,7 +243,7 @@ export function validateMaterializerInputV2(value) {
         "capabilities", "requestedBundles", "conformance",
     ];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const rec = value;
     schemaIdentity(rec, "", SCHEMA_IDS.materializerInput, SCHEMA_DIGESTS.materializerInput, diagnostics);
@@ -252,12 +263,12 @@ export function validateMaterializerInputV2(value) {
     if (diagnostics.array(rec["requestedBundles"], "/requestedBundles", 0, 256)) {
         const keys = [];
         for (const [index, reference] of (rec["requestedBundles"]).entries()) {
-            if (validateBundleReference(reference, `/requestedBundles/${index}`, diagnostics)) {
+            if (validateBundleReference(reference, `/requestedBundles/${String(index)}`, diagnostics)) {
                 keys.push(`${reference.id}\u{0}${reference.version}\u{0}${reference.digest}`);
             }
         }
         assertSortedUnique(keys, "/requestedBundles", diagnostics);
     }
     validateConformance(rec["conformance"], diagnostics);
-    return finish(value, diagnostics);
+    return finish(hasValidatedInput(value, diagnostics) ? value : undefined, diagnostics);
 }

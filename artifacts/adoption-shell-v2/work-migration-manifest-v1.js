@@ -56,7 +56,7 @@ function frame(value) {
     return [u64(value.byteLength), value];
 }
 export function archiveAggregateSha256V1(members) {
-    const ordered = [...members].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
+    const ordered = [...members].toSorted((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
     const chunks = [];
     for (const member of ordered) {
         chunks.push(...frame(encoder.encode(member.path)), ...frame(encoder.encode(member.blobSha256)));
@@ -254,18 +254,21 @@ export function validateWorkMigrationManifestV1(value) {
         validManifestBody(body) &&
         manifestSha256 === sha256Bytes(encoder.encode(canonicalizeJson(body))));
 }
-export function createWorkMigrationManifestV1(input) {
-    if (input.unclassifiedCount !== 0)
+function assertNoUnclassifiedEntries(unclassifiedCount) {
+    if (unclassifiedCount !== 0)
         throw new TypeError("unclassifiedCount must be zero");
-    const decisions = [...input.decisions].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
-    const dispositions = [...input.archive.dispositions].sort((left, right) => left.decision < right.decision ? -1 : left.decision > right.decision ? 1 : 0);
-    const members = [...input.archive.members].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
+}
+export function createWorkMigrationManifestV1(input) {
+    assertNoUnclassifiedEntries(input.unclassifiedCount);
+    const decisions = [...input.decisions].toSorted((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
+    const dispositions = [...input.archive.dispositions];
+    const members = [...input.archive.members].toSorted((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
     const body = {
         ...input,
         decisions,
         archive: { ...input.archive, members, dispositions },
-        changedPaths: [...input.changedPaths].sort(),
-        verification: [...input.verification].sort(),
+        changedPaths: [...input.changedPaths].toSorted((left, right) => (left < right ? -1 : left > right ? 1 : 0)),
+        verification: [...input.verification].toSorted((left, right) => (left < right ? -1 : left > right ? 1 : 0)),
     };
     if (!validManifestBody(body)) {
         throw new TypeError("work migration manifest input is invalid");

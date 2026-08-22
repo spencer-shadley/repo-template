@@ -9,7 +9,9 @@ import { Diagnostics, isRecord, SEMVER_PATTERN, } from "./validation-helpers.js"
 const GIT_SHA1_PATTERN = /^[0-9a-f]{40}$/;
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
-    return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+    return rows.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: rows };
 }
 function addNested(diagnostics, prefix, rows) {
     for (const row of rows) {
@@ -118,7 +120,7 @@ export function createTemplateReleaseCandidateV1(value) {
         "semver", "commit", "tree", "payloadSet", "capabilityRegistry", "artifactManifest",
     ];
     if (!diagnostics.object(value, "", [...fields, "releaseEvidence"], fields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const inputRec = value;
     const { payloadResult, capabilityResult, artifactResult, evidenceResult, valid, } = validateCandidateInputs(inputRec, diagnostics);
@@ -127,16 +129,24 @@ export function createTemplateReleaseCandidateV1(value) {
         !capabilityResult.ok ||
         !artifactResult.ok ||
         (evidenceResult !== null && !evidenceResult.ok)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const payloadSet = payloadResult.value;
     const capabilityRegistry = capabilityResult.value;
     const artifactManifest = artifactResult.value;
     const releaseEvidence = evidenceResult?.ok ? evidenceResult.value : undefined;
+    const semver = inputRec["semver"];
+    const commit = inputRec["commit"];
+    const tree = inputRec["tree"];
+    if (typeof semver !== "string" ||
+        typeof commit !== "string" ||
+        typeof tree !== "string") {
+        return finish(undefined, diagnostics);
+    }
     const receiptParams = {
-        semver: inputRec["semver"],
-        commit: inputRec["commit"],
-        tree: inputRec["tree"],
+        semver,
+        commit,
+        tree,
         payloadSet,
         capabilityRegistry,
         artifactManifest,
@@ -161,7 +171,7 @@ export function createReleasePayloadSetV2(value) {
     if (!Array.isArray(value)) {
         const diagnostics = new Diagnostics();
         diagnostics.add("E_TYPE", "", "expected an array of release payload entry drafts");
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const rawEntries = value;
     const entries = rawEntries.map((rawEntry) => {

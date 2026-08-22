@@ -76,7 +76,7 @@ function classificationFixtures(value: unknown): readonly ClassificationFixture[
 function formatsPlugin(): FormatsPlugin {
   const candidate: unknown = require("ajv-formats");
   if (typeof candidate !== "function") throw new TypeError("ajv-formats must export a function");
-  return candidate;
+  return candidate as FormatsPlugin;
 }
 
 const cases = classificationFixtures(parse("fixtures/classification-cases.json"));
@@ -454,7 +454,7 @@ void test("manifest closes live inventory and archive disposition counts/hashes"
 void test("manifest rejects unclassified rows, archive live targets, apply-set drift, and target/reason mismatch", () => {
   const input = manifestInput();
   assert.throws(
-    () => createWorkMigrationManifestV1({ unclassifiedCount: 1 }),
+    () => createWorkMigrationManifestV1({ ...input, unclassifiedCount: 1 as unknown as 0 }),
     /unclassifiedCount must be zero/,
   );
   assert.throws(

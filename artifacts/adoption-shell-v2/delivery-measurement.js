@@ -2,6 +2,10 @@ import { SCHEMA_DIGESTS, SCHEMA_IDS, } from "./contract.js";
 import { DELIVERY_ANTI_GAMING_EXCLUSIONS, DELIVERY_COVERAGE_ERRORS, DELIVERY_COVERAGE_FIELDS, DELIVERY_EVIDENCE_KINDS, DELIVERY_SLI_IDS, DELIVERY_STAGES, } from "./delivery-measurement-contract.js";
 import { bool, exactArray, finish, number, oneOf, ref, schemaIdentity, } from "./delivery-measurement-validation.js";
 import { assertSortedUnique, Diagnostics, } from "./validation-helpers.js";
+function hasValidatedEvent(value, diagnostics) { return diagnostics.rows.length === 0; }
+function hasValidatedDeclaration(value, diagnostics) { return diagnostics.rows.length === 0; }
+function finishEvent(value, diagnostics) { return hasValidatedEvent(value, diagnostics) ? finish(value, diagnostics) : { ok: false, diagnostics: diagnostics.sorted() }; }
+function finishDeclaration(value, diagnostics) { return hasValidatedDeclaration(value, diagnostics) ? finish(value, diagnostics) : { ok: false, diagnostics: diagnostics.sorted() }; }
 const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/;
 function validateTokenUsage(value, pointer, diagnostics) {
     const fields = [
@@ -43,7 +47,7 @@ function validateQualifyingEvidence(value, pointer, diagnostics) {
         : 0;
     if (Array.isArray(value)) {
         for (const [index, row] of value.entries()) {
-            const rowPointer = `${pointer}/qualifyingEvidence/${index}`;
+            const rowPointer = `${pointer}/qualifyingEvidence/${String(index)}`;
             if (diagnostics.object(row, rowPointer, ["kind", "verificationRef"], ["kind", "verificationRef"])) {
                 const rec = row;
                 oneOf(rec["kind"], `${rowPointer}/kind`, DELIVERY_EVIDENCE_KINDS, diagnostics);
@@ -59,7 +63,7 @@ function validateActivityRefs(value, pointer, diagnostics) {
     }
     const refs = [];
     for (const [index, row] of (value).entries()) {
-        if (ref(row, `${pointer}/activityRefs/${index}`, diagnostics))
+        if (ref(row, `${pointer}/activityRefs/${String(index)}`, diagnostics))
             refs.push(row);
     }
     assertSortedUnique(refs, `${pointer}/activityRefs`, diagnostics);
@@ -145,7 +149,7 @@ function validateHumanMessage(value, pointer, workId, diagnostics) {
     if (diagnostics.array(value["relatedRefs"], `${pointer}/relatedRefs`, 0, 128)) {
         const refs = [];
         for (const [index, row] of value["relatedRefs"].entries()) {
-            if (ref(row, `${pointer}/relatedRefs/${index}`, diagnostics))
+            if (ref(row, `${pointer}/relatedRefs/${String(index)}`, diagnostics))
                 refs.push(row);
         }
         assertSortedUnique(refs, `${pointer}/relatedRefs`, diagnostics);
@@ -161,7 +165,7 @@ function validateEventCoverage(value, pointer, diagnostics) {
     if (diagnostics.array(rec["errors"], `${pointer}/errors`, 0, 32)) {
         const errors = [];
         for (const [index, row] of (rec["errors"]).entries()) {
-            if (oneOf(row, `${pointer}/errors/${index}`, DELIVERY_COVERAGE_ERRORS, diagnostics)) {
+            if (oneOf(row, `${pointer}/errors/${String(index)}`, DELIVERY_COVERAGE_ERRORS, diagnostics)) {
                 errors.push(row);
             }
         }
@@ -176,7 +180,7 @@ function validateTokenUsageArray(value, diagnostics) {
         return;
     const ids = [];
     for (const [index, row] of value.entries()) {
-        const id = validateTokenUsage(row, `/tokenUsage/${index}`, diagnostics);
+        const id = validateTokenUsage(row, `/tokenUsage/${String(index)}`, diagnostics);
         if (id !== null)
             ids.push(id);
     }
@@ -187,7 +191,7 @@ function validateSloDeltasArray(value, diagnostics) {
         return;
     const ids = [];
     for (const [index, row] of value.entries()) {
-        const id = validateSloDelta(row, `/sloDeltas/${index}`, diagnostics);
+        const id = validateSloDelta(row, `/sloDeltas/${String(index)}`, diagnostics);
         if (id !== null)
             ids.push(id);
     }
@@ -198,7 +202,7 @@ function validateHumanMessagesArray(value, workId, diagnostics) {
         return;
     const ids = [];
     for (const [index, row] of value.entries()) {
-        const id = validateHumanMessage(row, `/humanMessages/${index}`, workId, diagnostics);
+        const id = validateHumanMessage(row, `/humanMessages/${String(index)}`, workId, diagnostics);
         if (id !== null)
             ids.push(id);
     }
@@ -212,7 +216,7 @@ export function validateDeliveryEventV1(value) {
         "tokenUsage", "outcome", "sloDeltas", "humanMessages", "coverage",
     ];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finishEvent(value, diagnostics);
     }
     schemaIdentity(value, SCHEMA_IDS.deliveryEvent, SCHEMA_DIGESTS.deliveryEvent, diagnostics);
     diagnostics.string(value["eventKind"], "/eventKind", {
@@ -230,7 +234,7 @@ export function validateDeliveryEventV1(value) {
     validateSloDeltasArray(value["sloDeltas"], diagnostics);
     validateHumanMessagesArray(value["humanMessages"], value["workId"], diagnostics);
     validateEventCoverage(value["coverage"], "/coverage", diagnostics);
-    return finish(value, diagnostics);
+    return finishEvent(value, diagnostics);
 }
 function validateClass(value, pointer, diagnostics) {
     const fields = ["classId", "description", "evidenceKinds", "aggregationMode", "weight"];
@@ -243,7 +247,7 @@ function validateClass(value, pointer, diagnostics) {
     if (diagnostics.array(value["evidenceKinds"], `${pointer}/evidenceKinds`, 1, 4)) {
         const kinds = [];
         for (const [index, row] of value["evidenceKinds"].entries()) {
-            if (oneOf(row, `${pointer}/evidenceKinds/${index}`, DELIVERY_EVIDENCE_KINDS, diagnostics)) {
+            if (oneOf(row, `${pointer}/evidenceKinds/${String(index)}`, DELIVERY_EVIDENCE_KINDS, diagnostics)) {
                 kinds.push(row);
             }
         }
@@ -293,7 +297,7 @@ function validateDeclarationSlis(value, pointer, diagnostics) {
         return;
     const ids = [];
     for (const [index, row] of (value).entries()) {
-        const rowPointer = `${pointer}/${index}`;
+        const rowPointer = `${pointer}/${String(index)}`;
         const sliFields = [
             "id", "scopes", "targetRef", "budgetRef", "windowRef",
             "exceptionPolicyRef", "revisitTrigger", "centralRollupRef",
@@ -338,7 +342,7 @@ export function validateDeliveryDeclarationV1(value) {
         "antiGamingExclusions", "tokenAttribution", "slis", "eventCapture",
     ];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finishDeclaration(value, diagnostics);
     }
     schemaIdentity(value, SCHEMA_IDS.deliveryDeclaration, SCHEMA_DIGESTS.deliveryDeclaration, diagnostics);
     diagnostics.string(value["declarationKind"], "/declarationKind", {
@@ -349,7 +353,7 @@ export function validateDeliveryDeclarationV1(value) {
     if (diagnostics.array(value["meaningfulClasses"], "/meaningfulClasses", 1, 128)) {
         const ids = [];
         for (const [index, row] of value["meaningfulClasses"].entries()) {
-            const id = validateClass(row, `/meaningfulClasses/${index}`, diagnostics);
+            const id = validateClass(row, `/meaningfulClasses/${String(index)}`, diagnostics);
             if (id !== null)
                 ids.push(id);
         }
@@ -359,5 +363,5 @@ export function validateDeliveryDeclarationV1(value) {
     validateDeclarationTokenAttribution(value["tokenAttribution"], "/tokenAttribution", diagnostics);
     validateDeclarationSlis(value["slis"], "/slis", diagnostics);
     validateDeclarationEventCapture(value["eventCapture"], "/eventCapture", diagnostics);
-    return finish(value, diagnostics);
+    return finishDeclaration(value, diagnostics);
 }

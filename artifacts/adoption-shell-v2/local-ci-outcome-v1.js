@@ -15,7 +15,12 @@ const NOT_EXECUTED_OUTCOMES = new Set(["skipped", "could-not-execute"]);
 const UTC_INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/;
 function finish(value, diagnostics) {
     const sorted = diagnostics.sorted();
-    return sorted.length === 0 ? { ok: true, value } : { ok: false, diagnostics: sorted };
+    return sorted.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: sorted };
+}
+function hasValidatedShape(value, diagnostics) {
+    return diagnostics.rows.length === 0;
 }
 function validateExecutedOutcome(exitCode, reason, diagnostics) {
     if (typeof exitCode !== "number" || !Number.isInteger(exitCode)) {
@@ -34,10 +39,10 @@ function validateNotExecutedOutcome(exitCode, reason, diagnostics) {
     }
 }
 function validateOutcomePayload(outcome, outcomeValid, exitCode, reason, diagnostics) {
-    if (outcomeValid && EXECUTED_OUTCOMES.has(outcome)) {
+    if (outcomeValid && typeof outcome === "string" && EXECUTED_OUTCOMES.has(outcome)) {
         validateExecutedOutcome(exitCode, reason, diagnostics);
     }
-    else if (outcomeValid && NOT_EXECUTED_OUTCOMES.has(outcome)) {
+    else if (outcomeValid && typeof outcome === "string" && NOT_EXECUTED_OUTCOMES.has(outcome)) {
         validateNotExecutedOutcome(exitCode, reason, diagnostics);
     }
     else {
@@ -63,7 +68,7 @@ export function validateLocalCiOutcomeV1(value) {
         "recordedAt",
     ];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_OUTCOME_V1_SCHEMA_ID });
     diagnostics.string(value["schemaVersion"], "/schemaVersion", { constant: LOCAL_CI_OUTCOME_V1_SCHEMA_VERSION });
@@ -82,7 +87,7 @@ export function validateLocalCiOutcomeV1(value) {
         diagnostics.add("E_FORMAT", "/recordedAt", "must be a UTC RFC 3339 instant");
     }
     validateOutcomePayload(outcome, outcomeValid, value["exitCode"], value["reason"], diagnostics);
-    return finish(value, diagnostics);
+    return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }
 export function isNotExecutedOutcomeV1(outcome) {
     return NOT_EXECUTED_OUTCOMES.has(outcome);

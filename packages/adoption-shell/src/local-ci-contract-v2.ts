@@ -174,7 +174,9 @@ function validateCommandsV2(commandsRaw: unknown, diagnostics: Diagnostics): voi
     diagnostics.add("E_TYPE", "/commands", "expected object");
     return;
   }
-  const commandIds = Object.keys(commandsRaw).toSorted((left, right) => left.localeCompare(right));
+  const commandIds = Object.keys(commandsRaw).toSorted((left, right) =>
+    (left < right ? -1 : left > right ? 1 : 0),
+  );
   if (commandIds.length === 0) {
     diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
   }

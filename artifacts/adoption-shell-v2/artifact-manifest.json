@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "a4ec7a27d74a1ecd8ec882e5ac5f6f89bad573ab71c8a18dadd2be41e4502ee5",
+  "artifactDigest": "d73e9f5d72a338a72b4a15279a00ee6edbfb9ab19c13e23d3c18bdeeb6755c44",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -21,15 +21,15 @@
       "path": "packages/adoption-shell/src/canonical-json.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "38f1bdb08356ba52564b3d671e9f4f197a0ec6bb50f4e7201209ae1980146e00",
-      "bytes": 2799
+      "sha256": "cea23fdb72dfe3eac82857204b8edd86d3cac1a8e64d6006335c1e8d2d267b71",
+      "bytes": 2701
     },
     {
       "path": "packages/adoption-shell/src/capability-bundles.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "867f1c01213aa686e92b28eb4f4589ed425167865d1a0c73d71e7196d0ce8577",
-      "bytes": 12437
+      "sha256": "6eb864d3188034b95e94990c176015babd686aa7ace888edf0dd562006157ffc",
+      "bytes": 12788
     },
     {
       "path": "packages/adoption-shell/src/contract.ts",
@@ -49,22 +49,22 @@
       "path": "packages/adoption-shell/src/delivery-measurement-validation.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "07d563a5b4c9a2e106840fc25921d8ea38660c36c2a46ee3e04b2300b19c2068",
-      "bytes": 2930
+      "sha256": "526123604ee551ff174084491fa2aeefb92c7a3f4993df0e013c1aa421abde08",
+      "bytes": 2938
     },
     {
       "path": "packages/adoption-shell/src/delivery-measurement.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a8a526e10ba9cc29038ad357c378ddf0352a1352de9c1b44c1ab469cee2a243d",
-      "bytes": 18067
+      "sha256": "8a40fccda0081fc0d80be1f6df31a147248fbdb1a5fddb36e03c5a1bdee78a1a",
+      "bytes": 18819
     },
     {
       "path": "packages/adoption-shell/src/digest.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f6c50e977d883e187d89a8b8916142170f0fdb68961118bdf379f10dc01c4940",
-      "bytes": 2304
+      "sha256": "9e86bbbf79ad8553e153d49b69be3b48aeab79c752df457c6b05f36d2bdec50c",
+      "bytes": 2308
     },
     {
       "path": "packages/adoption-shell/src/index.ts",
@@ -77,36 +77,36 @@
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "3f3b668d09023c09c6069ed5f36ac04e6e5b1aaee7b7e79cc51defeb16977e1a",
-      "bytes": 11815
+      "sha256": "d947a1273bea6dc14da314bc1e738b611cf00a5394cc1b93249d4d09d8f83505",
+      "bytes": 12126
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v3.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2d8a24d43c106e4126c87138f4461a1a44287e4a374c467449a3e6144815f555",
-      "bytes": 13970
+      "sha256": "e3d82958327c9f90b608838a4e4014b8b5efe5159172329ea512219d7e502676",
+      "bytes": 14356
     },
     {
       "path": "packages/adoption-shell/src/local-ci-outcome-v1.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "df3d69148ecb328ed2b13120408c833806be9dfb6e35c04eba18b1b6af636412",
-      "bytes": 5444
+      "sha256": "5fb61b5a8c01fd6bd917a9895a2b404f4996705c01b7ded91512016aa87ee58a",
+      "bytes": 5731
     },
     {
       "path": "packages/adoption-shell/src/materialize.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "45161ef7d1b22bb48a6840ce524d1d3222abdc67bf959c708534ec14052374d6",
-      "bytes": 4770
+      "sha256": "1df14aca3506aacdc3a6778625982e8a7ddbe929747ac5948c73822791802200",
+      "bytes": 4778
     },
     {
       "path": "packages/adoption-shell/src/path-policy.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6d44a17d7efa785389705b11d775e8a3fa03b194cdb558f7c8f3466ac8dbc0e4",
-      "bytes": 2583
+      "sha256": "71dd554c42bd83bf6d257c235f61d84740fc783ec4c51175dbafa1bdf815d16b",
+      "bytes": 2656
     },
     {
       "path": "packages/adoption-shell/src/plan-record-v1.ts",
@@ -119,64 +119,64 @@
       "path": "packages/adoption-shell/src/release-candidate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "0165222082bd71399ffeacd0f3e3b7a33064819f2a35e6d21d79987b03e64293",
-      "bytes": 10239
+      "sha256": "6b0f70c95a9739e9d6fa11e97610fd388dc1ccf91bd9ab5f65408adf4a3d5c83",
+      "bytes": 10405
     },
     {
       "path": "packages/adoption-shell/src/release-closure.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "386ff0fad805db4924c127fc542a21cf11badd1c5171471aba82de417db1c7a2",
-      "bytes": 6298
+      "sha256": "0736b702c6bc627e4007f2a54450b025b90426138dab777bf2b5133255d56721",
+      "bytes": 6334
     },
     {
       "path": "packages/adoption-shell/src/release-evidence.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "8b7db4dd076fae015d733d5d1625de1eec2e845b3b34680b609f8962efcfaa3f",
-      "bytes": 4402
+      "sha256": "8b3b5794af330747c57e19d3f00ca73d2ea55118a48f6675b4bd36886bc8024a",
+      "bytes": 4622
     },
     {
       "path": "packages/adoption-shell/src/release-receipt.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "883bc0f23ba62682f2e1bffb5639c8fd80b9d7833bb47a06fefe783d71d5b13a",
-      "bytes": 12884
+      "sha256": "86040900001643ee1a30da020d4e0e068103e817b02057b20d04ee289b5c54a8",
+      "bytes": 13272
     },
     {
       "path": "packages/adoption-shell/src/validate-documentation.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "deb5af0602e2e53eae530da09803de02e6a011fbb025d95f67e76558c95d7b65",
-      "bytes": 3396
+      "sha256": "61bfa812c882957e59ba927edb2a8a26e72749e5885f1a5d9a0f0a1a48bdd78e",
+      "bytes": 3400
     },
     {
       "path": "packages/adoption-shell/src/validate-manifests.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "b73400d3a24af74f9a9548bcf0851c810ce76e1ceea5d8586acf2787e295977e",
-      "bytes": 17103
+      "sha256": "3dab5546a869360a64815fd7a052e2a9bd1370cf26a1bf655f3552487f7e5217",
+      "bytes": 17902
     },
     {
       "path": "packages/adoption-shell/src/validate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d23103e2f09485c048d67c3b6d45b1fa00b9c527e3b18e3acf07822b841cc5dc",
-      "bytes": 12494
+      "sha256": "ba2fa573be187707fdf19fb9b1ee4aa8861c5eee9e75397e5ef49fffc3b0073a",
+      "bytes": 13057
     },
     {
       "path": "packages/adoption-shell/src/validation-helpers.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "3945e13e40fe1f50e4e6ca41e4526412d12c71b6647a4de0295b05cbb9bcca1f",
-      "bytes": 4492
+      "sha256": "fb058211c14f39fba07e11908b3679d5e63b9ea805f1fa1d54c410f386801178",
+      "bytes": 4537
     },
     {
       "path": "packages/adoption-shell/src/work-migration-manifest-v1.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7c745c328e277237fb0df264cce3fcdea0ad7797d16a2ba52a3316902dca3861",
-      "bytes": 14005
+      "sha256": "f640801e21c838021c82e02ec2d89209a2d26e2b8067c471b466a754b59dac83",
+      "bytes": 14189
     }
   ],
   "schemas": [
@@ -274,8 +274,8 @@
       "path": "canonical-json.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "9a367ecfaedbe8f2d3160dd981434f9a8b9197ca52ce7e8e1a52158732cd4c57",
-      "bytes": 2821
+      "sha256": "c9d37e4189eac697a25633936ebcab48560f4442ff55865fe3454542f2f5ec90",
+      "bytes": 2712
     },
     {
       "path": "capability-bundles.d.ts",
@@ -288,8 +288,8 @@
       "path": "capability-bundles.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "c4bd49e443fa51496fdf430ced0c91d34923994d970756c30c3a24443330a65f",
-      "bytes": 11476
+      "sha256": "feef76d1e7c6280b01c6984337a98f66ac3b40ba9f634e0c471ace701ff1889f",
+      "bytes": 11787
     },
     {
       "path": "contract.d.ts",
@@ -330,8 +330,8 @@
       "path": "delivery-measurement-validation.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "fab3af0ce95e0ecc478ae25830bc5b318d74110b31dc089bbc3d4c18b2571ed1",
-      "bytes": 2604
+      "sha256": "eb4944f19bc810f58fcfa3f12ab3ee942943894e8a27118116474771a8f4a644",
+      "bytes": 2612
     },
     {
       "path": "delivery-measurement.d.ts",
@@ -344,8 +344,8 @@
       "path": "delivery-measurement.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "28d2fd8c8e9d69594349e3030c6eb953f61798202ac243e20ab80cc31263d730",
-      "bytes": 17453
+      "sha256": "f1274f73c98329539442fa856cbf1b4a5d91c0cd7cbeedcfada25aaf4ebad130",
+      "bytes": 18103
     },
     {
       "path": "digest.d.ts",
@@ -358,8 +358,8 @@
       "path": "digest.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e9e367c6817dc38dc0a21e17730fd8f32f178e11bca3df3e4388c6d36790edcf",
-      "bytes": 2100
+      "sha256": "0245a5a906ebc01d3cbebe1efe2956ffd8643d84eaa60db4e1cc49990e6cde70",
+      "bytes": 2104
     },
     {
       "path": "index.d.ts",
@@ -386,8 +386,8 @@
       "path": "local-ci-contract-v2.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "ed9f3c04a9174f2272870d0848b483d1db8ff0e6be236764c4b2db90914f7a1a",
-      "bytes": 9145
+      "sha256": "7824871461f0d5082ef698e7bf2d404e13bc4780779f890f30e6ed1e79a6a12b",
+      "bytes": 9416
     },
     {
       "path": "local-ci-contract-v3.d.ts",
@@ -400,8 +400,8 @@
       "path": "local-ci-contract-v3.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "996678d19bdcea55a5478cf60698fd669bc87ba680351839a32763e978331eae",
-      "bytes": 11047
+      "sha256": "da07840a98ff82452b02b7a1d0e0941864983909a963d0acdec2b03b7f9b30ac",
+      "bytes": 11381
     },
     {
       "path": "local-ci-outcome-v1.d.ts",
@@ -414,8 +414,8 @@
       "path": "local-ci-outcome-v1.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f43190d9deafb5ee1659e60be2037c05b1fc1287b985a1fbfae43331d5197dba",
-      "bytes": 4279
+      "sha256": "227b62713e0a7d720f62d425e34e3de67d214a6c6c44feed124e44b808338cab",
+      "bytes": 4529
     },
     {
       "path": "materialize.d.ts",
@@ -428,8 +428,8 @@
       "path": "materialize.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d70744bee68846fa1ecda1506b0887284672c49a5d0841a6b4fba930cc993440",
-      "bytes": 4579
+      "sha256": "20d1baa11cd57f01fb71d0fbd76cb1d126f98427a0b89e4b869d7b44cdfacc95",
+      "bytes": 4587
     },
     {
       "path": "path-policy.d.ts",
@@ -442,8 +442,8 @@
       "path": "path-policy.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "310979d2b9a27b02e0d68a3641f7176483e3f86a721e5ea5d9f6d494080c436c",
-      "bytes": 2534
+      "sha256": "d1e8a85abab3df508387eff7aa12f3cfeb7acafe9f40b56ef11a2f63d409084d",
+      "bytes": 2613
     },
     {
       "path": "plan-record-v1.d.ts",
@@ -470,8 +470,8 @@
       "path": "release-candidate.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "b9455e1cdd2fc3df00343d172c40232b1f118e57e4a3f4087e544dfa97ecd576",
-      "bytes": 9272
+      "sha256": "01d2cd3385b96c8f16e4b44136305e6130ab25d1c04a21209cc115ab5b4a743c",
+      "bytes": 9543
     },
     {
       "path": "release-closure.d.ts",
@@ -484,8 +484,8 @@
       "path": "release-closure.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "02283d29006ea7bde62a10a572ab8b8f67efb7025428c9fbdfcc3fd85d5da849",
-      "bytes": 5265
+      "sha256": "373820efce5cd6bbaa650b75667a4ee33c22cff96dd33923300ee668b02f121f",
+      "bytes": 5312
     },
     {
       "path": "release-evidence.d.ts",
@@ -498,8 +498,8 @@
       "path": "release-evidence.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "4ad9bdd9ac9d6b9f3a4e6d63e251ec5e68af3e82d5aaa85c71f3ac668b2062e4",
-      "bytes": 4069
+      "sha256": "33d8ac285f4f542230b71dc20b5245fa5da7d3350da231bc6ccb1ee14cde4bcf",
+      "bytes": 4257
     },
     {
       "path": "release-receipt.d.ts",
@@ -512,8 +512,8 @@
       "path": "release-receipt.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e06dbeed41b46cd8e649c16c48a64037f526098c571781bacc59f2c506044b50",
-      "bytes": 12376
+      "sha256": "f1ca78a5b4c7d07fef350816c35447c199805f30650142cca27d21cd7fda8907",
+      "bytes": 12786
     },
     {
       "path": "validate-documentation.d.ts",
@@ -526,8 +526,8 @@
       "path": "validate-documentation.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "1a3daa37def50495702dcace3f4653629020131d5db83da7cf67acf24322bcc3",
-      "bytes": 3025
+      "sha256": "3880e50d221ddf22f142ef0242ac7fdab655eb8559149771e13bc40410ec90c7",
+      "bytes": 3029
     },
     {
       "path": "validate-manifests.d.ts",
@@ -540,8 +540,8 @@
       "path": "validate-manifests.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "062d67c208fa7d004e78cc7bd18e54491d5c111420d5d8ec35caa17633dd8b1d",
-      "bytes": 16560
+      "sha256": "403c36d0a086baf959736d4e546201899cad5df5e26772b031456a35b57fc708",
+      "bytes": 17241
     },
     {
       "path": "validate.d.ts",
@@ -554,8 +554,8 @@
       "path": "validate.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "829e69bcd482a1da14f2f284b2677b76d4afeae10b652cdbd7a9909198577b1a",
-      "bytes": 12011
+      "sha256": "f64bc05c15f9b9de7fc6faefeb92f766e9ac5bbdd791b61cacfde0bfdadca5cd",
+      "bytes": 12469
     },
     {
       "path": "validation-helpers.d.ts",
@@ -568,8 +568,8 @@
       "path": "validation-helpers.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7fa3374381bb70274f3268f2e1bad91f32d446d7e4efa084f825bb35e612aa59",
-      "bytes": 4137
+      "sha256": "ba2a8803f2eb59267e95f63a4b91b6019f5b89db060c954bf2325df73483e4da",
+      "bytes": 4182
     },
     {
       "path": "work-migration-manifest-v1.d.ts",
@@ -582,8 +582,8 @@
       "path": "work-migration-manifest-v1.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "107f3d420b394534d9579c90a2e90dc6036dbc19dea39eb5066cc003902a90a4",
-      "bytes": 11301
+      "sha256": "752f1dcf272c4a7d4520cb326295fbd7b34388484afeb65228d877d24fbfa75c",
+      "bytes": 11451
     }
   ],
   "fixtures": [
@@ -920,15 +920,15 @@
       "path": "eslint.config.mjs",
       "kind": "file",
       "mode": "100644",
-      "sha256": "bf971a8f0b6a6df19e169cdfdfc5098a145b7d56315cf662b14219f56a3a7429",
-      "bytes": 1259
+      "sha256": "e7ffe0f16e846335474b724d99dff944d3e920a78470f0a9f6464e3675c60a2c",
+      "bytes": 1945
     },
     {
       "path": "local-ci.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "ebf9421a03efe466cf4cc8c1f54bc22dcc511c51b66983d8f084f3cb21581d11",
-      "bytes": 794
+      "sha256": "d95800bb3698cc90abcbd0a28d5399324f4d3cab6020df9326c744195962a269",
+      "bytes": 892
     },
     {
       "path": "plans/drafts/000-smoke.md",
@@ -1111,7 +1111,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6240e9f4430b7e780dde4aa01cead513474d56138a85dc850c9f9b076100b24b",
+      "sha256": "1f6a2ab7e2987c2a98eb88f32072bad24d5b2ba7f4b2a8c9d334a40786323cf2",
       "bytes": 876
     },
     {
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "d2db69d9d5eb668486dc636b2e3036ca8206260647960e0c23c568835886380c"
+  "manifestDigest": "c63c62664af3caab32a18354418163c6420d2a1046debbd1495f28fd618ba92e"
 }

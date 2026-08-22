@@ -5,7 +5,12 @@ const REVIEW_URL_PATTERN = /^https:\/\/github\.com\/spencer-shadley\/repo-templa
 const RECEIPT_URL_PATTERN = /^https:\/\/github\.com\/spencer-shadley\/[A-Za-z0-9_.-]+\/(?:issues|pull)\/[1-9][0-9]*#(?:issuecomment|pullrequestreview)-[1-9][0-9]*$/;
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
-    return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+    return rows.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: rows };
+}
+function hasValidatedShape(value, diagnostics) {
+    return diagnostics.rows.length === 0;
 }
 function validateNamedRecord(value, pointer, diagnostics, visit) {
     if (!isRecord(value)) {
@@ -57,7 +62,7 @@ export function validateTemplateReleaseEvidenceV1(value) {
         "review", "canaryReceipts", "checks", "publicationReadback", "rollback",
     ];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     validateEvidenceReview(value["review"], diagnostics);
     validateNamedRecord(value["canaryReceipts"], "/canaryReceipts", diagnostics, (_name, entry, pointer) => {
@@ -87,5 +92,5 @@ export function validateTemplateReleaseEvidenceV1(value) {
         });
     }
     validateEvidenceRollback(value["rollback"], diagnostics);
-    return finish(value, diagnostics);
+    return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }

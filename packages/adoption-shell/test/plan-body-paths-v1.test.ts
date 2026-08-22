@@ -53,7 +53,7 @@ function parseSchema(name: string): AnySchema {
 function formatsPlugin(): FormatsPlugin {
   const candidate: unknown = require("ajv-formats");
   if (typeof candidate !== "function") throw new TypeError("ajv-formats must export a function");
-  return candidate;
+  return candidate as FormatsPlugin;
 }
 
 const planExample = record(parse("plan-record.example.json"), "plan record example");
@@ -120,7 +120,7 @@ void test("canonical live plan bodies reject indexes, empty names, and sidecars"
     assert.equal(validatePlanRecordV1(record), false, `${path}: PlanRecord runtime`);
     assert.equal(validatePlanSchema(record), false, `${path}: PlanRecord schema`);
     const body = livePathCandidate(path);
-    assert.throws(() => createWorkMigrationManifestV1(body), /input is invalid/, path);
+    assert.throws(() => createWorkMigrationManifestV1(body as unknown as Parameters<typeof createWorkMigrationManifestV1>[0]), /input is invalid/, path);
     assert.equal(validateWorkMigrationManifestV1(signed(body)), false, `${path}: manifest runtime`);
     assert.equal(validateManifestSchema(signed(body)), false, `${path}: manifest schema`);
   }
@@ -141,7 +141,7 @@ void test("canonical archive plan bodies reject indexes, empty names, and sideca
   ];
   for (const path of invalid) {
     const body = archivePathCandidate(path);
-    assert.throws(() => createWorkMigrationManifestV1(body), /input is invalid/, path);
+    assert.throws(() => createWorkMigrationManifestV1(body as unknown as Parameters<typeof createWorkMigrationManifestV1>[0]), /input is invalid/, path);
     assert.equal(validateWorkMigrationManifestV1(signed(body)), false, `${path}: runtime`);
     assert.equal(validateManifestSchema(signed(body)), false, `${path}: schema`);
   }
@@ -155,7 +155,7 @@ void test("canonical plan bodies preserve version and incident slug shapes", () 
     const record = { ...planExample, sourcePath: path };
     assert.equal(validatePlanRecordV1(record), true, `${path}: runtime`);
     assert.equal(validatePlanSchema(record), true, `${path}: schema`);
-    const manifest = createWorkMigrationManifestV1(livePathCandidate(path));
+    const manifest = createWorkMigrationManifestV1(livePathCandidate(path) as unknown as Parameters<typeof createWorkMigrationManifestV1>[0]);
     assert.equal(validateWorkMigrationManifestV1(manifest), true);
     assert.equal(validateManifestSchema(manifest), true);
   }
@@ -163,7 +163,7 @@ void test("canonical plan bodies preserve version and incident slug shapes", () 
     "plans/archive/004-adopt-repo-template-v2.2.0-overlay-migration.md",
     "plans/archive/294-_incident-manager-timeout-plan.md",
   ]) {
-    const manifest = createWorkMigrationManifestV1(archivePathCandidate(path));
+    const manifest = createWorkMigrationManifestV1(archivePathCandidate(path) as unknown as Parameters<typeof createWorkMigrationManifestV1>[0]);
     assert.equal(validateWorkMigrationManifestV1(manifest), true);
     assert.equal(validateManifestSchema(manifest), true);
   }

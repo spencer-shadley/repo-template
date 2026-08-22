@@ -41,7 +41,7 @@ export function exactArray(value, pointer, expected, diagnostics) {
     if (!diagnostics.array(value, pointer, expected.length, expected.length))
         return;
     for (const [index, row] of value.entries())
-        oneOf(row, `${pointer}/${index}`, expected, diagnostics);
+        oneOf(row, `${pointer}/${String(index)}`, expected, diagnostics);
     if (value.every((row) => typeof row === "string")) {
         const actual = value;
         assertSortedUnique(actual, pointer, diagnostics);

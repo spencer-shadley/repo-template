@@ -4,11 +4,6 @@
       "count": 1
     }
   },
-  "packages/adoption-shell/src/digest.ts": {
-    "unicorn/prefer-simple-sort-comparator": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/src/local-ci-contract-v2.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 1
@@ -34,11 +29,6 @@
       "count": 2
     }
   },
-  "packages/adoption-shell/src/work-migration-manifest-v1.ts": {
-    "unicorn/prefer-simple-sort-comparator": {
-      "count": 3
-    }
-  },
   "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
     "@typescript-eslint/unbound-method": {
       "count": 1
@@ -57,28 +47,9 @@
       "count": 1
     }
   },
-  "packages/adoption-shell/test/local-ci-contract-v2.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 5
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 20
-    }
-  },
-  "packages/adoption-shell/test/local-ci-contract-v3.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 3
-    }
-  },
   "packages/adoption-shell/test/plan-body-paths-v1.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 3
-    },
-    "unicorn/prefer-simple-sort-comparator": {
-      "count": 1
     }
   },
   "packages/adoption-shell/test/plan-record-v1.test.ts": {
@@ -92,14 +63,6 @@
   "packages/adoption-shell/test/release-candidate.test.ts": {
     "unicorn/no-array-reverse": {
       "count": 1
-    }
-  },
-  "packages/adoption-shell/test/release-receipt.test.ts": {
-    "@typescript-eslint/no-explicit-any": {
-      "count": 2
-    },
-    "@typescript-eslint/no-unsafe-member-access": {
-      "count": 12
     }
   },
   "packages/repo-quality/index.d.ts": {
@@ -259,9 +222,6 @@
     "max-lines": {
       "count": 1
     },
-    "unicorn/no-array-sort": {
-      "count": 5
-    },
     "unicorn/prefer-type-error": {
       "count": 2
     }
@@ -272,18 +232,9 @@
     },
     "sonarjs/super-linear-regex": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 1
     }
   },
   "tools/contract-fixtures-data.ts": {
-    "sonarjs/no-alphabetical-sort": {
-      "count": 2
-    },
-    "unicorn/no-array-sort": {
-      "count": 2
-    },
     "unicorn/require-array-sort-compare": {
       "count": 2
     }
@@ -294,12 +245,6 @@
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 3
-    },
-    "unicorn/prefer-simple-sort-comparator": {
-      "count": 3
     },
     "unicorn/prefer-string-raw": {
       "count": 1
@@ -315,12 +260,6 @@
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 12
     },
-    "sonarjs/no-alphabetical-sort": {
-      "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 1
-    },
     "unicorn/prefer-string-raw": {
       "count": 2
     },
@@ -334,9 +273,6 @@
   "tools/release-payload.ts": {
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 3
-    },
-    "unicorn/no-array-sort": {
-      "count": 1
     }
   },
   "tools/verify-template-self.ts": {
@@ -348,9 +284,6 @@
     },
     "sonarjs/hashing": {
       "count": 1
-    },
-    "unicorn/no-array-sort": {
-      "count": 2
     },
     "unicorn/no-for-each": {
       "count": 1

@@ -19,7 +19,7 @@ function validatePath(value, pointer, diagnostics) {
             ? "local .github/ISSUE_TEMPLATE overrides are forbidden"
             : workflow
                 ? "pre-custody .github/workflows entries are forbidden"
-                : `portable path rejected: ${failure}`);
+                : `portable path rejected: ${String(failure)}`);
         return false;
     }
     return true;
@@ -46,7 +46,7 @@ function validatePaths(value, pointer, diagnostics) {
         return [];
     const paths = [];
     for (const [index, path] of value.entries()) {
-        if (validatePath(path, `${pointer}/${index}`, diagnostics))
+        if (validatePath(path, `${pointer}/${String(index)}`, diagnostics))
             paths.push(path);
     }
     assertSortedUnique(paths, pointer, diagnostics);
@@ -57,7 +57,7 @@ function validateBundleModes(value, pointer, diagnostics) {
         return;
     const modeIds = [];
     for (const [index, mode] of (value).entries()) {
-        const modePointer = `${pointer}/modes/${index}`;
+        const modePointer = `${pointer}/modes/${String(index)}`;
         if (!diagnostics.object(mode, modePointer, ["id", "entrypoint", "requiredPaths"], ["id", "entrypoint", "requiredPaths"])) {
             continue;
         }
@@ -104,7 +104,7 @@ function validateBundle(value, pointer, diagnostics) {
     if (diagnostics.array(rec["dependencies"], `${pointer}/dependencies`, 0, 128)) {
         const keys = [];
         for (const [index, dependency] of (rec["dependencies"]).entries()) {
-            if (validateReference(dependency, `${pointer}/dependencies/${index}`, diagnostics)) {
+            if (validateReference(dependency, `${pointer}/dependencies/${String(index)}`, diagnostics)) {
                 keys.push(`${(dependency).id}\u{0}${(dependency).version}\u{0}${(dependency).digest}`);
             }
         }
@@ -113,7 +113,7 @@ function validateBundle(value, pointer, diagnostics) {
     const artifacts = validatePaths(rec["artifacts"], `${pointer}/artifacts`, diagnostics);
     const fixtures = validatePaths(rec["fixtures"], `${pointer}/fixtures`, diagnostics);
     const goldens = validatePaths(rec["goldens"], `${pointer}/goldens`, diagnostics);
-    const classifiedPaths = [...artifacts, ...fixtures, ...goldens].sort();
+    const classifiedPaths = [...artifacts, ...fixtures, ...goldens].toSorted((left, right) => (left < right ? -1 : left > right ? 1 : 0));
     assertSortedUnique(classifiedPaths, `${pointer}/closure`, diagnostics);
     validateBundleModes(rec["modes"], pointer, diagnostics);
     validateBundleDigest(rec, pointer, diagnostics);
@@ -121,7 +121,12 @@ function validateBundle(value, pointer, diagnostics) {
 }
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
-    return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+    return rows.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: rows };
+}
+function hasValidatedShape(value, diagnostics) {
+    return diagnostics.rows.length === 0;
 }
 export function validateCapabilityBundleRegistryV2(value) {
     const diagnostics = new Diagnostics();
@@ -135,7 +140,7 @@ export function validateCapabilityBundleRegistryV2(value) {
         "bundles",
     ];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     diagnostics.string(value["schemaId"], "/schemaId", {
         constant: SCHEMA_IDS.capabilityBundle,
@@ -155,7 +160,7 @@ export function validateCapabilityBundleRegistryV2(value) {
     if (diagnostics.array(value["bundles"], "/bundles", 0, 256)) {
         const keys = [];
         for (const [index, bundle] of value["bundles"].entries()) {
-            if (validateBundle(bundle, `/bundles/${index}`, diagnostics)) {
+            if (validateBundle(bundle, `/bundles/${String(index)}`, diagnostics)) {
                 keys.push(`${bundle.id}\u{0}${bundle.version}\u{0}${bundle.digest}`);
             }
         }
@@ -172,7 +177,7 @@ export function validateCapabilityBundleRegistryV2(value) {
             diagnostics.add("E_CANONICAL_JSON", "/registryDigest", "registry body is not supported canonical JSON");
         }
     }
-    return finish(value, diagnostics);
+    return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }
 function referenceKey(reference) {
     return `${reference.id}\u{0}${reference.version}\u{0}${reference.digest}`;
@@ -241,12 +246,12 @@ export function resolveCapabilityClosure(registry, requested, entries) {
         }
         visiting.add(key);
         for (const [index, dependency] of bundle.dependencies.entries())
-            visit(dependency, `${pointer}/dependencies/${index}`);
+            visit(dependency, `${pointer}/dependencies/${String(index)}`);
         visiting.delete(key);
         selected.set(key, bundle);
     };
     for (const [index, reference] of requested.entries())
-        visit(reference, `/requestedBundles/${index}`);
+        visit(reference, `/requestedBundles/${String(index)}`);
     for (const bundle of selected.values()) {
         const declared = new Set([
             ...bundle.artifacts,
@@ -256,6 +261,6 @@ export function resolveCapabilityClosure(registry, requested, entries) {
         validateBundleCategoryPaths(bundle, entryByPath, diagnostics);
         validateBundleModesClosure(bundle, declared, entryByPath, diagnostics);
     }
-    const bundles = [...selected.values()].sort((left, right) => referenceKey(left) < referenceKey(right) ? -1 : 1);
+    const bundles = [...selected.values()].toSorted((left, right) => referenceKey(left) < referenceKey(right) ? -1 : 1);
     return { bundles, diagnostics: diagnostics.sorted() };
 }

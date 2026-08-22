@@ -5,7 +5,7 @@ export function isRecord(value) {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
         return false;
     }
-    const prototype = Object.getPrototypeOf(value);
+    const prototype = Reflect.getPrototypeOf(value);
     return prototype === Object.prototype || prototype === null;
 }
 export class Diagnostics {
@@ -37,10 +37,10 @@ export class Diagnostics {
             return false;
         }
         if (options.min !== undefined && value.length < options.min) {
-            this.add("E_LENGTH", pointer, `must contain at least ${options.min} characters`);
+            this.add("E_LENGTH", pointer, `must contain at least ${String(options.min)} characters`);
         }
         if (options.max !== undefined && value.length > options.max) {
-            this.add("E_LENGTH", pointer, `must contain at most ${options.max} characters`);
+            this.add("E_LENGTH", pointer, `must contain at most ${String(options.max)} characters`);
         }
         if (options.pattern !== undefined && !options.pattern.test(value)) {
             this.add("E_FORMAT", pointer, "string does not match the required format");
@@ -65,12 +65,12 @@ export class Diagnostics {
             return false;
         }
         if (value.length < min || value.length > max) {
-            this.add("E_COUNT", pointer, `array length must be between ${min} and ${max}`);
+            this.add("E_COUNT", pointer, `array length must be between ${String(min)} and ${String(max)}`);
         }
         return true;
     }
     sorted() {
-        return [...this.rows].sort((left, right) => {
+        return [...this.rows].toSorted((left, right) => {
             if (left.pointer !== right.pointer)
                 return left.pointer < right.pointer ? -1 : 1;
             if (left.code !== right.code)
@@ -92,7 +92,7 @@ export function assertSortedUnique(values, pointer, diagnostics) {
         if (previous === undefined || current === undefined)
             continue;
         if (compareStrings(previous, current) >= 0) {
-            diagnostics.add(previous === current ? "E_DUPLICATE" : "E_SORT_ORDER", `${pointer}/${index}`, previous === current
+            diagnostics.add(previous === current ? "E_DUPLICATE" : "E_SORT_ORDER", `${pointer}/${String(index)}`, previous === current
                 ? "values must be unique"
                 : "values must use ascending code-unit order");
         }

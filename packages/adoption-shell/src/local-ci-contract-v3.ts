@@ -225,7 +225,9 @@ function validateCommandsV3(commandsRaw: unknown, diagnostics: Diagnostics): voi
     diagnostics.add("E_TYPE", "/commands", "expected object");
     return;
   }
-  const commandIds = Object.keys(commandsRaw).toSorted((left, right) => left.localeCompare(right));
+  const commandIds = Object.keys(commandsRaw).toSorted((left, right) =>
+    (left < right ? -1 : left > right ? 1 : 0),
+  );
   if (commandIds.length === 0) {
     diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
   }
@@ -319,7 +321,9 @@ export function classifyAndMigrateLocalCiV2ToV3(
 
   const v2Result = validateLocalCiContractV2(rawInput);
   if (v2Result.ok) {
-    const commandsMissingDetectionProof = Object.keys(v2Result.value.commands).toSorted((left, right) => left.localeCompare(right));
+    const commandsMissingDetectionProof = Object.keys(v2Result.value.commands).toSorted((left, right) =>
+      (left < right ? -1 : left > right ? 1 : 0),
+    );
     return {
       disposition: "rejected",
       legacyLineage: "local-ci-v2",

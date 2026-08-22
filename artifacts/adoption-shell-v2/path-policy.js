@@ -9,8 +9,11 @@ function isAbsolutePath(value) {
 }
 function hasInvalidCharacters(value) {
     for (let index = 0; index < value.length; index += 1) {
-        const code = value.charCodeAt(index);
-        if (code < 0x21 || code > 0x7e || value[index] === "\\") {
+        const codePoint = value.codePointAt(index);
+        if (codePoint === undefined ||
+            codePoint < 0x21 ||
+            codePoint > 0x7e ||
+            value[index] === "\\") {
             return true;
         }
     }

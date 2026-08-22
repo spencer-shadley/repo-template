@@ -67,7 +67,7 @@ export function validateDocumentationLinks(entries) {
 export function mergeDiagnostics(...sets) {
     return sets
         .flat()
-        .sort((left, right) => compareStrings(left.pointer, right.pointer) ||
+        .toSorted((left, right) => compareStrings(left.pointer, right.pointer) ||
         compareStrings(left.code, right.code) ||
         compareStrings(left.message, right.message));
 }

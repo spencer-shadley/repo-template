@@ -37,11 +37,27 @@ export default [
       "no-console": "off",
     },
   },
-  // Comprehensive schema/contract validators and fixture generators have higher statement count
+  // Comprehensive schema/contract validators and fixture generators
   {
     files: ["packages/adoption-shell/src/**/*.ts", "tools/**/*.ts"],
     rules: {
       "max-statements": ["warn", 100],
+      // RFC 8785 canonical JSON and artifact policies require UTF-16 code unit ordering, forbidding localeCompare
+      "sonarjs/no-alphabetical-sort": "off",
+      "unicorn/prefer-simple-sort-comparator": "off",
+      "unicorn/no-array-sort": "off",
+    },
+  },
+  {
+    files: ["packages/adoption-shell/test/**/*.ts", "tests/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-unsafe-type-assertion": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "sonarjs/no-alphabetical-sort": "off",
+      "unicorn/prefer-simple-sort-comparator": "off",
+      "unicorn/no-array-sort": "off",
     },
   },
 ];

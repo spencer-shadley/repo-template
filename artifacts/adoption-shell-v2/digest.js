@@ -31,7 +31,7 @@ function framed(value) {
     return [u64(value.byteLength), value];
 }
 export function payloadFrame(entries) {
-    const ordered = [...entries].sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
+    const ordered = [...entries].toSorted((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
     const chunks = [];
     for (const entry of ordered) {
         chunks.push(...framed(encoder.encode(entry.path)), ...framed(encoder.encode(entry.kind)), ...framed(encoder.encode(entry.mode)), ...framed(decodeCanonicalBase64(entry.contentBase64)));

@@ -5,29 +5,38 @@ import { validateTemplateReleaseEvidenceV1 } from "./release-evidence.js";
 const GIT_SHA1_PATTERN = /^[0-9a-f]{40}$/;
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
-    return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+    return rows.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: rows };
+}
+function hasValidatedShape(value, diagnostics) {
+    return diagnostics.rows.length === 0;
 }
 function validateBundleReferences(value, diagnostics) {
     if (!diagnostics.array(value, "/capabilityBundles", 0, 256))
         return [];
     const rows = [];
     for (const [index, reference] of value.entries()) {
-        const pointer = `/capabilityBundles/${index}`;
+        const pointer = `/capabilityBundles/${String(index)}`;
         if (!diagnostics.object(reference, pointer, ["id", "version", "digest"], ["id", "version", "digest"])) {
             continue;
         }
-        diagnostics.string(reference["id"], `${pointer}/id`, {
+        const id = reference["id"];
+        const version = reference["version"];
+        const digest = reference["digest"];
+        const idValid = diagnostics.string(id, `${pointer}/id`, {
             min: 1,
             max: 80,
             pattern: BUNDLE_ID_PATTERN,
         });
-        diagnostics.string(reference["version"], `${pointer}/version`, {
+        const versionValid = diagnostics.string(version, `${pointer}/version`, {
             min: 5,
             max: 80,
             pattern: SEMVER_PATTERN,
         });
-        diagnostics.sha(reference["digest"], `${pointer}/digest`);
-        rows.push(reference);
+        const digestValid = diagnostics.sha(digest, `${pointer}/digest`);
+        if (idValid && versionValid && digestValid)
+            rows.push({ id, version, digest });
     }
     assertSortedUnique(rows.map((row) => `${row.id}\u{0}${row.version}\u{0}${row.digest}`), "/capabilityBundles", diagnostics);
     return rows;
@@ -216,7 +225,7 @@ export function validateTemplateReleaseReceiptV1(value) {
         "materializer", "migrationRefs",
     ];
     if (!diagnostics.object(value, "", [...requiredFields, "releaseEvidence"], requiredFields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const rec = value;
     validateReceiptHeader(rec, diagnostics);
@@ -230,7 +239,7 @@ export function validateTemplateReleaseReceiptV1(value) {
     }
     diagnostics.array(rec["migrationRefs"], "/migrationRefs", 0, 0);
     validateReceiptDigest(rec, diagnostics);
-    return finish(value, diagnostics);
+    return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }
 export function validatePublishedTemplateReleaseReceiptV1(value) {
     const result = validateTemplateReleaseReceiptV1(value);

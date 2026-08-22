@@ -15,17 +15,22 @@ function stringArray(value, pointer, min, max, diagnostics) {
         return;
     const seen = new Set();
     for (const [index, item] of value.entries()) {
-        if (!diagnostics.string(item, `${pointer}/${index}`, { min: 1 }))
+        if (!diagnostics.string(item, `${pointer}/${String(index)}`, { min: 1 }))
             continue;
         if (seen.has(item))
-            diagnostics.add("E_DUPLICATE", `${pointer}/${index}`, `duplicate value: ${item}`);
+            diagnostics.add("E_DUPLICATE", `${pointer}/${String(index)}`, `duplicate value: ${item}`);
         else
             seen.add(item);
     }
 }
 function finish(value, diagnostics) {
     const sorted = diagnostics.sorted();
-    return sorted.length === 0 ? { ok: true, value } : { ok: false, diagnostics: sorted };
+    return sorted.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: sorted };
+}
+function hasValidatedShape(value, diagnostics) {
+    return diagnostics.rows.length === 0;
 }
 function validateDetectionProof(value, pointer, diagnostics) {
     if (!isRecord(value)) {
@@ -63,7 +68,7 @@ function validateDetectionProof(value, pointer, diagnostics) {
 export function orderedLocalCiCommandsV3(contract) {
     const preflight = Object.entries(contract.commands)
         .filter(([id]) => id !== "authoritative-gate")
-        .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+        .toSorted(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
         .map(([id, command], order) => ({
         ...command,
         id,
@@ -118,7 +123,7 @@ function validateCommandsV3(commandsRaw, diagnostics) {
         diagnostics.add("E_TYPE", "/commands", "expected object");
         return;
     }
-    const commandIds = Object.keys(commandsRaw).sort();
+    const commandIds = Object.keys(commandsRaw).toSorted((left, right) => (left < right ? -1 : left > right ? 1 : 0));
     if (commandIds.length === 0) {
         diagnostics.add("E_LENGTH", "/commands", "expected at least one command");
     }
@@ -179,7 +184,7 @@ export function validateLocalCiContractV3(value) {
     const diagnostics = new Diagnostics();
     const fields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
     if (!diagnostics.object(value, "", fields, fields))
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_ID });
     diagnostics.string(value["schemaVersion"], "/schemaVersion", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION });
     diagnostics.string(value["contractId"], "/contractId", { constant: LOCAL_CI_CONTRACT_V3_ID });
@@ -188,7 +193,7 @@ export function validateLocalCiContractV3(value) {
     validateCommandsV3(value["commands"], diagnostics);
     validateEnvironmentV3(value["environment"], diagnostics);
     validateEffectsV3(value["effects"], diagnostics);
-    return finish(value, diagnostics);
+    return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }
 export function classifyAndMigrateLocalCiV2ToV3(rawInput, sourceBlob) {
     const blobBytes = sourceBlob !== undefined ? (typeof sourceBlob === "string" ? Buffer.from(sourceBlob, "utf8") : sourceBlob) : Buffer.from(canonicalizeJson(rawInput), "utf8");
@@ -198,7 +203,7 @@ export function classifyAndMigrateLocalCiV2ToV3(rawInput, sourceBlob) {
         return { disposition: "valid-v3", legacyLineage: "none", sourceBlobSha256, contract: v3Result.value };
     const v2Result = validateLocalCiContractV2(rawInput);
     if (v2Result.ok) {
-        const commandsMissingDetectionProof = Object.keys(v2Result.value.commands).sort();
+        const commandsMissingDetectionProof = Object.keys(v2Result.value.commands).toSorted((left, right) => (left < right ? -1 : left > right ? 1 : 0));
         return {
             disposition: "rejected",
             legacyLineage: "local-ci-v2",

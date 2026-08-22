@@ -183,7 +183,9 @@ function validateBundle(
   const artifacts = validatePaths(rec["artifacts"], `${pointer}/artifacts`, diagnostics);
   const fixtures = validatePaths(rec["fixtures"], `${pointer}/fixtures`, diagnostics);
   const goldens = validatePaths(rec["goldens"], `${pointer}/goldens`, diagnostics);
-  const classifiedPaths = [...artifacts, ...fixtures, ...goldens].toSorted((left, right) => left.localeCompare(right));
+  const classifiedPaths = [...artifacts, ...fixtures, ...goldens].toSorted((left, right) =>
+    (left < right ? -1 : left > right ? 1 : 0),
+  );
   assertSortedUnique(classifiedPaths, `${pointer}/closure`, diagnostics);
   validateBundleModes(rec["modes"], pointer, diagnostics);
   validateBundleDigest(rec, pointer, diagnostics);

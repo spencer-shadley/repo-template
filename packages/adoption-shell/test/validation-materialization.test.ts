@@ -165,7 +165,7 @@ void test("validators fail closed instead of throwing on non-JSON unknown values
   const input = readRecord(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
   );
-  const release = input["release"];
+  const release = input["release"] as Record<string, unknown>;
   release["foreign"] = 1n;
   const result = validateMaterializerInputV2(input);
   assert.equal(result.ok, false);

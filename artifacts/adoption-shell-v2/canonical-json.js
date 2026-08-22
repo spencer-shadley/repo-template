@@ -1,16 +1,12 @@
 const encoder = new TextEncoder();
 function assertUnicodeScalarString(value) {
     for (let index = 0; index < value.length; index += 1) {
-        const code = value.charCodeAt(index);
-        if (code >= 0xd800 && code <= 0xdbff) {
-            const next = value.charCodeAt(index + 1);
-            if (!Number.isInteger(next) || next < 0xdc00 || next > 0xdfff) {
-                throw new TypeError("RFC 8785 strings must not contain lone surrogates");
-            }
-            index += 1;
-        }
-        else if (code >= 0xdc00 && code <= 0xdfff) {
+        const codePoint = value.codePointAt(index);
+        if (codePoint === undefined || (codePoint >= 0xd800 && codePoint <= 0xdfff)) {
             throw new TypeError("RFC 8785 strings must not contain lone surrogates");
+        }
+        if (codePoint > 0xffff) {
+            index += 1;
         }
     }
 }
@@ -42,12 +38,12 @@ function serializeArray(value, ancestors) {
     return `[${rows.join(",")}]`;
 }
 function serializeObject(value, ancestors) {
-    const prototype = Object.getPrototypeOf(value);
+    const prototype = Reflect.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) {
         throw new TypeError("RFC 8785 accepts only plain objects");
     }
-    const record = value;
-    const keys = Object.keys(record).sort();
+    const record = Object.fromEntries(Object.entries(value));
+    const keys = Object.keys(record).toSorted((left, right) => (left < right ? -1 : left > right ? 1 : 0));
     const rows = keys.map((key) => {
         assertUnicodeScalarString(key);
         return `${JSON.stringify(key)}:${serialize(record[key], ancestors)}`;

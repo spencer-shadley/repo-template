@@ -7,7 +7,9 @@ import { validateArtifactManifestV2 } from "./validate-manifests.js";
 import { Diagnostics } from "./validation-helpers.js";
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
-    return rows.length === 0 ? { ok: true, value } : { ok: false, diagnostics: rows };
+    return rows.length === 0 && value !== undefined
+        ? { ok: true, value }
+        : { ok: false, diagnostics: rows };
 }
 function addNested(diagnostics, prefix, rows) {
     for (const row of rows) {
@@ -56,7 +58,7 @@ export function validateTemplateReleaseClosureV1(value) {
     const diagnostics = new Diagnostics();
     const fields = ["receipt", "payloadSet", "capabilityRegistry", "artifactManifest"];
     if (!diagnostics.object(value, "", fields, fields)) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const receiptResult = validateTemplateReleaseReceiptV1(value["receipt"]);
     const payloadResult = validateReleasePayloadSetV2(value["payloadSet"]);
@@ -78,7 +80,7 @@ export function validateTemplateReleaseClosureV1(value) {
         !payloadResult.ok ||
         !capabilityResult.ok ||
         !artifactResult.ok) {
-        return finish(value, diagnostics);
+        return finish(undefined, diagnostics);
     }
     const receipt = receiptResult.value;
     const payload = payloadResult.value;

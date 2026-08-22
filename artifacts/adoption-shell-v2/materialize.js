@@ -27,7 +27,7 @@ function selectedEntryDiagnostics(input, selectedBundleIds, selectedDeclaredPath
             });
         }
     }
-    return rows.sort((left, right) => compareStrings(left.pointer, right.pointer) ||
+    return rows.toSorted((left, right) => compareStrings(left.pointer, right.pointer) ||
         compareStrings(left.code, right.code));
 }
 function cloneEntry(entry) {
@@ -69,7 +69,7 @@ export function materializeAdoptionShellV2(inputValue) {
     const selected = input.release.entries
         .filter((entry) => entry.bundleId === null || bundleIds.has(entry.bundleId))
         .map(cloneEntry)
-        .sort((left, right) => compareStrings(left.path, right.path));
+        .toSorted((left, right) => compareStrings(left.path, right.path));
     const documentation = validateDocumentationLinks(selected);
     const diagnostics = mergeDiagnostics(closure.diagnostics, ownership, documentation);
     if (diagnostics.length > 0) {
