@@ -927,8 +927,8 @@
       "path": "local-ci.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "d95800bb3698cc90abcbd0a28d5399324f4d3cab6020df9326c744195962a269",
-      "bytes": 892
+      "sha256": "ebf9421a03efe466cf4cc8c1f54bc22dcc511c51b66983d8f084f3cb21581d11",
+      "bytes": 794
     },
     {
       "path": "plans/drafts/000-smoke.md",
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "c63c62664af3caab32a18354418163c6420d2a1046debbd1495f28fd618ba92e"
+  "manifestDigest": "0547356a14ed4077cc568961a166ed3a971feaec7bc2e09f1056f08238fa9672"
 }
