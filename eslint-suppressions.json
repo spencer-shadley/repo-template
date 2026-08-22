@@ -1,24 +1,11 @@
 {
-  "packages/adoption-shell/src/validate-documentation.ts": {
-    "sonarjs/super-linear-regex": {
-      "count": 2
-    }
-  },
   "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
     "@typescript-eslint/unbound-method": {
-      "count": 1
-    },
-    "sonarjs/super-linear-regex": {
       "count": 1
     }
   },
   "packages/adoption-shell/test/canonical-digest.test.ts": {
     "unicorn/no-array-reverse": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/test/capability-docs-regression.test.ts": {
-    "sonarjs/super-linear-regex": {
       "count": 1
     }
   },
@@ -42,9 +29,6 @@
       "count": 2
     },
     "max-lines-per-function": {
-      "count": 1
-    },
-    "sonarjs/super-linear-regex": {
       "count": 1
     },
     "unicorn/prefer-single-call": {

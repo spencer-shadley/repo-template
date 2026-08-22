@@ -82,9 +82,29 @@ function decodeEntry(
 
 /** Same strip as validate-documentation: headings and titled links may keep ADR-NNNN. */
 function withoutAdrHeadingsOrLinks(text: string): string {
-  return text
-    .replaceAll(/^# ADR-\d{4}:[^\n]*$/gm, "")
-    .replaceAll(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
+  const withoutHeadings = text.replaceAll(/^# ADR-\d{4}:[^\n]*$/gm, "");
+  let result = "";
+  let cursor = 0;
+  while (cursor < withoutHeadings.length) {
+    const linkStart = withoutHeadings.indexOf("[", cursor);
+    if (linkStart === -1) break;
+    const labelEnd = withoutHeadings.indexOf("]", linkStart + 1);
+    const destinationEnd = labelEnd === -1 || withoutHeadings[labelEnd + 1] !== "("
+      ? -1
+      : withoutHeadings.indexOf(")", labelEnd + 2);
+    if (destinationEnd === -1) {
+      result += withoutHeadings.slice(cursor, linkStart + 1);
+      cursor = linkStart + 1;
+      continue;
+    }
+    result += withoutHeadings.slice(cursor, linkStart);
+    const label = withoutHeadings.slice(linkStart + 1, labelEnd);
+    if (!/\bADR-\d{4}\b/.test(label)) {
+      result += withoutHeadings.slice(linkStart, destinationEnd + 1);
+    }
+    cursor = destinationEnd + 1;
+  }
+  return result + withoutHeadings.slice(cursor);
 }
 
 void test("issue #92 bundle materializes both advertised modes from exact closure", async () => {
