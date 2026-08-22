@@ -7,11 +7,6 @@
       "count": 1
     }
   },
-  "scripts/check-runtime-artifact-registry.ts": {
-    "unicorn/no-unnecessary-string-trim": {
-      "count": 1
-    }
-  },
   "scripts/lint-user-surface-leaks.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
