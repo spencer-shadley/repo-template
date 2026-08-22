@@ -154,7 +154,7 @@
         }
       ],
       "digestAlgorithm": "sha256-rfc8785-v1",
-      "digest": "72785e3c079ef00609dfc674b8ddf7399c1f2afbbc285f7625500d92d2ce1bab"
+      "digest": "69d8f6c55dbee595c2f4907085d478d2531091b37d726ef4670462c2642ee95f"
     },
     {
       "id": "repo-template/quality-lint",
@@ -162,7 +162,7 @@
       "dependencies": [],
       "artifacts": [
         "docs/QUALITY-LINT.md",
-        "eslint.config.mjs",
+        "eslint.config.ts",
         "local-ci.json",
         "scripts/verify-quality-lint-required.ts"
       ],
@@ -171,10 +171,10 @@
       "modes": [
         {
           "id": "config",
-          "entrypoint": "eslint.config.mjs",
+          "entrypoint": "eslint.config.ts",
           "requiredPaths": [
             "docs/QUALITY-LINT.md",
-            "eslint.config.mjs",
+            "eslint.config.ts",
             "local-ci.json",
             "scripts/verify-quality-lint-required.ts"
           ]
@@ -183,13 +183,13 @@
           "id": "presence",
           "entrypoint": "scripts/verify-quality-lint-required.ts",
           "requiredPaths": [
-            "eslint.config.mjs",
+            "eslint.config.ts",
             "scripts/verify-quality-lint-required.ts"
           ]
         }
       ],
       "digestAlgorithm": "sha256-rfc8785-v1",
-      "digest": "bdb025ca87072d1015f0a8d85d3af01aa769b92faf426995a1bc6be14608dc09"
+      "digest": "6acbd065f751cd08e13d030c02a710f29f0ad7aa4daf85e5bed4e82c0ada5277"
     },
     {
       "id": "repo-template/user-surface-lint",
@@ -257,5 +257,5 @@
       "digest": "28c17d3287f732bfcf1bab72735f8185374f091113b83d92757a0c4680413cfe"
     }
   ],
-  "registryDigest": "941ab2910056dcb1c1422169390a22c46d965b110ba34d190abef94554495349"
+  "registryDigest": "ec411f0cc955dcefa6fa21512352e4319b2a28e84f6df808260bcccce1058cca"
 }

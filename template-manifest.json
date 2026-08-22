@@ -144,7 +144,7 @@
   "docs/RUNBOOK.md": "copy",
   "docs/template-fleet-adoption-refresh-stop-2026-07-28-root-15.md": "self",
   "eslint-suppressions.json": "copy",
-  "eslint.config.mjs": "copy",
+  "eslint.config.ts": "copy",
   "GEMINI.md": "copy",
   "model-boundary.json": "copy",
   "knip.overrides.json": "self",

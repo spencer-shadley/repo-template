@@ -67,7 +67,7 @@ const PORTABLE_CAPABILITY_PATHS = [
 ] as const;
 const QUALITY_LINT_ARTIFACT_PATHS = [
   "docs/QUALITY-LINT.md",
-  "eslint.config.mjs",
+  "eslint.config.ts",
   "local-ci.json",
   "scripts/verify-quality-lint-required.ts",
 ] as const;

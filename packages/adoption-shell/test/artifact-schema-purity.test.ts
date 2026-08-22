@@ -104,7 +104,7 @@ void test("generated quality-lint bundle is retained in the artifact fixture clo
   const manifest = readManifest();
   const expectedArtifacts = [
     "docs/QUALITY-LINT.md",
-    "eslint.config.mjs",
+    "eslint.config.ts",
     "local-ci.json",
     "scripts/verify-quality-lint-required.ts",
   ];
@@ -131,14 +131,14 @@ void test("generated quality-lint bundle is retained in the artifact fixture clo
     assert.deepEqual(bundles[0].modes, [
       {
         id: "config",
-        entrypoint: "eslint.config.mjs",
+        entrypoint: "eslint.config.ts",
         requiredPaths: expectedArtifacts,
       },
       {
         id: "presence",
         entrypoint: "scripts/verify-quality-lint-required.ts",
         requiredPaths: [
-          "eslint.config.mjs",
+          "eslint.config.ts",
           "scripts/verify-quality-lint-required.ts",
         ],
       },
