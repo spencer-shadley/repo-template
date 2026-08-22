@@ -215,7 +215,7 @@ void test("runtime tripwires observe no clock, random, fetch, or UUID access", (
   const dateDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Date");
   const originalRandom = Math.random;
   const cryptoValue = crypto;
-  const originalRandomUuid = cryptoValue.randomUUID;
+  const originalRandomUuid = () => cryptoValue.randomUUID();
   const accessed: string[] = [];
   Object.defineProperties(globalThis, {
   	fetch: {
