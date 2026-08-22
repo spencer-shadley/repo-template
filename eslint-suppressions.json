@@ -8,9 +8,6 @@
     }
   },
   "scripts/lint-user-surface-leaks.ts": {
-    "unicorn/no-declarations-before-early-exit": {
-      "count": 1
-    },
     "unicorn/prefer-code-point": {
       "count": 1
     },

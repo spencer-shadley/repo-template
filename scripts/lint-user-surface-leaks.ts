@@ -145,10 +145,10 @@ function validateAllowlistEntry(entry: unknown, index: number): AllowlistEntry {
 
 function validateConfigObject(config: Record<string, unknown>): Config {
   const include = config["include"];
-  const allowlist = config["allowlist"] ?? config["allow"] ?? [];
   if (!Array.isArray(include) || !include.every(isString)) {
     throw new Error("config.include must be an array of glob strings");
   }
+  const allowlist = config["allowlist"] ?? config["allow"] ?? [];
   if (!Array.isArray(allowlist)) {
     throw new Error("config.allowlist must be an array");
   }
