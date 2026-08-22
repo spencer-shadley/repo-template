@@ -19,10 +19,7 @@
         "package.json",
         "pnpm-lock.yaml",
         "package-lock.json",
-        "CHANGELOG.md",
         "docs/QUALITY-LINT.md",
-        "local-ci.json",
-        "packages/repo-quality/secret-scan.mjs",
         "scripts/verify-quality-lint*"
       ],
       "commands": {
