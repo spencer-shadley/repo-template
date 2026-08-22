@@ -250,7 +250,7 @@ function matchingFiles(searchRoot: string, include: readonly string[]): FileEntr
 function lineForIndex(text: string, index: number): number {
   let line = 1;
   for (let i = 0; i < index; i += 1) {
-    if (text.charCodeAt(i) === 10) line += 1;
+    if (text.codePointAt(i) === 10) line += 1;
   }
   return line;
 }
