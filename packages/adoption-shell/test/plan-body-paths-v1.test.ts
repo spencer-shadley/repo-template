@@ -21,16 +21,45 @@ const contract = (name: string): URL =>
 const parse = (name: string): unknown =>
   JSON.parse(fs.readFileSync(contract(name), "utf8")) as unknown;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function record(value: unknown, label: string): Record<string, unknown> {
+  if (!isRecord(value)) throw new TypeError(`${label} must be an object`);
+  return value;
+}
+
+function records(value: unknown, label: string): Record<string, unknown>[] {
+  if (!Array.isArray(value)) throw new TypeError(`${label} must be an array`);
+  return value.map((entry, index) => record(entry, `${label}[${String(index)}]`));
+}
+
+function archiveMembers(value: unknown): { path: string; blobSha256: string }[] {
+  return records(value, "archive members").map((member) => {
+    if (typeof member["path"] !== "string" || typeof member["blobSha256"] !== "string") {
+      throw new TypeError("archive member must have path and blobSha256");
+    }
+    return { path: member["path"], blobSha256: member["blobSha256"] };
+  });
+}
+
 function parseSchema(name: string): AnySchema {
   const value = parse(name);
-  if (typeof value === "boolean" || (value !== null && typeof value === "object" && !Array.isArray(value))) return value;
+  if (typeof value === "boolean" || isRecord(value)) return value;
   throw new TypeError(`${name} must be an object or boolean JSON Schema`);
 }
 
-const planExample = parse("plan-record.example.json") as Record<string, unknown>;
-const manifestExample = parse("work-migration-manifest.example.json") as Record<string, unknown>;
+function formatsPlugin(): FormatsPlugin {
+  const candidate: unknown = require("ajv-formats");
+  if (typeof candidate !== "function") throw new TypeError("ajv-formats must export a function");
+  return candidate;
+}
+
+const planExample = record(parse("plan-record.example.json"), "plan record example");
+const manifestExample = record(parse("work-migration-manifest.example.json"), "manifest example");
 const require = createRequire(import.meta.url);
-const addFormats = require("ajv-formats") as FormatsPlugin;
+const addFormats = formatsPlugin();
 const ajv = new Ajv2020({ allErrors: true, strictSchema: true, strictTypes: false });
 addFormats(ajv);
 const validatePlanSchema = ajv.compile(parseSchema("plan-record.schema.json"));
@@ -52,7 +81,7 @@ function signed(body: Record<string, unknown>): Record<string, unknown> {
 
 function livePathCandidate(path: string): Record<string, unknown> {
   const body = manifestBody();
-  const decisions = body["decisions"] as Record<string, unknown>[];
+  const decisions = records(body["decisions"], "decisions");
   decisions[0]!["path"] = path;
   body["changedPaths"] = [path];
   return body;
@@ -60,13 +89,14 @@ function livePathCandidate(path: string): Record<string, unknown> {
 
 function archivePathCandidate(path: string): Record<string, unknown> {
   const body = manifestBody();
-  const archive = body["archive"] as Record<string, unknown>;
-  const members = archive["members"] as { path: string; blobSha256: string }[];
+  const archive = record(body["archive"], "archive");
+  const members = archiveMembers(archive["members"]);
+  archive["members"] = members;
   members[0] = { ...members[0]!, path };
   members.sort((left, right) => left.path < right.path ? -1 : left.path > right.path ? 1 : 0);
   const aggregate = archiveAggregateSha256V1(members);
   archive["aggregateSha256"] = aggregate;
-  const dispositions = archive["dispositions"] as Record<string, unknown>[];
+  const dispositions = records(archive["dispositions"], "archive dispositions");
   dispositions[0]!["aggregateSha256"] = aggregate;
   return body;
 }
@@ -90,7 +120,7 @@ void test("canonical live plan bodies reject indexes, empty names, and sidecars"
     assert.equal(validatePlanRecordV1(record), false, `${path}: PlanRecord runtime`);
     assert.equal(validatePlanSchema(record), false, `${path}: PlanRecord schema`);
     const body = livePathCandidate(path);
-    assert.throws(() => createWorkMigrationManifestV1(body as never), /input is invalid/, path);
+    assert.throws(() => createWorkMigrationManifestV1(body), /input is invalid/, path);
     assert.equal(validateWorkMigrationManifestV1(signed(body)), false, `${path}: manifest runtime`);
     assert.equal(validateManifestSchema(signed(body)), false, `${path}: manifest schema`);
   }
@@ -111,7 +141,7 @@ void test("canonical archive plan bodies reject indexes, empty names, and sideca
   ];
   for (const path of invalid) {
     const body = archivePathCandidate(path);
-    assert.throws(() => createWorkMigrationManifestV1(body as never), /input is invalid/, path);
+    assert.throws(() => createWorkMigrationManifestV1(body), /input is invalid/, path);
     assert.equal(validateWorkMigrationManifestV1(signed(body)), false, `${path}: runtime`);
     assert.equal(validateManifestSchema(signed(body)), false, `${path}: schema`);
   }
@@ -125,7 +155,7 @@ void test("canonical plan bodies preserve version and incident slug shapes", () 
     const record = { ...planExample, sourcePath: path };
     assert.equal(validatePlanRecordV1(record), true, `${path}: runtime`);
     assert.equal(validatePlanSchema(record), true, `${path}: schema`);
-    const manifest = createWorkMigrationManifestV1(livePathCandidate(path) as never);
+    const manifest = createWorkMigrationManifestV1(livePathCandidate(path));
     assert.equal(validateWorkMigrationManifestV1(manifest), true);
     assert.equal(validateManifestSchema(manifest), true);
   }
@@ -133,7 +163,7 @@ void test("canonical plan bodies preserve version and incident slug shapes", () 
     "plans/archive/004-adopt-repo-template-v2.2.0-overlay-migration.md",
     "plans/archive/294-_incident-manager-timeout-plan.md",
   ]) {
-    const manifest = createWorkMigrationManifestV1(archivePathCandidate(path) as never);
+    const manifest = createWorkMigrationManifestV1(archivePathCandidate(path));
     assert.equal(validateWorkMigrationManifestV1(manifest), true);
     assert.equal(validateManifestSchema(manifest), true);
   }

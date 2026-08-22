@@ -16,3 +16,6 @@
 2026-08-22T00:00:00Z heartbeat: started #192 sonarjs/no-alphabetical-sort x packages. The matching ledger has ten package paths; restoring the locked dependencies before scoped diagnostics and source-only ordering fixes.
 2026-08-22T00:10:00Z heartbeat: replaced all fourteen suppressed package string sorts with localeCompare callbacks and removed the ten matching ledger entries. Scoped and full direct ESLint are error-free; pnpm lint reaches only the existing stale-suppression ledger condition, so a merge-base differential is in progress.
 2026-08-22T00:20:00Z heartbeat: started #194 unicorn/require-array-sort-compare x packages. ESLint confirms every matching package suppression is stale; removed exactly ten package ledger entries (twelve counts) and proceeding to required pnpm lint verification.
+2026-08-21T00:00:00-07:00 lane heartbeat: started issue #196 shard @typescript-eslint/no-unsafe-type-assertion x packages on feat/ezlint-196.
+2026-08-21T00:12:00-07:00 lane heartbeat: replaced all 47 package test assertions with checked JSON fixtures and runtime guards; pruning seven matching suppression entries.
+2026-08-21T00:25:00-07:00 lane heartbeat: all seven changed package test modules pass (41/41). Required pnpm lint reaches only the pre-existing stale-suppressions exit after ESLint emits zero errors and the existing repo-quality console warning.

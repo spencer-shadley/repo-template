@@ -40,14 +40,53 @@ const contract = (name: string): URL =>
 const parse = (name: string): unknown =>
   JSON.parse(fs.readFileSync(contract(name), "utf8")) as unknown;
 
-const cases = parse("fixtures/classification-cases.json") as readonly ClassificationFixture[];
-const planRecordSchema = parse("plan-record.schema.json") as AnySchema;
-const migrationManifestSchema = parse("work-migration-manifest.schema.json") as AnySchema;
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function record(value: unknown, label: string): Record<string, unknown> {
+  if (!isRecord(value)) throw new TypeError(`${label} must be an object`);
+  return value;
+}
+
+function isSchema(value: unknown): value is AnySchema {
+  return typeof value === "boolean" || isRecord(value);
+}
+
+function schema(value: unknown, label: string): AnySchema {
+  if (!isSchema(value)) throw new TypeError(`${label} must be an object or boolean JSON Schema`);
+  return value;
+}
+
+function isClassificationFixture(value: unknown): value is ClassificationFixture {
+  if (!isRecord(value) || typeof value["name"] !== "string" || typeof value["decision"] !== "string") return false;
+  return (value["targetStatus"] === undefined || typeof value["targetStatus"] === "string") &&
+    (value["reasonCode"] === undefined || typeof value["reasonCode"] === "string") &&
+    (value["archive"] === undefined || typeof value["archive"] === "boolean") &&
+    "record" in value;
+}
+
+function classificationFixtures(value: unknown): readonly ClassificationFixture[] {
+  if (!Array.isArray(value) || !value.every(isClassificationFixture)) {
+    throw new TypeError("classification cases must be fixtures");
+  }
+  return value;
+}
+
+function formatsPlugin(): FormatsPlugin {
+  const candidate: unknown = require("ajv-formats");
+  if (typeof candidate !== "function") throw new TypeError("ajv-formats must export a function");
+  return candidate;
+}
+
+const cases = classificationFixtures(parse("fixtures/classification-cases.json"));
+const planRecordSchema = schema(parse("plan-record.schema.json"), "plan record schema");
+const migrationManifestSchema = schema(parse("work-migration-manifest.schema.json"), "migration manifest schema");
 const planRecordExample = parse("plan-record.example.json");
 const migrationManifestExample = parse("work-migration-manifest.example.json");
 
 const require = createRequire(import.meta.url);
-const addFormats = require("ajv-formats") as FormatsPlugin;
+const addFormats = formatsPlugin();
 const ajv = new Ajv2020({
   allErrors: true,
   strictSchema: true,
@@ -131,7 +170,7 @@ void test("schema and runtime agree for every v1 positive and negative fixture",
     if (
       row.record === null ||
       typeof row.record !== "object" ||
-      (row.record as Record<string, unknown>)["schemaVersion"] !== "plan-record/v1"
+      record(row.record, `${row.name} record`)["schemaVersion"] !== "plan-record/v1"
     ) continue;
     const runtime = validatePlanRecordV1(row.record);
     const schema = validatePlanRecordSchema(row.record);
@@ -218,7 +257,7 @@ void test("landed and shipped legacy evidence retain distinct targets and reason
 });
 
 void test("fails closed on explicit future schema versions and migrates only absent versions", () => {
-  const future = fixture("future-schema-version").record as Record<string, unknown>;
+  const future = record(fixture("future-schema-version").record, "future schema fixture");
   assert.deepEqual(classifyPlanRecordV1(future), {
     kind: "retire",
     reasonCode: "UNKNOWN_SCHEMA_VERSION",
@@ -415,7 +454,7 @@ void test("manifest closes live inventory and archive disposition counts/hashes"
 void test("manifest rejects unclassified rows, archive live targets, apply-set drift, and target/reason mismatch", () => {
   const input = manifestInput();
   assert.throws(
-    () => createWorkMigrationManifestV1({ unclassifiedCount: 1 } as never),
+    () => createWorkMigrationManifestV1({ unclassifiedCount: 1 }),
     /unclassifiedCount must be zero/,
   );
   assert.throws(

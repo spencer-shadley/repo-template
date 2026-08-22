@@ -8,6 +8,8 @@ import {
   canonicalizeJson,
   createReleasePayloadSetV2,
   createTemplateReleaseCandidateV1,
+  validateArtifactManifestV2,
+  validateMaterializerInputV2,
   validateTemplateReleaseClosureV1,
   type ArtifactManifest,
   type MaterializerInput,
@@ -18,14 +20,24 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
-function readJson<T>(relativePath: string): T {
-  return JSON.parse(
-    fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
-  ) as T;
+function readJson(relativePath: string): unknown {
+  return JSON.parse(fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8")) as unknown;
+}
+
+function readMaterializerInput(relativePath: string): MaterializerInput {
+  const result = validateMaterializerInputV2(readJson(relativePath));
+  if (!result.ok) throw new TypeError(JSON.stringify(result.diagnostics));
+  return result.value;
+}
+
+function readArtifactManifest(relativePath: string): ArtifactManifest {
+  const result = validateArtifactManifestV2(readJson(relativePath));
+  if (!result.ok) throw new TypeError(JSON.stringify(result.diagnostics));
+  return result.value;
 }
 
 function input(): TemplateReleaseCandidateInput {
-  const materializerInput = readJson<MaterializerInput>(
+  const materializerInput = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
   );
   return {
@@ -34,7 +46,7 @@ function input(): TemplateReleaseCandidateInput {
     tree: "2".repeat(40),
     payloadSet: materializerInput.release,
     capabilityRegistry: materializerInput.capabilities,
-    artifactManifest: readJson<ArtifactManifest>(
+    artifactManifest: readArtifactManifest(
       "artifacts/adoption-shell-v2/artifact-manifest.json",
     ),
   };

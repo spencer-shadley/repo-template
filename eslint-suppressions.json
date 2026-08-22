@@ -117,17 +117,11 @@
   "packages/adoption-shell/test/manifest-validators.test.ts": {
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 17
     }
   },
   "packages/adoption-shell/test/plan-body-paths-v1.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 3
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 11
     },
     "unicorn/prefer-simple-sort-comparator": {
       "count": 1
@@ -137,18 +131,12 @@
     "@typescript-eslint/no-non-null-assertion": {
       "count": 9
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 7
-    },
     "unicorn/no-declarations-before-early-exit": {
       "count": 1
     }
   },
   "packages/adoption-shell/test/release-candidate.test.ts": {
     "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 1
     },
     "unicorn/no-array-reverse": {
@@ -158,9 +146,6 @@
   "packages/adoption-shell/test/release-closure.test.ts": {
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
     },
     "unicorn/prefer-structured-clone": {
       "count": 1
@@ -176,9 +161,6 @@
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 12
     },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 7
-    },
     "unicorn/prefer-structured-clone": {
       "count": 1
     }
@@ -186,9 +168,6 @@
   "packages/adoption-shell/test/validation-materialization.test.ts": {
     "@typescript-eslint/no-unnecessary-type-parameters": {
       "count": 1
-    },
-    "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 2
     }
   },
   "packages/repo-quality/index.d.ts": {

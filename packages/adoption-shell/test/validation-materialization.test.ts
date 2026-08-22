@@ -24,10 +24,57 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
-function readJson<T>(relativePath: string): T {
-  return JSON.parse(
-    fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
-  ) as T;
+function readJson(relativePath: string): unknown {
+  return JSON.parse(fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8")) as unknown;
+}
+
+function readMaterializerInput(relativePath: string): MaterializerInput {
+  const result = validateMaterializerInputV2(readJson(relativePath));
+  if (!result.ok) throw new TypeError(JSON.stringify(result.diagnostics));
+  return result.value;
+}
+
+function readVerificationReceipt(relativePath: string): VerificationReceipt {
+  const result = validateVerificationReceiptV2(readJson(relativePath));
+  if (!result.ok) throw new TypeError(JSON.stringify(result.diagnostics));
+  return result.value;
+}
+
+function readRecord(relativePath: string): Record<string, unknown> {
+  const value = readJson(relativePath);
+  if (!isRecord(value)) {
+    throw new TypeError(`${relativePath} must be an object`);
+  }
+  return value;
+}
+
+type NegativeFixture = Readonly<{
+  name: string;
+  expectedCodes: readonly string[];
+  input: unknown;
+}>;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isNegativeFixture(value: unknown): value is NegativeFixture {
+  if (!isRecord(value) || typeof value["name"] !== "string" || !("input" in value)) return false;
+  const expectedCodes = value["expectedCodes"];
+  return Array.isArray(expectedCodes) && expectedCodes.every((code) => typeof code === "string");
+}
+
+function readNegativeFixtures(relativePath: string): readonly NegativeFixture[] {
+  const value = readJson(relativePath);
+  if (!Array.isArray(value)) throw new TypeError(`${relativePath} must be an array`);
+  const fixtures: NegativeFixture[] = [];
+  for (const fixture of value as readonly unknown[]) {
+    if (!isNegativeFixture(fixture)) {
+      throw new TypeError(`${relativePath} contains an invalid fixture`);
+    }
+    fixtures.push(fixture);
+  }
+  return fixtures;
 }
 
 function diagnosticKey(value: Diagnostic): string {
@@ -49,7 +96,7 @@ void test("valid fixtures materialize deterministically without mutating inputs"
     "portable-docs-input.json",
     "user-surface-lint-input.json",
   ]) {
-    const input = readJson<MaterializerInput>(
+    const input = readMaterializerInput(
       `contracts/adoption-shell-v2/fixtures/${name}`,
     );
     const before = JSON.stringify(input);
@@ -69,10 +116,10 @@ void test("valid fixtures materialize deterministically without mutating inputs"
 });
 
 void test("object key order cannot influence output bytes or receipts", () => {
-  const ordinary = readJson<MaterializerInput>(
+  const ordinary = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
   );
-  const shuffled = readJson<MaterializerInput>(
+  const shuffled = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/minimal-input-shuffled-keys.json",
   );
   assert.notEqual(JSON.stringify(ordinary), JSON.stringify(shuffled));
@@ -81,7 +128,7 @@ void test("object key order cannot influence output bytes or receipts", () => {
     canonicalizeJson(materializeAdoptionShellV2(ordinary)),
     canonicalizeJson(materializeAdoptionShellV2(shuffled)),
   );
-  const receipt = readJson<VerificationReceipt>(
+  const receipt = readVerificationReceipt(
     "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
   );
   assert.equal(validateVerificationReceiptV2(receipt).ok, true);
@@ -92,13 +139,7 @@ void test("object key order cannot influence output bytes or receipts", () => {
 });
 
 void test("all committed negative fixtures fail with sorted targeted diagnostics", () => {
-  const fixtures = readJson<
-    readonly {
-      readonly name: string;
-      readonly expectedCodes: readonly string[];
-      readonly input: unknown;
-    }[]
-  >("contracts/adoption-shell-v2/fixtures/negative-inputs.json");
+  const fixtures = readNegativeFixtures("contracts/adoption-shell-v2/fixtures/negative-inputs.json");
   assert.ok(fixtures.length >= 45);
   for (const fixture of fixtures) {
     let diagnostics: readonly Diagnostic[];
@@ -121,10 +162,10 @@ void test("all committed negative fixtures fail with sorted targeted diagnostics
 });
 
 void test("validators fail closed instead of throwing on non-JSON unknown values", () => {
-  const input = readJson<Record<string, unknown>>(
+  const input = readRecord(
     "contracts/adoption-shell-v2/fixtures/minimal-input.json",
   );
-  const release = input["release"] as Record<string, unknown>;
+  const release = input["release"];
   release["foreign"] = 1n;
   const result = validateMaterializerInputV2(input);
   assert.equal(result.ok, false);
@@ -134,7 +175,7 @@ void test("validators fail closed instead of throwing on non-JSON unknown values
 });
 
 void test("Template release identity stays distinct from output payload identity", () => {
-  const input = readJson<MaterializerInput>(
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/multi-bundle-input.json",
   );
   const result = materializeAdoptionShellV2(input);
