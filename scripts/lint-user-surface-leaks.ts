@@ -492,7 +492,7 @@ function selfTest(targetRoot = process.cwd(), stdout = console.log): void {
     if (code !== tc.wantCode) {
       throw new Error(`${tc.name}: expected exit ${String(tc.wantCode)}, got ${String(code)}\n${joined}`);
     }
-    const expectations = Array.isArray(tc.want) ? tc.want : [tc.want];
+    const expectations: readonly string[] = typeof tc.want === "string" ? [tc.want] : tc.want;
     for (const expected of expectations) {
       if (!joined.includes(expected)) {
         throw new Error(`${tc.name}: expected output to include ${JSON.stringify(expected)}\n${joined}`);

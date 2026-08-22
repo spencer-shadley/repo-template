@@ -8,9 +8,6 @@
     }
   },
   "scripts/lint-user-surface-leaks.ts": {
-    "@typescript-eslint/no-unsafe-argument": {
-      "count": 1
-    },
     "preserve-caught-error": {
       "count": 2
     },
