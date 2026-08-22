@@ -396,7 +396,7 @@ function checkSourceRules(text: string, relPath: string, findings: Finding[]): v
     for (const match of text.matchAll(rule.pattern)) {
       findings.push({
         path: relPath,
-        line: lineForIndex(text, match.index ?? 0),
+        line: lineForIndex(text, match.index),
         rule: rule.id,
         match: match[0].trim(),
         description: rule.description,
