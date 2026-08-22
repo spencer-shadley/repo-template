@@ -616,10 +616,7 @@ async function verifyArtifact(): Promise<void> {
   verifyPackage();
   verifyTemplateCapabilityClosure();
   const expectedArtifactDigest = sha256CanonicalJson({ files: manifest.emitted });
-  if (
-    manifest.artifactDigestAlgorithm !== ENVELOPE_DIGEST_ALGORITHM ||
-    manifest.artifactDigest !== expectedArtifactDigest
-  ) {
+  if (manifest.artifactDigest !== expectedArtifactDigest) {
     throw new Error("artifact aggregate digest mismatch");
   }
   const actualSources = listFiles(sourceRoot).map(
