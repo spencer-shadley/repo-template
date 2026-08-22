@@ -173,14 +173,20 @@ function readConfig(configPath: string): Config {
   try {
     raw = fs.readFileSync(configPath, "utf8");
   } catch (error) {
-    throw new Error(`failed to read config ${configPath}: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `failed to read config ${configPath}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
   }
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!isRecord(parsed)) throw new Error("config must be a JSON object");
     return validateConfigObject(parsed);
   } catch (error) {
-    throw new Error(`failed to parse config ${configPath}: ${error instanceof Error ? error.message : String(error)}`);
+    throw new Error(
+      `failed to parse config ${configPath}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
+    );
   }
 }
 

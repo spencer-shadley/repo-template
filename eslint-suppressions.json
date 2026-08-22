@@ -8,9 +8,6 @@
     }
   },
   "scripts/lint-user-surface-leaks.ts": {
-    "preserve-caught-error": {
-      "count": 2
-    },
     "sonarjs/prefer-regexp-exec": {
       "count": 1
     },
