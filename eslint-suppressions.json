@@ -1,9 +1,4 @@
 {
-  "packages/adoption-shell/test/plan-record-v1.test.ts": {
-    "unicorn/no-declarations-before-early-exit": {
-      "count": 1
-    }
-  },
   "packages/repo-quality/index.d.ts": {
     "@typescript-eslint/no-explicit-any": {
       "count": 5
