@@ -191,7 +191,7 @@ function readConfig(configPath: string): Config {
 }
 
 function expandBraces(glob: string): string[] {
-  const match = glob.match(/^(.*)\{([^{}]+)\}(.*)$/);
+  const match = /^(.*)\{([^{}]+)\}(.*)$/.exec(glob);
   if (!match) return [glob];
   const [, before, body, after] = match;
   if (before === undefined || body === undefined || after === undefined) return [glob];
