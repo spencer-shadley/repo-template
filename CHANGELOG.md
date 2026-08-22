@@ -16,6 +16,10 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Fixed
 
+- **`@spencer-shadley/repo-quality` resolves Betterleaks host shims outside `PATH`:** the
+  secret-scan wrapper checks PATH candidates and the operator's `.local/bin` location, then uses
+  the resolved absolute binary; Windows `.cmd` shims run through an explicit `cmd.exe` process
+  without `shell: true`. Missing binaries remain a fail-closed error. PATCH. Fixes #200.
 - **`@spencer-shadley/repo-quality` 1.3.0 closes inline ESLint configuration as a gate
   bypass:** the kit ignores inline config, rejects every inline ESLint directive with a migration
   pointer, and no longer accepts one as a TypeScript waiver. Existing debt is centralized in
