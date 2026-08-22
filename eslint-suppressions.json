@@ -7,11 +7,6 @@
       "count": 1
     }
   },
-  "scripts/lint-user-surface-leaks.ts": {
-    "unicorn/prefer-type-error": {
-      "count": 1
-    }
-  },
   "tools/artifact-build.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1

@@ -150,7 +150,7 @@ function validateConfigObject(config: Record<string, unknown>): Config {
   }
   const allowlist = config["allowlist"] ?? config["allow"] ?? [];
   if (!Array.isArray(allowlist)) {
-    throw new Error("config.allowlist must be an array");
+    throw new TypeError("config.allowlist must be an array");
   }
   const userSurface = config["userSurface"];
   if (userSurface !== undefined && userSurface !== "none") {
