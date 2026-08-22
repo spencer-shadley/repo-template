@@ -162,7 +162,7 @@ function selfTest(): void {
     gitignoreText: "",
     registry: goodRegistry,
   });
-  if (!untaggedButRegistered.some((e) => e.includes("is not gitignored"))) {
+  if (untaggedButRegistered.every((e) => !e.includes("is not gitignored"))) {
     throw new Error("self-test failed: a registered-but-untagged path was not detected");
   }
 
@@ -170,7 +170,7 @@ function selfTest(): void {
     gitignoreText: goodGitignore,
     registry: { entries: [] },
   });
-  if (!taggedButUnregistered.some((e) => e.includes("no entry in .runtime-artifact-registry.json"))) {
+  if (taggedButUnregistered.every((e) => !e.includes("no entry in .runtime-artifact-registry.json"))) {
     throw new Error("self-test failed: a tagged-but-unregistered path was not detected");
   }
 
@@ -178,7 +178,7 @@ function selfTest(): void {
     gitignoreText: goodGitignore,
     registry: { entries: [{ pattern: "scratch/state.json", owner: "agent-orchestrator", reason: "x", incident: null }] },
   });
-  if (!ownerMismatch.some((e) => e.includes("owner mismatch"))) {
+  if (ownerMismatch.every((e) => !e.includes("owner mismatch"))) {
     throw new Error("self-test failed: an owner mismatch was not detected");
   }
 

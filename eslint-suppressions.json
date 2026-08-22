@@ -8,9 +8,6 @@
     }
   },
   "scripts/check-runtime-artifact-registry.ts": {
-    "unicorn/no-negated-array-predicate": {
-      "count": 3
-    },
     "unicorn/no-unnecessary-string-trim": {
       "count": 1
     }
@@ -33,9 +30,6 @@
     },
     "unicorn/no-declarations-before-early-exit": {
       "count": 1
-    },
-    "unicorn/no-negated-array-predicate": {
-      "count": 2
     },
     "unicorn/prefer-code-point": {
       "count": 1
