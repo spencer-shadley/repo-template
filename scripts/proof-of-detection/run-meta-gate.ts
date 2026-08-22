@@ -300,7 +300,7 @@ function formatReceipt(results: readonly OutcomeRecord[], summary: SummaryRecord
 // failing the blind one -- it does not work.
 function selfTest(): void {
   const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-  const detectorScript = path.join(repoRoot, "scripts", "proof-of-detection", "reference-detectors", "theme-dual-mode-lint.mjs");
+  const detectorScript = path.join(repoRoot, "scripts", "proof-of-detection", "reference-detectors", "theme-dual-mode-lint.ts");
   const darkRgbCss = fs.readFileSync(
     path.join(repoRoot, "scripts", "proof-of-detection", "reference-detectors", "fixtures", "dark-rgb.css"),
   );
