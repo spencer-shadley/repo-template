@@ -223,7 +223,7 @@ function executeProofForCommand(
     if (spawnResult.error || spawnResult.status === null) {
       const reason = spawnResult.error
         ? spawnResult.error.message
-        : `command timed out after ${command.timeoutSeconds}s or was killed by signal ${String(spawnResult.signal)}`;
+        : `command timed out after ${String(command.timeoutSeconds)}s or was killed by signal ${String(spawnResult.signal)}`;
       return outcome(commandId, {
         outcome: "could-not-execute",
         exitCode: null,
@@ -278,14 +278,14 @@ export function summarizeDetectionProofs(results: readonly OutcomeRecord[]): Sum
 
 function formatReceipt(results: readonly OutcomeRecord[], summary: SummaryRecord): string {
   const lines = [
-    `proof-of-detection: ${results.length} command(s) declared; ` +
-      `${summary.counts.pass} detected, ${summary.counts.fail} blind, ` +
-      `${summary.counts.skipped} exempt (unproven), ${summary.counts["could-not-execute"]} could-not-execute`,
+    `proof-of-detection: ${String(results.length)} command(s) declared; ` +
+      `${String(summary.counts.pass)} detected, ${String(summary.counts.fail)} blind, ` +
+      `${String(summary.counts.skipped)} exempt (unproven), ${String(summary.counts["could-not-execute"])} could-not-execute`,
   ];
   for (const row of results) {
     lines.push(
       `  ${row.commandId}: ${row.outcome}${row.reason ? ` (${row.reason})` : ""}${
-        row.exitCode !== null ? ` [exit ${row.exitCode}]` : ""
+        row.exitCode !== null ? ` [exit ${String(row.exitCode)}]` : ""
       }`,
     );
   }
@@ -401,7 +401,7 @@ if (invokedAsMain) {
     });
     const summary = summarizeDetectionProofs(results);
     console.log(formatReceipt(results, summary));
-    console.log(`proof-of-detection: unproven-gate count = ${summary.unprovenCount}`);
+    console.log(`proof-of-detection: unproven-gate count = ${String(summary.unprovenCount)}`);
     process.exitCode = summary.metaGateFailed ? 1 : 0;
   }
 }

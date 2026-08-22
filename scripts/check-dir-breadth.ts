@@ -132,9 +132,9 @@ function checkHit(h: Hit, cfg: DirBreadthConfig, violations: string[]): void {
   const cap = allow ? allow.max : cfg.maxFilesPerDir;
   if (h.count > cap) {
     const issue = allow?.issue ? ` (issue ${allow.issue})` : "";
-    violations.push(`${h.rel}: ${h.count} source files > max ${cap}${issue}`);
+    violations.push(`${h.rel}: ${String(h.count)} source files > max ${String(cap)}${issue}`);
   } else if (allow) {
-    console.log(`dir-breadth: allowlisted ${h.rel} ${h.count}/${cap}${allow.issue ? ` → ${allow.issue}` : ""}`);
+    console.log(`dir-breadth: allowlisted ${h.rel} ${String(h.count)}/${String(cap)}${allow.issue ? ` → ${allow.issue}` : ""}`);
   }
 }
 

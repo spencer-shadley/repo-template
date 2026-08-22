@@ -68,7 +68,7 @@ export function parseGitignoreTags(text: string): GitignoreTag[] {
     if (!match || !match[1] || !match[2]) continue;
     const patternLine = lines[i + 1];
     if (patternLine === undefined || patternLine.trim().length === 0 || patternLine.trim().startsWith("#")) {
-      throw new Error(`runtime-artifact tag at .gitignore:${i + 1} is not immediately followed by a pattern line`);
+      throw new Error(`runtime-artifact tag at .gitignore:${String(i + 1)} is not immediately followed by a pattern line`);
     }
     tagged.push({
       pattern: patternLine.trim(),
@@ -95,13 +95,13 @@ export function checkRegistry({
   const seen = new Set<string>();
   for (const row of tagged) {
     if (seen.has(row.pattern)) {
-      errors.push(`.gitignore:${row.line}: duplicate runtime-artifact tag for pattern ${row.pattern}`);
+      errors.push(`.gitignore:${String(row.line)}: duplicate runtime-artifact tag for pattern ${row.pattern}`);
     }
     seen.add(row.pattern);
     const registered = registeredByPattern.get(row.pattern);
     if (!registered) {
       errors.push(
-        `.gitignore:${row.line}: pattern ${row.pattern} is tagged runtime-artifact but has no entry in .runtime-artifact-registry.json`,
+        `.gitignore:${String(row.line)}: pattern ${row.pattern} is tagged runtime-artifact but has no entry in .runtime-artifact-registry.json`,
       );
       continue;
     }
@@ -112,7 +112,7 @@ export function checkRegistry({
     }
     if (registered.incident !== row.incident) {
       errors.push(
-        `${row.pattern}: incident mismatch between .gitignore (${row.incident}) and registry (${registered.incident})`,
+        `${row.pattern}: incident mismatch between .gitignore (${String(row.incident)}) and registry (${String(registered.incident)})`,
       );
     }
   }
@@ -199,7 +199,7 @@ function runCheck(repoRoot: string): void {
       for (const e of errors) console.error(`  - ${e}`);
       process.exitCode = 1;
     } else {
-      console.log(`check-runtime-artifact-registry: ok -- ${registry.entries.length} runtime artifact(s) registered and gitignored`);
+      console.log(`check-runtime-artifact-registry: ok -- ${String(registry.entries.length)} runtime artifact(s) registered and gitignored`);
     }
   } catch (error) {
     console.error(`check-runtime-artifact-registry: ${error instanceof Error ? error.message : String(error)}`);

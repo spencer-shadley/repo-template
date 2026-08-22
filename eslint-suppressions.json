@@ -8,9 +8,6 @@
     }
   },
   "scripts/check-dir-breadth.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 4
-    },
     "unicorn/prefer-string-replace-all": {
       "count": 2
     }
@@ -29,9 +26,6 @@
     }
   },
   "scripts/check-runtime-artifact-registry.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 6
-    },
     "unicorn/no-exports-in-scripts": {
       "count": 5
     },
@@ -48,9 +42,6 @@
     },
     "@typescript-eslint/no-unsafe-argument": {
       "count": 1
-    },
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 12
     },
     "preserve-caught-error": {
       "count": 2
@@ -89,9 +80,6 @@
     }
   },
   "scripts/proof-of-detection/run-meta-gate.ts": {
-    "@typescript-eslint/restrict-template-expressions": {
-      "count": 8
-    },
     "unicorn/no-exports-in-scripts": {
       "count": 9
     }
