@@ -28,6 +28,10 @@ import {
   unrelatedAdr,
 } from "./generate-contract-fixtures.ts";
 
+function compare(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 function withFirstEntry(
   value: MaterializerInput,
   changes: Readonly<Record<string, unknown>>,
@@ -191,7 +195,7 @@ function buildBundleCases(): NegativeFixture[] {
   replaceBundle(missingMode, lintId, (current) =>
     rehashBundle(current, {
       modes: current.modes.map((mode) =>
-        mode.id === "self-test" ? { ...mode, requiredPaths: [...mode.requiredPaths, "tests/self-only.json"].sort() } : mode,
+        mode.id === "self-test" ? { ...mode, requiredPaths: [...mode.requiredPaths, "tests/self-only.json"].sort(compare) } : mode,
       ),
     }),
   );
