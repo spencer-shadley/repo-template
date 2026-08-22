@@ -1,9 +1,4 @@
 {
-  "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
-    "@typescript-eslint/unbound-method": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/test/canonical-digest.test.ts": {
     "unicorn/no-array-reverse": {
       "count": 1
