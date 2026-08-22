@@ -277,7 +277,6 @@ void test("fails closed on explicit future schema versions and migrates only abs
 });
 
 void test("a future-schema classifier decision closes a runtime, schema, and generated manifest", () => {
-  const path = "plans/001-future.md";
   const future = fixture("future-schema-version").record;
   const decision = classifyPlanRecordV1(future);
   const generatedDecision = classifyGeneratedPlanRecordV1(future);
@@ -288,6 +287,7 @@ void test("a future-schema classifier decision closes a runtime, schema, and gen
   assert.deepEqual(generatedDecision, decision);
   if (decision.kind !== "retire") throw new Error("future schema did not retire");
 
+  const path = "plans/001-future.md";
   const input = {
     ...manifestInput(),
     decisions: [{
