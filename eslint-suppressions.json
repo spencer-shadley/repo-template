@@ -8,9 +8,6 @@
     }
   },
   "scripts/lint-user-surface-leaks.ts": {
-    "unicorn/prefer-string-raw": {
-      "count": 1
-    },
     "unicorn/prefer-type-error": {
       "count": 1
     }

@@ -208,7 +208,7 @@ function convertGlobChar(glob: string, i: number): { segment: string; skip: numb
     return { segment: "[^/]*", skip: 0 };
   }
   if (char === "?") return { segment: "[^/]", skip: 0 };
-  if (char !== undefined && "\\^$+?.()|[]{}".includes(char)) return { segment: `\\${char}`, skip: 0 };
+  if (char !== undefined && String.raw`\^$+?.()|[]{}`.includes(char)) return { segment: `\\${char}`, skip: 0 };
   return { segment: char ?? "", skip: 0 };
 }
 
