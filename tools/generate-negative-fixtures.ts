@@ -68,14 +68,14 @@ function buildPathCases(): NegativeFixture[] {
   return [
     pathCase("absolute-root", "/rooted"),
     pathCase("absolute-drive", "C:/rooted"),
-    pathCase("absolute-unc", "\\\\server\\share"),
+    pathCase("absolute-unc", String.raw`\\server\share`),
     pathCase("traversal", "../escape"),
     pathCase("dot-segment", "docs/./file"),
     pathCase("control", "docs/\u0001file"),
     pathCase("trailing-dot", "docs/file."),
     pathCase("trailing-space", "docs/file "),
     pathCase("windows-reserved", "docs/CON.txt"),
-    pathCase("backslash", "docs\\file"),
+    pathCase("backslash", String.raw`docs\file`),
     ...["symlink", "device", "socket", "special"].map(kindCase),
   ];
 }

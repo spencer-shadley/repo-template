@@ -173,7 +173,7 @@ function validatePortableCharter(text: string): string[] {
   const errors: string[] = [];
   let previous = -1;
   for (const heading of portableCharterHeadings) {
-    const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const escaped = heading.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
     const matches = [...payload.matchAll(new RegExp(`^## ${escaped}$`, "gm"))];
     if (matches.length !== 1) {
       errors.push(`portable charter: expected exactly one ## ${heading}`);
