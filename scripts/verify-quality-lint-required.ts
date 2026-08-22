@@ -321,16 +321,19 @@ if (process.argv.includes("--self-test")) {
     !existsSync(kitPackagePath)
       ? "packages/repo-quality/package.json must ship in template"
       : undefined,
+    !existsSync(join(kitRoot, "index.ts"))
+      ? "packages/repo-quality/index.ts must ship as kit source"
+      : undefined,
     !existsSync(join(kitRoot, "index.mjs"))
       ? "packages/repo-quality/index.mjs must ship in template"
       : undefined,
-    !existsSync(join(kitRoot, "knip.mjs")) || !existsSync(join(kitRoot, "knip.json"))
+    !existsSync(join(kitRoot, "knip.ts")) || !existsSync(join(kitRoot, "knip.mjs")) || !existsSync(join(kitRoot, "knip.json"))
       ? "packages/repo-quality must ship the Knip wrapper and config"
       : undefined,
-    !existsSync(join(kitRoot, "jscpd.mjs")) || !existsSync(join(kitRoot, "jscpd.json"))
+    !existsSync(join(kitRoot, "jscpd.ts")) || !existsSync(join(kitRoot, "jscpd.mjs")) || !existsSync(join(kitRoot, "jscpd.json"))
       ? "packages/repo-quality must ship the jscpd wrapper and config"
       : undefined,
-    !existsSync(join(kitRoot, "secret-scan.mjs"))
+    !existsSync(join(kitRoot, "secret-scan.ts")) || !existsSync(join(kitRoot, "secret-scan.mjs"))
       ? "packages/repo-quality must ship the Betterleaks secret-scan wrapper"
       : undefined,
     !existsSync(templateConfigPath) || !read(templateConfigPath).includes(kitName)
