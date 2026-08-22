@@ -258,7 +258,7 @@ export function createReleasePayloadSetV2(
     diagnostics.add("E_TYPE", "", "expected an array of release payload entry drafts");
     return finish<ReleasePayloadSet>(undefined, diagnostics);
   }
-  const rawEntries = value;
+  const rawEntries: unknown[] = value;
   const entries = rawEntries.map((rawEntry) => {
     if (!isRecord(rawEntry)) return rawEntry;
     let contentSha256 = "0".repeat(64);
