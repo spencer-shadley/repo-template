@@ -9,22 +9,39 @@ import {
   validateArtifactManifestV2,
   validateMaterializerOutputManifestV2,
   validateVerificationReceiptV2,
-  type MaterializerOutputManifest,
 } from "../../../artifacts/adoption-shell-v2/index.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
-function readJson<T>(relativePath: string): T {
+function readJson(relativePath: string): unknown {
   return JSON.parse(
     fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
-  ) as T;
+  ) as unknown;
+}
+
+function record(value: unknown, label: string): Record<string, unknown> {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError(`${label} must be an object`);
+  }
+  return value;
+}
+
+function records(value: unknown, label: string): Record<string, unknown>[] {
+  if (!Array.isArray(value)) throw new TypeError(`${label} must be an array`);
+  return value.map((entry, index) => record(entry, `${label}[${String(index)}]`));
+}
+
+function array(value: unknown, label: string): unknown[] {
+  if (!Array.isArray(value)) throw new TypeError(`${label} must be an array`);
+  return value;
 }
 
 void test("capability-owned output entries reject a malformed bundleId", () => {
-  const golden = readJson<{
-    readonly manifest: Record<string, unknown>;
-  }>("contracts/adoption-shell-v2/golden/minimal-output.json");
-  const { manifestDigest: _digest, ...body } = golden.manifest;
+  const golden = record(
+    readJson("contracts/adoption-shell-v2/golden/minimal-output.json"),
+    "minimal output",
+  );
+  const { manifestDigest: _digest, ...body } = record(golden["manifest"], "manifest");
   const capabilityEntry = {
     path: "capability/tool.sh",
     kind: "file",
@@ -37,12 +54,12 @@ void test("capability-owned output entries reject a malformed bundleId", () => {
   const mutatedBody = {
     ...body,
     entryCount: 2,
-    entries: [...(body["entries"] as readonly unknown[]), capabilityEntry],
+    entries: [...array(body["entries"], "entries"), capabilityEntry],
   };
   const manifest = {
     ...mutatedBody,
     manifestDigest: sha256CanonicalJson(mutatedBody),
-  } as unknown as MaterializerOutputManifest;
+  };
 
   const result = validateMaterializerOutputManifestV2(manifest);
   assert.equal(result.ok, false);
@@ -57,7 +74,7 @@ void test("capability-owned output entries reject a malformed bundleId", () => {
 });
 
 function readArtifactManifest(): Record<string, unknown> {
-  return readJson<Record<string, unknown>>("artifacts/adoption-shell-v2/artifact-manifest.json");
+  return record(readJson("artifacts/adoption-shell-v2/artifact-manifest.json"), "artifact manifest");
 }
 
 function withRecomputedDigest(body: Record<string, unknown>): Record<string, unknown> {
@@ -117,7 +134,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "toolchain.typescript mismatch",
       mutate: (m) =>
-        ((m["toolchain"] as Record<string, unknown>)["typescript"] = "0.0.0"),
+        (record(m["toolchain"], "toolchain")["typescript"] = "0.0.0"),
       code: "E_CONST",
       pointer: "/toolchain/typescript",
       recompute: true,
@@ -125,7 +142,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "toolchain.nodeCompatibility mismatch",
       mutate: (m) =>
-        ((m["toolchain"] as Record<string, unknown>)["nodeCompatibility"] = ">=0.0.0"),
+        (record(m["toolchain"], "toolchain")["nodeCompatibility"] = ">=0.0.0"),
       code: "E_CONST",
       pointer: "/toolchain/nodeCompatibility",
       recompute: true,
@@ -133,7 +150,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "toolchain.packageManager mismatch",
       mutate: (m) =>
-        ((m["toolchain"] as Record<string, unknown>)["packageManager"] = "npm@0.0.0"),
+        (record(m["toolchain"], "toolchain")["packageManager"] = "npm@0.0.0"),
       code: "E_CONST",
       pointer: "/toolchain/packageManager",
       recompute: true,
@@ -169,7 +186,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "sources file row bad mode",
       mutate: (m) => {
-        const rows = m["sources"] as Record<string, unknown>[];
+        const rows = records(m["sources"], "sources");
         const first = rows[0];
         if (first === undefined) throw new Error("no sources rows");
         first["mode"] = "100600";
@@ -181,7 +198,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "sources file row bytes out of range",
       mutate: (m) => {
-        const rows = m["sources"] as Record<string, unknown>[];
+        const rows = records(m["sources"], "sources");
         const first = rows[0];
         if (first === undefined) throw new Error("no sources rows");
         first["bytes"] = 33_554_433;
@@ -193,7 +210,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "schemas array wrong length",
       mutate: (m) => {
-        (m["schemas"] as unknown[]).pop();
+        array(m["schemas"], "schemas").pop();
       },
       code: "E_COUNT",
       pointer: "/schemas",
@@ -202,7 +219,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "schemas entry id pattern mismatch",
       mutate: (m) => {
-        const rows = m["schemas"] as Record<string, unknown>[];
+        const rows = records(m["schemas"], "schemas");
         const first = rows[0];
         if (first === undefined) throw new Error("no schemas rows");
         first["id"] = "https://example.com/not-a-repo-template-schema.json";
@@ -214,7 +231,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "schemas entry version mismatch",
       mutate: (m) => {
-        const rows = m["schemas"] as Record<string, unknown>[];
+        const rows = records(m["schemas"], "schemas");
         const first = rows[0];
         if (first === undefined) throw new Error("no schemas rows");
         first["version"] = "9.9.9";
@@ -226,7 +243,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "schemas entry mode is executable, not the required constant",
       mutate: (m) => {
-        const rows = m["schemas"] as Record<string, unknown>[];
+        const rows = records(m["schemas"], "schemas");
         const first = rows[0];
         if (first === undefined) throw new Error("no schemas rows");
         first["mode"] = "100755";
@@ -238,7 +255,7 @@ void test("artifact manifest validator rejects every mutated field with a target
     {
       name: "schemas entry bytes exceed the schema-file maximum",
       mutate: (m) => {
-        const rows = m["schemas"] as Record<string, unknown>[];
+        const rows = records(m["schemas"], "schemas");
         const first = rows[0];
         if (first === undefined) throw new Error("no schemas rows");
         first["bytes"] = 1_048_577;
@@ -275,8 +292,9 @@ void test("artifact manifest validator rejects every mutated field with a target
 });
 
 function readVerificationReceipt(): Record<string, unknown> {
-  return readJson<Record<string, unknown>>(
-    "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
+  return record(
+    readJson("contracts/adoption-shell-v2/golden/deterministic-receipt.json"),
+    "verification receipt",
   );
 }
 
@@ -365,10 +383,11 @@ void test("verification receipt validator rejects every mutated field with a tar
 });
 
 function readOutputManifest(): Record<string, unknown> {
-  const golden = readJson<{ readonly manifest: Record<string, unknown> }>(
-    "contracts/adoption-shell-v2/golden/minimal-output.json",
+  const golden = record(
+    readJson("contracts/adoption-shell-v2/golden/minimal-output.json"),
+    "minimal output",
   );
-  return golden.manifest;
+  return record(golden["manifest"], "manifest");
 }
 
 void test("materializer output manifest validator rejects every mutated field with a targeted diagnostic", () => {
@@ -425,7 +444,7 @@ void test("materializer output manifest validator rejects every mutated field wi
     {
       name: "entries role unsupported",
       mutate: (m) => {
-        const rows = m["entries"] as Record<string, unknown>[];
+        const rows = records(m["entries"], "entries");
         const first = rows[0];
         if (first === undefined) throw new Error("no entries");
         first["role"] = "bogus-role";
@@ -437,7 +456,7 @@ void test("materializer output manifest validator rejects every mutated field wi
     {
       name: "entries mode invalid",
       mutate: (m) => {
-        const rows = m["entries"] as Record<string, unknown>[];
+        const rows = records(m["entries"], "entries");
         const first = rows[0];
         if (first === undefined) throw new Error("no entries");
         first["mode"] = "100600";
@@ -449,7 +468,7 @@ void test("materializer output manifest validator rejects every mutated field wi
     {
       name: "entries encoding unsupported",
       mutate: (m) => {
-        const rows = m["entries"] as Record<string, unknown>[];
+        const rows = records(m["entries"], "entries");
         const first = rows[0];
         if (first === undefined) throw new Error("no entries");
         first["encoding"] = "latin1";
@@ -461,7 +480,7 @@ void test("materializer output manifest validator rejects every mutated field wi
     {
       name: "entries encoding disagrees with role",
       mutate: (m) => {
-        const rows = m["entries"] as Record<string, unknown>[];
+        const rows = records(m["entries"], "entries");
         const first = rows[0];
         if (first === undefined) throw new Error("no entries");
         first["encoding"] = "binary";

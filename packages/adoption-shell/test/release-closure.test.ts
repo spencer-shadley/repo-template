@@ -6,7 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import {
   sha256CanonicalJson,
+  validateArtifactManifestV2,
+  validateMaterializerInputV2,
   validateTemplateReleaseClosureV1,
+  validateTemplateReleaseReceiptV1,
   type ArtifactManifest,
   type MaterializerInput,
   type TemplateReleaseClosure,
@@ -15,24 +18,40 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
-function readJson<T>(relativePath: string): T {
-  return JSON.parse(
-    fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8"),
-  ) as T;
+function readJson(relativePath: string): unknown {
+  return JSON.parse(fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8")) as unknown;
+}
+
+function readMaterializerInput(relativePath: string): MaterializerInput {
+  const result = validateMaterializerInputV2(readJson(relativePath));
+  if (!result.ok) throw new TypeError(JSON.stringify(result.diagnostics));
+  return result.value;
+}
+
+function readArtifactManifest(relativePath: string): ArtifactManifest {
+  const result = validateArtifactManifestV2(readJson(relativePath));
+  if (!result.ok) throw new TypeError(JSON.stringify(result.diagnostics));
+  return result.value;
+}
+
+function templateReleaseReceipt(relativePath: string): TemplateReleaseReceipt {
+  const result = validateTemplateReleaseReceiptV1(readJson(relativePath));
+  if (!result.ok) throw new TypeError(JSON.stringify(result.diagnostics));
+  return result.value;
 }
 
 function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T;
+  return structuredClone(value);
 }
 
 function closure(): TemplateReleaseClosure {
-  const input = readJson<MaterializerInput>(
+  const input = readMaterializerInput(
     "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
   );
-  const artifactManifest = readJson<ArtifactManifest>(
+  const artifactManifest = readArtifactManifest(
     "artifacts/adoption-shell-v2/artifact-manifest.json",
   );
-  const candidate = readJson<TemplateReleaseReceipt>(
+  const candidate = templateReleaseReceipt(
     "contracts/adoption-shell-v2/fixtures/template-release-receipt.json",
   );
   const { receiptDigest: _receiptDigest, ...candidateBody } = candidate;
