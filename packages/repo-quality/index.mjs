@@ -123,7 +123,7 @@ export const preferTypeScriptRule = {
           return;
         }
 
-        const normalized = filename.replace(/\\/g, "/");
+        const normalized = filename.replaceAll("\\", "/");
         const match = normalized.match(JS_FILE_PATTERN);
         if (!match) return;
         const ext = match[0];
