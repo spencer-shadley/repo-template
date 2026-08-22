@@ -8,9 +8,6 @@
     }
   },
   "scripts/check-dir-breadth.ts": {
-    "@typescript-eslint/no-unnecessary-type-conversion": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 1
     },
@@ -25,9 +22,6 @@
     }
   },
   "scripts/check-issue-template-intake.ts": {
-    "@typescript-eslint/no-unnecessary-type-conversion": {
-      "count": 1
-    },
     "sonarjs/super-linear-regex": {
       "count": 3
     },
