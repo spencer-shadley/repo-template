@@ -76,12 +76,26 @@ function stripFrontmatter(markdown: string): string {
   return text.slice(end + "\n---\n".length);
 }
 
+function provenanceValue(line: string, field: string): string | undefined {
+  const withoutBullet = line.trimStart().replace(/^(?:[-*])\s+/, "");
+  const withoutBold = withoutBullet.startsWith("**") ? withoutBullet.slice(2) : withoutBullet;
+  if (!withoutBold.toLowerCase().startsWith(field)) return undefined;
+  let remaining = withoutBold.slice(field.length);
+  if (remaining.startsWith("**")) remaining = remaining.slice(2);
+  if (!remaining.trimStart().startsWith(":")) return undefined;
+  return remaining.slice(remaining.indexOf(":") + 1);
+}
+
 function validateProvenance(text: string, missing: string[]): void {
-  const hasRepo = /(?:^|\n)\s*(?:[-*]\s+)?(?:\*\*)?repository(?:\*\*)?\s*:/i.test(text);
-  const hasCommit = /(?:^|\n)\s*(?:[-*]\s+)?(?:\*\*)?commit(?:\*\*)?\s*:/i.test(text);
-  const hasPath =
-    /(?:^|\n)\s*(?:[-*]\s+)?(?:\*\*)?path(?:\*\*)?\s*:.*\.github\/ISSUE_TEMPLATE\//i.test(text)
-    || /ISSUE_TEMPLATE\/task\.(md|ya?ml)/i.test(text);
+  const lines = text.split("\n");
+  const hasRepo = lines.some((line) => provenanceValue(line, "repository") !== undefined);
+  const hasCommit = lines.some((line) => provenanceValue(line, "commit") !== undefined);
+  const pathValue = lines.map((line) => provenanceValue(line, "path")).find(Boolean);
+  const lowerText = text.toLowerCase();
+  const hasPath = pathValue?.toLowerCase().includes(".github/issue_template/") === true
+    || lowerText.includes("issue_template/task.md")
+    || lowerText.includes("issue_template/task.yaml")
+    || lowerText.includes("issue_template/task.yml");
   if (!(hasRepo && hasCommit && hasPath)) {
     missing.push("template provenance scaffold (repository, commit, path)");
   }
