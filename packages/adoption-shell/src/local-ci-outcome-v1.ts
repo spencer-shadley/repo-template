@@ -94,14 +94,13 @@ function validateNotExecutedOutcome(
 
 function validateOutcomePayload(
   outcome: unknown,
-  outcomeValid: boolean,
   exitCode: unknown,
   reason: unknown,
   diagnostics: Diagnostics,
 ): void {
-  if (outcomeValid && typeof outcome === "string" && EXECUTED_OUTCOMES.has(outcome)) {
+  if (typeof outcome === "string" && EXECUTED_OUTCOMES.has(outcome)) {
     validateExecutedOutcome(exitCode, reason, diagnostics);
-  } else if (outcomeValid && typeof outcome === "string" && NOT_EXECUTED_OUTCOMES.has(outcome)) {
+  } else if (typeof outcome === "string" && NOT_EXECUTED_OUTCOMES.has(outcome)) {
     validateNotExecutedOutcome(exitCode, reason, diagnostics);
   } else {
     if (typeof exitCode !== "number" && exitCode !== null) {
@@ -136,7 +135,7 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
   diagnostics.string(value["commandId"], "/commandId", { min: 1 });
 
   const outcome = value["outcome"];
-  const outcomeValid = diagnostics.string(outcome, "/outcome") && OUTCOME_SET.has(outcome);
+  diagnostics.string(outcome, "/outcome");
   if (typeof outcome === "string" && !OUTCOME_SET.has(outcome)) {
     diagnostics.add("E_ENUM", "/outcome", "unsupported outcome state");
   }
@@ -153,7 +152,6 @@ export function validateLocalCiOutcomeV1(value: unknown): ValidationResult<Local
 
   validateOutcomePayload(
     outcome,
-    outcomeValid,
     value["exitCode"],
     value["reason"],
     diagnostics,
