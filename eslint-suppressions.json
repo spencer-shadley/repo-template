@@ -5,9 +5,6 @@
     },
     "max-lines-per-function": {
       "count": 1
-    },
-    "unicorn/prefer-string-replace-all": {
-      "count": 1
     }
   },
   "scripts/check-dir-breadth.ts": {
