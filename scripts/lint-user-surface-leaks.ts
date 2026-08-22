@@ -42,6 +42,14 @@ const ENV_VAR_REFERENCE_PATTERNS = [
   /\b(?:Deno\.env\.get|getenv)\s*\(\s*(['"`])(?<name>[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+)\1/g,
 ];
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isString(value: unknown): value is string {
+  return typeof value === "string";
+}
+
 function referencedEnvironmentVariables(text: string): Set<string> {
   const names = new Set<string>();
   for (const pattern of ENV_VAR_REFERENCE_PATTERNS) {
@@ -92,49 +100,59 @@ function normalizeRel(filePath: string): string {
   return filePath.split(path.sep).join("/");
 }
 
-function validateAllowlistFields(e: Record<string, unknown>, index: number): void {
-  if (typeof e["path"] !== "string" || !e["path"].trim()) {
-    throw new Error(`config.allowlist[${index}].path must be a non-empty string`);
-  }
-  if (e["line"] !== undefined && (!Number.isInteger(e["line"]) || (e["line"] as number) < 1)) {
-    throw new Error(`config.allowlist[${index}].line must be a positive integer`);
-  }
-  if (e["rule"] !== undefined && !RULES.some((rule) => rule.id === e["rule"])) {
-    throw new Error(`config.allowlist[${index}].rule is not a known rule`);
-  }
-  if (e["match"] !== undefined && typeof e["match"] !== "string") {
-    throw new Error(`config.allowlist[${index}].match must be a string`);
-  }
-  if (typeof e["justification"] !== "string" || !e["justification"].trim()) {
-    throw new Error(`config.allowlist[${index}].justification is required`);
-  }
+function requiredNonBlankString(value: unknown, error: string): string {
+  if (!isString(value) || !value.trim()) throw new Error(error);
+  return value;
+}
+
+function optionalPositiveInteger(value: unknown, error: string): number | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 1) throw new Error(error);
+  return value;
+}
+
+function optionalKnownRule(value: unknown, error: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (!isString(value) || !RULES.some((candidate) => candidate.id === value)) throw new Error(error);
+  return value;
+}
+
+function optionalString(value: unknown, error: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (!isString(value)) throw new Error(error);
+  return value;
+}
+
+function validateAllowlistRecord(entry: Record<string, unknown>, index: number): AllowlistEntry {
+  const line = optionalPositiveInteger(entry["line"], `config.allowlist[${index}].line must be a positive integer`);
+  const rule = optionalKnownRule(entry["rule"], `config.allowlist[${index}].rule is not a known rule`);
+  const match = optionalString(entry["match"], `config.allowlist[${index}].match must be a string`);
+  return {
+    path: requiredNonBlankString(entry["path"], `config.allowlist[${index}].path must be a non-empty string`),
+    ...(line !== undefined ? { line } : {}),
+    ...(rule !== undefined ? { rule } : {}),
+    ...(match !== undefined ? { match } : {}),
+    justification: requiredNonBlankString(entry["justification"], `config.allowlist[${index}].justification is required`),
+  };
 }
 
 function validateAllowlistEntry(entry: unknown, index: number): AllowlistEntry {
-  if (!entry || typeof entry !== "object") {
+  if (!isRecord(entry)) {
     throw new Error(`config.allowlist[${index}] must be an object`);
   }
-  const e = entry as Record<string, unknown>;
-  validateAllowlistFields(e, index);
-  return {
-    path: e["path"] as string,
-    ...(e["line"] !== undefined ? { line: e["line"] as number } : {}),
-    ...(e["rule"] !== undefined ? { rule: e["rule"] as string } : {}),
-    ...(e["match"] !== undefined ? { match: e["match"] as string } : {}),
-    justification: e["justification"] as string,
-  };
+  return validateAllowlistRecord(entry, index);
 }
 
 function validateConfigObject(config: Record<string, unknown>): Config {
   const include = config["include"];
-  const allowlist = (config["allowlist"] ?? config["allow"] ?? []) as unknown[];
-  const userSurface = config["userSurface"];
-  if (!Array.isArray(include) || include.some((entry) => typeof entry !== "string")) {
+  const allowlist = config["allowlist"] ?? config["allow"] ?? [];
+  if (!Array.isArray(include) || !include.every(isString)) {
     throw new Error("config.include must be an array of glob strings");
   }
   if (!Array.isArray(allowlist)) {
     throw new Error("config.allowlist must be an array");
   }
+  const userSurface = config["userSurface"];
   if (userSurface !== undefined && userSurface !== "none") {
     throw new Error('config.userSurface must be "none" when present');
   }
@@ -144,9 +162,9 @@ function validateConfigObject(config: Record<string, unknown>): Config {
     );
   }
   return {
-    include: include as string[],
+    include,
     allowlist: allowlist.map((entry, index) => validateAllowlistEntry(entry, index)),
-    ...(userSurface === "none" ? { userSurface: "none" as const } : {}),
+    ...(userSurface === "none" ? { userSurface: "none" } : {}),
   };
 }
 
@@ -158,7 +176,8 @@ function readConfig(configPath: string): Config {
     throw new Error(`failed to read config ${configPath}: ${error instanceof Error ? error.message : String(error)}`);
   }
   try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isRecord(parsed)) throw new Error("config must be a JSON object");
     return validateConfigObject(parsed);
   } catch (error) {
     throw new Error(`failed to parse config ${configPath}: ${error instanceof Error ? error.message : String(error)}`);

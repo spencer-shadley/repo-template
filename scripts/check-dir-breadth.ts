@@ -46,6 +46,10 @@ interface AllowlistCapResult {
   readonly issue: string;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function loadConfig(): DirBreadthConfig {
   if (!existsSync(configPath)) {
     return {
@@ -58,7 +62,8 @@ function loadConfig(): DirBreadthConfig {
       allowlist: [],
     };
   }
-  const raw = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+  const parsed: unknown = JSON.parse(readFileSync(configPath, "utf8"));
+  const raw = isRecord(parsed) ? parsed : {};
   const rawMax = Number(raw["maxFilesPerDir"]);
   const rawRoots = raw["roots"];
   const rawIgnore = raw["ignoreDirNames"];
