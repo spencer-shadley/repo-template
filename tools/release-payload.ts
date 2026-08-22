@@ -137,8 +137,8 @@ function processManifestEntry(
   rawMode: unknown,
   ctx: ProcessContext,
 ): void {
-  if (!portableModes.has(String(rawMode))) return;
-  const templateMode = rawMode as TemplateMode;
+  if (typeof rawMode !== "string" || !portableModes.has(rawMode)) return;
+  const templateMode: TemplateMode = rawMode;
   const reason = classifyExcluded(pathValue);
   if (reason !== null) {
     ctx.excluded.push({ path: pathValue, templateMode, reason });
@@ -204,9 +204,12 @@ function construct(): {
   const { tree, blobs } = gitTreeAndBlobs();
   const templateManifestRow = tree.get("template-manifest.json");
   if (!templateManifestRow) throw new Error("HEAD lacks template-manifest.json");
-  const templateManifest = JSON.parse(
+  const templateManifest: unknown = JSON.parse(
     blobs.get(templateManifestRow.object)?.toString("utf8") ?? "",
-  ) as Record<string, unknown>;
+  );
+  if (templateManifest === null || typeof templateManifest !== "object" || Array.isArray(templateManifest)) {
+    throw new Error("template-manifest.json must contain an object");
+  }
   const inventory: InventoryRow[] = [];
   const excluded: ExcludedRow[] = [];
   const drafts: ReleasePayloadEntryDraftV2[] = [];
@@ -231,7 +234,7 @@ function construct(): {
   }
   return {
     selection: buildSelectionBody(inventory, excluded),
-    payload: payloadResult.value as unknown as Record<string, unknown>,
+    payload: payloadResult.value,
   };
 }
 

@@ -1,6 +1,5 @@
 import {
   type MaterializerInput,
-  type PayloadEntry,
   sha256Bytes,
   sha256CanonicalJson,
 } from "../packages/adoption-shell/src/index.ts";
@@ -29,29 +28,36 @@ import {
   unrelatedAdr,
 } from "./generate-contract-fixtures.ts";
 
+function withFirstEntry(
+  value: MaterializerInput,
+  changes: Readonly<Record<string, unknown>>,
+): unknown {
+  const [firstEntry, ...otherEntries] = value.release.entries;
+  if (firstEntry === undefined) throw new Error("fixture release must contain an entry");
+  const release = {
+    ...value.release,
+    entries: [{ ...firstEntry, ...changes }, ...otherEntries],
+  };
+  const { releaseDigest: _releaseDigest, ...body } = release;
+  return {
+    ...value,
+    release: { ...body, releaseDigest: sha256CanonicalJson(body) },
+  };
+}
+
 function pathCase(name: string, portablePath: string): NegativeFixture {
-  const value = mutableInput(minimalInput);
-  (value.release.entries[0] as { path: string }).path = portablePath;
-  return invalid(name, ["E_PATH_PORTABLE"], value);
+  return invalid(name, ["E_PATH_PORTABLE"], withFirstEntry(minimalInput, { path: portablePath }));
 }
 
 function kindCase(kind: string): NegativeFixture {
-  const value = mutableInput(minimalInput);
-  (value.release.entries[0] as { kind: string }).kind = kind;
-  rehashRelease(value);
-  return invalid(`kind-${kind}`, ["E_CONST"], value);
+  return invalid(`kind-${kind}`, ["E_CONST"], withFirstEntry(minimalInput, { kind }));
 }
 
 function foreignFieldCase(field: string): NegativeFixture {
-  const value = clone(minimalInput) as unknown as Record<string, unknown>;
-  value[field] = "foreign-authority";
-  return invalid(`foreign-${field}`, ["E_UNKNOWN_PROPERTY"], value);
-}
-
-function firstEntryOf(value: MaterializerInput): PayloadEntry {
-  const first = value.release.entries[0];
-  if (first === undefined) throw new Error("fixture release must contain an entry");
-  return first;
+  return invalid(`foreign-${field}`, ["E_UNKNOWN_PROPERTY"], {
+    ...clone(minimalInput),
+    [field]: "foreign-authority",
+  });
 }
 
 function buildPathCases(): NegativeFixture[] {
@@ -77,9 +83,7 @@ function buildIssueTemplateCases(): NegativeFixture[] {
     ["issue-template-case-root", ".GITHUB/issue_template/task.md"],
     ["issue-template-case-leaf", ".github/Issue_Template/task.md"],
   ] as const) {
-    const value = mutableInput(minimalInput);
-    (value.release.entries[0] as { path: string }).path = issuePath;
-    rows.push(invalid(name, ["E_PATH_ISSUE_TEMPLATE"], value));
+    rows.push(invalid(name, ["E_PATH_ISSUE_TEMPLATE"], withFirstEntry(minimalInput, { path: issuePath })));
   }
   return rows;
 }
@@ -90,9 +94,7 @@ function buildPreCustodyCases(): NegativeFixture[] {
     ["pre-custody-workflow", ".github/workflows/ci.yml"],
     ["pre-custody-workflow-case", ".GITHUB/WORKFLOWS/ci.yml"],
   ] as const) {
-    const value = mutableInput(minimalInput);
-    (value.release.entries[0] as { path: string }).path = workflowPath;
-    rows.push(invalid(name, ["E_PATH_PRE_CUSTODY_WORKFLOW"], value));
+    rows.push(invalid(name, ["E_PATH_PRE_CUSTODY_WORKFLOW"], withFirstEntry(minimalInput, { path: workflowPath })));
   }
   return rows;
 }
@@ -100,62 +102,52 @@ function buildPreCustodyCases(): NegativeFixture[] {
 function buildStructureCases(): NegativeFixture[] {
   const rows: NegativeFixture[] = [];
   const duplicate = mutableInput(minimalInput);
-  const duplicateEntry = firstEntryOf(duplicate);
+  const duplicateEntry = duplicate.release.entries[0];
+  if (duplicateEntry === undefined) throw new Error("fixture release must contain an entry");
   duplicate.release = { ...duplicate.release, entries: [clone(duplicateEntry), clone(duplicateEntry)] };
   rehashRelease(duplicate);
   rows.push(invalid("duplicate", ["E_DUPLICATE"], duplicate));
 
   const collision = mutableInput(minimalInput);
-  const collisionEntry = firstEntryOf(collision);
+  const collisionEntry = collision.release.entries[0];
+  if (collisionEntry === undefined) throw new Error("fixture release must contain an entry");
   collision.release = { ...collision.release, entries: [...collision.release.entries, { ...clone(collisionEntry), path: "readme.md" }] };
   rehashRelease(collision);
   rows.push(invalid("case-fold-collision", ["E_PATH_CASE_COLLISION"], collision));
 
   for (const mode of ["0644", "100600"]) {
-    const value = mutableInput(minimalInput);
-    (value.release.entries[0] as { mode: string }).mode = mode;
-    rehashRelease(value);
-    rows.push(invalid(`mode-${mode}`, ["E_MODE"], value));
+    rows.push(invalid(`mode-${mode}`, ["E_MODE"], withFirstEntry(minimalInput, { mode })));
   }
   return rows;
 }
 
 function buildIntegrityCases(): NegativeFixture[] {
   const rows: NegativeFixture[] = [];
-  const encoding = mutableInput(minimalInput);
-  (encoding.release.entries[0] as { encoding: string }).encoding = "binary";
-  rows.push(invalid("encoding-role", ["E_ENCODING_ROLE"], encoding));
-
-  const utf8 = mutableInput(minimalInput);
   const invalidUtf8 = Buffer.from([0xc3, 0x28]);
-  const utf8Entry = utf8.release.entries[0] as { contentBase64: string; contentSha256: string };
-  utf8Entry.contentBase64 = invalidUtf8.toString("base64");
-  utf8Entry.contentSha256 = sha256Bytes(invalidUtf8);
-  rehashRelease(utf8);
-  rows.push(invalid("invalid-utf8", ["E_UTF8"], utf8));
-
-  const base64 = mutableInput(minimalInput);
-  (base64.release.entries[0] as { contentBase64: string }).contentBase64 = "YQ";
-  rows.push(invalid("noncanonical-base64", ["E_BASE64"], base64));
-
-  const contentDigest = mutableInput(minimalInput);
-  (contentDigest.release.entries[0] as { contentSha256: string }).contentSha256 = "0".repeat(64);
-  rehashRelease(contentDigest);
-  rows.push(invalid("content-digest", ["E_CONTENT_DIGEST"], contentDigest));
+  rows.push(
+    invalid("encoding-role", ["E_ENCODING_ROLE"], withFirstEntry(minimalInput, { encoding: "binary" })),
+    invalid("invalid-utf8", ["E_UTF8"], withFirstEntry(minimalInput, {
+      contentBase64: invalidUtf8.toString("base64"),
+      contentSha256: sha256Bytes(invalidUtf8),
+    })),
+    invalid("noncanonical-base64", ["E_BASE64"], withFirstEntry(minimalInput, { contentBase64: "YQ" })),
+    invalid("content-digest", ["E_CONTENT_DIGEST"], withFirstEntry(minimalInput, { contentSha256: "0".repeat(64) })),
+  );
 
   const payloadDigest = mutableInput(minimalInput);
   payloadDigest.release = { ...payloadDigest.release, payloadDigest: "0".repeat(64) };
   const { releaseDigest: _payloadReleaseDigest, ...payloadBody } = payloadDigest.release;
   payloadDigest.release = { ...payloadBody, releaseDigest: sha256CanonicalJson(payloadBody) };
-  rows.push(invalid("payload-digest", ["E_PAYLOAD_DIGEST"], payloadDigest));
-
   const aggregateDigest = mutableInput(minimalInput);
   aggregateDigest.release = { ...aggregateDigest.release, releaseDigest: "0".repeat(64) };
-  rows.push(invalid("aggregate-digest", ["E_RELEASE_DIGEST"], aggregateDigest));
-
-  const migration = clone(minimalInput) as unknown as { release: { migrationRefs: string[] } };
-  migration.release.migrationRefs = ["prior-generation"];
-  rows.push(invalid("nonempty-migration-refs", ["E_COUNT"], migration));
+  rows.push(
+    invalid("payload-digest", ["E_PAYLOAD_DIGEST"], payloadDigest),
+    invalid("aggregate-digest", ["E_RELEASE_DIGEST"], aggregateDigest),
+    invalid("nonempty-migration-refs", ["E_COUNT"], {
+      ...clone(minimalInput),
+      release: { ...minimalInput.release, migrationRefs: ["prior-generation"] },
+    }),
+  );
   return rows;
 }
 
@@ -205,12 +197,22 @@ function buildBundleCases(): NegativeFixture[] {
   );
   rows.push(invalid("missing-mode-closure", ["E_MODE_CLOSURE"], missingMode));
 
-  const unowned = mutableInput(multiInput);
-  const betaEntry = unowned.release.entries.find((current) => current.path === "features/beta.txt");
+  const betaEntry = multiInput.release.entries.find((current) => current.path === "features/beta.txt");
   if (betaEntry === undefined) throw new Error("beta fixture entry missing");
-  (betaEntry as { bundleId: string }).bundleId = "example/unknown";
-  rehashRelease(unowned);
-  rows.push(invalid("unowned-entry", ["E_UNOWNED_ENTRY"], unowned));
+  const unowned = {
+    ...multiInput,
+    release: {
+      ...multiInput.release,
+      entries: multiInput.release.entries.map((entry) =>
+        entry === betaEntry ? { ...entry, bundleId: "example/unknown" } : entry,
+      ),
+    },
+  };
+  const { releaseDigest: _releaseDigest, ...unownedBody } = unowned.release;
+  rows.push(invalid("unowned-entry", ["E_UNOWNED_ENTRY"], {
+    ...unowned,
+    release: { ...unownedBody, releaseDigest: sha256CanonicalJson(unownedBody) },
+  }));
   return rows;
 }
 
