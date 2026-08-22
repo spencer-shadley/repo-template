@@ -342,7 +342,7 @@ const rfc8785Vectors = {
       name: "published primitives and number serialization",
       input: {
         numbers: [333333333.3333333, 1e30, 4.5, 0.002, 1e-27],
-        string: "€$\u000F\nA'B\"\\\\\"/",
+        string: "€$\u{000F}\nA'B\"\\\\\"/",
         literals: [null, true, false],
       },
       canonical:
@@ -356,11 +356,11 @@ const rfc8785Vectors = {
         "דּ": "Hebrew Letter Dalet With Dagesh",
         "1": "One",
         "😀": "Emoji: Grinning Face",
-        "\u0080": "Control",
+        "\u{0080}": "Control",
         "ö": "Latin Small Letter O With Diaeresis",
       },
       canonical:
-        "{\"\\r\":\"Carriage Return\",\"1\":\"One\",\"\u0080\":\"Control\",\"ö\":\"Latin Small Letter O With Diaeresis\",\"€\":\"Euro Sign\",\"😀\":\"Emoji: Grinning Face\",\"דּ\":\"Hebrew Letter Dalet With Dagesh\"}",
+        "{\"\\r\":\"Carriage Return\",\"1\":\"One\",\"\u{0080}\":\"Control\",\"ö\":\"Latin Small Letter O With Diaeresis\",\"€\":\"Euro Sign\",\"😀\":\"Emoji: Grinning Face\",\"דּ\":\"Hebrew Letter Dalet With Dagesh\"}",
     },
   ],
 };
