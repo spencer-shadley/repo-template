@@ -5,9 +5,6 @@
     }
   },
   "packages/adoption-shell/src/delivery-measurement.ts": {
-    "@typescript-eslint/no-unnecessary-type-assertion": {
-      "count": 1
-    },
     "unicorn/no-chained-comparison": {
       "count": 1
     }
@@ -53,9 +50,6 @@
     }
   },
   "packages/adoption-shell/test/artifact-schema-purity.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    },
     "@typescript-eslint/unbound-method": {
       "count": 1
     },
@@ -69,18 +63,7 @@
     }
   },
   "packages/adoption-shell/test/capability-docs-regression.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    },
     "sonarjs/super-linear-regex": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/test/delivery-measurement.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    },
-    "unicorn/prefer-structured-clone": {
       "count": 1
     }
   },
@@ -100,11 +83,6 @@
       "count": 3
     }
   },
-  "packages/adoption-shell/test/manifest-validators.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/test/plan-body-paths-v1.test.ts": {
     "@typescript-eslint/no-non-null-assertion": {
       "count": 3
@@ -122,18 +100,7 @@
     }
   },
   "packages/adoption-shell/test/release-candidate.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    },
     "unicorn/no-array-reverse": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/test/release-closure.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
-    },
-    "unicorn/prefer-structured-clone": {
       "count": 1
     }
   },
@@ -143,14 +110,6 @@
     },
     "@typescript-eslint/no-unsafe-member-access": {
       "count": 12
-    },
-    "unicorn/prefer-structured-clone": {
-      "count": 1
-    }
-  },
-  "packages/adoption-shell/test/validation-materialization.test.ts": {
-    "@typescript-eslint/no-unnecessary-type-parameters": {
-      "count": 1
     }
   },
   "packages/repo-quality/index.d.ts": {

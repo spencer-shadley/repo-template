@@ -1,0 +1,5 @@
+2026-08-21T18:49:18-07:00 started: inspected clean feature worktree and located the Betterleaks wrapper; implementing host binary resolution for #200.
+2026-08-21T18:52:00-07:00 progress: resolved host .cmd requires a direct cmd.exe invocation on Windows; stripped-PATH scan now finds and runs the absolute host shim without shell:true.
+2026-08-21T18:59:00-07:00 progress: verified the missing-binary fail-closed message and corrected wrapper lint findings; pnpm lint now reaches the repository's stale suppression-baseline failure.
+2026-08-21T19:04:00-07:00 progress: pruned the stale suppression baseline so pnpm lint passes, documented the PATCH-level kit change, and started the full verify gate.
+2026-08-21T19:06:00-07:00 verify: pnpm lint passed; pnpm verify ran Betterleaks successfully then stopped at unrelated existing TypeScript test typing failures (recorded in command output).
