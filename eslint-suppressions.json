@@ -8,9 +8,6 @@
     }
   },
   "scripts/lint-user-surface-leaks.ts": {
-    "@typescript-eslint/no-unnecessary-condition": {
-      "count": 1
-    },
     "@typescript-eslint/no-unsafe-argument": {
       "count": 1
     },
