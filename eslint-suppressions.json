@@ -8,9 +8,6 @@
     }
   },
   "scripts/check-issue-template-intake.ts": {
-    "sonarjs/super-linear-regex": {
-      "count": 3
-    },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 1
     }
