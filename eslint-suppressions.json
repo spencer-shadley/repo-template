@@ -12,11 +12,6 @@
       "count": 1
     }
   },
-  "tools/artifact-policy.ts": {
-    "sonarjs/super-linear-regex": {
-      "count": 1
-    }
-  },
   "tools/contract-fixtures-data.ts": {
     "unicorn/require-array-sort-compare": {
       "count": 2

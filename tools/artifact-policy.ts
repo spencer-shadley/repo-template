@@ -15,6 +15,24 @@ function moduleAllowed(specifier: string): boolean {
   );
 }
 
+function staticModuleSpecifier(statement: string): string | undefined {
+  const prefix = statement.startsWith("import ")
+    ? "import"
+    : statement.startsWith("export ")
+      ? "export"
+      : undefined;
+  if (prefix === undefined) return undefined;
+
+  const clause = statement.slice(prefix.length).trimStart();
+  const fromIndex = clause.lastIndexOf(" from ");
+  const source = (fromIndex === -1 ? clause : clause.slice(fromIndex + " from ".length)).trimStart();
+  const quote = source[0];
+  if (quote !== '"' && quote !== "'") return undefined;
+
+  const closingQuote = source.indexOf(quote, 1);
+  return closingQuote === -1 ? undefined : source.slice(1, closingQuote);
+}
+
 function scanFile(filePath: string): readonly string[] {
   const text = fs.readFileSync(filePath, "utf8");
   const findings: string[] = [];
@@ -24,14 +42,28 @@ function scanFile(filePath: string): readonly string[] {
     const column = index - prefix.lastIndexOf("\n");
     findings.push(`${filePath}:${String(line)}:${String(column)}: ${message}`);
   };
-  for (const match of text.matchAll(
-    /\b(?:import|export)\s+(?:[^"'`;]*?\sfrom\s*)?["']([^"']+)["']/g,
-  )) {
-    const specifier = match[1] ?? "";
-    if (!moduleAllowed(specifier)) {
-      add(match.index, `forbidden module import ${specifier}`);
+
+  let statement = "";
+  let statementIndex = 0;
+  let index = 0;
+  for (const line of text.split("\n")) {
+    const trimmed = line.trimStart();
+    if (statement.length === 0 && (trimmed.startsWith("import ") || trimmed.startsWith("export "))) {
+      statement = trimmed;
+      statementIndex = index + line.length - trimmed.length;
+    } else if (statement.length > 0) {
+      statement += `\n${trimmed}`;
     }
+    if (statement.length > 0 && line.includes(";")) {
+      const specifier = staticModuleSpecifier(statement);
+      if (specifier !== undefined && !moduleAllowed(specifier)) {
+        add(statementIndex, `forbidden module import ${specifier}`);
+      }
+      statement = "";
+    }
+    index += line.length + 1;
   }
+
   const forbiddenPatterns = [
     [/\bimport\s*\(/g, "dynamic import is forbidden"],
     [/\bimport\.meta\b/g, "import.meta ambient access is forbidden"],
