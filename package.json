@@ -8,7 +8,7 @@
     "node": ">=24.16.0 <25"
   },
   "scripts": {
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p packages/repo-quality/tsconfig.json --noEmit",
     "build": "node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "build:check": "node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",
     "test": "node --test packages/adoption-shell/test/*.test.ts",
@@ -22,11 +22,13 @@
     "secret:history": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs history",
     "lint": "eslint .",
     "verify:self": "pnpm lint && pnpm knip && pnpm dup && node scripts/lint-user-surface-leaks.ts --self-test && node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json && node scripts/verify-quality-lint-required.ts --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.ts && node scripts/check-runtime-artifact-registry.ts --self-test && node scripts/check-runtime-artifact-registry.ts && node scripts/proof-of-detection/run-meta-gate.ts --self-test && pnpm release:payload:check",
-    "verify": "pnpm knip && pnpm dup && pnpm secret:dir && pnpm lint && node scripts/verify-quality-lint-required.ts && pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self",
+    "verify": "pnpm knip && pnpm dup && pnpm secret:dir && pnpm lint && node scripts/verify-quality-lint-required.ts && pnpm repo-quality:emit:check && pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self",
     "check:issue-template-intake": "node scripts/check-issue-template-intake.ts",
     "verify:quality-lint": "node scripts/verify-quality-lint-required.ts --self-test",
     "check:runtime-artifact-registry": "node scripts/check-runtime-artifact-registry.ts",
-    "verify:proof-of-detection": "node scripts/proof-of-detection/run-meta-gate.ts --self-test"
+    "verify:proof-of-detection": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
+    "repo-quality:emit": "node --experimental-strip-types tools/emit-repo-quality.ts write",
+    "repo-quality:emit:check": "node --experimental-strip-types tools/emit-repo-quality.ts check"
   },
   "devDependencies": {
     "@spencer-shadley/repo-quality": "workspace:*",

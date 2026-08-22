@@ -10,6 +10,7 @@
     "artifacts/**",
     "packages/adoption-shell/src/**",
     "scripts/proof-of-detection/reference-detectors/**",
-    "tests/fixtures/**"
+    "tests/fixtures/**",
+    "packages/repo-quality/*.ts"
   ]
 }

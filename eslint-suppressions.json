@@ -41,5 +41,13 @@
     "unicorn/prefer-string-raw": {
       "count": 1
     }
+  },
+  "packages/repo-quality/index.ts": {
+    "complexity": {
+      "count": 2
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
   }
 }
