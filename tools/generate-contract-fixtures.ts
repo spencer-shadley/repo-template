@@ -346,7 +346,7 @@ const rfc8785Vectors = {
         literals: [null, true, false],
       },
       canonical:
-        "{\"literals\":[null,true,false],\"numbers\":[333333333.3333333,1e+30,4.5,0.002,1e-27],\"string\":\"€$\\u000f\\nA'B\\\"\\\\\\\\\\\"/\"}",
+        String.raw`{"literals":[null,true,false],"numbers":[333333333.3333333,1e+30,4.5,0.002,1e-27],"string":"€$\u000f\nA'B\"\\\\\"/"}`,
     },
     {
       name: "UTF-16 key ordering",

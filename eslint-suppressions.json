@@ -13,17 +13,11 @@
     }
   },
   "tools/generate-contract-fixtures.ts": {
-    "unicorn/prefer-string-raw": {
-      "count": 1
-    },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 3
     }
   },
   "tools/generate-negative-fixtures.ts": {
-    "unicorn/prefer-string-raw": {
-      "count": 2
-    },
     "unicorn/prefer-unicode-code-point-escapes": {
       "count": 1
     }
@@ -37,9 +31,6 @@
     },
     "unicorn/no-negated-array-predicate": {
       "count": 2
-    },
-    "unicorn/prefer-string-raw": {
-      "count": 1
     }
   },
   "packages/repo-quality/index.ts": {
