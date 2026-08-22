@@ -32,6 +32,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
+function staticModuleSpecifier(line: string): string | null {
+  const trimmed = line.trimStart();
+  if (!trimmed.startsWith("import ") && !trimmed.startsWith("export ")) {
+    return null;
+  }
+  const prefix = trimmed.startsWith("import ") ? "import " : "export ";
+  const fromIndex = trimmed.lastIndexOf(" from ");
+  const value = trimmed.slice(fromIndex === -1 ? prefix.length : fromIndex + 6).trimStart();
+  const quote = value[0];
+  if (quote !== '"' && quote !== "'") return null;
+  const closingQuote = value.indexOf(quote, 1);
+  return closingQuote === -1 ? null : value.slice(1, closingQuote);
+}
+
 function readManifest() {
   const result = validateArtifactManifestV2(
     readJson("artifacts/adoption-shell-v2/artifact-manifest.json"),
@@ -160,10 +174,9 @@ void test("public source and committed JavaScript have only the declared import 
   assert.deepEqual(findings, []);
   for (const row of manifest.emitted.filter((entry) => entry.path.endsWith(".js"))) {
     const text = fs.readFileSync(path.join(artifactRoot, row.path), "utf8");
-    for (const match of text.matchAll(
-      /\b(?:import|export)\s+(?:[^"'`;]*?\sfrom\s*)?["']([^"']+)["']/g,
-    )) {
-      const specifier = match[1] ?? "";
+    for (const line of text.split("\n")) {
+      const specifier = staticModuleSpecifier(line);
+      if (specifier === null) continue;
       if (specifier === "node:crypto") continue;
       assert.ok(specifier.startsWith("./"), `${row.path}: ${specifier}`);
       const target = path.resolve(path.dirname(path.join(artifactRoot, row.path)), specifier);

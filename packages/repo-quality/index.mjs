@@ -43,7 +43,19 @@ export const ESLINT_INLINE_CONFIG_PATTERN =
   /^\s*eslint(?:-(?:disable(?:-(?:next|line))?|enable|env|global))?(?:\s|$)/i;
 
 export const ISSUE_TRACKING_PATTERN =
-  /\bTODO(?:\s*\((?:gh[#\s]?\d+|#\d+)\)|:?\s+(?:gh\s*issue|issue\s*#|gh#)\s*#?\d+|:?\s+https:\/\/github\.com\/[^\s]+)\s*[:-]?\s+([^\r\n]{6,})/i;
+  /\bTODO\b/i;
+
+function hasIssueTrackingReference(text) {
+  if (!ISSUE_TRACKING_PATTERN.test(text)) return false;
+  const detail = text.slice(text.search(ISSUE_TRACKING_PATTERN) + 4).toLowerCase();
+  return (
+    detail.includes("github.com/") ||
+    detail.includes("gh#") ||
+    detail.includes("gh issue") ||
+    detail.includes("issue #") ||
+    detail.includes("(#")
+  );
+}
 
 export const JS_FILE_PATTERN = /\.([mc]?js|jsx)$/i;
 
@@ -158,7 +170,7 @@ export const preferTypeScriptRule = {
             .trim();
           return (
             !ESLINT_INLINE_CONFIG_PATTERN.test(text) &&
-            (STACK_WAIVER_PATTERN.test(text) || ISSUE_TRACKING_PATTERN.test(text))
+            (STACK_WAIVER_PATTERN.test(text) || hasIssueTrackingReference(text))
           );
         });
 

@@ -5,10 +5,47 @@ import { compareStrings, Diagnostics } from "./validation-helpers.ts";
 
 const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 
+interface MarkdownLink {
+  readonly label: string;
+  readonly destination: string;
+  readonly end: number;
+  readonly start: number;
+}
+
+function nextMarkdownLink(text: string, start: number): MarkdownLink | null {
+  let candidateStart = start;
+  while (candidateStart < text.length) {
+    const linkStart = text.indexOf("[", candidateStart);
+    if (linkStart === -1) return null;
+    const labelEnd = text.indexOf("]", linkStart + 1);
+    const destinationEnd = labelEnd === -1 || text[labelEnd + 1] !== "("
+      ? -1
+      : text.indexOf(")", labelEnd + 2);
+    if (destinationEnd !== -1) {
+      return {
+        label: text.slice(linkStart + 1, labelEnd),
+        destination: text.slice(labelEnd + 2, destinationEnd),
+        end: destinationEnd + 1,
+        start: linkStart,
+      };
+    }
+    candidateStart = linkStart + 1;
+  }
+  return null;
+}
+
 function withoutAdrHeadingsOrLinks(text: string): string {
-  return text
-    .replaceAll(/^# ADR-\d{4}:[^\n]*$/gm, "")
-    .replaceAll(/\[[^\]]*\bADR-\d{4}\b[^\]]*\]\([^)]*\)/g, "");
+  const withoutHeadings = text.replaceAll(/^# ADR-\d{4}:[^\n]*$/gm, "");
+  let result = "";
+  let cursor = 0;
+  for (let link = nextMarkdownLink(withoutHeadings, cursor); link !== null; link = nextMarkdownLink(withoutHeadings, cursor)) {
+    result += withoutHeadings.slice(cursor, link.start);
+    if (!/\bADR-\d{4}\b/.test(link.label)) {
+      result += withoutHeadings.slice(link.start, link.end);
+    }
+    cursor = link.end;
+  }
+  return result + withoutHeadings.slice(cursor);
 }
 
 function validateAdrHeadingMatch(
@@ -79,15 +116,19 @@ function validateSingleDocEntry(
       "ADR authority references must link the exact decision title",
     );
   }
-  if (/(?:\.\.\/)+agent-orchestrator\//i.test(text)) {
+  if (text.includes("../agent-orchestrator/")) {
     diagnostics.add(
       "E_DOC_CHECKOUT_LINK",
       `/entries/${entry.path}`,
       "fleet documentation links must not depend on checkout depth",
     );
   }
-  for (const match of text.matchAll(/\[([^\]]+)\]\(([^)\s]+)\)/g)) {
-    validateDocLinkMatch(entry.path, match[1] ?? "", match[2] ?? "", byPath, diagnostics);
+  let cursor = 0;
+  for (let link = nextMarkdownLink(text, cursor); link !== null; link = nextMarkdownLink(text, cursor)) {
+    if (link.label !== "" && link.destination !== "" && !/\s/.test(link.destination)) {
+      validateDocLinkMatch(entry.path, link.label, link.destination, byPath, diagnostics);
+    }
+    cursor = link.end;
   }
 }
 
