@@ -8,9 +8,6 @@
     }
   },
   "tools/artifact-build.ts": {
-    "@typescript-eslint/no-unsafe-assignment": {
-      "count": 4
-    },
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 14
     },

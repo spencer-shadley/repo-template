@@ -458,7 +458,7 @@ function verifyJsonClosure(manifest: ArtifactManifest): void {
       JSON.parse(fs.readFileSync(path.join(root, ...closureRow.path.split("/")), "utf8"));
     }
   }
-  const registry = JSON.parse(
+  const registry: unknown = JSON.parse(
     fs.readFileSync(path.join(contractRoot, "capability-bundle-registry.json"), "utf8"),
   );
   requireValid(
@@ -472,7 +472,7 @@ function verifyJsonClosure(manifest: ArtifactManifest): void {
     "portable-docs-input.json",
     "user-surface-lint-input.json",
   ]) {
-    const value = JSON.parse(
+    const value: unknown = JSON.parse(
       fs.readFileSync(path.join(contractRoot, "fixtures", name), "utf8"),
     );
     requireValid(validateMaterializerInputV2(value), name);
@@ -484,11 +484,11 @@ function verifyJsonClosure(manifest: ArtifactManifest): void {
     validateMaterializerOutputManifestV2(minimalOutput["manifest"]),
     "minimal output golden manifest",
   );
-  const receipt = JSON.parse(
+  const receipt: unknown = JSON.parse(
     fs.readFileSync(path.join(contractRoot, "golden", "deterministic-receipt.json"), "utf8"),
   );
   requireValid(validateVerificationReceiptV2(receipt), "deterministic receipt");
-  const templateReleaseReceipt = JSON.parse(
+  const templateReleaseReceipt: unknown = JSON.parse(
     fs.readFileSync(
       path.join(contractRoot, "fixtures", "template-release-receipt.json"),
       "utf8",
