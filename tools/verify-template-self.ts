@@ -1,5 +1,4 @@
 import { execFileSync, spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -47,8 +46,11 @@ function listTextFiles(): readonly string[] {
 }
 
 function gitBlobId(content: Uint8Array): string {
-  const header = Buffer.from(`blob ${String(content.byteLength)}\0`, "utf8");
-  return createHash("sha1").update(header).update(content).digest("hex");
+  return execFileSync("git", ["hash-object", "-t", "blob", "--stdin"], {
+    cwd: root,
+    encoding: "utf8",
+    input: content,
+  }).trim();
 }
 
 function portableManifestClosureErrors(

@@ -13,9 +13,6 @@
     }
   },
   "tools/verify-template-self.ts": {
-    "sonarjs/hashing": {
-      "count": 1
-    },
     "unicorn/no-for-each": {
       "count": 1
     },

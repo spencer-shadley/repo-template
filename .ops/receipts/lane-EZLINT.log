@@ -141,3 +141,6 @@
 2026-08-22T16:16:00-07:00 lane=EZLINT issue=#289 rule=unicorn/prefer-unicode-code-point-escapes scope=tools status=pr-create-retry note="initial fleet pr-create could not resolve the unpublished head ref; publishing the already verified branch to configured HTTPS origin before retrying the identical requested PR metadata."
 2026-08-22T16:20:00-07:00 lane=EZLINT issue=#289 rule=unicorn/prefer-unicode-code-point-escapes scope=tools status=merge-gate-unresolvable note="fleet pr-merge with --gate-cwd exceeded its 127-second land-gate timeout without producing a gate-stage receipt; retrying with --skip-land-check under the explicitly authorized unresolvable-contract path, backed by the recorded CI=true pnpm lint and base-differential proof."
 2026-08-22T16:24:00-07:00 lane=EZLINT issue=#289 rule=unicorn/prefer-unicode-code-point-escapes scope=tools status=merge-wrapper-timeout note="the authorized --skip-land-check retry also exceeded its 126-second wrapper timeout without a merge result; publishing this receipt, then using GitHub's expected-head merge endpoint as the fleet-approved fallback."
+2026-08-22T17:27:38.8696194-07:00: started ez-lint shard for issue #291
+2026-08-22T17:30:25.9246372-07:00: pnpm lint completed for issue #291 (pre-existing failures present)
+2026-08-22T17:32:02.5031071-07:00: focused eslint check run for edited shard
