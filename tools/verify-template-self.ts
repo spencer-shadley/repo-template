@@ -199,7 +199,7 @@ for (const heading of portableCharterHeadings) {
   const prefix = templateAgents.slice(0, marker + templateSelfEnd.length);
   const payload = templateAgents.slice(marker + templateSelfEnd.length);
   const damaged = `${prefix}${payload.replace(`## ${heading}`, `[removed ${heading}]`)}`;
-  if (!validatePortableCharter(damaged).some((error) => error.includes(heading))) {
+  if (validatePortableCharter(damaged).every((error) => !error.includes(heading))) {
     portableCharterErrors.push(`portable charter removal check failed: ${heading}`);
   }
 }
@@ -232,7 +232,7 @@ for (const [label, pattern] of requiredDirectL0Defaults) {
   const damaged = templateAgents.replace(pattern, `[removed ${label}]`);
   if (
     damaged === templateAgents ||
-    !validateDirectL0Defaults(damaged).some((error) => error.includes(label))
+    validateDirectL0Defaults(damaged).every((error) => !error.includes(label))
   ) {
     directL0DefaultErrors.push(`direct-L0 removal check failed: ${label}`);
   }
