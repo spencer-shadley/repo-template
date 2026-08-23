@@ -89,13 +89,12 @@ const conflictMarkerSelfTestErrors = ([
 
 const conflicts: string[] = [];
 for (const relativePath of listTextFiles()) {
-  fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8")
-    .split(/\r?\n/)
-    .forEach((line, index) => {
-      if (isConflictMarker(line)) {
-        conflicts.push(`${relativePath}:${String(index + 1)}:${line}`);
-      }
-    });
+  const lines = fs.readFileSync(path.join(root, ...relativePath.split("/")), "utf8").split(/\r?\n/);
+  for (const [index, line] of lines.entries()) {
+    if (isConflictMarker(line)) {
+      conflicts.push(`${relativePath}:${String(index + 1)}:${line}`);
+    }
+  }
 }
 
 const manifest: unknown = JSON.parse(
