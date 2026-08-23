@@ -71,7 +71,7 @@ function buildPathCases(): NegativeFixture[] {
     pathCase("absolute-unc", String.raw`\\server\share`),
     pathCase("traversal", "../escape"),
     pathCase("dot-segment", "docs/./file"),
-    pathCase("control", "docs/\u0001file"),
+    pathCase("control", "docs/\u{0001}file"),
     pathCase("trailing-dot", "docs/file."),
     pathCase("trailing-space", "docs/file "),
     pathCase("windows-reserved", "docs/CON.txt"),

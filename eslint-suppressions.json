@@ -12,16 +12,6 @@
       "count": 1
     }
   },
-  "tools/generate-contract-fixtures.ts": {
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 3
-    }
-  },
-  "tools/generate-negative-fixtures.ts": {
-    "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 1
-    }
-  },
   "tools/verify-template-self.ts": {
     "sonarjs/hashing": {
       "count": 1
