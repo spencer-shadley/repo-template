@@ -12,11 +12,6 @@
       "count": 1
     }
   },
-  "tools/verify-template-self.ts": {
-    "unicorn/no-negated-array-predicate": {
-      "count": 2
-    }
-  },
   "packages/repo-quality/index.ts": {
     "complexity": {
       "count": 2
