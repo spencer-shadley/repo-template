@@ -526,5 +526,3 @@ if (invokedAsMain) {
     process.exitCode = 2;
   }
 }
-
-export { runLint, selfTest };
