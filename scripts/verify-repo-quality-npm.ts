@@ -35,11 +35,13 @@ function readRecord(value: unknown, label: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
-function runNpm(npm: string, args: string[]): void {
-  execFileSync(npm, args, {
+function runNpm(args: string[]): void {
+  const windows = process.platform === "win32";
+  const executable = windows ? (process.env["ComSpec"] ?? "cmd.exe") : "npm";
+  const executableArgs = windows ? ["/d", "/s", "/c", `npm.cmd ${args.join(" ")}`] : args;
+  execFileSync(executable, executableArgs, {
     cwd: consumerRoot,
     stdio: "inherit",
-    shell: process.platform === "win32",
   });
 }
 
@@ -55,8 +57,7 @@ try {
     }, null, 2)}\n`,
   );
 
-  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  runNpm(npm, ["install", "--package-lock-only", "--no-audit", "--no-fund"]);
+  runNpm(["install", "--package-lock-only", "--no-audit", "--no-fund"]);
 
   const lockPath = join(consumerRoot, "package-lock.json");
   const lock = readPackageJson(lockPath);
@@ -68,7 +69,7 @@ try {
   const commit = process.env["REPO_QUALITY_NPM_COMMIT"] ?? runGit(["rev-parse", "HEAD"]);
   packageEntry["resolved"] = `git+https://github.com/spencer-shadley/repo-template.git#${commit}`;
   writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
-  runNpm(npm, ["ci", "--no-audit", "--no-fund"]);
+  runNpm(["ci", "--no-audit", "--no-fund"]);
 
   const installedPackagePath = join(consumerRoot, "node_modules", ...packageName.split("/"));
   const installedManifestPath = join(installedPackagePath, "package.json");
