@@ -48,6 +48,7 @@ try {
     cwd: consumerRoot,
     encoding: "utf8",
     stdio: "inherit",
+    shell: process.platform === "win32",
   });
 
   const installedPackagePath = join(consumerRoot, "node_modules", ...packageName.split("/"));
