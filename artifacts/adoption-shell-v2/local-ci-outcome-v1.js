@@ -38,11 +38,11 @@ function validateNotExecutedOutcome(exitCode, reason, diagnostics) {
         diagnostics.add("E_OUTCOME_REASON", "/reason", "skipped/could-not-execute outcomes must carry a non-empty reason");
     }
 }
-function validateOutcomePayload(outcome, outcomeValid, exitCode, reason, diagnostics) {
-    if (outcomeValid && typeof outcome === "string" && EXECUTED_OUTCOMES.has(outcome)) {
+function validateOutcomePayload(outcome, exitCode, reason, diagnostics) {
+    if (typeof outcome === "string" && EXECUTED_OUTCOMES.has(outcome)) {
         validateExecutedOutcome(exitCode, reason, diagnostics);
     }
-    else if (outcomeValid && typeof outcome === "string" && NOT_EXECUTED_OUTCOMES.has(outcome)) {
+    else if (typeof outcome === "string" && NOT_EXECUTED_OUTCOMES.has(outcome)) {
         validateNotExecutedOutcome(exitCode, reason, diagnostics);
     }
     else {
@@ -75,7 +75,7 @@ export function validateLocalCiOutcomeV1(value) {
     diagnostics.string(value["contractId"], "/contractId", { constant: LOCAL_CI_OUTCOME_V1_ID });
     diagnostics.string(value["commandId"], "/commandId", { min: 1 });
     const outcome = value["outcome"];
-    const outcomeValid = diagnostics.string(outcome, "/outcome") && OUTCOME_SET.has(outcome);
+    diagnostics.string(outcome, "/outcome");
     if (typeof outcome === "string" && !OUTCOME_SET.has(outcome)) {
         diagnostics.add("E_ENUM", "/outcome", "unsupported outcome state");
     }
@@ -86,7 +86,7 @@ export function validateLocalCiOutcomeV1(value) {
         !UTC_INSTANT.test(value["recordedAt"])) {
         diagnostics.add("E_FORMAT", "/recordedAt", "must be a UTC RFC 3339 instant");
     }
-    validateOutcomePayload(outcome, outcomeValid, value["exitCode"], value["reason"], diagnostics);
+    validateOutcomePayload(outcome, value["exitCode"], value["reason"], diagnostics);
     return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }
 export function isNotExecutedOutcomeV1(outcome) {
