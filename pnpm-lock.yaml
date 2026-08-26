@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       '@spencer-shadley/repo-quality':
-        specifier: workspace:*
+        specifier: file:packages/repo-quality
         version: link:packages/repo-quality
       '@types/node':
         specifier: 24.13.3

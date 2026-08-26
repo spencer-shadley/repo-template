@@ -6,6 +6,14 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+### Fixed
+
+- **`@spencer-shadley/repo-quality` is now npm-installable from its GitHub subpath:** the private
+  template workspace uses an npm-readable local `file:` dependency while preserving pnpm's
+  workspace link, and `repo-quality:npm:check` proves the real Git-subpath install. Consumer repos
+  must repin their Git dependency and regenerate their lockfile to a post-fix template commit.
+  MINOR. Fixes #299.
+
 ### Added
 
 - **`@spencer-shadley/repo-quality` 1.7.0 adds the portable `simpleDiff.quality-lint`

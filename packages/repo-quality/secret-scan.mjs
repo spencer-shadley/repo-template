@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // @generated from secret-scan.ts. DO NOT EDIT.
+// @stack-waiver id=repo-quality-generated-js reason="Published npm entrypoint is generated JavaScript consumed directly by Node."
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";

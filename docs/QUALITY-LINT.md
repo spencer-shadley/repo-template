@@ -102,6 +102,24 @@ separate issue with measured clone volume.
 The kit owns ESLint, `@eslint/js`, `globals`, `typescript-eslint`, sonarjs, and unicorn. JS-only
 repos may call `qualityRules({ typescript: false })`.
 
+The template root uses `file:packages/repo-quality` for its private workspace dev dependency.
+That keeps pnpm's workspace link intact while allowing npm to prepare a Git-subpath consumer;
+consumer repositories continue using the GitHub path above. The merge-blocking
+`pnpm repo-quality:npm:check` creates a clean temporary npm consumer, installs that Git-subpath,
+and runs the lock-backed `npm ci` consumer gate against the installed dependency manifest. Set
+`REPO_QUALITY_NPM_SPEC` when checking a specific producer spec.
+
+### GitHub path publication audit (Fixes #299)
+
+| Subpath | Publication status | Audit result |
+|---|---|---|
+| `packages/repo-quality` | Published package; documented GitHub `&path:` consumer | npm conformance check above passes; root workspace protocol exposure removed |
+| `packages/adoption-shell` | Source/test workspace only; no `package.json` or documented GitHub package path | Not published; no npm package manifest to expose |
+| `artifacts/adoption-shell-v2` | Generated artifact projection, not a package path | Not published through `github:...&path:`; no package manifest or consumer spec found |
+
+This audit covers every package/artifact subpath present in this repository; only
+`packages/repo-quality` is an externally consumable package.
+
 For pnpm's isolated linker, add the matching `eslint` version as a direct dev dependency too: it
 supplies the `eslint` executable used by the required `"lint": "eslint ."` script while the kit
 continues to own the rule and plugin policy.

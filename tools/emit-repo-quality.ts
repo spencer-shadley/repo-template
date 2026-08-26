@@ -26,7 +26,7 @@ function generatedPath(sourceName: (typeof sources)[number]): string {
 }
 
 function withBanner(sourceName: (typeof sources)[number], emittedJs: string): string {
-  const banner = `// @generated from ${sourceName}. DO NOT EDIT.\n`;
+  const banner = `// @generated from ${sourceName}. DO NOT EDIT.\n// @stack-waiver id=repo-quality-generated-js reason="Published npm entrypoint is generated JavaScript consumed directly by Node."\n`;
   let output = emittedJs.replaceAll("\r\n", "\n");
   if (output.startsWith("#!")) {
     const newline = output.indexOf("\n");
