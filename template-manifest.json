@@ -237,6 +237,7 @@
   "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts": "copy",
   "scripts/proof-of-detection/run-meta-gate.ts": "copy",
   "scripts/verify-quality-lint-required.ts": "copy",
+  "scripts/verify-repo-quality-npm.ts": "self",
   "SECURITY.md": "copy",
   "TEMPLATE_VERSION": "self",
   "template-manifest.json": "self",
