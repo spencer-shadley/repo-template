@@ -31,6 +31,21 @@ function readPackageJson(path: string): Record<string, unknown> {
   return value as Record<string, unknown>;
 }
 
+function readRecord(value: unknown, label: string): Record<string, unknown> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    throw new Error(`${label} must be a JSON object`);
+  }
+  return value as Record<string, unknown>;
+}
+
+function runNpm(npm: string, args: string[]): void {
+  execFileSync(npm, args, {
+    cwd: consumerRoot,
+    stdio: "inherit",
+    shell: process.platform === "win32",
+  });
+}
+
 const spec = resolveGitSpec();
 try {
   writeFileSync(
@@ -44,12 +59,19 @@ try {
   );
 
   const npm = process.platform === "win32" ? "npm.cmd" : "npm";
-  execFileSync(npm, ["install", "--no-audit", "--no-fund"], {
-    cwd: consumerRoot,
-    encoding: "utf8",
-    stdio: "inherit",
-    shell: process.platform === "win32",
-  });
+  runNpm(npm, ["install", "--package-lock-only", "--no-audit", "--no-fund"]);
+
+  const lockPath = join(consumerRoot, "package-lock.json");
+  const lock = readPackageJson(lockPath);
+  const packages = readRecord(lock["packages"], "package-lock packages");
+  const packageEntry = readRecord(
+    packages[`node_modules/${packageName}`],
+    `package-lock entry for ${packageName}`,
+  );
+  const commit = process.env["REPO_QUALITY_NPM_COMMIT"] ?? runGit(["rev-parse", "HEAD"]);
+  packageEntry["resolved"] = `git+https://github.com/spencer-shadley/repo-template.git#${commit}`;
+  writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
+  runNpm(npm, ["ci", "--no-audit", "--no-fund"]);
 
   const installedPackagePath = join(consumerRoot, "node_modules", ...packageName.split("/"));
   const installedManifestPath = join(installedPackagePath, "package.json");
