@@ -668,8 +668,8 @@
       "path": "contracts/adoption-shell-v2/fixtures/negative-inputs.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "5cee9f637196c26448cddb659735cb4f8b271431124481e42995aeb38483062b",
-      "bytes": 278677
+      "sha256": "a019d9c670d72902f20c0d1563bcd28842fdf75466bce7e89fa4d38aaede0f67",
+      "bytes": 278797
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/portable-docs-input.json",
@@ -689,8 +689,8 @@
       "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f5dcf7c7c21f236fb0781e542ee36c189668eb8a0de613fc5df00d560cad0b1e",
-      "bytes": 43480
+      "sha256": "7d3306d21844eec1703a562162875b5b1092634f18745e9fcb74a9ecd7b24355",
+      "bytes": 43520
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
@@ -948,8 +948,8 @@
       "path": "scripts/lint-user-surface-leaks.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "24b6eb955e30bce2c6afe486690c30e96cc8d7078a7fa6bb45550fbf30a21d6c",
-      "bytes": 19246
+      "sha256": "b56021795d8f26e9c187d3457df3c51889f3913e6f9c1197c88c47d81c3c88af",
+      "bytes": 19277
     },
     {
       "path": "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "17a95215112589968f436b2dbc8847b0adb3cfa01e0618fc0b1efb2d0687091f"
+  "manifestDigest": "15334361cf6d2ce21c5a78e3398a50d93bd469bd257e27c252f6100e6cdcd664"
 }
