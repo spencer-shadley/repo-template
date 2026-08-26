@@ -513,7 +513,7 @@ function verifyPackage(): void {
   );
   if (!isRecord(packageJson)) throw new Error("package.json must be an object");
   const expectedDev = {
-    "@spencer-shadley/repo-quality": "workspace:*",
+    "@spencer-shadley/repo-quality": "file:packages/repo-quality",
     "@types/node": "24.13.3",
     ajv: "8.17.1",
     "ajv-formats": "3.0.1",
