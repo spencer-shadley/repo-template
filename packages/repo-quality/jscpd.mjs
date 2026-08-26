@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // @generated from jscpd.ts. DO NOT EDIT.
+// @stack-waiver id=repo-quality-generated-js reason="Published npm entrypoint is generated JavaScript consumed directly by Node."
 import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";

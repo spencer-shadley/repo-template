@@ -1,4 +1,5 @@
 // @generated from index.ts. DO NOT EDIT.
+// @stack-waiver id=repo-quality-generated-js reason="Published npm entrypoint is generated JavaScript consumed directly by Node."
 /**
  * Fleet quality lint kit — required for every bootstrapped / template-adopted repo.
  *

@@ -20,19 +20,23 @@ function resolveGitSpec(): string {
   return `github:spencer-shadley/repo-template#path:${packagePath}`;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 function readPackageJson(path: string): Record<string, unknown> {
   const value: unknown = JSON.parse(readFileSync(path, "utf8"));
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    throw new Error(`${path} must contain a JSON object`);
+  if (!isRecord(value)) {
+    throw new TypeError(`${path} must contain a JSON object`);
   }
-  return value as Record<string, unknown>;
+  return value;
 }
 
 function readRecord(value: unknown, label: string): Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) {
-    throw new Error(`${label} must be a JSON object`);
+  if (!isRecord(value)) {
+    throw new TypeError(`${label} must be a JSON object`);
   }
-  return value as Record<string, unknown>;
+  return value;
 }
 
 function runNpm(args: string[]): void {
@@ -74,11 +78,11 @@ try {
   const installedPackagePath = join(consumerRoot, "node_modules", ...packageName.split("/"));
   const installedManifestPath = join(installedPackagePath, "package.json");
   if (!existsSync(installedManifestPath)) {
-    throw new Error(`npm install completed without ${packageName}/package.json`);
+    throw new TypeError(`npm install completed without ${packageName}/package.json`);
   }
   const installedPackage = readPackageJson(installedManifestPath);
   if (typeof installedPackage["name"] !== "string") {
-    throw new Error(`installed ${packageName}/package.json has no package name`);
+    throw new TypeError(`installed ${packageName}/package.json has no package name`);
   }
 
   console.log(`repo-quality npm ci conformance passed (${spec})`);
