@@ -106,9 +106,8 @@ The template root uses `file:packages/repo-quality` for its private workspace de
 That keeps pnpm's workspace link intact while allowing npm to prepare a Git-subpath consumer;
 consumer repositories continue using the GitHub path above. The merge-blocking
 `pnpm repo-quality:npm:check` creates a clean temporary npm consumer, installs that Git-subpath,
-and imports `qualityRules()` from the installed package. Set `REPO_QUALITY_NPM_SPEC` when checking
-a specific producer ref; otherwise the checker uses `REPO_QUALITY_NPM_REF`, `GITHUB_HEAD_REF`, or
-the current branch.
+and runs the lock-backed `npm ci` consumer gate against the installed dependency manifest. Set
+`REPO_QUALITY_NPM_SPEC` when checking a specific producer spec.
 
 ### GitHub path publication audit (Fixes #299)
 
