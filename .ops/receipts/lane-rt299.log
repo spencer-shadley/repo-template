@@ -10,3 +10,4 @@
 2026-08-26T01:46:16.6414752Z rt299 focused-verification
 2026-08-26T01:59:03.4229868Z rt299 pre-focused-gates
 2026-08-26T02:03:09.8146293Z rt299 pre-merge
+2026-08-26T02:07:45.1173857Z rt299 merge-refused gate=authoritative-gate pre-existing=typescript-at-eslint-plus-template-types-and-generated-mjs-lint; no-bypass; PR=300
