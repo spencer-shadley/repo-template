@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "4f07907b68bcddabfa0a1fd5532977d6d17a80bc583f79c9648b5833905972bc",
+  "inventoryDigest": "2b9424d1d7ff5d3a67ecf21b46cd424ade83f647190da83e6158e8bf63bfff94",
   "entryCount": 83,
   "excludedCount": 9,
   "entries": [
@@ -432,8 +432,8 @@
       "path": "scripts/lint-user-surface-leaks.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "b56021795d8f26e9c187d3457df3c51889f3913e6f9c1197c88c47d81c3c88af",
-      "bytes": 19277
+      "contentSha256": "24b6eb955e30bce2c6afe486690c30e96cc8d7078a7fa6bb45550fbf30a21d6c",
+      "bytes": 19246
     },
     {
       "path": "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
@@ -637,5 +637,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "4b95b43c7f4b30325771d347666e65d538ca80b59984f70083c24facd1b1e829"
+  "manifestDigest": "95fe897aa8a19994d21cd8fc03cc43699ea08e2e93d41464db2b16d45ea417de"
 }
