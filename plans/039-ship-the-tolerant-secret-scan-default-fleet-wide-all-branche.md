@@ -17,7 +17,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche
-- **Status:** hold - critic unavailable (retry: critic-available)
+- **Status:** draft
 - **Issue:** spencer-shadley/repo-template#302
 - **WorkItemId:** 959481d3-e9b9-4075-bad5-098e4c7ff307
      it, stamps a stable UUID `WorkItemId` when absent, and treats this relationship as `fixes`. -->
@@ -67,6 +67,30 @@
 <!-- The five fields above are ONE block and are parsed together: a partial block does not parse at all
      and is silently ignored (#4678). Keep all five, or delete all five. Check your plan with
      `node tools/validate-plan-scope.mjs` — it exits non-zero on a malformed declaration. -->
+
+
+> ## SUPERSEDED by plan 040 - do not retry this hold
+>
+> This plan was preserved in a `hold - critic unavailable (retry: critic-available)` state after the
+> plan critic terminated with `critic output schema invalid: finding-1-unsafe-evidence`, having
+> exhausted six seated attempts over roughly sixteen minutes.
+>
+> **The critic was available.** It produced a verdict; the verdict quoted this plan's own detector
+> names back as evidence, and the critic's output-schema validator rejected that quote as unsafe.
+> The `critic-available` retry trigger therefore cannot ever clear this hold - the trigger is already
+> satisfied and the failure is deterministic in the plan text, so every retry burns the full rung
+> ladder and lands right back here.
+>
+> Rewording the same work to describe those detectors by family rather than by literal prefix
+> produced a clean verdict in about sixty seconds. That reworded plan is **040**, which is admitted
+> and pending against the same issue, repo-template#302.
+>
+> The critic defect itself is filed as **agent-orchestrator#7327** (with plan 622 enqueued to fix
+> it): evidence quoting the reviewed artifact should not be classified unsafe, and a schema-invalid
+> response should terminate immediately rather than consume every rung.
+>
+> Set to `draft` rather than deleted so the lineage stays readable (DOCTRINE section 22: supersede
+> requires a live successor, which 040 provides).
 
 ## Objective
 
