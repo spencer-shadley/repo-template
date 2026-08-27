@@ -191,11 +191,12 @@
   "retryTrigger": "critic-available",
   "retryOwner": "manager",
   "queueOnResolve": true,
-  "retryAction": "node repos/infra/agent-orchestrator/enqueue-plan.mjs repo-template plans/039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md --existing",
-  "retryActionScript": "repos/infra/agent-orchestrator/enqueue-plan.mjs",
-  "retryActionCwd": "workspace-root",
-  "retryActionResolvedPath": "C:/code/repos/infra/agent-orchestrator/enqueue-plan.mjs",
+  "retryAction": "node C:/Users/Spencer/AppData/Local/agent-orchestrator/runtime/ao-195ddbf2-mr-23fea157/enqueue-plan.mjs repo-template plans/039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md --existing",
+  "retryActionScript": "C:/Users/Spencer/AppData/Local/agent-orchestrator/runtime/ao-195ddbf2-mr-23fea157/enqueue-plan.mjs",
+  "retryActionCwd": "absolute",
+  "retryActionResolvedPath": "C:/Users/Spencer/AppData/Local/agent-orchestrator/runtime/ao-195ddbf2-mr-23fea157/enqueue-plan.mjs",
   "retryActionExpectedRuntimeMs": 660000,
   "nextKnownAvailableAt": null,
-  "createdAt": "2026-08-27T07:45:49.771Z"
+  "createdAt": "2026-08-27T07:45:49.771Z",
+  "healedAt": "2026-08-27T18:16:51.374Z"
 }
