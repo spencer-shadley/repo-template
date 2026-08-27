@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "kind": "plan-critic-dead-letter",
+  "state": "hold",
+  "project": "repo-template",
+  "plan": "039",
+  "planFile": "plans/039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md",
+  "draftHash": "1500d6a750bcd03f",
+  "packetHash": "sha256:f4c99f3a8d61c00cfa57e0f264475c3d66392c40a4932c10af1f8a5a903170ae",
+  "cause": "critic-unavailable",
+  "criticStatus": "UNAVAILABLE",
+  "reason": "critic output schema invalid: critic schema invalid: finding-1-unsafe-evidence (raw: .ops/critic/1500d6a750bcd03f.raw.1.txt)",
+  "attemptedRound": 1,
+  "terminalDispatchClass": "attempt-ceiling",
+  "dispatchTerminality": "retryable",
+  "exhaustionMeasured": false,
+  "measurementGap": false,
+  "measurementGapCodes": [],
+  "unseatedSamplingWindows": 0,
+  "unseatedSamplingWindowsRequired": 3,
+  "terminalityReason": "attempt-ceiling is not an exhaustion claim",
+  "dispatchLedger": {
+    "schemaVersion": 1,
+    "packetHash": "sha256:f4c99f3a8d61c00cfa57e0f264475c3d66392c40a4932c10af1f8a5a903170ae",
+    "draftHash": "1500d6a750bcd03f",
+    "terminalDispatchClass": "attempt-ceiling",
+    "finalOutcome": "schema",
+    "independenceClass": "independent",
+    "wallMs": 945695,
+    "attempts": [
+      {
+        "rungId": "static-ladder:codex-critic-codex-gpt-5.6-sol-high:1",
+        "provider": "codex",
+        "tool": "codex",
+        "model": "gpt-5.6-sol",
+        "effort": "low",
+        "logicalId": null,
+        "subscriptionId": null,
+        "outcome": "process-death",
+        "reason": "critic model call failed [model=gpt-5.6-sol effort=low status=1 timedOut=false signal=unavailable argv=[\"(template)\",\"codex\",\"--model\",\"gpt-5.6-sol\",\"--effort\",\"low\"]]: {\"type\":\"thread.started\",\"thread_id\":\"01a04220-6bf2-7fb0-83c4-20153d3e8efd\"}\n{\"type\":\"turn.started\"}\n{\"type\":\"item.completed\",\"item\":{\"id\":\"item_0\",\"type\":\"error\",\"message\":\"Skill descriptions were shortened to fit the 2% skills co",
+        "latencyMs": 4926,
+        "providerStarted": true,
+        "localRetry": 0,
+        "rawEvidencePaths": null
+      },
+      {
+        "rungId": "static-ladder:grok-critic-grok-high:3",
+        "provider": "grok",
+        "tool": "grok",
+        "model": "grok-4.6",
+        "effort": "high",
+        "logicalId": null,
+        "subscriptionId": null,
+        "outcome": "capacity",
+        "reason": "critic model call failed [model=grok-4.6 effort=high status=1 timedOut=false signal=unavailable argv=[\"(template)\",\"grok\",\"--model\",\"grok-4.6\",\"--effort\",\"high\"]]: {\"type\":\"error\",\"message\":\"Internal error: {\\n  \\\"message\\\": \\\"API error (status 402 Payment Required): Grok Build usage balance exhausted\\\",\\n  \\\"http_status\\\": 402\\n}\"}\n\nError: Internal error: {\n  \"message\": \"API error (status 402 Pay",
+        "latencyMs": 7853,
+        "providerStarted": true,
+        "localRetry": 0,
+        "rawEvidencePaths": null
+      },
+      {
+        "rungId": "static-ladder:agy-critic-agy-gemini-3.7-flash-high:5",
+        "provider": "agy",
+        "tool": "agy",
+        "model": "gemini-3.7-flash-high",
+        "effort": "high",
+        "logicalId": null,
+        "subscriptionId": null,
+        "outcome": "schema",
+        "reason": "critic output schema invalid: critic schema invalid: finding-0-unsafe-evidence (raw: .ops/critic/1500d6a750bcd03f.raw.txt)",
+        "latencyMs": 79368,
+        "providerStarted": true,
+        "localRetry": 0,
+        "rawEvidencePaths": [
+          ".ops/critic/1500d6a750bcd03f.raw.txt"
+        ]
+      },
+      {
+        "rungId": "static-ladder:agy-critic-agy-gemini-3.7-flash-high:5",
+        "provider": "agy",
+        "tool": "agy",
+        "model": "gemini-3.7-flash-high",
+        "effort": "high",
+        "logicalId": null,
+        "subscriptionId": null,
+        "outcome": "schema",
+        "reason": "critic output schema invalid: critic schema invalid: finding-0-unsafe-evidence (raw: .ops/critic/1500d6a750bcd03f.raw.1.txt)",
+        "latencyMs": 95129,
+        "providerStarted": true,
+        "localRetry": 1,
+        "rawEvidencePaths": [
+          ".ops/critic/1500d6a750bcd03f.raw.1.txt"
+        ]
+      },
+      {
+        "rungId": "static-ladder:cursor-critic-cursor-grok-high:7",
+        "provider": "cursor",
+        "tool": "cursor",
+        "model": "cursor-grok-4.6-high",
+        "effort": "high",
+        "logicalId": null,
+        "subscriptionId": null,
+        "outcome": "schema",
+        "reason": "critic output schema invalid: critic schema invalid: finding-1-unsafe-evidence (raw: .ops/critic/1500d6a750bcd03f.raw.txt)",
+        "latencyMs": 340688,
+        "providerStarted": true,
+        "localRetry": 0,
+        "rawEvidencePaths": [
+          ".ops/critic/1500d6a750bcd03f.raw.txt"
+        ]
+      },
+      {
+        "rungId": "static-ladder:cursor-critic-cursor-grok-high:7",
+        "provider": "cursor",
+        "tool": "cursor",
+        "model": "cursor-grok-4.6-high",
+        "effort": "high",
+        "logicalId": null,
+        "subscriptionId": null,
+        "outcome": "schema",
+        "reason": "critic output schema invalid: critic schema invalid: finding-1-unsafe-evidence (raw: .ops/critic/1500d6a750bcd03f.raw.1.txt)",
+        "latencyMs": 373549,
+        "providerStarted": true,
+        "localRetry": 1,
+        "rawEvidencePaths": [
+          ".ops/critic/1500d6a750bcd03f.raw.1.txt"
+        ]
+      },
+      {
+        "rungId": null,
+        "provider": null,
+        "tool": null,
+        "model": null,
+        "effort": null,
+        "logicalId": null,
+        "subscriptionId": null,
+        "outcome": "attempt-ceiling",
+        "reason": "max attempts 6 reached",
+        "latencyMs": 0,
+        "providerStarted": false,
+        "localRetry": 0,
+        "rawEvidencePaths": null
+      }
+    ],
+    "considered": [
+      {
+        "id": null,
+        "provider": null,
+        "tool": null,
+        "model": null,
+        "decision": "skipped",
+        "reason": "gateway-route-admission-facts-stale"
+      },
+      {
+        "id": null,
+        "provider": null,
+        "tool": null,
+        "model": null,
+        "decision": "skipped",
+        "reason": "gateway-route-admission-facts-stale"
+      },
+      {
+        "id": null,
+        "provider": null,
+        "tool": null,
+        "model": null,
+        "decision": "skipped",
+        "reason": "gateway-route-admission-facts-stale"
+      },
+      {
+        "id": null,
+        "provider": null,
+        "tool": null,
+        "model": null,
+        "decision": "skipped",
+        "reason": "gateway-route-admission-facts-stale"
+      }
+    ],
+    "eligibility": {
+      "outcome": "open",
+      "reason": "open",
+      "preferredProvider": null,
+      "excludedProviders": []
+    },
+    "nextKnownAvailableAt": null
+  },
+  "rawEvidencePaths": [
+    ".ops/critic/1500d6a750bcd03f.raw.txt",
+    ".ops/critic/1500d6a750bcd03f.raw.1.txt"
+  ],
+  "retryTrigger": "critic-available",
+  "retryOwner": "manager",
+  "queueOnResolve": true,
+  "retryAction": "node repos/infra/agent-orchestrator/enqueue-plan.mjs repo-template plans/039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche.md --existing",
+  "retryActionScript": "repos/infra/agent-orchestrator/enqueue-plan.mjs",
+  "retryActionCwd": "workspace-root",
+  "retryActionResolvedPath": "C:/code/repos/infra/agent-orchestrator/enqueue-plan.mjs",
+  "retryActionExpectedRuntimeMs": 660000,
+  "nextKnownAvailableAt": null,
+  "createdAt": "2026-08-27T07:45:49.771Z"
+}
