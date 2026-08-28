@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "2b9424d1d7ff5d3a67ecf21b46cd424ade83f647190da83e6158e8bf63bfff94",
+  "inventoryDigest": "eb99c64f62ac8a769e436c792ca970cfb9aeec53016e21d569a2d056fc95827b",
   "entryCount": 83,
   "excludedCount": 9,
   "entries": [
@@ -390,15 +390,15 @@
       "path": "eslint-suppressions.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "177bbe93a8bd0bfcec35718740c7e63388c07526ee5cd4a4f0fc74fc5174b484",
-      "bytes": 366
+      "contentSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
     },
     {
       "path": "eslint.config.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "f687825e6573d4c0c56d36f6880a331e812501684ccb2e587efd7d8828bcf0ed",
-      "bytes": 1843
+      "contentSha256": "a1bf8ed5e7c471accb2086d7c05b20c1060e0d655ad53220274c76e66adbb624",
+      "bytes": 1898
     },
     {
       "path": "local-ci.json",
@@ -637,5 +637,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "95fe897aa8a19994d21cd8fc03cc43699ea08e2e93d41464db2b16d45ea417de"
+  "manifestDigest": "584b03eff3604292bb43b0a08dec2938cfd0acbd4307b451be3669ef61936e81"
 }

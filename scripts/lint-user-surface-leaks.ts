@@ -430,7 +430,7 @@ function collectFindings(
   return { files, findings: findings.filter((finding) => !isAllowed(finding, config.allowlist)) };
 }
 
-function runLint({
+export function runLint({
   root: targetRoot,
   configPath,
   stdout = console.log,
@@ -484,7 +484,7 @@ const TEST_CASES = [
   { name: "explicit userSurface: none passes", subDir: "declared-none", wantCode: 0, want: "explicitly declared" },
 ] as const;
 
-function selfTest(targetRoot = process.cwd(), stdout = console.log): void {
+export function selfTest(targetRoot = process.cwd(), stdout = console.log): void {
   const fixtureRoot = path.resolve(targetRoot, "tests/fixtures/user-surface-lint");
   for (const tc of TEST_CASES) {
     const output: string[] = [];
