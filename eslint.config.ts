@@ -29,11 +29,12 @@ export default [
       },
     },
   },
-  // CLI / scripts / tools: console output is intentional
+  // CLI / scripts / tools: console output is intentional, tools can be large builders
   {
     files: ["scripts/**/*.{js,mjs,cjs,ts}", "tools/**/*.{js,mjs,cjs,ts}"],
     rules: {
       "no-console": "off",
+      "max-lines": "off",
     },
   },
   // Comprehensive schema/contract validators and fixture generators

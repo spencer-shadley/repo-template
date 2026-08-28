@@ -119,8 +119,8 @@
       "path": "packages/adoption-shell/src/release-candidate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "8373196621d16ac55f4cff9817620a0089a7197b019c17d5000d563123b1c317",
-      "bytes": 10416
+      "sha256": "7f0e29535e1fbafeb8662322df816a3aa98bba92031a96fb4968c23da14cdf59",
+      "bytes": 10475
     },
     {
       "path": "packages/adoption-shell/src/release-closure.ts",
@@ -920,8 +920,8 @@
       "path": "eslint.config.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f687825e6573d4c0c56d36f6880a331e812501684ccb2e587efd7d8828bcf0ed",
-      "bytes": 1843
+      "sha256": "a1bf8ed5e7c471accb2086d7c05b20c1060e0d655ad53220274c76e66adbb624",
+      "bytes": 1898
     },
     {
       "path": "local-ci.json",
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "17a95215112589968f436b2dbc8847b0adb3cfa01e0618fc0b1efb2d0687091f"
+  "manifestDigest": "386af14720042d5bfe95e28953206152c01d7d0dc0437b5843d3668b132fc11c"
 }

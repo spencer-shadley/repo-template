@@ -13,6 +13,7 @@ import {
   type ArtifactManifest,
   type CapabilityBundleRegistry,
   type Diagnostic,
+  type PayloadEntry,
   type ReleasePayloadEntryDraftV2,
   type ReleasePayloadSet,
   type TemplateReleaseEvidence,
@@ -286,7 +287,7 @@ export function createReleasePayloadSetV2(
   let payloadDigest = "0".repeat(64);
   try {
     payloadDigest = sha256PayloadEntries(
-      entries,
+      entries as unknown as readonly PayloadEntry[],
     );
   } catch {
     // The canonical validator reports malformed entries without throwing.

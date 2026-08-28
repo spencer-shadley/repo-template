@@ -287,7 +287,30 @@ export interface QualityRulesOptions {
   readonly ignores?: readonly string[];
 }
 
-export function qualityRules(options: QualityRulesOptions = {}): Linter.Config[] {
+function buildTypeScriptBlocks(typescript: boolean): Linter.Config[] {
+  if (!typescript) return [];
+  return [
+    ...tseslint.configs.strictTypeChecked,
+    {
+      files: ["**/*.{ts,tsx,mts,cts}"],
+      languageOptions: {
+        parserOptions: {
+          projectService: true,
+        },
+      },
+      rules: {
+        "@typescript-eslint/no-unsafe-type-assertion": "error",
+        "@typescript-eslint/switch-exhaustiveness-check": "error",
+      },
+    },
+    {
+      files: ["**/*.{js,jsx,mjs,cjs}", "eslint.config.*"],
+      ...tseslint.configs.disableTypeChecked,
+    },
+  ];
+}
+
+function buildSizeRules(options: QualityRulesOptions): Linter.RulesRecord {
   const {
     maxLines = 500,
     maxLinesPerFunction = 80,
@@ -296,73 +319,10 @@ export function qualityRules(options: QualityRulesOptions = {}): Linter.Config[]
     maxParams = 5,
     maxNestedCallbacks = 4,
     maxCognitiveComplexity = 15,
-    typescript = true,
     exhaustive = true,
-    preferTypescript = true,
-    includeDefaultIgnores = true,
-    ignores = [],
   } = options;
 
-  const combinedIgnores: string[] = [
-    ...(includeDefaultIgnores ? DEFAULT_FLEET_IGNORES : []),
-    ...ignores,
-  ];
-
-  const blocks: Linter.Config[] = [];
-
-  if (combinedIgnores.length > 0) {
-    blocks.push({
-      ignores: [...combinedIgnores],
-    });
-  }
-
-  blocks.push(
-    {
-      linterOptions: {
-        noInlineConfig: true,
-        reportUnusedDisableDirectives: "error",
-      },
-    },
-    js.configs.recommended,
-    {
-      plugins: {
-        fleet: fleetPlugin,
-      },
-      rules: {
-        "fleet/prefer-typescript": preferTypescript ? "error" : "off",
-        "fleet/no-eslint-inline-config": "error",
-      },
-    },
-  );
-
-  if (typescript) {
-    blocks.push(
-      ...tseslint.configs.strictTypeChecked,
-      {
-        files: ["**/*.{ts,tsx,mts,cts}"],
-        languageOptions: {
-          parserOptions: {
-            projectService: true,
-          },
-        },
-        rules: {
-          "@typescript-eslint/no-unsafe-type-assertion": "error",
-          "@typescript-eslint/switch-exhaustiveness-check": "error",
-        },
-      },
-      {
-        files: ["**/*.{js,jsx,mjs,cjs}", "eslint.config.*"],
-        ...tseslint.configs.disableTypeChecked,
-      },
-    );
-  }
-
-  blocks.push(
-    sonarjs.configs.recommended,
-    eslintPluginUnicorn.configs.unopinionated,
-  );
-
-  const sizeRules: Linter.RulesRecord = {
+  const rules: Linter.RulesRecord = {
     // Representation-only Unicorn rules. Keep the unopinionated preset's bug and mutation checks.
     "unicorn/consistent-compound-words": "off",
     "unicorn/consistent-existence-index-check": "off",
@@ -433,7 +393,7 @@ export function qualityRules(options: QualityRulesOptions = {}): Linter.Config[]
   };
 
   if (exhaustive) {
-    Object.assign(sizeRules, {
+    Object.assign(rules, {
       // Core correctness / footguns
       eqeqeq: ["error", "smart"],
       "no-var": "error",
@@ -483,10 +443,53 @@ export function qualityRules(options: QualityRulesOptions = {}): Linter.Config[]
     });
   }
 
+  return rules;
+}
+
+export function qualityRules(options: QualityRulesOptions = {}): Linter.Config[] {
+  const {
+    typescript = true,
+    preferTypescript = true,
+    includeDefaultIgnores = true,
+    ignores = [],
+  } = options;
+
+  const combinedIgnores: string[] = [
+    ...(includeDefaultIgnores ? DEFAULT_FLEET_IGNORES : []),
+    ...ignores,
+  ];
+
+  const blocks: Linter.Config[] = [];
+
+  if (combinedIgnores.length > 0) {
+    blocks.push({
+      ignores: [...combinedIgnores],
+    });
+  }
+
   blocks.push(
     {
+      linterOptions: {
+        noInlineConfig: true,
+        reportUnusedDisableDirectives: "error",
+      },
+    },
+    js.configs.recommended,
+    {
+      plugins: {
+        fleet: fleetPlugin,
+      },
+      rules: {
+        "fleet/prefer-typescript": preferTypescript ? "error" : "off",
+        "fleet/no-eslint-inline-config": "error",
+      },
+    },
+    ...buildTypeScriptBlocks(typescript),
+    sonarjs.configs.recommended,
+    eslintPluginUnicorn.configs.unopinionated,
+    {
       files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
-      rules: sizeRules,
+      rules: buildSizeRules(options),
     },
     // Tests: size/complexity noise off; keep bug rules
     {

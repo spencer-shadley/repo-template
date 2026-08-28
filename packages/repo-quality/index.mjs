@@ -239,34 +239,12 @@ export const DEFAULT_FLEET_GLOBALS = Object.freeze({
     ...globals.node,
     ...globals.browser,
 });
-export function qualityRules(options = {}) {
-    const { maxLines = 500, maxLinesPerFunction = 80, maxComplexity = 15, maxDepth = 4, maxParams = 5, maxNestedCallbacks = 4, maxCognitiveComplexity = 15, typescript = true, exhaustive = true, preferTypescript = true, includeDefaultIgnores = true, ignores = [], } = options;
-    const combinedIgnores = [
-        ...(includeDefaultIgnores ? DEFAULT_FLEET_IGNORES : []),
-        ...ignores,
-    ];
-    const blocks = [];
-    if (combinedIgnores.length > 0) {
-        blocks.push({
-            ignores: [...combinedIgnores],
-        });
-    }
-    blocks.push({
-        linterOptions: {
-            noInlineConfig: true,
-            reportUnusedDisableDirectives: "error",
-        },
-    }, js.configs.recommended, {
-        plugins: {
-            fleet: fleetPlugin,
-        },
-        rules: {
-            "fleet/prefer-typescript": preferTypescript ? "error" : "off",
-            "fleet/no-eslint-inline-config": "error",
-        },
-    });
-    if (typescript) {
-        blocks.push(...tseslint.configs.strictTypeChecked, {
+function buildTypeScriptBlocks(typescript) {
+    if (!typescript)
+        return [];
+    return [
+        ...tseslint.configs.strictTypeChecked,
+        {
             files: ["**/*.{ts,tsx,mts,cts}"],
             languageOptions: {
                 parserOptions: {
@@ -277,13 +255,16 @@ export function qualityRules(options = {}) {
                 "@typescript-eslint/no-unsafe-type-assertion": "error",
                 "@typescript-eslint/switch-exhaustiveness-check": "error",
             },
-        }, {
+        },
+        {
             files: ["**/*.{js,jsx,mjs,cjs}", "eslint.config.*"],
             ...tseslint.configs.disableTypeChecked,
-        });
-    }
-    blocks.push(sonarjs.configs.recommended, eslintPluginUnicorn.configs.unopinionated);
-    const sizeRules = {
+        },
+    ];
+}
+function buildSizeRules(options) {
+    const { maxLines = 500, maxLinesPerFunction = 80, maxComplexity = 15, maxDepth = 4, maxParams = 5, maxNestedCallbacks = 4, maxCognitiveComplexity = 15, exhaustive = true, } = options;
+    const rules = {
         // Representation-only Unicorn rules. Keep the unopinionated preset's bug and mutation checks.
         "unicorn/consistent-compound-words": "off",
         "unicorn/consistent-existence-index-check": "off",
@@ -350,7 +331,7 @@ export function qualityRules(options = {}) {
         "sonarjs/cognitive-complexity": ["error", maxCognitiveComplexity],
     };
     if (exhaustive) {
-        Object.assign(sizeRules, {
+        Object.assign(rules, {
             // Core correctness / footguns
             eqeqeq: ["error", "smart"],
             "no-var": "error",
@@ -396,9 +377,36 @@ export function qualityRules(options = {}) {
             "max-statements": ["warn", { max: 40 }],
         });
     }
+    return rules;
+}
+export function qualityRules(options = {}) {
+    const { typescript = true, preferTypescript = true, includeDefaultIgnores = true, ignores = [], } = options;
+    const combinedIgnores = [
+        ...(includeDefaultIgnores ? DEFAULT_FLEET_IGNORES : []),
+        ...ignores,
+    ];
+    const blocks = [];
+    if (combinedIgnores.length > 0) {
+        blocks.push({
+            ignores: [...combinedIgnores],
+        });
+    }
     blocks.push({
+        linterOptions: {
+            noInlineConfig: true,
+            reportUnusedDisableDirectives: "error",
+        },
+    }, js.configs.recommended, {
+        plugins: {
+            fleet: fleetPlugin,
+        },
+        rules: {
+            "fleet/prefer-typescript": preferTypescript ? "error" : "off",
+            "fleet/no-eslint-inline-config": "error",
+        },
+    }, ...buildTypeScriptBlocks(typescript), sonarjs.configs.recommended, eslintPluginUnicorn.configs.unopinionated, {
         files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
-        rules: sizeRules,
+        rules: buildSizeRules(options),
     }, 
     // Tests: size/complexity noise off; keep bug rules
     {
