@@ -167,6 +167,26 @@ export function createTemplateReleaseCandidateV1(value) {
 export function isTemplateReleaseCandidateInput(value) {
     return createTemplateReleaseCandidateV1(value).ok;
 }
+function isPayloadEntryLike(value) {
+    return (isRecord(value) &&
+        typeof value["path"] === "string" &&
+        typeof value["kind"] === "string" &&
+        typeof value["mode"] === "string" &&
+        typeof value["contentSha256"] === "string" &&
+        typeof value["role"] === "string" &&
+        (value["encoding"] === "utf-8" || value["encoding"] === "base64") &&
+        (typeof value["bundleId"] === "string" || value["bundleId"] === null) &&
+        typeof value["contentBase64"] === "string");
+}
+function safePayloadEntries(rawEntries) {
+    const result = [];
+    for (const entry of rawEntries) {
+        if (isPayloadEntryLike(entry)) {
+            result.push(entry);
+        }
+    }
+    return result;
+}
 export function createReleasePayloadSetV2(value) {
     if (!Array.isArray(value)) {
         const diagnostics = new Diagnostics();
@@ -199,7 +219,7 @@ export function createReleasePayloadSetV2(value) {
     });
     let payloadDigest = "0".repeat(64);
     try {
-        payloadDigest = sha256PayloadEntries(entries);
+        payloadDigest = sha256PayloadEntries(safePayloadEntries(entries));
     }
     catch {
         // The canonical validator reports malformed entries without throwing.

@@ -61,6 +61,30 @@ export function knipConfig() {
         rules: { ...KNIP_CONFIG.rules },
     };
 }
+function isAllowedFile(normalized, rawOptions) {
+    const options = isRecord(rawOptions) ? rawOptions : {};
+    const allowList = Array.isArray(options["allow"])
+        ? options["allow"].filter((pattern) => typeof pattern === "string")
+        : [];
+    return allowList.some((pattern) => normalized === pattern ||
+        normalized.endsWith(pattern) ||
+        (pattern.startsWith("*") && normalized.endsWith(pattern.slice(1))) ||
+        normalized.includes(pattern));
+}
+function hasValidJustificationComment(comments, maxLeadingLine) {
+    return comments.some((comment) => {
+        if (comment.loc && typeof comment.loc.start.line === "number" && comment.loc.start.line > maxLeadingLine) {
+            return false;
+        }
+        const text = String(comment.value)
+            .split("\n")
+            .map((l) => l.replace(/^\s*\*?\s?/, "").trim())
+            .join(" ")
+            .trim();
+        return (!ESLINT_INLINE_CONFIG_PATTERN.test(text) &&
+            (STACK_WAIVER_PATTERN.test(text) || hasIssueTrackingReference(text)));
+    });
+}
 /**
  * Custom rule: fleet/prefer-typescript
  * Enforces that authored source files must be TypeScript (.ts / .tsx) per the
@@ -108,51 +132,26 @@ export const preferTypeScriptRule = {
                 }
                 const normalized = filename.replaceAll("\\", "/");
                 const match = JS_FILE_PATTERN.exec(normalized);
-                if (!match)
+                if (!match || !match[0])
                     return;
                 const ext = match[0];
-                if (!ext)
+                if (isAllowedFile(normalized, context.options[0]))
                     return;
-                // Check configurable allowlist
                 const rawOptions = context.options[0];
                 const options = isRecord(rawOptions) ? rawOptions : {};
-                const allowList = Array.isArray(options["allow"])
-                    ? options["allow"].filter((pattern) => typeof pattern === "string")
-                    : [];
-                if (allowList.some((pattern) => normalized === pattern ||
-                    normalized.endsWith(pattern) ||
-                    (pattern.startsWith("*") && normalized.endsWith(pattern.slice(1))) ||
-                    normalized.includes(pattern))) {
-                    return;
-                }
-                const comments = context.sourceCode.getAllComments();
-                // Restrict waiver/justification comments to the leading file header (default: first 30 lines)
                 const maxLeadingLine = typeof options["maxLeadingLine"] === "number" ? options["maxLeadingLine"] : 30;
-                const hasValidJustification = comments.some((comment) => {
-                    if (comment.loc && typeof comment.loc.start.line === "number" && comment.loc.start.line > maxLeadingLine) {
-                        return false;
-                    }
-                    // Normalize JSDoc / multi-line comment text by stripping leading '*' and trimming lines
-                    const text = comment.value
-                        .split("\n")
-                        .map((l) => l.replace(/^\s*\*?\s?/, "").trim())
-                        .join(" ")
-                        .trim();
-                    return (!ESLINT_INLINE_CONFIG_PATTERN.test(text) &&
-                        (STACK_WAIVER_PATTERN.test(text) || hasIssueTrackingReference(text)));
+                if (hasValidJustificationComment(context.sourceCode.getAllComments(), maxLeadingLine))
+                    return;
+                const basename = normalized.split("/").pop() || filename;
+                context.report({
+                    node,
+                    loc: { start: { line: 1, column: 0 }, end: { line: 1, column: 0 } },
+                    messageId: "preferTypescript",
+                    data: {
+                        filename: basename,
+                        ext,
+                    },
                 });
-                if (!hasValidJustification) {
-                    const basename = normalized.split("/").pop() || filename;
-                    context.report({
-                        node,
-                        loc: { start: { line: 1, column: 0 }, end: { line: 1, column: 0 } },
-                        messageId: "preferTypescript",
-                        data: {
-                            filename: basename,
-                            ext,
-                        },
-                    });
-                }
             },
         };
     },
@@ -192,7 +191,7 @@ export const noEslintInlineConfigRule = {
         };
     },
 };
-export const fleetPlugin = {
+const fleetPlugin = {
     meta: {
         name: "eslint-plugin-fleet",
         version: "1.0.0",
@@ -261,6 +260,49 @@ function buildTypeScriptBlocks(typescript) {
             ...tseslint.configs.disableTypeChecked,
         },
     ];
+}
+function buildExhaustiveRules() {
+    return {
+        eqeqeq: ["error", "smart"],
+        "no-var": "error",
+        "prefer-const": "error",
+        "no-eval": "error",
+        "no-implied-eval": "error",
+        "no-new-func": "error",
+        "no-console": ["warn", { allow: ["warn", "error"] }],
+        "no-debugger": "error",
+        "no-alert": "error",
+        "no-extend-native": "error",
+        "no-global-assign": "error",
+        "no-shadow-restricted-names": "error",
+        "no-with": "error",
+        "no-constructor-return": "error",
+        "no-promise-executor-return": "error",
+        "no-unreachable-loop": "error",
+        "no-useless-backreference": "error",
+        "require-atomic-updates": "error",
+        "default-case-last": "error",
+        "grouped-accessor-pairs": "error",
+        "no-duplicate-imports": "error",
+        "no-self-compare": "error",
+        "no-template-curly-in-string": "error",
+        "no-unmodified-loop-condition": "error",
+        "no-unused-private-class-members": "error",
+        "prefer-promise-reject-errors": "error",
+        "symbol-description": "error",
+        yoda: ["error", "never"],
+        "require-await": "error",
+        "no-return-await": "error",
+        "no-async-promise-executor": "error",
+        "no-await-in-loop": "warn",
+        "no-script-url": "error",
+        "no-new-wrappers": "error",
+        "no-proto": "error",
+        "no-iterator": "error",
+        "no-caller": "error",
+        "max-classes-per-file": ["error", 1],
+        "max-statements": ["warn", { max: 40 }],
+    };
 }
 function buildSizeRules(options) {
     const { maxLines = 500, maxLinesPerFunction = 80, maxComplexity = 15, maxDepth = 4, maxParams = 5, maxNestedCallbacks = 4, maxCognitiveComplexity = 15, exhaustive = true, } = options;
@@ -331,51 +373,7 @@ function buildSizeRules(options) {
         "sonarjs/cognitive-complexity": ["error", maxCognitiveComplexity],
     };
     if (exhaustive) {
-        Object.assign(rules, {
-            // Core correctness / footguns
-            eqeqeq: ["error", "smart"],
-            "no-var": "error",
-            "prefer-const": "error",
-            "no-eval": "error",
-            "no-implied-eval": "error",
-            "no-new-func": "error",
-            "no-console": ["warn", { allow: ["warn", "error"] }],
-            "no-debugger": "error",
-            "no-alert": "error",
-            "no-extend-native": "error",
-            "no-global-assign": "error",
-            "no-shadow-restricted-names": "error",
-            "no-with": "error",
-            "no-constructor-return": "error",
-            "no-promise-executor-return": "error",
-            "no-unreachable-loop": "error",
-            "no-useless-backreference": "error",
-            "require-atomic-updates": "error",
-            "default-case-last": "error",
-            "grouped-accessor-pairs": "error",
-            "no-duplicate-imports": "error",
-            "no-self-compare": "error",
-            "no-template-curly-in-string": "error",
-            "no-unmodified-loop-condition": "error",
-            "no-unused-private-class-members": "error",
-            "prefer-promise-reject-errors": "error",
-            "symbol-description": "error",
-            yoda: ["error", "never"],
-            // Async hygiene
-            "require-await": "error",
-            "no-return-await": "error",
-            "no-async-promise-executor": "error",
-            "no-await-in-loop": "warn",
-            // Security-adjacent
-            "no-script-url": "error",
-            "no-new-wrappers": "error",
-            "no-proto": "error",
-            "no-iterator": "error",
-            "no-caller": "error",
-            // Maintainability extras (small modules)
-            "max-classes-per-file": ["error", 1],
-            "max-statements": ["warn", { max: 40 }],
-        });
+        Object.assign(rules, buildExhaustiveRules());
     }
     return rules;
 }

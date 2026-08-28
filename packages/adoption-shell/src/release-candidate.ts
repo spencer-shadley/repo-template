@@ -251,6 +251,30 @@ export function isTemplateReleaseCandidateInput(
   return createTemplateReleaseCandidateV1(value).ok;
 }
 
+function isPayloadEntryLike(value: unknown): value is PayloadEntry {
+  return (
+    isRecord(value) &&
+    typeof value["path"] === "string" &&
+    typeof value["kind"] === "string" &&
+    typeof value["mode"] === "string" &&
+    typeof value["contentSha256"] === "string" &&
+    typeof value["role"] === "string" &&
+    (value["encoding"] === "utf-8" || value["encoding"] === "base64") &&
+    (typeof value["bundleId"] === "string" || value["bundleId"] === null) &&
+    typeof value["contentBase64"] === "string"
+  );
+}
+
+function safePayloadEntries(rawEntries: readonly unknown[]): readonly PayloadEntry[] {
+  const result: PayloadEntry[] = [];
+  for (const entry of rawEntries) {
+    if (isPayloadEntryLike(entry)) {
+      result.push(entry);
+    }
+  }
+  return result;
+}
+
 export function createReleasePayloadSetV2(
   value: unknown,
 ): ValidationResult<ReleasePayloadSet> {
@@ -287,7 +311,7 @@ export function createReleasePayloadSetV2(
   let payloadDigest = "0".repeat(64);
   try {
     payloadDigest = sha256PayloadEntries(
-      entries as unknown as readonly PayloadEntry[],
+      safePayloadEntries(entries),
     );
   } catch {
     // The canonical validator reports malformed entries without throwing.

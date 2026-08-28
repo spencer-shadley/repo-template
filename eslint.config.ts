@@ -35,6 +35,7 @@ export default [
     rules: {
       "no-console": "off",
       "max-lines": "off",
+      "unicorn/no-exports-in-scripts": "off",
     },
   },
   // Comprehensive schema/contract validators and fixture generators

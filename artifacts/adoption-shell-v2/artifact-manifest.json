@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "19811fc2267d7b31ab11da41bd5e0f2c846060392880babcf635d9f0374d7bf6",
+  "artifactDigest": "44337d87eb03b624275b93cb924b88b32facec7d73aeef899cb65eb61a75002e",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -119,8 +119,8 @@
       "path": "packages/adoption-shell/src/release-candidate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7f0e29535e1fbafeb8662322df816a3aa98bba92031a96fb4968c23da14cdf59",
-      "bytes": 10475
+      "sha256": "183cbb00cd50a1b960c7c219d7c58d36192d7c1d7ceae5878351ecc6cc7b43ff",
+      "bytes": 11232
     },
     {
       "path": "packages/adoption-shell/src/release-closure.ts",
@@ -470,8 +470,8 @@
       "path": "release-candidate.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "01d2cd3385b96c8f16e4b44136305e6130ab25d1c04a21209cc115ab5b4a743c",
-      "bytes": 9543
+      "sha256": "d9fe4f21cb0d4797a0c6dc518c36c35437763b585e30c058bcc5f17df56d8665",
+      "bytes": 10291
     },
     {
       "path": "release-closure.d.ts",
@@ -668,8 +668,8 @@
       "path": "contracts/adoption-shell-v2/fixtures/negative-inputs.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "5cee9f637196c26448cddb659735cb4f8b271431124481e42995aeb38483062b",
-      "bytes": 278677
+      "sha256": "ec5d6ee8caa26e09b9d8f303b6720f49bd0fae9fb39213ecdb1f0d01e97de156",
+      "bytes": 278725
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/portable-docs-input.json",
@@ -689,8 +689,8 @@
       "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f5dcf7c7c21f236fb0781e542ee36c189668eb8a0de613fc5df00d560cad0b1e",
-      "bytes": 43480
+      "sha256": "6e1d72795a3d02465645cb0b98a367ab89240b5b4a15f276722316570e49759b",
+      "bytes": 43496
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
@@ -920,8 +920,8 @@
       "path": "eslint.config.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a1bf8ed5e7c471accb2086d7c05b20c1060e0d655ad53220274c76e66adbb624",
-      "bytes": 1898
+      "sha256": "e2bb9747b48c129990b00d933c54b6caf6d47d8e88b49aa096781b5dcc129aff",
+      "bytes": 1944
     },
     {
       "path": "local-ci.json",
@@ -948,8 +948,8 @@
       "path": "scripts/lint-user-surface-leaks.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "24b6eb955e30bce2c6afe486690c30e96cc8d7078a7fa6bb45550fbf30a21d6c",
-      "bytes": 19246
+      "sha256": "e088322a84fa6e3dc83542b4b1ba1455e2da8a67531b0f94930c142fca0c6643",
+      "bytes": 19260
     },
     {
       "path": "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
@@ -1111,7 +1111,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "03dd2ff6fc883bc4f91a72e853326374f9b3b9d560d0d08161fe391a6d36ff98",
+      "sha256": "940b8a24201926c85152e85dea9517401ba32a095683bf547dd26f16201e79d5",
       "bytes": 876
     },
     {
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "386af14720042d5bfe95e28953206152c01d7d0dc0437b5843d3668b132fc11c"
+  "manifestDigest": "a06df7368e3910ce0800e6c914772af06221934cf6d055335d49f33ae3939963"
 }
