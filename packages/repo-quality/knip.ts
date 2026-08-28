@@ -46,7 +46,7 @@ const commands: ReadonlyArray<readonly [string, ...string[]]> = [
 
 try {
   for (const [label, ...args] of commands) {
-    console.log(`repo-quality: ${label}`);
+    console.warn(`repo-quality: ${label}`);
     const result = spawnSync(process.execPath, [knipEntrypoint, ...args], {
       cwd: process.cwd(),
       stdio: "inherit",
