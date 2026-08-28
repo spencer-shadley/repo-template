@@ -17,7 +17,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/041-red-master-fix-the-knip-stage-of-pnpm-verify-rt-306
-- **Status:** ready for implement
+- **Status:** stalled - run-loop hard error: explicit-hard-error
+- **Stall-retries:** 1
+- **Last-stall:** ExplicitRunLoopError: issue attempt admit refused (scope_write_required): formal Concurrency/Scope-write block is invalid (invalid-service-class) [sha256:bf46b73ed2e11115]
 - **Issue:** spencer-shadley/repo-template#306
 - **WorkItemId:** ae19c7b4-79d1-4523-9b78-c669d1d57dc2
      it, stamps a stable UUID `WorkItemId` when absent, and treats this relationship as `fixes`. -->
