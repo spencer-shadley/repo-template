@@ -73,7 +73,8 @@ function isAllowedFile(normalized, rawOptions) {
 }
 function hasValidJustificationComment(comments, maxLeadingLine) {
     return comments.some((comment) => {
-        if (comment.loc && typeof comment.loc.start.line === "number" && comment.loc.start.line > maxLeadingLine) {
+        const line = comment.loc?.start?.line;
+        if (typeof line === "number" && line > maxLeadingLine) {
             return false;
         }
         const text = String(comment.value)
@@ -134,7 +135,6 @@ export const preferTypeScriptRule = {
                 const match = JS_FILE_PATTERN.exec(normalized);
                 if (!match || !match[0])
                     return;
-                const ext = match[0];
                 if (isAllowedFile(normalized, context.options[0]))
                     return;
                 const rawOptions = context.options[0];
@@ -142,6 +142,7 @@ export const preferTypeScriptRule = {
                 const maxLeadingLine = typeof options["maxLeadingLine"] === "number" ? options["maxLeadingLine"] : 30;
                 if (hasValidJustificationComment(context.sourceCode.getAllComments(), maxLeadingLine))
                     return;
+                const ext = match[0];
                 const basename = normalized.split("/").pop() || filename;
                 context.report({
                     node,

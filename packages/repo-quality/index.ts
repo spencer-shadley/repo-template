@@ -90,13 +90,14 @@ function isAllowedFile(normalized: string, rawOptions: unknown): boolean {
 }
 
 interface CommentLike {
-  readonly loc?: { readonly start?: { readonly line?: number } } | null;
+  readonly loc?: { readonly start?: { readonly line?: number } | null } | null | undefined;
   readonly value?: string;
 }
 
 function hasValidJustificationComment(comments: readonly CommentLike[], maxLeadingLine: number): boolean {
   return comments.some((comment) => {
-    if (comment.loc && typeof comment.loc.start.line === "number" && comment.loc.start.line > maxLeadingLine) {
+    const line = comment.loc?.start?.line;
+    if (typeof line === "number" && line > maxLeadingLine) {
       return false;
     }
     const text = String(comment.value)
