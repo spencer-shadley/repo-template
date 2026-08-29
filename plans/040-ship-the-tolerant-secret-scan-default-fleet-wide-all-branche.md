@@ -17,7 +17,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/040-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche
-- **Status:** ready for implement
+- **Status:** stalled - obsolete (duplicate path-scope of 039)
+- **Stall-retries:** 1
+- **Last-stall:** duplicate-path-scope
 - **Issue:** spencer-shadley/repo-template#302
 - **WorkItemId:** 1d0dab6e-b1c7-4903-9bee-4b6bfd57b6e0
      it, stamps a stable UUID `WorkItemId` when absent, and treats this relationship as `fixes`. -->
