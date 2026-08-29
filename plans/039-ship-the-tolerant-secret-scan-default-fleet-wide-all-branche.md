@@ -17,7 +17,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche
-- **Status:** hold - critic unavailable (retry: critic-available)
+- **Status:** ready for implement
 - **Requeue-reason:** critic-available: automatic dead-letter recovery plan=039 draftHash=1500d6a750bcd03f trigger=critic-available source=critic-deadletter-retry
 - **Issue:** spencer-shadley/repo-template#302
 - **WorkItemId:** 959481d3-e9b9-4075-bad5-098e4c7ff307
@@ -171,4 +171,6 @@ corepack pnpm verify
 
 ## Retry history
 
+
+- 2026-08-29T09:32:27.626Z critic-available (manual): automatic dead-letter recovery plan=039 draftHash=1500d6a750bcd03f trigger=critic-available source=critic-deadletter-retry
 - 2026-08-29T09:18:00.448Z critic-available (manual): automatic dead-letter recovery plan=039 draftHash=1500d6a750bcd03f trigger=critic-available source=critic-deadletter-retry
