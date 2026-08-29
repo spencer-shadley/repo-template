@@ -1,6 +1,7 @@
 {
   ".github/ISSUE_TEMPLATE/task.md": "copy",
   ".github/pull_request_template.md": "copy",
+  ".gitattributes": "self",
   ".gitignore": "merge",
   ".npmrc": "self",
   ".ops/concurrency-capture.jsonl": "self",

@@ -1,0 +1,7 @@
+* text=auto eol=lf
+contracts/** text eol=lf
+packages/** text eol=lf
+artifacts/** text eol=lf
+docs/** text eol=lf
+tools/** text eol=lf
+scripts/** text eol=lf
