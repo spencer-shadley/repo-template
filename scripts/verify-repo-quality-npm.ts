@@ -45,6 +45,11 @@ function runNpm(args: string[]): void {
   const executableArgs = windows ? ["/d", "/s", "/c", `npm.cmd ${args.join(" ")}`] : args;
   execFileSync(executable, executableArgs, {
     cwd: consumerRoot,
+    env: {
+      ...process.env,
+      npm_config_allow_git: "root",
+      npm_config_cache: join(consumerRoot, ".npm-cache"),
+    },
     stdio: "inherit",
   });
 }

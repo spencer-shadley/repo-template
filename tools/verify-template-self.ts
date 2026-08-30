@@ -370,7 +370,7 @@ try {
     boundaryErrors.push("ownerRole required");
   }
   const paths = boundary["allowedProviderSpecificPaths"];
-  if (paths === null || typeof paths !== "object" || Array.isArray(paths)) {
+  if (!isRecord(paths)) {
     boundaryErrors.push("allowedProviderSpecificPaths required");
   } else {
     for (const key of ["adapters", "catalogs", "configuration", "fixtures", "history"]) {

@@ -26,7 +26,6 @@ import {
   isRecord,
   SEMVER_PATTERN,
 } from "./validation-helpers.ts";
-
 const ENTRY_ROLES = new Set([
   "generic-base-text",
   "generic-base-binary",
@@ -35,34 +34,27 @@ const ENTRY_ROLES = new Set([
   "capability-fixture",
   "capability-golden",
 ]);
-
 function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();
   return rows.length === 0 && value !== undefined
     ? { ok: true, value }
     : { ok: false, diagnostics: rows };
 }
-
 function hasValidatedOutput(value: unknown, diagnostics: Diagnostics): value is MaterializerOutputManifest {
   return diagnostics.rows.length === 0;
 }
-
 function hasValidatedArtifact(value: unknown, diagnostics: Diagnostics): value is ArtifactManifest {
   return diagnostics.rows.length === 0;
 }
-
 function hasValidatedReceipt(value: unknown, diagnostics: Diagnostics): value is VerificationReceipt {
   return diagnostics.rows.length === 0;
 }
-
 function isSchemaClosureRow(value: unknown): value is SchemaClosureRow {
   return isRecord(value);
 }
-
 function appendSchemaClosureRow(rows: SchemaClosureRow[], value: unknown): void {
   if (isSchemaClosureRow(value)) rows.push(value);
 }
-
 function schemaIdentity(
   record: Record<string, unknown>,
   expectedId: string,
@@ -84,7 +76,6 @@ function schemaIdentity(
     );
   }
 }
-
 function portablePath(
   value: unknown,
   pointer: string,
@@ -115,7 +106,6 @@ function portablePath(
     !isPreCustodyWorkflow(value)
   );
 }
-
 function validateFileRow(
   value: unknown,
   pointer: string,
@@ -142,7 +132,6 @@ function validateFileRow(
   }
   return true;
 }
-
 function validateFileRows(
   value: unknown,
   pointer: string,
@@ -156,7 +145,6 @@ function validateFileRows(
   assertSortedUnique(rows.map((row) => row.path), pointer, diagnostics);
   return rows;
 }
-
 function validateOutputEntryOwnership(
   role: unknown,
   bundleId: unknown,
@@ -181,7 +169,6 @@ function validateOutputEntryOwnership(
     });
   }
 }
-
 function validateOutputEntryEncoding(
   role: unknown,
   encoding: unknown,
@@ -205,7 +192,6 @@ function validateOutputEntryEncoding(
     );
   }
 }
-
 function validateOutputEntry(
   value: unknown,
   pointer: string,
@@ -241,7 +227,6 @@ function validateOutputEntry(
   validateOutputEntryEncoding(value["role"], value["encoding"], pointer, diagnostics);
   return pathValid && typeof value["path"] === "string" ? value["path"] : null;
 }
-
 function validateOutputSelectedBundles(value: unknown, diagnostics: Diagnostics): void {
   if (!diagnostics.array(value, "/selectedBundles", 0, 256) || !Array.isArray(value)) return;
   const keys: string[] = [];

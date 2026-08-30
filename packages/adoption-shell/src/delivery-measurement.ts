@@ -26,15 +26,12 @@ import {
   assertSortedUnique,
   Diagnostics,
 } from "./validation-helpers.ts";
-
 function hasValidatedEvent(value: unknown, diagnostics: Diagnostics): value is DeliveryEventV1 { return diagnostics.rows.length === 0; }
 function hasValidatedDeclaration(value: unknown, diagnostics: Diagnostics): value is DeliveryDeclarationV1 { return diagnostics.rows.length === 0; }
 function finishEvent(value: unknown, diagnostics: Diagnostics): ValidationResult<DeliveryEventV1> { return hasValidatedEvent(value, diagnostics) ? finish(value, diagnostics) : { ok: false, diagnostics: diagnostics.sorted() }; }
 function finishDeclaration(value: unknown, diagnostics: Diagnostics): ValidationResult<DeliveryDeclarationV1> { return hasValidatedDeclaration(value, diagnostics) ? finish(value, diagnostics) : { ok: false, diagnostics: diagnostics.sorted() }; }
-
 const UTC_INSTANT =
   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/;
-
 function validateTokenUsage(
   value: unknown,
   pointer: string,
@@ -72,7 +69,6 @@ function validateTokenUsage(
   }
   return id;
 }
-
 function validateQualifyingEvidence(
   value: unknown,
   pointer: string,
@@ -98,7 +94,6 @@ function validateQualifyingEvidence(
   }
   return evidenceCount;
 }
-
 function validateActivityRefs(
   value: unknown,
   pointer: string,
@@ -107,20 +102,17 @@ function validateActivityRefs(
   if (!diagnostics.array(value, `${pointer}/activityRefs`, 0, 128)) {
   	return;
   }
-
   const refs: string[] = [];
   for (const [index, row] of (value).entries()) {
     if (ref(row, `${pointer}/activityRefs/${String(index)}`, diagnostics)) refs.push(row);
   }
   assertSortedUnique(refs, `${pointer}/activityRefs`, diagnostics);
 }
-
 interface OutcomeQualificationContext {
   readonly classPresent: boolean;
   readonly weight: boolean;
   readonly evidenceCount: number;
 }
-
 function validateOutcomeQualification(
   rec: Record<string, unknown>,
   ctx: OutcomeQualificationContext,
@@ -157,7 +149,6 @@ function validateOutcomeQualification(
     );
   }
 }
-
 function validateOutcome(
   value: unknown,
   pointer: string,
@@ -195,7 +186,6 @@ function validateOutcome(
     );
   }
 }
-
 function validateSloDelta(
   value: unknown,
   pointer: string,
@@ -216,7 +206,6 @@ function validateSloDelta(
   }
   return id;
 }
-
 function validateHumanMessage(
   value: unknown,
   pointer: string,
@@ -248,7 +237,6 @@ function validateHumanMessage(
   }
   return id;
 }
-
 function validateEventCoverage(
   value: unknown,
   pointer: string,
@@ -277,7 +265,6 @@ function validateEventCoverage(
     }
   }
 }
-
 function validateTokenUsageArray(value: unknown, diagnostics: Diagnostics): void {
   if (!diagnostics.array(value, "/tokenUsage", 0, 128) || !Array.isArray(value)) return;
   const ids: string[] = [];
@@ -287,7 +274,6 @@ function validateTokenUsageArray(value: unknown, diagnostics: Diagnostics): void
   }
   assertSortedUnique(ids, "/tokenUsage", diagnostics);
 }
-
 function validateSloDeltasArray(value: unknown, diagnostics: Diagnostics): void {
   if (!diagnostics.array(value, "/sloDeltas", 0, 128) || !Array.isArray(value)) return;
   const ids: string[] = [];
@@ -297,7 +283,6 @@ function validateSloDeltasArray(value: unknown, diagnostics: Diagnostics): void 
   }
   assertSortedUnique(ids, "/sloDeltas", diagnostics);
 }
-
 function validateHumanMessagesArray(
   value: unknown,
   workId: unknown,
@@ -316,7 +301,6 @@ function validateHumanMessagesArray(
   }
   assertSortedUnique(ids, "/humanMessages", diagnostics);
 }
-
 export function validateDeliveryEventV1(
   value: unknown,
 ): ValidationResult<DeliveryEventV1> {
@@ -349,7 +333,6 @@ export function validateDeliveryEventV1(
   validateEventCoverage(value["coverage"], "/coverage", diagnostics);
   return finishEvent(value, diagnostics);
 }
-
 function validateClass(
   value: unknown,
   pointer: string,
@@ -393,7 +376,6 @@ function validateClass(
   }
   return id;
 }
-
 function validateDeclarationRepoBinding(
   value: unknown,
   pointer: string,
@@ -410,7 +392,6 @@ function validateDeclarationRepoBinding(
   }
   diagnostics.sha(rec["registryDigest"], `${pointer}/registryDigest`);
 }
-
 function validateDeclarationTokenAttribution(
   value: unknown,
   pointer: string,
@@ -427,7 +408,6 @@ function validateDeclarationTokenAttribution(
     constant: "visible-coverage-error-in-totals",
   });
 }
-
 function validateDeclarationSlis(
   value: unknown,
   pointer: string,
@@ -455,7 +435,6 @@ function validateDeclarationSlis(
     diagnostics.add("E_COVERAGE", pointer, "all six SLI identities are required exactly once");
   }
 }
-
 function validateDeclarationEventCapture(
   value: unknown,
   pointer: string,

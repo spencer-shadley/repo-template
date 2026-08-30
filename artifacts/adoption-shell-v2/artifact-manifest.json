@@ -56,8 +56,8 @@
       "path": "packages/adoption-shell/src/delivery-measurement.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "73d0e587f2394ed0908ace9463bafcfd115d0694cc4fb28fc4207a7a3c4cc625",
-      "bytes": 18860
+      "sha256": "b56b36108da7fef915c62d100bb9a78464cd7e29fcd0fdb3f704eed0580dad77",
+      "bytes": 18839
     },
     {
       "path": "packages/adoption-shell/src/digest.ts",
@@ -154,8 +154,8 @@
       "path": "packages/adoption-shell/src/validate-manifests.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "3dab5546a869360a64815fd7a052e2a9bd1370cf26a1bf655f3552487f7e5217",
-      "bytes": 17902
+      "sha256": "cdab2d3bcda16310930892e2789e037a35c84c46f2a1fcd8199d68923204160b",
+      "bytes": 17887
     },
     {
       "path": "packages/adoption-shell/src/validate.ts",
@@ -1143,5 +1143,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "a06df7368e3910ce0800e6c914772af06221934cf6d055335d49f33ae3939963"
+  "manifestDigest": "7f929fb845491924e3e46760e08e1639b85b41e1a7d6c9e56a3486b99ffbda87"
 }
