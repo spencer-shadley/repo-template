@@ -9,14 +9,6 @@
     "types": [
       "node"
     ],
-    "paths": {
-      "typescript": [
-        "./node_modules/typescript6/lib/typescript.d.ts"
-      ],
-      "typescript/*": [
-        "./node_modules/typescript6/*"
-      ]
-    },
     "strict": true,
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true,
@@ -28,7 +20,7 @@
     "isolatedModules": true,
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": [

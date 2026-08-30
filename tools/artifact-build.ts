@@ -520,7 +520,6 @@ function verifyPackage(): void {
     eslint: "10.8.1",
     jiti: "2.7.0",
     typescript: "7.0.2",
-    typescript6: "npm:@typescript/typescript6@6.0.2",
   };
   const engines = packageJson["engines"];
   if (
@@ -541,7 +540,6 @@ function verifyPackage(): void {
   if (
     !lock.includes("lockfileVersion: '9.0'") ||
     !lock.includes("specifier: 7.0.2") ||
-    !lock.includes("specifier: npm:@typescript/typescript6@6.0.2") ||
     !lock.includes("specifier: 24.13.3") ||
     /onlyBuiltDependencies|allowedDeprecatedVersions|patchedDependencies/.test(lock)
   ) {
