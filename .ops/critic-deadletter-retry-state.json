@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "plans": {
+    "035": {
+      "attempts": 3,
+      "infraAttempts": 0,
+      "attemptsDraftHash": "57d4df7db3755973",
+      "lastAt": "2026-08-29T09:45:00.961Z",
+      "lastOutcome": "replay-failed",
+      "lastReason": "Refusing critic dispatch: malformed-h1 (plan H1 must be `# Plan NNN: ...`).",
+      "lastReasonClass": "critic-unavailable",
+      "lastProviderStarted": true,
+      "draftHash": "57d4df7db3755973",
+      "packetHash": null
+    }
+  }
+}
