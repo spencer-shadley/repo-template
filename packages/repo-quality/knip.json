@@ -1,5 +1,4 @@
 {
-  "ignoreBinaries": ["betterleaks"],
   "rules": {
     "cycles": "error"
   }
