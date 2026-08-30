@@ -8,6 +8,7 @@ import {
   createReleasePayloadSetV2,
   sha256CanonicalJson,
   type ReleasePayloadEntryDraftV2,
+  type ReleasePayloadSet,
 } from "../artifacts/adoption-shell-v2/index.js";
 import {
   isIssueTemplateOverride,
@@ -18,9 +19,11 @@ import {
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const selectionPath = path.join(root, "release", "inert-seed-manifest.json");
 const payloadPath = path.join(root, "release", "release-payload-set.json");
-const portableModes = new Set(["copy", "merge"]);
-
 type TemplateMode = "copy" | "merge";
+
+function isTemplateMode(value: unknown): value is TemplateMode {
+  return value === "copy" || value === "merge";
+}
 
 interface InventoryRow {
   readonly path: string;
@@ -137,8 +140,8 @@ function processManifestEntry(
   rawMode: unknown,
   ctx: ProcessContext,
 ): void {
-  if (typeof rawMode !== "string" || !portableModes.has(rawMode)) return;
-  const templateMode: TemplateMode = rawMode;
+  if (!isTemplateMode(rawMode)) return;
+  const templateMode = rawMode;
   const reason = classifyExcluded(pathValue);
   if (reason !== null) {
     ctx.excluded.push({ path: pathValue, templateMode, reason });
@@ -199,7 +202,7 @@ function buildSelectionBody(
 
 function construct(): {
   readonly selection: Record<string, unknown>;
-  readonly payload: Record<string, unknown>;
+  readonly payload: ReleasePayloadSet;
 } {
   const { tree, blobs } = gitTreeAndBlobs();
   const templateManifestRow = tree.get("template-manifest.json");
