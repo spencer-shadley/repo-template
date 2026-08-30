@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.0
+
+- Publish the repo-quality kit as an immutable producer-owned package-root Git commit with exact package identity and export verification.
+- Keep TypeScript 6 parser compatibility inside the package dependency closure while repository builds use TypeScript 7.
+
 Format: [Keep a Changelog](https://keepachangelog.com). Maintained at merge time (post-merge
 obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-design-philosophies.md)
 §8) — one entry per user-visible or structural change.
