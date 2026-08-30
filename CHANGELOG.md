@@ -6,6 +6,11 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ## [Unreleased]
 
+- **Tolerant Betterleaks merge-gate default:** shared secret scans now require `high` confidence,
+  keeping provider-shaped credential detection blocking while low/medium fixture, placeholder, and
+  local-service heuristics no longer stop fleet delivery; conformance covers both directions
+  (repo-template#302).
+
 ### Fixed
 
 - **`@spencer-shadley/repo-quality` is now npm-installable from its GitHub subpath:** the private

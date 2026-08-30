@@ -202,6 +202,7 @@
   "packages/adoption-shell/test/release-candidate.test.ts": "self",
   "packages/adoption-shell/test/release-closure.test.ts": "self",
   "packages/adoption-shell/test/release-receipt.test.ts": "self",
+  "packages/adoption-shell/test/repo-quality-secret-scan.test.ts": "self",
   "packages/adoption-shell/test/validation-materialization.test.ts": "self",
   "PLAN_TEMPLATE.md": "copy",
   "plans/001-workspace-context-section-every-repo-lives-under-the-code-wo.md": "self",

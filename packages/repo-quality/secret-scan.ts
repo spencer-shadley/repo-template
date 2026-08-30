@@ -3,10 +3,13 @@ import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
 
+// The fleet gate blocks on provider-shaped, high-confidence credentials. Betterleaks' broad
+// low/medium heuristics are useful interactively, but repeatedly classified fixtures, placeholders,
+// and local service URLs as leaks and inverted the merge path (repo-template#302).
 const commands = {
-  dir: ["dir", ".", "--redact"],
-  staged: ["git", ".", "--pre-commit", "--staged", "--redact"],
-  history: ["git", ".", "--redact"],
+  dir: ["dir", ".", "--confidence", "high", "--redact"],
+  staged: ["git", ".", "--pre-commit", "--staged", "--confidence", "high", "--redact"],
+  history: ["git", ".", "--confidence", "high", "--redact"],
 } as const;
 type SecretScanCommand = keyof typeof commands;
 
