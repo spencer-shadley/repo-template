@@ -17,7 +17,9 @@
 
 - **Project:** repo-template
 - **Branch:** feat/041-red-master-fix-the-knip-stage-of-pnpm-verify-rt-306
-- **Status:** stalled - run-loop hard error: explicit-hard-error
+- **Status:** blocked - stalled (needs triage)
+- **Conservation-outcome:** blocked-visible: no-successor-reference
+- **Escalated:** 2026-08-30
 - **Stall-retries:** 1
 - **Last-stall:** ExplicitRunLoopError: issue attempt admit refused (scope_write_required): formal Concurrency/Scope-write block is invalid (invalid-service-class) [sha256:bf46b73ed2e11115]
 - **Issue:** spencer-shadley/repo-template#306
