@@ -46,14 +46,37 @@ if (!betterleaksPath) {
 }
 
 const isWindowsCommandShim = process.platform === "win32" && betterleaksPath.endsWith(".cmd");
-const commandLine = `"${[betterleaksPath, ...commands[command]]
+
+function supportsConfidenceFlag(binaryPath: string, isWindowsShim: boolean): boolean {
+  try {
+    const probe = spawnSync(
+      isWindowsShim
+        ? process.env["ComSpec"] ?? join(process.env["SystemROOT"] ?? join(process.env["SystemDRIVE"] ?? "C:", "Windows"), "System32", "cmd.exe")
+        : binaryPath,
+      isWindowsShim ? ["/d", "/s", "/c", `"${binaryPath}" dir --help`] : ["dir", "--help"],
+      { encoding: "utf8", windowsHide: true },
+    );
+    return typeof probe.stdout === "string" && probe.stdout.includes("--confidence");
+  } catch {
+    return false;
+  }
+}
+
+const confidenceArgs = supportsConfidenceFlag(betterleaksPath, isWindowsCommandShim) ? ["--confidence", "high"] : [];
+const commandArgs: Record<SecretScanCommand, string[]> = {
+  dir: ["dir", ".", ...confidenceArgs, "--redact"],
+  staged: ["git", ".", "--pre-commit", "--staged", ...confidenceArgs, "--redact"],
+  history: ["git", ".", ...confidenceArgs, "--redact"],
+};
+
+const commandLine = `"${[betterleaksPath, ...commandArgs[command]]
   .map((argument) => `"${argument.replaceAll('"', '""')}"`)
   .join(" ")}"`;
 const result = spawnSync(
   isWindowsCommandShim
     ? process.env["ComSpec"] ?? join(process.env["SystemROOT"] ?? join(process.env["SystemDRIVE"] ?? "C:", "Windows"), "System32", "cmd.exe")
     : betterleaksPath,
-  isWindowsCommandShim ? ["/d", "/s", "/c", commandLine] : [...commands[command]],
+  isWindowsCommandShim ? ["/d", "/s", "/c", commandLine] : [...commandArgs[command]],
   {
     cwd: process.cwd(),
     stdio: "inherit",

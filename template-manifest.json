@@ -234,6 +234,8 @@
   "scripts/check-runtime-artifact-registry.ts": "copy",
   "scripts/dir-breadth.json": "self",
   "scripts/lint-user-surface-leaks.ts": "copy",
+  "scripts/provision-canonical-labels.selfcheck.ts": "self",
+  "scripts/provision-canonical-labels.ts": "copy",
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css": "copy",
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css": "copy",
   "scripts/proof-of-detection/reference-detectors/fixtures/light.css": "copy",
