@@ -1,0 +1,22 @@
+{
+  "schema": "WorkSpineLabelLagReceiptV1",
+  "updatedAt": "2026-08-27T11:56:00.383Z",
+  "project": "repo-template",
+  "plan": "041",
+  "attempts": 0,
+  "findings": [
+    {
+      "kind": "label_lag",
+      "severity": "repair",
+      "expectedTip": "work:planned",
+      "observedTip": null,
+      "missing": [
+        "work:planned"
+      ],
+      "present": [],
+      "detail": "label fetch failed for spencer-shadley/repo-template#306: gh issue view failed: GraphQL: API rate limit already exceeded for user ID 7321105.",
+      "disposition": "repair"
+    }
+  ],
+  "disposition": "repair"
+}
