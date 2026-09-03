@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "plans": {
     "035": {
-      "attempts": 3,
+      "attempts": 1,
       "infraAttempts": 0,
       "attemptsDraftHash": "57d4df7db3755973",
-      "lastAt": "2026-08-29T09:45:00.961Z",
+      "lastAt": "2026-09-03T17:30:07.447Z",
       "lastOutcome": "replay-failed",
-      "lastReason": "Refusing critic dispatch: malformed-h1 (plan H1 must be `# Plan NNN: ...`).",
+      "lastReason": "[enqueue-plan] freshness=not-applicable branch=HEAD (default=master) dir=C:\\Users\\Spencer\\AppData\\Local\\agent-orchestrator\\runtime\\ao-0f0b6fc7-mr-69a85e36\nRefusing critic dispatch: malformed-h1 (plan H1 must be `# Plan NNN: ...`).",
       "lastReasonClass": "critic-unavailable",
       "lastProviderStarted": true,
       "draftHash": "57d4df7db3755973",
