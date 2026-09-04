@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "44337d87eb03b624275b93cb924b88b32facec7d73aeef899cb65eb61a75002e",
+  "artifactDigest": "7de43134b3c0b68612d5a8a11e7d6881539113fc6643c7f43d18fd8e10155d39",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "730c54e153aa22052cdeec3ca9b25e5566174f756f1a234bc10c7596922641d3",
-      "bytes": 4664
+      "sha256": "39e0b5b434f408381c639d99841ce4806371c30c15792d99248f19706c6afe09",
+      "bytes": 4704
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -142,6 +142,13 @@
       "mode": "100644",
       "sha256": "86040900001643ee1a30da020d4e0e068103e817b02057b20d04ee289b5c54a8",
       "bytes": 13272
+    },
+    {
+      "path": "packages/adoption-shell/src/validate-charter.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "ed7a36ae5000e609453c78f70b76dcecdbc0b8f9b64c43146c9023145ed52e76",
+      "bytes": 3110
     },
     {
       "path": "packages/adoption-shell/src/validate-documentation.ts",
@@ -365,15 +372,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "ad10cda97b18a7739771b0095ffd7375060c1b0fcc9ba2eaf15798188f536b80",
-      "bytes": 4396
+      "sha256": "a36046aae88f027856365fafee285d9ff6e48f984615515fb4a0cb9d048869b3",
+      "bytes": 4435
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "35debb387dfcfa66944117a95c1bbd311246c61d56d313bf314821e9cb5eca3d",
-      "bytes": 2660
+      "sha256": "ed1af86e6a3fec6b788cc09a33db978305ee2425635581267bb792a50864ac07",
+      "bytes": 2699
     },
     {
       "path": "local-ci-contract-v2.d.ts",
@@ -514,6 +521,20 @@
       "mode": "100644",
       "sha256": "f1ca78a5b4c7d07fef350816c35447c199805f30650142cca27d21cd7fda8907",
       "bytes": 12786
+    },
+    {
+      "path": "validate-charter.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f63ef5f8a476466c9bde3b0d2f3afe6da60082cc42c60db2943de9d6ed8da412",
+      "bytes": 391
+    },
+    {
+      "path": "validate-charter.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a9015f1b25370700ec76fe511b7500801d81e3db728a75545b2c32a0de9e9d86",
+      "bytes": 2953
     },
     {
       "path": "validate-documentation.d.ts",
@@ -1111,7 +1132,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "940b8a24201926c85152e85dea9517401ba32a095683bf547dd26f16201e79d5",
+      "sha256": "c0db7d4c6715e444f9f870d0ca8d93712b48a4405fdc86ec7cb4568ce1176f8b",
       "bytes": 876
     },
     {
@@ -1143,5 +1164,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "7f929fb845491924e3e46760e08e1639b85b41e1a7d6c9e56a3486b99ffbda87"
+  "manifestDigest": "0ea7ff896a16f134c451515000855b7f0f3e9b98fd2a515148f98598de00fed6"
 }
