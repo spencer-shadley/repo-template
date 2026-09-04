@@ -159,38 +159,14 @@ const opsPolicyErrors = [
 ].filter((error): error is string => error !== undefined);
 
 const templateAgents = fs.readFileSync(path.join(root, "AGENTS.md"), "utf8");
-const portableCharterHeadings = [
-  "Mission",
-  "Responsibilities",
-  "Non-responsibilities",
-  "Current status / readiness",
-] as const;
+import { validateCharter, portableCharterHeadings } from "../packages/adoption-shell/src/validate-charter.ts";
 const templateSelfEnd = "<!-- /TEMPLATE-SELF -->";
 
 function validatePortableCharter(text: string): string[] {
   const marker = text.indexOf(templateSelfEnd);
   if (marker < 0) return ["portable charter: TEMPLATE-SELF end marker missing"];
   const payload = text.slice(marker + templateSelfEnd.length);
-  const errors: string[] = [];
-  let previous = -1;
-  for (const heading of portableCharterHeadings) {
-    const escaped = heading.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-    const matches = [...payload.matchAll(new RegExp(`^## ${escaped}$`, "gm"))];
-    if (matches.length !== 1) {
-      errors.push(`portable charter: expected exactly one ## ${heading}`);
-      continue;
-    }
-    const current = matches[0]?.index ?? -1;
-    if (current <= previous) errors.push(`portable charter: heading order invalid at ${heading}`);
-    previous = current;
-  }
-  for (const placeholder of ["{{ONE_LINE_DESCRIPTION}}", "{{RESPONSIBILITIES}}", "{{NON_GOALS}}"] as const) {
-    if (!payload.includes(placeholder)) errors.push(`portable charter: missing ${placeholder}`);
-  }
-  if (!payload.includes("[PRIORITIES.md](./PRIORITIES.md)")) {
-    errors.push("portable charter: sibling PRIORITIES.md pointer missing");
-  }
-  return errors;
+  return validateCharter(payload, "template-source").errors;
 }
 
 const portableCharterErrors = validatePortableCharter(templateAgents);
