@@ -4,10 +4,14 @@ about: Triage-ready issue — the autonomous pipeline authors a plan from this
 labels: agent-review, priority:triage-tbd
 ---
 
-<!-- Generated from contracts/governed-intake-body.v1.json. Do not hand-edit; run: node contracts/governed-intake-body.generate.mjs -->
+<!-- Generated from contracts/governed-intake-body.v1.json. Do not hand-edit; run: node --experimental-strip-types contracts/governed-intake-body.generate.ts -->
 
 ## Work type
 <!-- Defect | Task | Risk reduction | Discovery / experiment | Feature | Mixed -->
+
+## Governed work-unit key
+<!-- Derive SHA-256 from the normalized tuple `fixOwnerGitHubSlug + workType + canonicalWorkUnitIdentity`. Apply ECMAScript String.prototype.trim(), then String.prototype.normalize('NFC'), then the field-specific case rule. Apply locale-independent String.prototype.toLowerCase() to the normalized owner/repository GitHub slug. Apply locale-independent String.prototype.toLowerCase() to the normalized work type. Preserve the normalized UTF-8 bytes exactly after trim and NFC; do not lowercase, collapse internal whitespace, or rewrite punctuation. In identityTuple order, frame each normalized value as its UTF-8 byte length in unpadded ASCII decimal, then ASCII ':' (0x3a), then its exact UTF-8 bytes. Join the three framed values with ASCII LF (0x0a), with no trailing LF. SHA-256 hashes these serialized bytes; render the digest as 64 lowercase hexadecimal characters. Choose the smallest durable mechanism or outcome seam that names the work unit. Keep it unchanged when evidence, priority, wording, or comments change. The same key means the same work unit. If distinct semantics would map to one key, resolve the canonical identities before create; never add randomness, a UUID, or mutable evidence to escape the collision. Before governed create, replace the placeholder digest below and leave exactly one marker in the body. -->
+<!-- governed-work-unit-key: sha256:<64 lowercase hex> -->
 
 ## What happened or what is needed?
 <!-- One paragraph. For bugs: symptom + repro. For features: the user-visible outcome. -->
@@ -23,7 +27,7 @@ labels: agent-review, priority:triage-tbd
 
 ## Triage checklist (TODO for triage agent)
 <!-- The triage worker/agent must complete and check off these items during asynchronous triage: -->
-- [ ] **Fix-owner repository verified**: Confirmed via `fleet-repo-responsibility-routing` that this issue is filed in the true fix-owner repository (not a symptom/catchall repo).
+- [ ] **Fix-owner repository verified**: Confirmed via `fleet-repo-responsibility-routing` that this issue is filed in the true fix-owner repository (not a symptom/catchall repo). If filed in `agent-orchestrator`, confirmed substantive Exclusion Proof answering why this cannot live as a standalone CLI tool or external package.
 - [ ] **Deduplication checked**: Searched open and closed issues in this repository for duplicate or same-class occurrences.
 - [ ] **Priority assessed via [`docs/guides/issue-priority.md`](docs/guides/issue-priority.md)**:
   - [ ] Defect evidence scale assessed (`frequency × severity × urgency`) or economic return modeled.
@@ -36,14 +40,24 @@ labels: agent-review, priority:triage-tbd
 - [ ] **Work dimensions applied via [`docs/guides/issue-work-spine.md`](docs/guides/issue-work-spine.md)**:
   - [ ] Exactly one `effort:low` | `effort:medium` | `effort:high`
   - [ ] Exactly one `tier:auto` | `human-required`
+  - [ ] If `human-required`: body leads with `## Major tradeoffs to consider between these options` naming ≥2 options and material downsides (code#3317); otherwise refuse HR and keep `tier:auto`
 - [ ] **Pending labels cleared**: Removed `priority:triage-tbd`, `work:untriaged`, and coarse legacy priority labels (`priority:p1`, etc.).
 - [ ] **Root-cause taxonomy validated**: All nine DOCTRINE §14 ranks have findings, dispositions, and dual Defect ladders (Prevention vs Detect/heal/recover) — not a single Fix column.
+
+## Major tradeoffs to consider between these options
+<!-- Required top-level heading whenever human-required / tier:human is applied or kept (code#3317).
+     List ≥2 options and the material major downside of each. If you cannot name those downsides,
+     do not stamp human-required — use tier:auto. Delete this section when tier:auto. -->
 
 ## Relevant details
 <!-- Evidence, links, impact. When filing via cli-wrappers, fill provenance exactly: -->
 - repository: <!-- owner/name hosting this template -->
 - commit: <!-- ≥7-char SHA of the template tip -->
 - path: .github/ISSUE_TEMPLATE/task.md
+
+## Exact leases
+<!-- Exact directories, files, and resources this change may mutate. If no lease applies, write an explicit N/A — <reason>. -->
+N/A — <reason>
 
 ## Root-cause taxonomy and disposition
 <!-- Required by fleet DOCTRINE.md §14 / governed-intake-body-v1. Climb all nine ranks.
