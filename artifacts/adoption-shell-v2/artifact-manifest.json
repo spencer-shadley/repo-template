@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "39e0b5b434f408381c639d99841ce4806371c30c15792d99248f19706c6afe09",
-      "bytes": 4704
+      "sha256": "50ba7328a7f03c5a169ed86663a82a4f662ac54064cb5732c9bb1143b376c98a",
+      "bytes": 4703
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -1164,5 +1164,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "0ea7ff896a16f134c451515000855b7f0f3e9b98fd2a515148f98598de00fed6"
+  "manifestDigest": "7dad61ee1d323d5c0608f47b5d04a871464b7d9d87eb7ffa99765eb7a160b0cc"
 }
