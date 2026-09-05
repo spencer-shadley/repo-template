@@ -5,7 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@11.17.0",
   "engines": {
-    "node": ">=24.16.0 <25"
+    "node": ">=24.16.0 <25",
+    "pnpm": "11.17.0"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p packages/repo-quality/tsconfig.json --noEmit",
@@ -22,7 +23,7 @@
     "secret:history": "node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs history",
     "lint": "eslint .",
     "provision:labels": "node scripts/provision-canonical-labels.ts",
-    "verify:self": "pnpm lint && pnpm knip && pnpm dup && node scripts/lint-user-surface-leaks.ts --self-test && node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json && node scripts/verify-quality-lint-required.ts --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.ts && node scripts/check-changelog-structure.ts --self-test && node scripts/check-changelog-structure.ts && node scripts/check-runtime-artifact-registry.ts --self-test && node scripts/check-runtime-artifact-registry.ts && node scripts/check-package-manager-store.ts --self-test && node scripts/check-package-manager-store.ts && node scripts/provision-canonical-labels.selfcheck.ts && node scripts/proof-of-detection/run-meta-gate.ts --self-test && pnpm release:payload:check",
+    "verify:self": "pnpm lint && pnpm knip && pnpm dup && node scripts/lint-user-surface-leaks.ts --self-test && node scripts/lint-user-surface-leaks.ts --config .user-surface-lint.json && node scripts/verify-quality-lint-required.ts --self-test && node tools/verify-template-self.ts && node scripts/check-issue-template-intake.ts && node scripts/check-changelog-structure.ts --self-test && node scripts/check-changelog-structure.ts && node scripts/check-runtime-artifact-registry.ts --self-test && node scripts/check-runtime-artifact-registry.ts && node scripts/check-package-manager-store.ts --self-test && node scripts/check-package-manager-store.ts && node scripts/check-supply-chain-controls.ts --self-test && node scripts/check-supply-chain-controls.ts && node scripts/provision-canonical-labels.selfcheck.ts && node scripts/proof-of-detection/run-meta-gate.ts --self-test && pnpm release:payload:check",
     "verify": "pnpm knip && pnpm dup && pnpm secret:dir && pnpm lint && node scripts/verify-quality-lint-required.ts && pnpm repo-quality:emit:check && pnpm repo-quality:npm:check && pnpm typecheck && pnpm build:check && pnpm test && pnpm verify:artifact && pnpm verify:self",
     "check:issue-template-intake": "node scripts/check-issue-template-intake.ts",
     "verify:quality-lint": "node scripts/verify-quality-lint-required.ts --self-test",
