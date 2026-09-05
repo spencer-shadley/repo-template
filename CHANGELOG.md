@@ -1,13 +1,8 @@
 # Changelog
 
-## 1.8.0
-
-- Publish the repo-quality kit as an immutable producer-owned package-root Git commit with exact package identity and export verification.
-- Keep TypeScript 6 parser compatibility inside the package dependency closure while repository builds use TypeScript 7.
-
 Format: [Keep a Changelog](https://keepachangelog.com). Maintained at merge time (post-merge
-obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-design-philosophies.md)
-§8) — one entry per user-visible or structural change.
+obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-design-philosophies.md)) —
+one entry per user-visible or structural change.
 
 ## [Unreleased]
 
@@ -18,15 +13,6 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
   local-service heuristics no longer stop fleet delivery; conformance covers both directions
   (repo-template#302).
 
-### Fixed
-
-- **Model-agnostic manager policy:** remove concrete `Luna-low` identity from portable `AGENTS.md` and `tools/verify-template-self.ts`, delegating manager/coordinator model admission to the current Model Router policy release. PATCH. Fixes #118.
-- **`@spencer-shadley/repo-quality` is now npm-installable from its GitHub subpath:** the private
-  template workspace uses an npm-readable local `file:` dependency while preserving pnpm's
-  workspace link, and `repo-quality:npm:check` proves the real Git-subpath install. Consumer repos
-  must repin their Git dependency and regenerate their lockfile to a post-fix template commit.
-  MINOR. Fixes #299.
-
 ### Added
 
 - **`@spencer-shadley/repo-quality` 1.7.0 adds the portable `simpleDiff.quality-lint`
@@ -34,50 +20,21 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
   and lint-adapter diffs, and the bootstrap verifier fails TypeScript/JavaScript consumers that do
   not declare this class or a covering superset. This is the deterministic response to
   repo-template#167, where kit consumes otherwise ran an unnecessary full gate.
-
-### Fixed
-
-- Removed legacy exports from standalone scripts so the shared lint configuration
-  enforces script encapsulation without suppressions. PATCH. Fixes #243.
-- **`@spencer-shadley/repo-quality` resolves Betterleaks host shims outside `PATH`:** the
-  secret-scan wrapper checks PATH candidates and the operator's `.local/bin` location, then uses
-  the resolved absolute binary; Windows `.cmd` shims run through an explicit `cmd.exe` process
-  without `shell: true`. Missing binaries remain a fail-closed error. PATCH. Fixes #200.
-- **`@spencer-shadley/repo-quality` 1.3.0 closes inline ESLint configuration as a gate
-  bypass:** the kit ignores inline config, rejects every inline ESLint directive with a migration
-  pointer, and no longer accepts one as a TypeScript waiver. Existing debt is centralized in
-  `eslint-suppressions.json`; only explicit `@stack-waiver` annotations explain JavaScript
-  boundaries. The bootstrap verifier rejects consumer config that re-enables inline configuration.
-  MINOR. Fixes #150.
-- Restored the adoption-shell fixture generator after the #154 extraction: shared fixture
-  constructors now resolve without a cyclic initialization failure, and strict TypeScript
-  narrowing covers the extracted validator paths. Regenerated the committed artifact closure.
-  PATCH.
-- **Advisory `ci.yml` no longer echoes that the live thin check is a stub**
-  (repo-template#134 / code#1560 D3). `lint-user-surface-leaks` already runs on
-  preinstalled node. Adopter `TODO(setup):` toolchain/lint/test comments stay.
-  PATCH.
-
-### Added
-
 - **`@spencer-shadley/repo-quality` 1.6.0 adds Betterleaks secret-scan recipes:** the published
   wrapper runs redacted current-tree, staged land, and onboarding-history scans through the
   host-installed `betterleaks` binary. Template verification fails closed on current-tree
   findings or a missing binary; consumer config remains opt-in only for issue-linked local
   allowlist/baseline additions. Betterleaks is the fleet recipe; Gitleaks and Semgrep are not
   fleet-wide recipes. MINOR. Fixes #153.
-
 - **`@spencer-shadley/repo-quality` 1.5.0 adds advisory jscpd v5 scanning:** the kit owns the
   shared AI-reporter policy and wrapper, while template verification writes `.ops/jscpd-ai.txt`
   without failing on clone findings. The bootstrap gate requires consumers to invoke the kit path;
   fail-closed promotion awaits measured clone volume in a separate issue. MINOR. Fixes #152.
-
 - **`@spencer-shadley/repo-quality` 1.4.0 now owns the mandatory Knip policy:** its published
   wrapper runs both default and strict Knip modes, and its config promotes import cycles to errors.
   Template verify paths invoke that wrapper; the presence gate rejects vendored cycle-policy copies
   and untracked policy downgrades. Fleet-wide `dependency-cruiser` remains prohibited. MINOR.
   Fixes #151.
-
 - **`LocalCiContractV3` proof-of-detection** (`contracts/local-ci/v3/local-ci-contract-v3.schema.json`,
   `contractId: "repo-template/local-ci-v3"`): every declared command now requires `detectionProof`,
   either a known-bad fixture the gate must flag or a recorded, non-empty `exempt` reason -- never
@@ -102,19 +59,29 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
   replaces the advisory transient-pattern-list template prose with a checked, bidirectional
   cross-validation between tagged `.gitignore` lines and a machine-readable registry. Wired into
   `verify:self`. See ADR-0009. MINOR.
+- **Git-consumable `@spencer-shadley/repo-quality` kit** (`packages/repo-quality/`): the exact
+  quality-rule factory and its ESLint dependencies now have one source of truth; the copied root
+  `eslint.quality.mjs` is gone. Template configs import the kit, documentation records the Git
+  dependency, and the presence gate rejects consumer factory copies. Consumers MUST migrate before
+  taking this structural MAJOR change; new adopters SHOULD depend on the kit. Refs #147. MAJOR.
+- Introduced `LocalCiContractV2`: a versioned machine-readable local-CI contract schema (`contracts/local-ci/v2/local-ci-contract-v2.schema.json`), pure offline validator, fail-closed legacy V1 dispositions (`model-gateway-v1` and `repo-factory-v1`), positive/negative fixtures, and ADR-0008. MAJOR. Refs #102; this source candidate cannot close it before the separate canaries and release receipt.
+- Added an optional closed `releaseEvidence` envelope to immutable Template release receipts,
+  binding exact review, content-addressed canary receipts, named passed checks, deterministic
+  producer-tag readback, and correct-forward supersession evidence while retaining compatibility
+  with existing receipts. MINOR. Refs #102.
 
 ### Changed
 
+- Publish the repo-quality kit as an immutable producer-owned package-root Git commit with exact package identity and export verification.
+- Keep TypeScript 6 parser compatibility inside the package dependency closure while repository builds use TypeScript 7.
 - Copied Code's generated dual-ladder `.github/ISSUE_TEMPLATE/task.md`
   (`governed-intake-body-v1`) so portable intake no longer ships a single
   "Fix or next action" column. Provenance path stays this repo's
   `.github/ISSUE_TEMPLATE/task.md`. The intake recurrence guard now requires
   all nine ranks, both Defect ladders, and legal status tokens. MINOR.
   Fixes #184.
-
 - Documented the fleet SLI 30 `repo_source_stock` repo source-stock split-trigger in
   `docs/QUALITY-LINT.md`. MINOR. Fixes #164.
-
 - **`@spencer-shadley/repo-quality` now runs typed TypeScript linting**: the kit uses
   `strictTypeChecked` with the project service, applies the type-aware rules only to TypeScript,
   and disables them for JavaScript/config boundaries. Unsafe narrowing assertions, `any`, and
@@ -131,21 +98,34 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
   + `fleet-control-plane`. Updates `docs/QUEUE-ENROLLMENT.md`, `AGENTS.md`, `README.md`, and
   ADR-0003 supersession. MAJOR.
 
-### Added
+### Fixed
 
-- **Git-consumable `@spencer-shadley/repo-quality` kit** (`packages/repo-quality/`): the exact
-  quality-rule factory and its ESLint dependencies now have one source of truth; the copied root
-  `eslint.quality.mjs` is gone. Template configs import the kit, documentation records the Git
-  dependency, and the presence gate rejects consumer factory copies. Consumers MUST migrate before
-  taking this structural MAJOR change; new adopters SHOULD depend on the kit. Refs #147. MAJOR.
-
-### Added
-
-- Introduced `LocalCiContractV2`: a versioned machine-readable local-CI contract schema (`contracts/local-ci/v2/local-ci-contract-v2.schema.json`), pure offline validator, fail-closed legacy V1 dispositions (`model-gateway-v1` and `repo-factory-v1`), positive/negative fixtures, and ADR-0008. MAJOR. Refs #102; this source candidate cannot close it before the separate canaries and release receipt.
-- Added an optional closed `releaseEvidence` envelope to immutable Template release receipts,
-  binding exact review, content-addressed canary receipts, named passed checks, deterministic
-  producer-tag readback, and correct-forward supersession evidence while retaining compatibility
-  with existing receipts. MINOR. Refs #102.
+- **Model-agnostic manager policy:** remove concrete `Luna-low` identity from portable `AGENTS.md` and `tools/verify-template-self.ts`, delegating manager/coordinator model admission to the current Model Router policy release. PATCH. Fixes #118.
+- **`@spencer-shadley/repo-quality` is now npm-installable from its GitHub subpath:** the private
+  template workspace uses an npm-readable local `file:` dependency while preserving pnpm's
+  workspace link, and `repo-quality:npm:check` proves the real Git-subpath install. Consumer repos
+  must repin their Git dependency and regenerate their lockfile to a post-fix template commit.
+  MINOR. Fixes #299.
+- Removed legacy exports from standalone scripts so the shared lint configuration
+  enforces script encapsulation without suppressions. PATCH. Fixes #243.
+- **`@spencer-shadley/repo-quality` resolves Betterleaks host shims outside `PATH`:** the
+  secret-scan wrapper checks PATH candidates and the operator's `.local/bin` location, then uses
+  the resolved absolute binary; Windows `.cmd` shims run through an explicit `cmd.exe` process
+  without `shell: true`. Missing binaries remain a fail-closed error. PATCH. Fixes #200.
+- **`@spencer-shadley/repo-quality` 1.3.0 closes inline ESLint configuration as a gate
+  bypass:** the kit ignores inline config, rejects every inline ESLint directive with a migration
+  pointer, and no longer accepts one as a TypeScript waiver. Existing debt is centralized in
+  `eslint-suppressions.json`; only explicit `@stack-waiver` annotations explain JavaScript
+  boundaries. The bootstrap verifier rejects consumer config that re-enables inline configuration.
+  MINOR. Fixes #150.
+- Restored the adoption-shell fixture generator after the #154 extraction: shared fixture
+  constructors now resolve without a cyclic initialization failure, and strict TypeScript
+  narrowing covers the extracted validator paths. Regenerated the committed artifact closure.
+  PATCH.
+- **Advisory `ci.yml` no longer echoes that the live thin check is a stub**
+  (repo-template#134 / code#1560 D3). `lint-user-surface-leaks` already runs on
+  preinstalled node. Adopter `TODO(setup):` toolchain/lint/test comments stay.
+  PATCH.
 
 ## [3.1.0] - 2026-07-29
 
