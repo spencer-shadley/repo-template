@@ -279,5 +279,7 @@
   "tsconfig.json": "self",
   "packages/adoption-shell/test/package-manager-store.test.ts": "self",
   "scripts/check-package-manager-store.ts": "self",
-  "scripts/check-changelog-structure.ts": "self"
+  "scripts/check-changelog-structure.ts": "self",
+  "scripts/check-mutable-versions.ts": "self",
+  "scripts/mutable-version-allowlist.json": "self"
 }
