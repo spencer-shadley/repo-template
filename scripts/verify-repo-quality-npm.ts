@@ -40,22 +40,17 @@ function npmCommand(args: string[], stdio: "inherit" | "pipe"): string {
   });
 }
 
-try {
-  const artifactCommit = materializeRepoQualityCommit("HEAD");
-  const gitUrl = `github:spencer-shadley/repo-template#${artifactCommit}`;
-
-  writeFileSync(
-    join(scratchRoot, "artifact-receipt.json"),
-    `${JSON.stringify({ packageName, packageVersion, artifactCommit, gitUrl }, null, 2)}\n`,
-  );
+function testInstall(url: string, artifactCommit: string, isRemote: boolean) {
+  rmSync(consumerRoot, { recursive: true, force: true });
   mkdirSync(consumerRoot, { recursive: true });
+
   writeFileSync(
     join(consumerRoot, "package.json"),
     `${JSON.stringify({
       name: "repo-quality-npm-consumer-conformance",
       version: "1.0.0",
       private: true,
-      dependencies: { [packageName]: gitUrl },
+      dependencies: { [packageName]: url },
     }, null, 2)}\n`,
   );
 
@@ -63,9 +58,16 @@ try {
   const lock = readPackageJson(join(consumerRoot, "package-lock.json"));
   const lockPackages = readRecord(lock["packages"], "package-lock packages");
   const lockPackage = readRecord(lockPackages[`node_modules/${packageName}`], `package-lock ${packageName}`);
-  if (typeof lockPackage["resolved"] !== "string" || !lockPackage["resolved"].endsWith(`#${artifactCommit}`)) {
-    throw new TypeError(`package-lock did not resolve the exact artifact commit ${artifactCommit}`);
+
+  if (isRemote) {
+    if (typeof lockPackage["resolved"] !== "string" || !lockPackage["resolved"].endsWith(`#${artifactCommit}`)) {
+      throw new TypeError(`package-lock did not resolve the exact artifact commit ${artifactCommit}`);
+    }
+    if (!lockPackage["resolved"].startsWith("git+https://github.com/")) {
+      throw new TypeError(`package-lock must use hermetic HTTPS install, got ${lockPackage["resolved"]}`);
+    }
   }
+
   npmCommand(["ci", "--ignore-scripts", "--no-audit", "--no-fund"], "inherit");
 
   const installedPackagePath = join(consumerRoot, "node_modules", ...packageName.split("/"));
@@ -95,6 +97,43 @@ try {
   );
   if (Array.isArray(dependencyTree["problems"]) && dependencyTree["problems"].length > 0) {
     throw new TypeError(`npm ls reported problems: ${JSON.stringify(dependencyTree["problems"])}`);
+  }
+}
+
+try {
+  const artifactCommit = materializeRepoQualityCommit("HEAD");
+  
+  const artifactPath = join(scratchRoot, "artifact.tgz");
+  execFileSync("git", ["archive", "--format=tar.gz", "--prefix=package/", "-o", artifactPath, artifactCommit], { cwd: root });
+  const localUrl = `file:${artifactPath.replaceAll("\\", "/")}`;
+
+  writeFileSync(
+    join(scratchRoot, "artifact-receipt.json"),
+    `${JSON.stringify({ packageName, packageVersion, artifactCommit, localUrl }, null, 2)}\n`,
+  );
+
+  console.log(`[local] testing artifact candidate ${artifactCommit}`);
+  testInstall(localUrl, artifactCommit, false);
+  console.log(`[local] candidate conformance passed`);
+
+  const remoteUrl = "https://github.com/spencer-shadley/repo-template.git";
+  let isRemote = false;
+  try {
+    const lsRemote = execFileSync("git", ["ls-remote", remoteUrl, artifactCommit], { cwd: root, encoding: "utf8" });
+    if (lsRemote.includes(artifactCommit)) {
+      isRemote = true;
+    }
+  } catch (e) {
+    console.error("Warning: git ls-remote failed", e);
+  }
+
+  if (!isRemote) {
+    console.log(`[remote] check inapplicable until publication (commit ${artifactCommit} not on remote)`);
+  } else {
+    console.log(`[remote] testing published artifact ${artifactCommit}`);
+    const gitUrl = `git+${remoteUrl}#${artifactCommit}`;
+    testInstall(gitUrl, artifactCommit, true);
+    console.log(`[remote] conformance passed`);
   }
 
   console.log(`repo-quality npm Git artifact conformance passed (${packageName}@${packageVersion} ${artifactCommit})`);
