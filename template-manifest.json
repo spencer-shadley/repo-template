@@ -276,5 +276,7 @@
   "tools/release-payload.ts": "self",
   "tools/verify-template-self.ts": "self",
   "tsconfig.build.json": "self",
-  "tsconfig.json": "self"
+  "tsconfig.json": "self",
+  "packages/adoption-shell/test/package-manager-store.test.ts": "self",
+  "scripts/check-package-manager-store.ts": "self"
 }
