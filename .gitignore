@@ -66,3 +66,6 @@ plans/*.work-spine-lag.json
 .ops/proof-of-detection-plant-ledger.json
 # runtime-artifact: owner=repo-template incident=repo-template#152
 .ops/jscpd-ai.txt
+
+# runtime-artifact: owner=repo-template incident=repo-template#108
+.pnpm-store/

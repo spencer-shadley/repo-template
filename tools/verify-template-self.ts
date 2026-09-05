@@ -158,6 +158,15 @@ const opsPolicyErrors = [
     : undefined,
 ].filter((error): error is string => error !== undefined);
 
+const cachePolicyErrors = [
+  !isIgnored(".pnpm-store/some-cache-file")
+    ? ".pnpm-store/ must be ignored so package manager cache does not dirty canonical checkouts"
+    : undefined,
+  isIgnored(".pnpm-store.ts")
+    ? ".pnpm-store.ts must NOT be ignored (prove ignore rule fails closed and does not hide source)"
+    : undefined,
+].filter((error): error is string => error !== undefined);
+
 const templateAgents = fs.readFileSync(path.join(root, "AGENTS.md"), "utf8");
 import { validateCharter, portableCharterHeadings } from "../packages/adoption-shell/src/validate-charter.ts";
 const templateSelfEnd = "<!-- /TEMPLATE-SELF -->";
@@ -283,6 +292,7 @@ const boundaryErrors: string[] = [
   ...textFileSelfTestErrors,
   ...conflictMarkerSelfTestErrors,
   ...userSurfaceLintSyncErrors_,
+  ...cachePolicyErrors,
 ];
 const planRecordManifestModes: Readonly<Record<string, string>> = {
   "PLAN_TEMPLATE.md": "copy",
