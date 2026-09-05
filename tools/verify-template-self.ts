@@ -193,8 +193,8 @@ const requiredDirectL0Defaults = [
     /at every poll, the coordinator consumes AO's typed `GoalContinuationDecisionV1` contract[\s\S]{0,180}overseer independently consumes the same contract[\s\S]{0,100}corrects missed containment/i,
   ],
   [
-    "Luna-low manager boundary and mechanical allowance",
-    /Luna-low is excluded from repo-manager\/coordinator judgment[\s\S]{0,120}bounded mechanical substeps/i,
+    "manager model admission delegated to Model Router policy",
+    /repo-manager\/coordinator model admission is governed by the current Model Router policy release[\s\S]{0,250}bounded mechanical substeps/i,
   ],
 ] as const;
 function validateDirectL0Defaults(text: string): string[] {
@@ -212,6 +212,91 @@ for (const [label, pattern] of requiredDirectL0Defaults) {
   ) {
     directL0DefaultErrors.push(`direct-L0 removal check failed: ${label}`);
   }
+}
+
+function validateModelAgnosticPolicy(text: string): string[] {
+  const marker = text.indexOf(templateSelfEnd);
+  const payload = marker >= 0 ? text.slice(marker + templateSelfEnd.length) : text;
+  const errors: string[] = [];
+
+  if (/Luna-low/i.test(payload)) {
+    errors.push("portable AGENTS.md must not contain concrete model identity 'Luna-low'");
+  }
+
+  const managerSectionMatch =
+    /Persistent goals are disabled for autonomous repo managers[\s\S]*?(?=## Binding steer|$)/i.exec(
+      payload,
+    );
+  if (!managerSectionMatch) {
+    errors.push("missing manager/coordinator policy section in portable AGENTS.md");
+    return errors;
+  }
+  const managerSection = managerSectionMatch[0];
+
+  const authorityPointer =
+    /repo-manager\/coordinator model admission is governed by the current Model Router policy release[\s\S]{0,250}bounded mechanical substeps/i;
+  if (!authorityPointer.test(managerSection)) {
+    errors.push(
+      "manager/coordinator policy missing delegation to Model Router policy release",
+    );
+  }
+
+  const passiveAdmissionPattern =
+    /\bis\s+(?:excluded|forbidden|banned|permitted|allowed|admitted)\s+(?:from|for)\s+(?:repo-manager(?:\/coordinator)?|coordinator|manager)\s+(?:judgment|admission)/i;
+  const activeAdmissionPattern =
+    /(?:repo-manager(?:\/coordinator)?|coordinator|manager)\s+(?:judgment|admission)\s+(?:excludes|forbids|bans|permits|allows|admits)/i;
+
+  const passiveMatch = passiveAdmissionPattern.exec(managerSection);
+  if (passiveMatch) {
+    errors.push(
+      `concrete model identity admission rule in portable manager policy: ${passiveMatch[0]}`,
+    );
+  }
+  const activeMatch = activeAdmissionPattern.exec(managerSection);
+  if (activeMatch) {
+    errors.push(
+      `concrete model identity admission rule in portable manager policy: ${activeMatch[0]}`,
+    );
+  }
+
+  return errors;
+}
+
+const modelAgnosticPolicyErrors = validateModelAgnosticPolicy(templateAgents);
+
+const syntheticModelCases = [
+  "ExampleModel-X is forbidden for coordinator judgment",
+  "Luna-low is excluded from repo-manager/coordinator judgment",
+  "coordinator judgment excludes ExampleModel-X",
+  "repo-manager/coordinator judgment forbids ExampleModel-Y",
+];
+
+for (const syntheticRule of syntheticModelCases) {
+  const contaminated = templateAgents.replace(
+    /(\*\*Repo-manager\/coordinator model admission is governed by[^\n]+\n)/i,
+    `$1${syntheticRule}.\n`,
+  );
+  if (
+    contaminated === templateAgents ||
+    validateModelAgnosticPolicy(contaminated).length === 0
+  ) {
+    modelAgnosticPolicyErrors.push(
+      `model-agnostic policy self-test failed: synthetic concrete model rule was not rejected: "${syntheticRule}"`,
+    );
+  }
+}
+
+const pointerRemoved = templateAgents.replace(
+  /Repo-manager\/coordinator model admission is governed by the current Model Router policy release/i,
+  "[removed pointer]",
+);
+if (
+  pointerRemoved === templateAgents ||
+  validateModelAgnosticPolicy(pointerRemoved).length === 0
+) {
+  modelAgnosticPolicyErrors.push(
+    "model-agnostic policy self-test failed: removing authority pointer was not detected",
+  );
 }
 
 // Guard against config-without-checker drift (incident: repo-factory received
@@ -280,6 +365,7 @@ if (userSurfaceLintSyncErrors(droppedConfigManifest).length === 0) {
 const boundaryErrors: string[] = [
   ...portableCharterErrors,
   ...directL0DefaultErrors,
+  ...modelAgnosticPolicyErrors,
   ...textFileSelfTestErrors,
   ...conflictMarkerSelfTestErrors,
   ...userSurfaceLintSyncErrors_,
@@ -388,6 +474,15 @@ if (process.argv.includes("--portable-charter")) {
   } else {
     console.log(
       `direct-L0 defaults: ${String(requiredDirectL0Defaults.length)} clauses and removal checks passed`,
+    );
+  }
+} else if (process.argv.includes("--model-agnostic-policy")) {
+  if (modelAgnosticPolicyErrors.length > 0) {
+    console.error("model-agnostic policy:", modelAgnosticPolicyErrors);
+    process.exitCode = 1;
+  } else {
+    console.log(
+      "model-agnostic policy: Model Router delegation pointer and concrete identity rejection checks passed",
     );
   }
 } else if (

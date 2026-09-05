@@ -133,8 +133,9 @@ no-progress manager stops and never self-requeues.
 At every poll, the coordinator consumes AO's typed `GoalContinuationDecisionV1` contract to contain
 unsafe continuation; the overseer independently consumes the same contract at incident cadence and
 corrects missed containment. This template does not duplicate AO's detector or implementation.
-**Luna-low is excluded from repo-manager/coordinator judgment**, but remains eligible for explicitly
-bounded mechanical substeps.
+**Repo-manager/coordinator model admission is governed by the current Model Router policy release.**
+Portable repository law does not enumerate concrete model identities; bounded mechanical substeps
+must still satisfy the routed capability/admission policy for their assigned work.
 
 ## Binding steer
 

@@ -19,6 +19,7 @@ obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-desig
 
 ### Fixed
 
+- **Model-agnostic manager policy:** remove concrete `Luna-low` identity from portable `AGENTS.md` and `tools/verify-template-self.ts`, delegating manager/coordinator model admission to the current Model Router policy release. PATCH. Fixes #118.
 - **`@spencer-shadley/repo-quality` is now npm-installable from its GitHub subpath:** the private
   template workspace uses an npm-readable local `file:` dependency while preserving pnpm's
   workspace link, and `repo-quality:npm:check` proves the real Git-subpath install. Consumer repos
