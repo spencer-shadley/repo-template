@@ -1,0 +1,17 @@
+[
+  {
+    "token": "PowerShell 7",
+    "reason": "Retained guardrail numeral: Windows PowerShell 5.1 remains an accidental default on Windows",
+    "reviewTrigger": "a PowerShell generation after 7 becomes the Windows default shell"
+  },
+  {
+    "token": "WSL2",
+    "reason": "Retained guardrail numeral: WSL1 remains an accidental default",
+    "reviewTrigger": "a WSL generation after 2 becomes the default install"
+  },
+  {
+    "token": "Manifest V3",
+    "reason": "Retained guardrail numeral: Manifest V2 remains an accidental default",
+    "reviewTrigger": "Chrome ships an extension manifest generation after V3"
+  }
+]
