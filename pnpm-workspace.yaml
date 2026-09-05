@@ -1,2 +1,8 @@
 packages:
   - "packages/*"
+
+# https://pnpm.io/11.x/settings/dependency-resolution#minimumreleaseage
+minimumReleaseAge: 10080
+
+# https://pnpm.io/11.x/settings/build#allowbuilds
+onlyBuiltDependencies: []
