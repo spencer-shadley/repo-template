@@ -6,6 +6,7 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+- **AI-First stack §1.2 mutable-version documentation lint:** add `scripts/check-mutable-versions.ts` and `scripts/mutable-version-allowlist.json` with the three-entry guardrail allowlist (PowerShell 7, WSL2, Manifest V3), wired into `verify:self`. PATCH. Fixes #325.
 - **External package-manager store invariant enforcement:** add `scripts/check-package-manager-store.ts` to verify that active package-manager cache/store paths remain outside the repository checkout and that no in-repo cache directories (`.pnpm-store`) exist. Keeping store state external prevents working tree dirt from wedging queue reconciliation with `(unknown-state)`. Self-test and adoption-shell unit tests verify both valid external store paths and negative in-repo injection fixtures. PATCH. Fixes #108.
 - **Machine-checkable charter contracts:** add a dual-mode `validateCharter` exported from the adoption-shell to enforce required `Mission`, `Responsibilities`, and `Non-responsibilities` sections.
 - **Tolerant Betterleaks merge-gate default:** shared secret scans now require `high` confidence,

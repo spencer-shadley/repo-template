@@ -34,7 +34,9 @@
     "repo-quality:npm:artifact": "node --experimental-strip-types scripts/build-repo-quality-npm.ts print",
     "repo-quality:npm:check": "node --experimental-strip-types scripts/verify-repo-quality-npm.ts",
     "check:package-manager-store": "node scripts/check-package-manager-store.ts",
-    "verify:package-manager-store": "node scripts/check-package-manager-store.ts --self-test"
+    "verify:package-manager-store": "node scripts/check-package-manager-store.ts --self-test",
+    "check:mutable-versions": "node scripts/check-mutable-versions.ts",
+    "verify:mutable-versions": "node scripts/check-mutable-versions.ts --self-test"
   },
   "devDependencies": {
     "@spencer-shadley/repo-quality": "file:packages/repo-quality",
