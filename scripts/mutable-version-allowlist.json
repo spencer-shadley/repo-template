@@ -1,0 +1,17 @@
+[
+  {
+    "token": "PowerShell 7",
+    "reason": "Guardrail distinction from Windows PowerShell 5.1.",
+    "reviewTrigger": "a PowerShell generation after 7 becomes the Windows default shell"
+  },
+  {
+    "token": "WSL2",
+    "reason": "Guardrail distinction from WSL1.",
+    "reviewTrigger": "a WSL generation after 2 becomes the default install"
+  },
+  {
+    "token": "Manifest V3",
+    "reason": "Guardrail distinction from Manifest V2.",
+    "reviewTrigger": "Chrome ships an extension manifest generation after V3"
+  }
+]
