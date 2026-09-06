@@ -1,2 +1,7 @@
 packages:
   - "packages/*"
+
+# Project pnpm settings belong in pnpm-workspace.yaml:
+# https://pnpm.io/settings
+minimumReleaseAge: 10080
+onlyBuiltDependencies: []
