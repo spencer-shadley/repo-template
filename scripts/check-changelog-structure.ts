@@ -526,14 +526,16 @@ function runCheck(repoRoot: string, customFile?: string): void {
       process.exitCode = 2;
       return;
     }
-    const templateVersionPath = join(repoRoot, "TEMPLATE_VERSION");
-    if (!existsSync(templateVersionPath)) {
-      console.error(`check-changelog-structure: missing ${templateVersionPath}`);
+    const versionPath = existsSync(join(repoRoot, "VERSION"))
+      ? join(repoRoot, "VERSION")
+      : join(repoRoot, "TEMPLATE_VERSION");
+    if (!existsSync(versionPath)) {
+      console.error(`check-changelog-structure: missing VERSION or TEMPLATE_VERSION`);
       process.exitCode = 2;
       return;
     }
     const changelogContent = readFileSync(changelogPath, "utf8");
-    const templateVersion = readFileSync(templateVersionPath, "utf8").trim();
+    const templateVersion = readFileSync(versionPath, "utf8").trim();
     const violations = checkChangelogStructure({
       changelogContent,
       templateVersion,
