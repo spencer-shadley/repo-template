@@ -15,6 +15,7 @@ one entry per user-visible or structural change.
 
 ### Added
 
+- **Canonical repository SemVer and weekly preserved changelog rotation standard**: define `VERSION` as the canonical single machine-readable repository SemVer, document active changelog maintenance in `docs/SEMVER-CHANGELOG-STANDARD.md`, add idempotent weekly changelog archival generator (`scripts/rotate-changelog-weekly.ts`) rotating prior entries to `docs/changelogs/YYYY-Www.md`, and provide structural validator (`scripts/check-semver-changelog.ts`). MINOR. Fixes #90.
 - **`@spencer-shadley/repo-quality` 1.7.0 adds the portable `simpleDiff.quality-lint`
   land-gate selector:** its checked template projection runs blocking `pnpm lint` for kit-consume
   and lint-adapter diffs, and the bootstrap verifier fails TypeScript/JavaScript consumers that do

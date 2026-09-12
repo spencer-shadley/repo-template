@@ -280,5 +280,14 @@
   "packages/adoption-shell/test/package-manager-store.test.ts": "self",
   "scripts/check-package-manager-store.ts": "self",
   "scripts/check-changelog-structure.ts": "self",
-  "scripts/check-supply-chain-controls.ts": "self"
+  "scripts/check-supply-chain-controls.ts": "self",
+  "scripts/check-local-sli-authority.ts": "self",
+  "scripts/check-mutable-versions.ts": "self",
+  "scripts/mutable-version-allowlist.json": "self",
+  "VERSION": "self",
+  "docs/SEMVER-CHANGELOG-STANDARD.md": "self",
+  "docs/changelogs/.gitkeep": "self",
+  "scripts/check-semver-changelog.ts": "self",
+  "scripts/rotate-changelog-weekly.ts": "self",
+  "packages/adoption-shell/test/semver-changelog.test.ts": "self"
 }
