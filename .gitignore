@@ -6,9 +6,6 @@ node_modules/
 .env
 .env.*
 *.secret.*
-agent.pid
-dispatch-contract.json
-prompt.md
 # runtime-artifact: owner=agent-orchestrator incident=none
 .orchestrator-tree.lock
 # runtime-artifact: owner=agent-orchestrator incident=none
