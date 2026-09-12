@@ -39,12 +39,57 @@ export function parseSemVerNumbers(version: string): [number, number, number] {
 }
 
 export function compareSemVer(a: string, b: string): number {
-  const [aMaj, aMin, aPat] = parseSemVerNumbers(a);
-  const [bMaj, bMin, bPat] = parseSemVerNumbers(b);
-  if (aMaj !== bMaj) return aMaj - bMaj;
-  if (aMin !== bMin) return aMin - bMin;
-  if (aPat !== bPat) return aPat - bPat;
-  return a.localeCompare(b);
+  const cleanA = a.replace(/^\s*v/i, "").trim();
+  const cleanB = b.replace(/^\s*v/i, "").trim();
+
+  // Strip build metadata (everything after +)
+  const noBuildA = cleanA.split("+")[0] ?? "";
+  const noBuildB = cleanB.split("+")[0] ?? "";
+
+  const [coreA = "", preA] = noBuildA.split("-");
+  const [coreB = "", preB] = noBuildB.split("-");
+
+  const [majA = 0, minA = 0, patA = 0] = coreA.split(".").map(Number);
+  const [majB = 0, minB = 0, patB = 0] = coreB.split(".").map(Number);
+
+  if (majA !== majB) return majA - majB;
+  if (minA !== minB) return minA - minB;
+  if (patA !== patB) return patA - patB;
+
+  // A normal version has greater precedence than a pre-release version
+  if (!preA && preB) return 1;
+  if (preA && !preB) return -1;
+  if (!preA && !preB) return 0;
+
+  // Compare pre-release identifiers dot-separated
+  const idA = preA.split(".");
+  const idB = preB.split(".");
+  const len = Math.max(idA.length, idB.length);
+
+  for (let i = 0; i < len; i++) {
+    const partA = idA[i];
+    const partB = idB[i];
+    if (partA === undefined) return -1;
+    if (partB === undefined) return 1;
+
+    const isNumA = /^\d+$/.test(partA);
+    const isNumB = /^\d+$/.test(partB);
+
+    if (isNumA && isNumB) {
+      const numA = Number(partA);
+      const numB = Number(partB);
+      if (numA !== numB) return numA - numB;
+    } else if (isNumA && !isNumB) {
+      return -1;
+    } else if (!isNumA && isNumB) {
+      return 1;
+    } else {
+      const cmp = partA.localeCompare(partB);
+      if (cmp !== 0) return cmp;
+    }
+  }
+
+  return 0;
 }
 
 /**
