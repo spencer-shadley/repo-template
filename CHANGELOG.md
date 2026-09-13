@@ -6,6 +6,7 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+- **Delegate SemVer parsing and precedence to node-semver:** remove local `SEMVER_REGEX`, `compareSemVer`, and `parseSemVerNumbers` from `scripts/check-semver-changelog.ts` and `scripts/rotate-changelog-weekly.ts`, delegating SemVer 2.0.0 parsing, validation, and ASCII precedence to pinned `semver` while preserving canonical `VERSION` and changelog repository policy. Add comprehensive parity regression coverage and architectural assertions preventing duplicate parsers. PATCH. Fixes #338.
 - **External package-manager store invariant enforcement:** add `scripts/check-package-manager-store.ts` to verify that active package-manager cache/store paths remain outside the repository checkout and that no in-repo cache directories (`.pnpm-store`) exist. Keeping store state external prevents working tree dirt from wedging queue reconciliation with `(unknown-state)`. Self-test and adoption-shell unit tests verify both valid external store paths and negative in-repo injection fixtures. PATCH. Fixes #108.
 - **Machine-checkable charter contracts:** add a dual-mode `validateCharter` exported from the adoption-shell to enforce required `Mission`, `Responsibilities`, and `Non-responsibilities` sections.
 - **Tolerant Betterleaks merge-gate default:** shared secret scans now require `high` confidence,
