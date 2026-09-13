@@ -15,6 +15,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import semver from "semver";
 
 const H2_RELEASE_PATTERN = /^## \[(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)\] - (\d{4}-\d{2}-\d{2})$/;
 const H2_PATTERN = /^##\s+(.*)$/;
@@ -30,66 +31,6 @@ export interface ParsedChangelog {
   readonly header: string;
   readonly unreleasedSection: string;
   readonly releases: readonly ReleaseBlock[];
-}
-
-export function parseSemVerNumbers(version: string): [number, number, number] {
-  const base = version.split("-", 1)[0]?.split("+", 1)[0] ?? version;
-  const parts = base.split(".").map((n) => Math.trunc(Number(n)));
-  return [parts[0] ?? 0, parts[1] ?? 0, parts[2] ?? 0];
-}
-
-export function compareSemVer(a: string, b: string): number {
-  const cleanA = a.replace(/^\s*v/i, "").trim();
-  const cleanB = b.replace(/^\s*v/i, "").trim();
-
-  // Strip build metadata (everything after +)
-  const noBuildA = cleanA.split("+")[0] ?? "";
-  const noBuildB = cleanB.split("+")[0] ?? "";
-
-  const [coreA = "", preA] = noBuildA.split("-");
-  const [coreB = "", preB] = noBuildB.split("-");
-
-  const [majA = 0, minA = 0, patA = 0] = coreA.split(".").map(Number);
-  const [majB = 0, minB = 0, patB = 0] = coreB.split(".").map(Number);
-
-  if (majA !== majB) return majA - majB;
-  if (minA !== minB) return minA - minB;
-  if (patA !== patB) return patA - patB;
-
-  // A normal version has greater precedence than a pre-release version
-  if (!preA && preB) return 1;
-  if (preA && !preB) return -1;
-  if (!preA && !preB) return 0;
-
-  // Compare pre-release identifiers dot-separated
-  const idA = preA.split(".");
-  const idB = preB.split(".");
-  const len = Math.max(idA.length, idB.length);
-
-  for (let i = 0; i < len; i++) {
-    const partA = idA[i];
-    const partB = idB[i];
-    if (partA === undefined) return -1;
-    if (partB === undefined) return 1;
-
-    const isNumA = /^\d+$/.test(partA);
-    const isNumB = /^\d+$/.test(partB);
-
-    if (isNumA && isNumB) {
-      const numA = Number(partA);
-      const numB = Number(partB);
-      if (numA !== numB) return numA - numB;
-    } else if (isNumA && !isNumB) {
-      return -1;
-    } else if (!isNumA && isNumB) {
-      return 1;
-    } else {
-      const cmp = partA.localeCompare(partB);
-      if (cmp !== 0) return cmp;
-    }
-  }
-
-  return 0;
 }
 
 /**
@@ -305,7 +246,7 @@ export function rotateChangelogWeekly(options: RotateOptions): RotateResult {
     }
 
     // Sort descending by SemVer
-    combined.sort((a, b) => compareSemVer(b.version, a.version));
+    combined.sort((a, b) => semver.compare(b.version, a.version));
 
     const { start, end } = getIsoWeekRange(week);
     const weekNum = week.split("-W")[1] ?? "01";

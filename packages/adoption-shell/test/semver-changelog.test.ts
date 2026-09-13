@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
+import semver from "semver";
 
 import {
   checkSemverChangelog,
-  compareSemVer,
-  parseSemVerNumbers,
-  SEMVER_REGEX,
+  isValidCanonicalSemVer,
   ISO_WEEK_ARCHIVE_REGEX,
 } from "../../../scripts/check-semver-changelog.ts";
 
@@ -17,21 +18,37 @@ import {
   rotateChangelogWeekly,
 } from "../../../scripts/rotate-changelog-weekly.ts";
 
-test("SEMVER_REGEX validates strict SemVer 2.0.0", () => {
-  assert.ok(SEMVER_REGEX.test("0.1.0"));
-  assert.ok(SEMVER_REGEX.test("1.0.0"));
-  assert.ok(SEMVER_REGEX.test("3.1.0"));
-  assert.ok(SEMVER_REGEX.test("10.20.30"));
-  assert.ok(SEMVER_REGEX.test("1.0.0-alpha.1"));
-  assert.ok(SEMVER_REGEX.test("1.0.0+20260911"));
-  assert.ok(SEMVER_REGEX.test("1.0.0-beta.2+exp.sha.5114f85"));
+test("isValidCanonicalSemVer validates strict SemVer 2.0.0 and rejects non-canonical spellings", () => {
+  assert.ok(isValidCanonicalSemVer("0.1.0"));
+  assert.ok(isValidCanonicalSemVer("1.0.0"));
+  assert.ok(isValidCanonicalSemVer("3.1.0"));
+  assert.ok(isValidCanonicalSemVer("10.20.30"));
+  assert.ok(isValidCanonicalSemVer("1.0.0-alpha.1"));
+  assert.ok(isValidCanonicalSemVer("1.0.0+20260911"));
+  assert.ok(isValidCanonicalSemVer("1.0.0-beta.2+exp.sha.5114f85"));
+  assert.ok(isValidCanonicalSemVer("0.0.0"));
+  assert.ok(isValidCanonicalSemVer("1.0.0-0"));
+  assert.ok(isValidCanonicalSemVer("1.0.0-alpha.0"));
+  assert.ok(isValidCanonicalSemVer("1.0.0-01a"));
 
-  assert.ok(!SEMVER_REGEX.test(""));
-  assert.ok(!SEMVER_REGEX.test("v1.0.0"));
-  assert.ok(!SEMVER_REGEX.test("1.0"));
-  assert.ok(!SEMVER_REGEX.test("1"));
-  assert.ok(!SEMVER_REGEX.test("1.0.0.0"));
-  assert.ok(!SEMVER_REGEX.test("invalid"));
+  // Rejects invalid, non-canonical, or loose formats
+  assert.ok(!isValidCanonicalSemVer(""));
+  assert.ok(!isValidCanonicalSemVer("v1.0.0"));
+  assert.ok(!isValidCanonicalSemVer("V1.0.0"));
+  assert.ok(!isValidCanonicalSemVer("=1.0.0"));
+  assert.ok(!isValidCanonicalSemVer("1.0"));
+  assert.ok(!isValidCanonicalSemVer("1"));
+  assert.ok(!isValidCanonicalSemVer("1.0.0.0"));
+  assert.ok(!isValidCanonicalSemVer("01.0.0"));
+  assert.ok(!isValidCanonicalSemVer("1.01.0"));
+  assert.ok(!isValidCanonicalSemVer("1.0.01"));
+  assert.ok(!isValidCanonicalSemVer("1.0.0-01"));
+  assert.ok(!isValidCanonicalSemVer("1.0.0-alpha.01"));
+  assert.ok(!isValidCanonicalSemVer("1.0.0+build 1"));
+  assert.ok(!isValidCanonicalSemVer("1.0.0+build_1"));
+  assert.ok(!isValidCanonicalSemVer("invalid"));
+  assert.ok(!isValidCanonicalSemVer(" 1.0.0"));
+  assert.ok(!isValidCanonicalSemVer("1.0.0 "));
 });
 
 test("ISO_WEEK_ARCHIVE_REGEX validates YYYY-Www.md", () => {
@@ -47,12 +64,71 @@ test("ISO_WEEK_ARCHIVE_REGEX validates YYYY-Www.md", () => {
   assert.ok(!ISO_WEEK_ARCHIVE_REGEX.test(".gitkeep"));
 });
 
-test("compareSemVer sorts versions correctly", () => {
-  assert.ok(compareSemVer("2.0.0", "1.9.9") > 0);
-  assert.ok(compareSemVer("1.2.0", "1.1.9") > 0);
-  assert.ok(compareSemVer("1.0.1", "1.0.0") > 0);
-  assert.equal(compareSemVer("3.1.0", "3.1.0"), 0);
-  assert.ok(compareSemVer("0.9.0", "1.0.0") < 0);
+test("semver.compare implements SemVer 2.0.0 official precedence", () => {
+  assert.ok(semver.compare("2.0.0", "1.9.9") > 0);
+  assert.ok(semver.compare("1.2.0", "1.1.9") > 0);
+  assert.ok(semver.compare("1.0.1", "1.0.0") > 0);
+  assert.equal(semver.compare("3.1.0", "3.1.0"), 0);
+  assert.ok(semver.compare("0.9.0", "1.0.0") < 0);
+  assert.ok(semver.compare("1.0.0-alpha", "1.0.0") < 0);
+  assert.ok(semver.compare("1.0.0-rc.1", "1.0.0") < 0);
+
+  // Official SemVer 2.0.0 Spec Section 11 precedence example chain
+  const chain = [
+    "1.0.0-alpha",
+    "1.0.0-alpha.1",
+    "1.0.0-alpha.beta",
+    "1.0.0-beta",
+    "1.0.0-beta.2",
+    "1.0.0-beta.11",
+    "1.0.0-rc.1",
+    "1.0.0",
+  ];
+  for (let i = 0; i < chain.length - 1; i++) {
+    const v1 = chain[i]!;
+    const v2 = chain[i + 1]!;
+    assert.ok(semver.compare(v1, v2) < 0, `Expected ${v1} < ${v2}`);
+    assert.ok(semver.compare(v2, v1) > 0, `Expected ${v2} > ${v1}`);
+  }
+});
+
+test("semver.compare implements numeric vs alphanumeric prerelease identifier precedence", () => {
+  // Numeric identifiers have lower precedence than non-numeric
+  assert.ok(semver.compare("1.0.0-1", "1.0.0-a") < 0);
+  assert.ok(semver.compare("1.0.0-999", "1.0.0-alpha") < 0);
+  assert.ok(semver.compare("1.0.0-alpha.1", "1.0.0-alpha.a") < 0);
+
+  // Numeric identifiers compared numerically
+  assert.ok(semver.compare("1.0.0-2", "1.0.0-10") < 0);
+  assert.ok(semver.compare("1.0.0-10", "1.0.0-2") > 0);
+
+  // Alphanumeric identifiers compared lexically
+  assert.ok(semver.compare("1.0.0-alpha", "1.0.0-beta") < 0);
+  assert.ok(semver.compare("1.0.0-beta", "1.0.0-alpha") > 0);
+});
+
+test("semver.compare implements prerelease field length precedence", () => {
+  // Larger set of pre-release fields has higher precedence when preceding are equal
+  assert.ok(semver.compare("1.0.0-alpha", "1.0.0-alpha.1") < 0);
+  assert.ok(semver.compare("1.0.0-alpha.1", "1.0.0-alpha.1.1") < 0);
+  assert.ok(semver.compare("1.0.0-alpha.1.1", "1.0.0-alpha.1") > 0);
+});
+
+test("semver.compare ignores build metadata in precedence determination", () => {
+  assert.equal(semver.compare("1.0.0+build.1", "1.0.0+build.2"), 0);
+  assert.equal(semver.compare("1.0.0-alpha+001", "1.0.0-alpha+exp.sha.5114f85"), 0);
+  assert.equal(semver.compare("1.0.0+20260911", "1.0.0"), 0);
+});
+
+test("semver.compare enforces ASCII lexical sort order, avoiding locale collation drift", () => {
+  // In ASCII: "Z" (0x5A) < "a" (0x61).
+  // SemVer 2.0.0 Spec Section 11 defines lexical ASCII sort order.
+  assert.equal(semver.compare("1.0.0-Z", "1.0.0-a"), -1);
+  assert.equal(semver.compare("1.0.0-a", "1.0.0-Z"), 1);
+
+  // Negative control: String.prototype.localeCompare collates "Z" after "a" in standard locales,
+  // confirming why local comparator delegation to node-semver prevents locale-dependent defects.
+  assert.ok("Z".localeCompare("a") > 0);
 });
 
 test("checkSemverChangelog validates valid repository structure", () => {
@@ -273,4 +349,37 @@ test("rotateChangelogWeekly supports keepLatestCount", () => {
   assert.ok(result.updatedChangelog.includes("## [2.1.0] - 2026-07-29"));
   assert.ok(!result.updatedChangelog.includes("## [2.0.0] - 2026-07-20"));
   assert.ok(result.archives["2026-W30"]?.includes("## [2.0.0] - 2026-07-20"));
+});
+
+test("architectural assertion: no duplicate SemVer parser or comparator in repository scripts", () => {
+  const checkSemverPath = fileURLToPath(new URL("../../../scripts/check-semver-changelog.ts", import.meta.url));
+  const rotatePath = fileURLToPath(new URL("../../../scripts/rotate-changelog-weekly.ts", import.meta.url));
+
+  const checkSemverSource = readFileSync(checkSemverPath, "utf8");
+  const rotateSource = readFileSync(rotatePath, "utf8");
+
+  const checkSemverCode = checkSemverSource.split("export function selfTest")[0] ?? "";
+  const rotateCode = rotateSource.split("export function selfTest")[0] ?? "";
+
+  assert.ok(
+    !/\bfunction\s+compareSemVer\b/u.test(checkSemverCode),
+    "check-semver-changelog.ts must not define compareSemVer",
+  );
+  assert.ok(
+    !/\bfunction\s+parseSemVerNumbers\b/u.test(checkSemverCode),
+    "check-semver-changelog.ts must not define parseSemVerNumbers",
+  );
+  assert.ok(
+    !/\bSEMVER_REGEX\b/u.test(checkSemverCode),
+    "check-semver-changelog.ts must not define SEMVER_REGEX",
+  );
+
+  assert.ok(
+    !/\bfunction\s+compareSemVer\b/u.test(rotateCode),
+    "rotate-changelog-weekly.ts must not define compareSemVer",
+  );
+  assert.ok(
+    !/\bfunction\s+parseSemVerNumbers\b/u.test(rotateCode),
+    "rotate-changelog-weekly.ts must not define parseSemVerNumbers",
+  );
 });

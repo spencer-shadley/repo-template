@@ -14,6 +14,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import semver from "semver";
 
 export type SemverChangelogRule = "SVC1" | "SVC2" | "SVC3" | "SVC4" | "SVC5";
 
@@ -24,71 +25,21 @@ export interface SemverChangelogViolation {
   readonly message: string;
 }
 
-export const SEMVER_REGEX =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
-
 export const ISO_WEEK_ARCHIVE_REGEX = /^(\d{4})-W(0[1-9]|[1-4]\d|5[0-3])\.md$/;
 const BRACKETED_RELEASE_PATTERN = /^## \[(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)\]/;
 const H2_PATTERN = /^##\s+(.*)$/;
 
-export function parseSemVerNumbers(version: string): [number, number, number] {
-  const base = version.split("-", 1)[0]?.split("+", 1)[0] ?? version;
-  const parts = base.split(".").map((n) => Math.trunc(Number(n)));
-  return [parts[0] ?? 0, parts[1] ?? 0, parts[2] ?? 0];
+function formatCanonical(parsed: semver.SemVer): string {
+  const core = `${String(parsed.major)}.${String(parsed.minor)}.${String(parsed.patch)}`;
+  const pre = parsed.prerelease.length > 0 ? `-${parsed.prerelease.join(".")}` : "";
+  const build = parsed.build.length > 0 ? `+${parsed.build.join(".")}` : "";
+  return `${core}${pre}${build}`;
 }
 
-export function compareSemVer(a: string, b: string): number {
-  const cleanA = a.replace(/^\s*v/i, "").trim();
-  const cleanB = b.replace(/^\s*v/i, "").trim();
-
-  // Strip build metadata (everything after +)
-  const noBuildA = cleanA.split("+")[0] ?? "";
-  const noBuildB = cleanB.split("+")[0] ?? "";
-
-  const [coreA = "", preA] = noBuildA.split("-");
-  const [coreB = "", preB] = noBuildB.split("-");
-
-  const [majA = 0, minA = 0, patA = 0] = coreA.split(".").map(Number);
-  const [majB = 0, minB = 0, patB = 0] = coreB.split(".").map(Number);
-
-  if (majA !== majB) return majA - majB;
-  if (minA !== minB) return minA - minB;
-  if (patA !== patB) return patA - patB;
-
-  // A normal version has greater precedence than a pre-release version
-  if (!preA && preB) return 1;
-  if (preA && !preB) return -1;
-  if (!preA && !preB) return 0;
-
-  // Compare pre-release identifiers dot-separated
-  const idA = preA.split(".");
-  const idB = preB.split(".");
-  const len = Math.max(idA.length, idB.length);
-
-  for (let i = 0; i < len; i++) {
-    const partA = idA[i];
-    const partB = idB[i];
-    if (partA === undefined) return -1;
-    if (partB === undefined) return 1;
-
-    const isNumA = /^\d+$/.test(partA);
-    const isNumB = /^\d+$/.test(partB);
-
-    if (isNumA && isNumB) {
-      const numA = Number(partA);
-      const numB = Number(partB);
-      if (numA !== numB) return numA - numB;
-    } else if (isNumA && !isNumB) {
-      return -1;
-    } else if (!isNumA && isNumB) {
-      return 1;
-    } else {
-      const cmp = partA.localeCompare(partB);
-      if (cmp !== 0) return cmp;
-    }
-  }
-
-  return 0;
+export function isValidCanonicalSemVer(raw: string): boolean {
+  const parsed = semver.parse(raw);
+  if (!parsed) return false;
+  return formatCanonical(parsed) === raw;
 }
 
 export function checkSemverChangelog(options: {
@@ -161,7 +112,7 @@ export function checkSemverChangelog(options: {
       });
     } else {
       trimmedVersion = (lines[0] ?? "").trim();
-      if (!SEMVER_REGEX.test(trimmedVersion)) {
+      if (!isValidCanonicalSemVer(trimmedVersion)) {
         violations.push({
           rule: "SVC1",
           file: "VERSION",
@@ -219,9 +170,12 @@ export function checkSemverChangelog(options: {
 
     if (trimmedVersion) {
       if (releaseVersions.length > 0) {
-        const highestRelease = releaseVersions.reduce((highest, current) =>
-          compareSemVer(current, highest) > 0 ? current : highest,
-        );
+        const highestRelease = releaseVersions.reduce((highest, current) => {
+          const cmp = semver.compare(current, highest);
+          if (cmp > 0) return current;
+          if (cmp === 0 && current === trimmedVersion) return current;
+          return highest;
+        });
         if (highestRelease !== trimmedVersion) {
           violations.push({
             rule: "SVC3",
@@ -237,8 +191,14 @@ export function checkSemverChangelog(options: {
           for (const aLine of aLines) {
             const aMatch = BRACKETED_RELEASE_PATTERN.exec(aLine.trim());
             if (aMatch?.[1]) {
-              if (highestArchived === null || compareSemVer(aMatch[1], highestArchived) > 0) {
-                highestArchived = aMatch[1];
+              const current = aMatch[1];
+              if (highestArchived === null) {
+                highestArchived = current;
+              } else {
+                const cmp = semver.compare(current, highestArchived);
+                if (cmp > 0 || (cmp === 0 && current === trimmedVersion)) {
+                  highestArchived = current;
+                }
               }
             }
           }
@@ -350,6 +310,70 @@ export function selfTest(): void {
     },
   });
   assert.ok(badHeader.some((v) => v.rule === "SVC5"));
+
+  // Test valid canonical SemVer with prerelease and build metadata
+  const validPreBuild = checkSemverChangelog({
+    versionContent: "1.0.0-beta.2+exp.sha.5114f85\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [1.0.0-beta.2+exp.sha.5114f85] - 2026-09-13\n",
+  });
+  assert.deepEqual(validPreBuild, []);
+
+  // Test non-canonical VERSION formats rejected (leading v, leading zeroes)
+  const nonCanonicalV = checkSemverChangelog({
+    versionContent: "v1.0.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n",
+  });
+  assert.ok(nonCanonicalV.some((v) => v.rule === "SVC1"));
+
+  const leadingZero = checkSemverChangelog({
+    versionContent: "01.0.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n",
+  });
+  assert.ok(leadingZero.some((v) => v.rule === "SVC1"));
+
+  const leadingZeroPre = checkSemverChangelog({
+    versionContent: "1.0.0-01\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n",
+  });
+  assert.ok(leadingZeroPre.some((v) => v.rule === "SVC1"));
+
+  // Test SVC3 precedence using semver (e.g. 1.0.0-rc.1 > 1.0.0-beta.11)
+  const precedenceMismatch = checkSemverChangelog({
+    versionContent: "1.0.0-beta.11\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [1.0.0-rc.1] - 2026-09-13\n\n## [1.0.0-beta.11] - 2026-09-12\n",
+  });
+  assert.ok(precedenceMismatch.some((v) => v.rule === "SVC3"));
+
+  // Architectural check: verify no hand-written SemVer parser/comparator is reintroduced
+  const scriptPath = fileURLToPath(import.meta.url);
+  const scriptContent = readFileSync(scriptPath, "utf8");
+  const codeWithoutSelfTest = scriptContent.split("export function selfTest")[0] ?? "";
+  assert.ok(
+    !/\bfunction\s+compareSemVer\b/u.test(codeWithoutSelfTest),
+    "scripts/check-semver-changelog.ts must not define compareSemVer",
+  );
+  assert.ok(
+    !/\bfunction\s+parseSemVerNumbers\b/u.test(codeWithoutSelfTest),
+    "scripts/check-semver-changelog.ts must not define parseSemVerNumbers",
+  );
+  assert.ok(
+    !/\bSEMVER_REGEX\b/u.test(codeWithoutSelfTest),
+    "scripts/check-semver-changelog.ts must not define SEMVER_REGEX",
+  );
+
+  const rotateScriptPath = join(dirname(scriptPath), "rotate-changelog-weekly.ts");
+  if (existsSync(rotateScriptPath)) {
+    const rotateContent = readFileSync(rotateScriptPath, "utf8");
+    const rotateCode = rotateContent.split("export function selfTest")[0] ?? "";
+    assert.ok(
+      !/\bfunction\s+compareSemVer\b/u.test(rotateCode),
+      "scripts/rotate-changelog-weekly.ts must not define compareSemVer",
+    );
+    assert.ok(
+      !/\bfunction\s+parseSemVerNumbers\b/u.test(rotateCode),
+      "scripts/rotate-changelog-weekly.ts must not define parseSemVerNumbers",
+    );
+  }
 
   console.log("check-semver-changelog: self-test passed");
 }
