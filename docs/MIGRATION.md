@@ -240,6 +240,49 @@ alongside the frozen, unmodified `LocalCiContractV2`. Adopting v3 is opt-in per 
    `.runtime-artifact-registry.schema.json` + `scripts/check-runtime-artifact-registry.ts` via the
    template manifest, (b) tag its own `.gitignore` lines with
    `# runtime-artifact: owner=<repo> incident=<ref>` for every pattern it writes, and (c) wire
-   `check-runtime-artifact-registry` into its own verify gate so a new unregistered runtime file is
-   caught before it starves a drain the way `.ops/work-items/QUEUE.generated.md` and
-   `.ops/work-items/work-projection.v1.json` did (repo-template#129).
+    `check-runtime-artifact-registry` into its own verify gate so a new unregistered runtime file is
+    caught before it starves a drain the way `.ops/work-items/QUEUE.generated.md` and
+    `.ops/work-items/work-projection.v1.json` did (repo-template#129).
+
+## ProductSliProbeV1 contract and local priority binding (issue #110)
+
+`ProductSliProbeV1` (`repo-template/product-sli-probe-v1`) standardizes portable, runtime-neutral
+measurement declarations connecting active local `PRIORITIES.md` SLI/SLO rows to safe product-owned
+probe entrypoints and typed observation receipts without duplicating scheduler, evaluation, or
+incident machinery.
+
+1. **Migration path:**
+   - **Authority relocation:** Move any existing ratified local SLI/SLO definitions previously kept in
+     `AGENTS.md` (e.g. under `## Product principles`) into sibling `PRIORITIES.md` under the required
+     `## Local SLI / SLO` markdown table. Preserve exact principle bindings (`P<X>.<Y>`), stable local
+     row IDs, observation descriptions, SLO targets, and decider/provenance. Remove the competing
+     table from `AGENTS.md` to satisfy the local-authority guard (LS1–LS3).
+   - **Declaration binding:** For every row with status `active` in `PRIORITIES.md`:
+     - If mechanized: create a probe entry in `product-sli.json` with matching `sliId`,
+       `bindsPrinciple`, observation `kind` (`gauge | count-ratio | boolean`), `sloReference`,
+       repository-relative `entrypoint.path` and structural `argv`, `effects` (`read-only | fixture-only`),
+       required capability names, and `cadence.freshnessSeconds`.
+     - If not yet mechanized or purely informational: declare an explicit `disposition` with `kind`
+       (`report-only | unsupported | non-mechanizable`), non-blank `owner`, `reviewDate` (`YYYY-MM-DD`),
+       and rationale.
+     - Unbound active rows fail closed; no silent un-monitored active row validates.
+   - **Receipt evidence generation:** Run migration verification to compute a
+     `ProductSliMigrationReceiptV1` (`product-sli-migration-receipt/v1`). The receipt records
+     canonical before/after SHA-256 digests (`beforeSemanticDigest`, `afterSemanticDigest`), asserting
+     that IDs, principle references, targets, and decider provenance were preserved without drift.
+   - **Refusal of destructive effects:** Entrypoints must be repository-relative and path-safe.
+     Arbitrary shell strings, command interpolation, and destructive/live-write/spend effects are
+     structurally rejected. Baseline unattended product probes must remain strictly read-only or
+     fixture-only.
+
+2. **Rollback path:**
+   - As a producer-side contract release, repo-template does not mutate consumer repositories directly.
+   - Rollback of candidate adoption in a consumer repository requires reverting the consumer's adoption
+     commit to its pre-migration state.
+
+3. **Rollout order:**
+   - Canary-first rollout: `gmail-markdown` (issue gmail-markdown#554) and `sharingan` (issue sharingan#140)
+     are the candidate consumers for browser-extension (CDP fixture) and service media (dry-run)
+     probe bindings respectively.
+   - Schedulers (Windmill/workflows) consume `product-sli.json` declarations as runtime-neutral hints
+     without embedding runner implementations in the template.

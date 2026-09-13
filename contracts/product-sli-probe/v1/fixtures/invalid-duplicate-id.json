@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaVersion": "product-sli-probe/v1",
+  "contractId": "repo-template/product-sli-probe-v1",
+  "repository": "spencer-shadley/sharingan",
+  "probes": [
+    {
+      "sliId": "sli-media-latency",
+      "bindsPrinciple": "P2.1",
+      "kind": "gauge",
+      "sloReference": {
+        "target": "< 200ms"
+      },
+      "entrypoint": {
+        "path": "scripts/probes/probe1.ts",
+        "argv": []
+      },
+      "effects": {
+        "effectClass": "read-only"
+      },
+      "requiredCapabilities": [],
+      "cadence": {
+        "freshnessSeconds": 1800
+      }
+    },
+    {
+      "sliId": "sli-media-latency",
+      "bindsPrinciple": "P2.1",
+      "kind": "gauge",
+      "sloReference": {
+        "target": "< 100ms"
+      },
+      "entrypoint": {
+        "path": "scripts/probes/probe2.ts",
+        "argv": []
+      },
+      "effects": {
+        "effectClass": "read-only"
+      },
+      "requiredCapabilities": [],
+      "cadence": {
+        "freshnessSeconds": 1800
+      }
+    }
+  ]
+}

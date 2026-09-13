@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaVersion": "product-sli-probe/v1",
+  "contractId": "repo-template/product-sli-probe-v1",
+  "repository": "spencer-shadley/sharingan",
+  "probes": [
+    {
+      "sliId": "sli-media-dry-run-latency",
+      "bindsPrinciple": "P2.1",
+      "kind": "gauge",
+      "sloReference": {
+        "target": "< 200ms",
+        "comparator": "<"
+      },
+      "entrypoint": {
+        "path": "scripts/probes/media-dry-run.ts",
+        "argv": ["--dry-run", "--input", "fixtures/sample-frame.raw"],
+        "cwd": ".",
+        "timeoutSeconds": 45
+      },
+      "effects": {
+        "effectClass": "read-only",
+        "spend": false,
+        "liveMutation": false
+      },
+      "requiredCapabilities": ["media-pipeline", "dry-run"],
+      "cadence": {
+        "freshnessSeconds": 1800,
+        "suggestedIntervalSeconds": 300
+      },
+      "receipt": {
+        "schemaVersion": "product-sli-observation/v1",
+        "evidenceKind": "transcode-timing"
+      }
+    }
+  ]
+}

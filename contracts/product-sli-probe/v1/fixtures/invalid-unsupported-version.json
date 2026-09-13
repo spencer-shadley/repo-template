@@ -1,0 +1,8 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaVersion": "product-sli-probe/v999",
+  "contractId": "repo-template/product-sli-probe-v1",
+  "repository": "spencer-shadley/sharingan",
+  "probes": []
+}

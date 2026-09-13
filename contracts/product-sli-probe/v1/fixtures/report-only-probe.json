@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaVersion": "product-sli-probe/v1",
+  "contractId": "repo-template/product-sli-probe-v1",
+  "repository": "spencer-shadley/repo-template",
+  "probes": [
+    {
+      "sliId": "sli-manual-governance-audit",
+      "bindsPrinciple": "P3.1",
+      "kind": "report-only",
+      "sloReference": {
+        "target": "report-only",
+        "comparator": "report-only"
+      },
+      "disposition": {
+        "kind": "report-only",
+        "owner": "security-council",
+        "reviewDate": "2026-12-31",
+        "rationale": "Manual quarterly policy audit; continuous mechanization deferred."
+      },
+      "effects": {
+        "effectClass": "read-only",
+        "spend": false,
+        "liveMutation": false
+      },
+      "requiredCapabilities": [],
+      "cadence": {
+        "freshnessSeconds": 7776000
+      }
+    }
+  ]
+}

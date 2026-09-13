@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "7de43134b3c0b68612d5a8a11e7d6881539113fc6643c7f43d18fd8e10155d39",
+  "artifactDigest": "bd91a18f7b283f6028ddc822e95b1e0a31540971e71575bef71304b92697ea0d",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "50ba7328a7f03c5a169ed86663a82a4f662ac54064cb5732c9bb1143b376c98a",
-      "bytes": 4703
+      "sha256": "13b3feb27ea91ea95ba793882c7b9bb97827df728a82174459804bc53bfcc761",
+      "bytes": 5753
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -114,6 +114,13 @@
       "mode": "100644",
       "sha256": "ef1c2e93bf67e9057243d85074285f6389768d30b4e9a0e766c1426a017047ee",
       "bytes": 16407
+    },
+    {
+      "path": "packages/adoption-shell/src/product-sli-probe-v1.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "a34523a2f6d2fc4075a9928db6048dcb754178817dbee6a9e5b9a2cf9e095bbb",
+      "bytes": 25564
     },
     {
       "path": "packages/adoption-shell/src/release-candidate.ts",
@@ -372,15 +379,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a36046aae88f027856365fafee285d9ff6e48f984615515fb4a0cb9d048869b3",
-      "bytes": 4435
+      "sha256": "a3e6ff3de3d6eafbd05474aa0c946b2e3e930b02d41337e35abe72fb7ae21ef2",
+      "bytes": 5419
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "ed1af86e6a3fec6b788cc09a33db978305ee2425635581267bb792a50864ac07",
-      "bytes": 2699
+      "sha256": "a45a07dd1ea624dd08facc7751fba79b03a8aebce4165e60040039c8f180c419",
+      "bytes": 3242
     },
     {
       "path": "local-ci-contract-v2.d.ts",
@@ -465,6 +472,20 @@
       "mode": "100644",
       "sha256": "d53e3dfeb8421646ae86eddbb55d89afd2720e2f25436c4cac8b34951f97c3d1",
       "bytes": 13421
+    },
+    {
+      "path": "product-sli-probe-v1.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "36dc3c859b8e72697fe6867671d24f65e5c8168fee722a353a8a5da3da78faef",
+      "bytes": 6443
+    },
+    {
+      "path": "product-sli-probe-v1.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "ec094e396e08b0584b99094f5b44a1743f7a02010b6f966ef5c7a9c0f392ed4b",
+      "bytes": 22139
     },
     {
       "path": "release-candidate.d.ts",
@@ -931,6 +952,97 @@
       "bytes": 8159
     },
     {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-destructive-effect.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "5e39c3bf5d31aad9e487abe3ea9c114425f3cef9f76cf64845ca341127136303",
+      "bytes": 965
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-duplicate-id.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "66339e9ea3d327dde0f3d2c9927e0bbb299ac8dfec6e1e12028536ff0754d2ee",
+      "bytes": 1198
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-missing-required.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "8c4490c6cb1a78e2148a8e1c3185e34d5747fca92aa4aa22f5be137d6b8a4a42",
+      "bytes": 401
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-path-escape.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "ed4225208e4ce0f877c696ef42243f37cc6718cc91b9715ed9c19bb5286540b0",
+      "bytes": 950
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-shell-injection.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2de272fd533c8577761d0090b1006e8874e51e41826bb7561433ad3fc3d68c2e",
+      "bytes": 965
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-spend-effect.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "60e372f1794a75af8fab5a6f710c98b96e27d60876af68adf120aad74a76289b",
+      "bytes": 935
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-unsupported-version.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "acb1b102355c9226a8493008c6db1ed19207834cec93bbe32937954b2bfc8bf3",
+      "bytes": 366
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/report-only-probe.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "19eabc4cbc9be4f0c50531738ba19a6f964dd09508d7eb4f8d876af56d6a2440",
+      "bytes": 1032
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/valid-gmail-read-only.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "1343649d236179d60bbbad4ef03800624837395f7e1f6613b4f93d2f60643b24",
+      "bytes": 1181
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/valid-sharingan-read-only.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "3dbe56ccf4c76959fa2c767e7d77bf31aabaf800d107a7083f0545dddbc1af0c",
+      "bytes": 1174
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/product-sli-observation.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "0bd8ea48c4be5ebfb77d65ecee1dde5357d2dbf0dedda8aa608a52670634dfc1",
+      "bytes": 2694
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/product-sli-probe.example.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "10fe7d24fcbb9b0336a6446b2e1c8599246165d0dee81518d65e4fcbca6a8cce",
+      "bytes": 1792
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/product-sli-probe.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "9416a2abcf524a594f80371586186e3d2dcdaceb184acc333241079de1596ea9",
+      "bytes": 5125
+    },
+    {
       "path": "docs/QUALITY-LINT.md",
       "kind": "file",
       "mode": "100644",
@@ -1132,7 +1244,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "c0db7d4c6715e444f9f870d0ca8d93712b48a4405fdc86ec7cb4568ce1176f8b",
+      "sha256": "00e5694ee01e7cfd967fb96da12f970c79ce04a8810c1d347e8af27c4bcced6d",
       "bytes": 876
     },
     {
@@ -1164,5 +1276,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "7dad61ee1d323d5c0608f47b5d04a871464b7d9d87eb7ffa99765eb7a160b0cc"
+  "manifestDigest": "2ecc779a2b8e276d18b4393b988df1bf8556c0d9e94aa357caae17b9edd1afc1"
 }
