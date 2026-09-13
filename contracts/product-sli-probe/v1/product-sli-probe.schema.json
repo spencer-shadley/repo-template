@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "title": "ProductSliProbeContractV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "contractId",
+    "repository",
+    "probes"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json"
+    },
+    "schemaVersion": {
+      "const": "product-sli-probe/v1"
+    },
+    "contractId": {
+      "const": "repo-template/product-sli-probe-v1"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+    },
+    "probes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/probe"
+      }
+    }
+  },
+  "$defs": {
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sliId",
+        "bindsPrinciple",
+        "kind",
+        "sloReference",
+        "cadence"
+      ],
+      "properties": {
+        "sliId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_-]+$",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "bindsPrinciple": {
+          "type": "string",
+          "pattern": "^P[0-9]+(\\.[0-9]+)*$"
+        },
+        "kind": {
+          "enum": ["gauge", "count-ratio", "boolean", "report-only"]
+        },
+        "sloReference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["target"],
+          "properties": {
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "comparator": {
+              "enum": ["<", "<=", ">", ">=", "==", "!=", "in-range", "report-only"]
+            }
+          }
+        },
+        "disposition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "owner", "reviewDate", "rationale"],
+          "properties": {
+            "kind": {
+              "enum": ["report-only", "unsupported", "non-mechanizable"]
+            },
+            "owner": {
+              "type": "string",
+              "minLength": 1
+            },
+            "reviewDate": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "entrypoint": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "argv"],
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._@()+,=/-]+$"
+            },
+            "argv": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[^;&|`$<>\r\n]*$"
+              }
+            },
+            "cwd": {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9._@()+,=/-]*$"
+            },
+            "timeoutSeconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3600
+            }
+          }
+        },
+        "effects": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["effectClass"],
+          "properties": {
+            "effectClass": {
+              "enum": ["read-only", "fixture-only"]
+            },
+            "spend": {
+              "const": false
+            },
+            "liveMutation": {
+              "const": false
+            }
+          }
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "cadence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["freshnessSeconds"],
+          "properties": {
+            "freshnessSeconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "suggestedIntervalSeconds": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "receipt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schemaVersion"],
+          "properties": {
+            "schemaVersion": {
+              "const": "product-sli-observation/v1"
+            },
+            "evidenceKind": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "kind": { "const": "report-only" } },
+            "required": ["kind"]
+          },
+          "then": {
+            "required": ["disposition"]
+          },
+          "else": {
+            "required": ["entrypoint", "effects"]
+          }
+        }
+      ]
+    }
+  }
+}

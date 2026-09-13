@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaVersion": "product-sli-probe/v1",
+  "contractId": "repo-template/product-sli-probe-v1",
+  "repository": "spencer-shadley/gmail-markdown",
+  "probes": [
+    {
+      "sliId": "sli-draft-preservation",
+      "bindsPrinciple": "P1.1",
+      "kind": "boolean",
+      "sloReference": {
+        "target": "100%",
+        "comparator": "=="
+      },
+      "entrypoint": {
+        "path": "scripts/probes/cdp-draft-probe.ts",
+        "argv": ["--fixture", "tests/fixtures/cdp-draft-case.json"],
+        "cwd": ".",
+        "timeoutSeconds": 30
+      },
+      "effects": {
+        "effectClass": "fixture-only",
+        "spend": false,
+        "liveMutation": false
+      },
+      "requiredCapabilities": ["browser-fixture", "cdp-read"],
+      "cadence": {
+        "freshnessSeconds": 3600,
+        "suggestedIntervalSeconds": 900
+      },
+      "receipt": {
+        "schemaVersion": "product-sli-observation/v1",
+        "evidenceKind": "cdp-dom-snapshot"
+      }
+    }
+  ]
+}

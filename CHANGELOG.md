@@ -16,6 +16,7 @@ one entry per user-visible or structural change.
 
 ### Added
 
+- **ProductSliProbeV1 portable contract and migration rules:** publish runtime-neutral `ProductSliProbeV1` contract (`contracts/product-sli-probe/v1/product-sli-probe.schema.json` and `product-sli-observation.schema.json`) binding active `PRIORITIES.md` local SLI rows to safe read-only/fixture-only probe entrypoints, typed observation evidence, and explicit report-only dispositions. Compose fail-closed validation with #326's local authority guard (`scripts/check-local-sli-authority.ts`). Add browser-extension (Gmail #554) and service dry-run (Sharingan #140) fixtures, destructive rejection fixtures, migration playbook section in `docs/MIGRATION.md`, and ADR-0010. MINOR. Fixes #110.
 - **Canonical repository SemVer and weekly preserved changelog rotation standard**: define `VERSION` as the canonical single machine-readable repository SemVer, document active changelog maintenance in `docs/SEMVER-CHANGELOG-STANDARD.md`, add idempotent weekly changelog archival generator (`scripts/rotate-changelog-weekly.ts`) rotating prior entries to `docs/changelogs/YYYY-Www.md`, and provide structural validator (`scripts/check-semver-changelog.ts`). MINOR. Fixes #90.
 - **`@spencer-shadley/repo-quality` 1.7.0 adds the portable `simpleDiff.quality-lint`
   land-gate selector:** its checked template projection runs blocking `pnpm lint` for kit-consume

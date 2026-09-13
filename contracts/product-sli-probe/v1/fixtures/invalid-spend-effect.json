@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaVersion": "product-sli-probe/v1",
+  "contractId": "repo-template/product-sli-probe-v1",
+  "repository": "spencer-shadley/sharingan",
+  "probes": [
+    {
+      "sliId": "sli-paid-api-latency",
+      "bindsPrinciple": "P2.1",
+      "kind": "gauge",
+      "sloReference": {
+        "target": "< 200ms",
+        "comparator": "<"
+      },
+      "entrypoint": {
+        "path": "scripts/probes/paid-api.ts",
+        "argv": ["--run"],
+        "cwd": ".",
+        "timeoutSeconds": 45
+      },
+      "effects": {
+        "effectClass": "read-only",
+        "spend": true,
+        "liveMutation": false
+      },
+      "requiredCapabilities": ["paid-api"],
+      "cadence": {
+        "freshnessSeconds": 1800
+      }
+    }
+  ]
+}

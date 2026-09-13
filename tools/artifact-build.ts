@@ -110,6 +110,21 @@ const LOCAL_CI_V3_ARTIFACT_PATHS = [
   "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
   "contracts/local-ci/v3/local-ci-outcome-v1.schema.json",
 ] as const;
+const PRODUCT_SLI_PROBE_ARTIFACT_PATHS = [
+  "contracts/product-sli-probe/v1/fixtures/invalid-destructive-effect.json",
+  "contracts/product-sli-probe/v1/fixtures/invalid-duplicate-id.json",
+  "contracts/product-sli-probe/v1/fixtures/invalid-missing-required.json",
+  "contracts/product-sli-probe/v1/fixtures/invalid-path-escape.json",
+  "contracts/product-sli-probe/v1/fixtures/invalid-shell-injection.json",
+  "contracts/product-sli-probe/v1/fixtures/invalid-spend-effect.json",
+  "contracts/product-sli-probe/v1/fixtures/invalid-unsupported-version.json",
+  "contracts/product-sli-probe/v1/fixtures/report-only-probe.json",
+  "contracts/product-sli-probe/v1/fixtures/valid-gmail-read-only.json",
+  "contracts/product-sli-probe/v1/fixtures/valid-sharingan-read-only.json",
+  "contracts/product-sli-probe/v1/product-sli-observation.schema.json",
+  "contracts/product-sli-probe/v1/product-sli-probe.example.json",
+  "contracts/product-sli-probe/v1/product-sli-probe.schema.json",
+] as const;
 const PROOF_OF_DETECTION_ARTIFACT_PATHS = [
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
   "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
@@ -274,6 +289,7 @@ function fixtureRows(
     ...LOCAL_CI_V2_ARTIFACT_PATHS,
     ...LOCAL_CI_V3_ARTIFACT_PATHS,
     ...PROOF_OF_DETECTION_ARTIFACT_PATHS,
+    ...PRODUCT_SLI_PROBE_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
     compare(left.path, right.path),

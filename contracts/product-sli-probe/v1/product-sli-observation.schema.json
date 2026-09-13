@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-observation.schema.json",
+  "title": "ProductSliObservationV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "contractId",
+    "observationId",
+    "repository",
+    "sliId",
+    "observedAt",
+    "status",
+    "kind",
+    "value",
+    "target",
+    "evidence"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-observation.schema.json"
+    },
+    "schemaVersion": {
+      "const": "product-sli-observation/v1"
+    },
+    "contractId": {
+      "const": "repo-template/product-sli-probe-v1"
+    },
+    "observationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$"
+    },
+    "sliId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "minLength": 1
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "enum": ["pass", "fail", "warn", "error", "report-only"]
+    },
+    "kind": {
+      "enum": ["gauge", "count-ratio", "boolean", "report-only"]
+    },
+    "value": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["numerator", "denominator", "ratio"],
+          "properties": {
+            "numerator": { "type": "number" },
+            "denominator": { "type": "number" },
+            "ratio": { "type": "number" }
+          }
+        }
+      ]
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observedAt"],
+      "properties": {
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "freshnessSeconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string"
+        },
+        "details": {},
+        "receiptRef": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-sli-probe/v1/product-sli-probe.schema.json",
+  "schemaVersion": "product-sli-probe/v1",
+  "contractId": "repo-template/product-sli-probe-v1",
+  "repository": "spencer-shadley/repo-template",
+  "probes": [
+    {
+      "sliId": "sli-verify-gate-latency",
+      "bindsPrinciple": "P2.1",
+      "kind": "gauge",
+      "sloReference": {
+        "target": "< 60s",
+        "comparator": "<"
+      },
+      "entrypoint": {
+        "path": "scripts/probes/measure-verify-latency.ts",
+        "argv": ["--check", "--timeout", "60"],
+        "cwd": ".",
+        "timeoutSeconds": 120
+      },
+      "effects": {
+        "effectClass": "read-only",
+        "spend": false,
+        "liveMutation": false
+      },
+      "requiredCapabilities": ["node-runtime"],
+      "cadence": {
+        "freshnessSeconds": 3600,
+        "suggestedIntervalSeconds": 900
+      },
+      "receipt": {
+        "schemaVersion": "product-sli-observation/v1",
+        "evidenceKind": "command-timing"
+      }
+    },
+    {
+      "sliId": "sli-human-attention-budget",
+      "bindsPrinciple": "P3.1",
+      "kind": "report-only",
+      "sloReference": {
+        "target": "report-only",
+        "comparator": "report-only"
+      },
+      "disposition": {
+        "kind": "report-only",
+        "owner": "maintainer-triage",
+        "reviewDate": "2026-12-31",
+        "rationale": "Human review queue baselining before mechanization."
+      },
+      "effects": {
+        "effectClass": "read-only",
+        "spend": false,
+        "liveMutation": false
+      },
+      "requiredCapabilities": [],
+      "cadence": {
+        "freshnessSeconds": 86400
+      }
+    }
+  ]
+}
