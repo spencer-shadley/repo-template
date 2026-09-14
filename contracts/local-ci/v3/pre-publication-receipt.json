@@ -1,0 +1,246 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/local-ci-v3/canary-candidate-receipt.schema.json",
+  "schemaVersion": "3.0.0",
+  "contractId": "repo-template/local-ci-v3-canary-candidate",
+  "receiptKind": "repo-template/local-ci-v3-candidate-receipt/v1",
+  "receiptId": "receipt-issue-340-mu14imli",
+  "publicationState": "candidate",
+  "programmeEpic": "https://github.com/spencer-shadley/repo-template/issues/102",
+  "issue": "https://github.com/spencer-shadley/repo-template/issues/340",
+  "candidate": {
+    "repository": "spencer-shadley/repo-template",
+    "origin": "https://github.com/spencer-shadley/repo-template.git",
+    "semver": "3.1.0",
+    "tag": "v3.1.0",
+    "commit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
+    "tree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2"
+  },
+  "lineage": {
+    "contractId": "repo-template/local-ci-v3",
+    "schemaVersion": "3.0.0",
+    "outcomeContractId": "repo-template/local-ci-outcome-v1",
+    "outcomeSchemaVersion": "1.0.0",
+    "proofOfDetectionRequired": true,
+    "establishedBy": "https://github.com/spencer-shadley/repo-template/issues/131",
+    "establishedPr": "https://github.com/spencer-shadley/repo-template/pull/132",
+    "decisionRecord": "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md"
+  },
+  "candidateReleaseReceipt": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "56640de35655e7eb92953cbb27a2c247f6dbf775584671d6cd052458791b7da7",
+    "contractId": "repo-template/adoption-shell-v2",
+    "receiptKind": "repo-template/release-receipt/v1",
+    "publicationState": "candidate",
+    "releaseId": "spencer-shadley/repo-template@3.1.0",
+    "receiptDigestAlgorithm": "sha256-rfc8785-v1",
+    "producer": {
+      "repository": "spencer-shadley/repo-template",
+      "origin": "https://github.com/spencer-shadley/repo-template.git",
+      "semver": "3.1.0",
+      "tag": "v3.1.0",
+      "commit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
+      "tree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2"
+    },
+    "receiptTransport": {
+      "kind": "annotated-git-tag-message/v1",
+      "tagName": "v3.1.0",
+      "targetObjectType": "commit",
+      "bodyEncoding": "utf-8",
+      "bodyCanonicalization": "rfc8785"
+    },
+    "payloadSet": {
+      "manifestPath": "release/release-payload-set.json",
+      "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+      "schemaVersion": "2.0.0",
+      "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+      "entryCount": 99
+    },
+    "capabilityBundles": [
+      {
+        "id": "repo-template/local-ci-contract-v2",
+        "version": "2.0.0",
+        "digest": "12e6604b74413263039d55b4705e4d0e1cc3b854d7aead900d91cd9cef093e60"
+      },
+      {
+        "id": "repo-template/local-ci-contract-v3",
+        "version": "3.0.0",
+        "digest": "88b0d1f44eac757962de977f4c58682f546f31d2065f113ab001e50cf53b343d"
+      },
+      {
+        "id": "repo-template/proof-of-detection",
+        "version": "1.0.0",
+        "digest": "69d8f6c55dbee595c2f4907085d478d2531091b37d726ef4670462c2642ee95f"
+      },
+      {
+        "id": "repo-template/quality-lint",
+        "version": "1.1.0",
+        "digest": "6acbd065f751cd08e13d030c02a710f29f0ad7aa4daf85e5bed4e82c0ada5277"
+      },
+      {
+        "id": "repo-template/user-surface-lint",
+        "version": "2.6.0",
+        "digest": "28c17d3287f732bfcf1bab72735f8185374f091113b83d92757a0c4680413cfe"
+      }
+    ],
+    "materializer": {
+      "contractId": "repo-template/adoption-shell-v2",
+      "contractVersion": "2.0.0",
+      "artifactManifestPath": "artifacts/adoption-shell-v2/artifact-manifest.json",
+      "artifactManifestSchemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
+      "artifactManifestSchemaVersion": "2.0.0",
+      "artifactManifestSchemaDigest": "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
+      "artifactManifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a",
+      "entrypoint": "index.js",
+      "validatorExport": "validateMaterializerInputV2",
+      "runtimeCompatibility": ">=24.16.0 <25",
+      "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
+    },
+    "migrationRefs": [],
+    "receiptDigest": "9b69bdffd7204a341a476f0266af43f8db244cf5bc5ef4e84decb46cd28e6449"
+  },
+  "canonicalDigests": {
+    "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
+    "contracts/local-ci/v3/local-ci-outcome-v1.schema.json": "0ae86bc068fbd4e1cc2ff58409d3909204573f0ac0b09cdbc7dab974bb4ea429",
+    "packages/adoption-shell/src/local-ci-contract-v3.ts": "7cd5722303bcf01fae618bcd76225a9f39289cd74901ebddc04a60d303378575",
+    "packages/adoption-shell/src/local-ci-outcome-v1.ts": "07f87d011d3b44f6243dd7a535b1ee99386c0741f4bfcfb79395f1573b69b760",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.js": "21ed068020eaa31e5b8a82d57caedb998661452ead347f8afa2fcb120f302d51",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts": "ac16dfa06dbfc2a1b06c752c6b362249411efb8bad4e69af251c4925796fb171",
+    "artifacts/adoption-shell-v2/local-ci-outcome-v1.js": "43d85d2ef36292f7527680f25ad7e66aed7c22d55b9afd42d6355bdf4a9deca8",
+    "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts": "1fdfa9789cea1f8f705b7460324fe225f5ff16b6dc4594b5fcc052ea4793c52b",
+    "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json": "f6da61353b1613aae16c214f87997a671ee52b39d237226605ce1afb03f9415e",
+    "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json": "8b0bdb400687bc192ac20186884121ef9fcb0e5a1ae1029455c4e207487ed6f7",
+    "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json": "aba2600943b98809cbaad9b4431c8849753c606ad90b75d3992378af6a61aaf6",
+    "contracts/local-ci/v3/fixtures/invalid-extra-effect.json": "f7909a06e632e4d8b1c5db2f58bd89f9f84ac29f0d642c67e0ecd2d095ad309e",
+    "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json": "44f9cc91fee8cb5a651a9a4afaf4aa68c99fa6d0e6fba3e456b05460ffee397e",
+    "contracts/local-ci/v3/fixtures/invalid-malformed.json": "2b640a12492673dc427b6b92b427114e4c6e636f54a9ce81d3e996e7da990c67",
+    "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json": "735223f876f7b9bd7ee800fddd668c28b165750fb4eb8d4e114cfc5fe97434b7",
+    "contracts/local-ci/v3/fixtures/invalid-missing-field.json": "57728ca639a2c9569793bff4aa55e727a066cad64901a7555d806315b65616f6",
+    "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json": "325e5900f30494554ca790e693929d6fd8829e82356e151698f24edc08977dd1",
+    "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json": "3c2bacc36fbe522bb38a24206f684ea5c738bc81f29c32587ac76a6ff446daf2",
+    "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json": "5c5bbe5c6746170c3e162a618fd0a8171d24f2bfc8300e715d079c92c31d6392",
+    "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json": "a3dca3e063e0e2c6622982fa2006ec4aa38c0f53eb4e3f8206fc84fb707f96b2",
+    "scripts/proof-of-detection/run-meta-gate.ts": "29c479142dfbb5d28f70b90220d629c0f8bdcf3145b26eaf3639124273f86721",
+    "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts": "030e3a4320e99db2116abea6472718cc7fb4076ba4d3f020084102e806e152b9",
+    "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css": "67a136005372fc99822ce92807dfff69a8229514af9cf5561baf864bcf49ec42",
+    "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css": "ddafe3824075adc4d827449f9711ee33ff99baa2dad1a5018ab3326b33382b38",
+    "scripts/proof-of-detection/reference-detectors/fixtures/light.css": "0a3de33b035b400e3df318785f72494240f4fce4b390654444d804c7d201dcd8",
+    ".runtime-artifact-registry.json": "53c927afb340fd1d20f41e7c5163afdd8022f331f3dfeb9f24dc3559719297e0",
+    ".runtime-artifact-registry.schema.json": "8c05df3c2abb2e9c0bf2cf9a71853530cba1f27f59bcf9a01bbac747d41f61e5",
+    "scripts/check-runtime-artifact-registry.ts": "a34cbafc96ee70abea468cc4acea45622546093ca78ae3d8ecdf8ea3a988bb08",
+    "local-ci.json": "ebf9421a03efe466cf4cc8c1f54bc22dcc511c51b66983d8f084f3cb21581d11",
+    "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md": "928703288bb60c94baf9a94f74e361ab3f47fcef1b7f280c0d89b42c2df6efe3",
+    "docs/MIGRATION.md": "7a312cb0165d63e56866375cfc32a555addccb25e95044b1e90e43e727bb9d07"
+  },
+  "manifestDigests": {
+    "releasePayloadSet": {
+      "path": "release/release-payload-set.json",
+      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+      "entryCount": 99
+    },
+    "artifactManifest": {
+      "path": "artifacts/adoption-shell-v2/artifact-manifest.json",
+      "manifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+      "artifactDigestAlgorithm": "sha256-rfc8785-v1",
+      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a"
+    },
+    "capabilityBundleRegistry": {
+      "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
+      "registryDigest": "ec411f0cc955dcefa6fa21512352e4319b2a28e84f6df808260bcccce1058cca",
+      "bundles": {
+        "repo-template/local-ci-contract-v3": {
+          "version": "3.0.0",
+          "digest": "88b0d1f44eac757962de977f4c58682f546f31d2065f113ab001e50cf53b343d"
+        },
+        "repo-template/proof-of-detection": {
+          "version": "1.0.0",
+          "digest": "69d8f6c55dbee595c2f4907085d478d2531091b37d726ef4670462c2642ee95f"
+        }
+      }
+    }
+  },
+  "proofOfDetectionSemantics": {
+    "rule": "Every command must declare detectionProof: either a known-bad fixture with expectation 'non-zero-exit' or a recorded non-empty exempt reason.",
+    "outcomeStates": [
+      "pass",
+      "fail",
+      "skipped",
+      "could-not-execute"
+    ],
+    "outcomeInvariants": [
+      "pass: exitCode is integer, reason is null",
+      "fail: exitCode is integer, reason is null",
+      "skipped: exitCode is null, reason is non-empty string",
+      "could-not-execute: exitCode is null, reason is non-empty string",
+      "Environment or tooling failure must terminate as could-not-execute, never pass"
+    ],
+    "migrationRule": "classifyAndMigrateLocalCiV2ToV3 rejects unmigrated v2 with reasonCode MISSING_DETECTION_PROOF and exact commandsMissingDetectionProof list; legacy v1 shapes reject with exact lineage.",
+    "metaGate": {
+      "entrypoint": "scripts/proof-of-detection/run-meta-gate.ts",
+      "crashSafetyLedger": ".ops/proof-of-detection-plant-ledger.json",
+      "selfTest": "scripts/proof-of-detection/run-meta-gate.ts --self-test"
+    }
+  },
+  "verification": {
+    "repositoryVerification": "green",
+    "checks": {
+      "repo-template-verify": {
+        "command": "corepack pnpm verify",
+        "result": "passed"
+      },
+      "proof-of-detection-self-test": {
+        "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
+        "result": "passed"
+      },
+      "local-ci-v3-contract-unit": {
+        "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
+        "result": "passed"
+      },
+      "local-ci-outcome-v1-unit": {
+        "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
+        "result": "passed"
+      },
+      "release-payload-check": {
+        "command": "node tools/release-payload.ts check",
+        "result": "passed"
+      },
+      "artifact-build-verify": {
+        "command": "node tools/artifact-build.ts verify",
+        "result": "passed"
+      }
+    }
+  },
+  "canaryGuidance": {
+    "modelGateway": {
+      "issue": "https://github.com/spencer-shadley/model-gateway/issues/991",
+      "role": "first dissimilar canary",
+      "targetLineage": "runtime/checks/effects",
+      "instruction": "Reconcile Model Gateway's current local-ci.json into LocalCiContractV3 using canonical validator/migration semantics. Exercise all four outcome states (pass, fail, skipped, could-not-execute). Preserve repository verify gate and effect boundaries.",
+      "requiredOutcomes": [
+        "pass",
+        "fail",
+        "skipped",
+        "could-not-execute"
+      ]
+    },
+    "repoFactory": {
+      "issue": "https://github.com/spencer-shadley/repo-factory/issues/187",
+      "role": "second dissimilar canary",
+      "targetLineage": "entrypoint/gates/flags",
+      "instruction": "Start after Model Gateway canary completes. Reconcile Repo Factory's local-ci.json using identical candidate digests. Preserve Factory effect boundaries and pnpm verify gate.",
+      "dependencyBarrier": "Must bind identical candidate commit/tree and digest set proven by Model Gateway #991"
+    },
+    "convergence": {
+      "issue": "https://github.com/spencer-shadley/repo-template/issues/341",
+      "instruction": "After both canaries produce valid canary receipts, publish immutable release and post-publication readback receipt binding both canary receipts to this candidate identity."
+    }
+  },
+  "digestAlgorithm": "sha256-rfc8785-v1",
+  "receiptDigest": "8e06b92433edf7d01268b760644573bbb4432488e785012f70da3e57a0d3d6b2"
+}

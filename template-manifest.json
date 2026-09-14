@@ -349,5 +349,10 @@
   "docs/changelogs/.gitkeep": "self",
   "scripts/check-semver-changelog.ts": "self",
   "scripts/rotate-changelog-weekly.ts": "self",
-  "packages/adoption-shell/test/semver-changelog.test.ts": "self"
+  "packages/adoption-shell/test/semver-changelog.test.ts": "self",
+  "contracts/local-ci/v3/canary-candidate-receipt.json": "self",
+  "contracts/local-ci/v3/canary-candidate-receipt.schema.json": "self",
+  "contracts/local-ci/v3/pre-publication-receipt.json": "self",
+  "packages/adoption-shell/test/local-ci-v3-candidate.test.ts": "self",
+  "scripts/freeze-local-ci-v3-candidate.ts": "self"
 }
