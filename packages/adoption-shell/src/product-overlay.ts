@@ -1,0 +1,198 @@
+import {
+  ENVELOPE_DIGEST_ALGORITHM,
+  type CapabilityBundle,
+  type PayloadEntry,
+} from "./contract.ts";
+import { sha256Bytes, sha256CanonicalJson } from "./digest.ts";
+import type { RepositoryProfile } from "./repository-shape.ts";
+import { compareStrings } from "./validation-helpers.ts";
+
+import {
+  COMPONENT_REGISTRY_OVERLAY_FILE,
+  COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID,
+  PRODUCT_OVERLAY_BUNDLE_ID,
+  PRODUCT_OVERLAY_BUNDLE_VERSION,
+  PRODUCT_OVERLAY_CONTRACT_ID,
+  PRODUCT_OVERLAY_FILE,
+  PRODUCT_OVERLAY_SCHEMA_ID,
+  PRODUCT_OVERLAY_SCHEMA_VERSION,
+  TECHNOLOGY_REGISTRY_OVERLAY_FILE,
+  TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID,
+  defaultComponentsForProfile,
+  defaultPlatformsForProfile,
+  defaultProvenance,
+  defaultTechnologiesForProfile,
+  type ProductOverlayOptions,
+} from "./product-overlay-contract.ts";
+
+import { toDeterministicYaml } from "./product-overlay-yaml.ts";
+
+export * from "./product-overlay-contract.ts";
+export * from "./product-overlay-yaml.ts";
+export * from "./product-overlay-validation.ts";
+
+export function createProductOverlayContent(
+  profile: RepositoryProfile,
+  options?: ProductOverlayOptions,
+): string {
+  const prov = options?.provenance ?? defaultProvenance();
+  const platforms = options?.platforms ?? defaultPlatformsForProfile(profile.profileId);
+  const body: Record<string, unknown> = {
+    $schema: PRODUCT_OVERLAY_SCHEMA_ID,
+    schemaId: PRODUCT_OVERLAY_SCHEMA_ID,
+    schemaVersion: PRODUCT_OVERLAY_SCHEMA_VERSION,
+    contractId: PRODUCT_OVERLAY_CONTRACT_ID,
+    bootstrappedFromGuideVersion:
+      prov.bootstrappedFromGuideVersion ?? prov.templateRelease,
+    lastAuditedAgainstGuideVersion:
+      prov.lastAuditedAgainstGuideVersion ?? prov.templateRelease,
+    provenance: {
+      contractId: prov.contractId ?? PRODUCT_OVERLAY_CONTRACT_ID,
+      templateRelease: prov.templateRelease,
+      ...(prov.templateDigest ? { templateDigest: prov.templateDigest } : {}),
+      ...(prov.templateCommit ? { templateCommit: prov.templateCommit } : {}),
+    },
+    platforms,
+    ...(options?.grandfatheredDivergences
+      ? { grandfatheredDivergences: options.grandfatheredDivergences }
+      : {}),
+  };
+  return toDeterministicYaml(body);
+}
+
+export function createTechnologyRegistryOverlayContent(
+  profile: RepositoryProfile,
+  options?: ProductOverlayOptions,
+): string {
+  const prov = options?.provenance ?? defaultProvenance();
+  const technologies =
+    options?.technologies ?? defaultTechnologiesForProfile(profile.profileId);
+  const body: Record<string, unknown> = {
+    $schema: TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID,
+    schemaId: TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID,
+    schemaVersion: PRODUCT_OVERLAY_SCHEMA_VERSION,
+    contractId: PRODUCT_OVERLAY_CONTRACT_ID,
+    registryKind: "technology",
+    bootstrappedFromGuideVersion:
+      prov.bootstrappedFromGuideVersion ?? prov.templateRelease,
+    lastAuditedAgainstGuideVersion:
+      prov.lastAuditedAgainstGuideVersion ?? prov.templateRelease,
+    provenance: {
+      contractId: prov.contractId ?? PRODUCT_OVERLAY_CONTRACT_ID,
+      templateRelease: prov.templateRelease,
+      ...(prov.templateDigest ? { templateDigest: prov.templateDigest } : {}),
+      ...(prov.templateCommit ? { templateCommit: prov.templateCommit } : {}),
+    },
+    technologies,
+  };
+  return toDeterministicYaml(body);
+}
+
+export function createComponentRegistryOverlayContent(
+  profile: RepositoryProfile,
+  options?: ProductOverlayOptions,
+): string {
+  const prov = options?.provenance ?? defaultProvenance();
+  const components =
+    options?.components ?? defaultComponentsForProfile(profile.profileId);
+  const body: Record<string, unknown> = {
+    $schema: COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID,
+    schemaId: COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID,
+    schemaVersion: PRODUCT_OVERLAY_SCHEMA_VERSION,
+    contractId: PRODUCT_OVERLAY_CONTRACT_ID,
+    registryKind: "component",
+    bootstrappedFromGuideVersion:
+      prov.bootstrappedFromGuideVersion ?? prov.templateRelease,
+    lastAuditedAgainstGuideVersion:
+      prov.lastAuditedAgainstGuideVersion ?? prov.templateRelease,
+    provenance: {
+      contractId: prov.contractId ?? PRODUCT_OVERLAY_CONTRACT_ID,
+      templateRelease: prov.templateRelease,
+      ...(prov.templateDigest ? { templateDigest: prov.templateDigest } : {}),
+      ...(prov.templateCommit ? { templateCommit: prov.templateCommit } : {}),
+    },
+    components,
+  };
+  return toDeterministicYaml(body);
+}
+
+function makePayloadEntry(
+  portablePath: string,
+  content: string,
+  bundleId: string | null,
+): PayloadEntry {
+  const bytes = Buffer.from(content, "utf8");
+  return Object.freeze({
+    path: portablePath,
+    kind: "file",
+    mode: "100644",
+    contentSha256: sha256Bytes(bytes),
+    role: "capability-config",
+    encoding: "utf-8",
+    bundleId,
+    contentBase64: Buffer.from(bytes).toString("base64"),
+  });
+}
+
+export function materializeProductOverlayEntries(
+  profile: RepositoryProfile,
+  options?: ProductOverlayOptions,
+  bundleId: string | null = null,
+): readonly PayloadEntry[] {
+  const entries: PayloadEntry[] = [
+    makePayloadEntry(
+      PRODUCT_OVERLAY_FILE,
+      createProductOverlayContent(profile, options),
+      bundleId,
+    ),
+    makePayloadEntry(
+      TECHNOLOGY_REGISTRY_OVERLAY_FILE,
+      createTechnologyRegistryOverlayContent(profile, options),
+      bundleId,
+    ),
+    makePayloadEntry(
+      COMPONENT_REGISTRY_OVERLAY_FILE,
+      createComponentRegistryOverlayContent(profile, options),
+      bundleId,
+    ),
+  ];
+  return Object.freeze(entries.toSorted((left, right) => compareStrings(left.path, right.path)));
+}
+
+export function createProductOverlayBundle(
+  profile: RepositoryProfile,
+  options?: Readonly<{
+    id?: string;
+    version?: string;
+  }>,
+): CapabilityBundle {
+  const bundleId = options?.id ?? PRODUCT_OVERLAY_BUNDLE_ID;
+  const version = options?.version ?? PRODUCT_OVERLAY_BUNDLE_VERSION;
+  const artifacts: string[] = [
+    COMPONENT_REGISTRY_OVERLAY_FILE,
+    PRODUCT_OVERLAY_FILE,
+    TECHNOLOGY_REGISTRY_OVERLAY_FILE,
+  ].sort(compareStrings);
+
+  const bundleBody = {
+    id: bundleId,
+    version,
+    digestAlgorithm: ENVELOPE_DIGEST_ALGORITHM,
+    dependencies: [],
+    artifacts,
+    fixtures: [],
+    goldens: [],
+    modes: [
+      {
+        id: "overlay-validation",
+        entrypoint: PRODUCT_OVERLAY_FILE,
+        requiredPaths: artifacts,
+      },
+    ],
+  };
+
+  return Object.freeze({
+    ...bundleBody,
+    digest: sha256CanonicalJson(bundleBody),
+  });
+}
