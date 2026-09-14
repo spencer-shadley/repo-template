@@ -1,0 +1,432 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/local-ci-v3/post-publication-readback-receipt.schema.json",
+  "title": "LocalCiContractV3 post-publication readback receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "contractId",
+    "receiptKind",
+    "receiptId",
+    "publicationState",
+    "programmeEpic",
+    "issue",
+    "producerFreezeIssue",
+    "producerCandidateReceiptId",
+    "producerCandidateReceiptDigest",
+    "candidate",
+    "lineage",
+    "canaryReceipts",
+    "publishedReleaseReceipt",
+    "canonicalDigests",
+    "manifestDigests",
+    "proofOfDetectionSemantics",
+    "verification",
+    "readback",
+    "rollback",
+    "publicationTime",
+    "digestAlgorithm",
+    "receiptDigest"
+  ],
+  "properties": {
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/local-ci-v3/post-publication-readback-receipt.schema.json"
+    },
+    "schemaVersion": {
+      "const": "3.0.0"
+    },
+    "contractId": {
+      "const": "repo-template/local-ci-v3-post-publication-readback"
+    },
+    "receiptKind": {
+      "const": "repo-template/local-ci-v3-readback-receipt/v1"
+    },
+    "receiptId": {
+      "type": "string",
+      "pattern": "^receipt-issue-341-[a-z0-9]+$"
+    },
+    "publicationState": {
+      "const": "published"
+    },
+    "programmeEpic": {
+      "const": "https://github.com/spencer-shadley/repo-template/issues/102"
+    },
+    "issue": {
+      "const": "https://github.com/spencer-shadley/repo-template/issues/341"
+    },
+    "producerFreezeIssue": {
+      "const": "https://github.com/spencer-shadley/repo-template/issues/340"
+    },
+    "producerCandidateReceiptId": {
+      "type": "string"
+    },
+    "producerCandidateReceiptDigest": {
+      "$ref": "#/$defs/sha256"
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "origin",
+        "semver",
+        "tag",
+        "commit",
+        "tree"
+      ],
+      "properties": {
+        "repository": {
+          "const": "spencer-shadley/repo-template"
+        },
+        "origin": {
+          "const": "https://github.com/spencer-shadley/repo-template.git"
+        },
+        "semver": {
+          "$ref": "#/$defs/semver"
+        },
+        "tag": {
+          "type": "string",
+          "pattern": "^v"
+        },
+        "commit": {
+          "$ref": "#/$defs/gitSha1"
+        },
+        "tree": {
+          "$ref": "#/$defs/gitSha1"
+        }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractId",
+        "schemaVersion",
+        "outcomeContractId",
+        "outcomeSchemaVersion",
+        "proofOfDetectionRequired",
+        "establishedBy",
+        "establishedPr",
+        "decisionRecord"
+      ],
+      "properties": {
+        "contractId": {
+          "const": "repo-template/local-ci-v3"
+        },
+        "schemaVersion": {
+          "const": "3.0.0"
+        },
+        "outcomeContractId": {
+          "const": "repo-template/local-ci-outcome-v1"
+        },
+        "outcomeSchemaVersion": {
+          "const": "1.0.0"
+        },
+        "proofOfDetectionRequired": {
+          "const": true
+        },
+        "establishedBy": {
+          "const": "https://github.com/spencer-shadley/repo-template/issues/131"
+        },
+        "establishedPr": {
+          "const": "https://github.com/spencer-shadley/repo-template/pull/132"
+        },
+        "decisionRecord": {
+          "const": "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md"
+        }
+      }
+    },
+    "canaryReceipts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modelGateway",
+        "repoFactory"
+      ],
+      "properties": {
+        "modelGateway": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "issue",
+            "receiptId",
+            "receiptKind",
+            "receiptDigest",
+            "receiptUrl",
+            "consumerRepository",
+            "consumerRole",
+            "targetLineage",
+            "verifiedOutcomes",
+            "noUnclaimedEffects",
+            "candidateDigestMatches"
+          ],
+          "properties": {
+            "issue": { "type": "string" },
+            "receiptId": { "type": "string" },
+            "receiptKind": { "type": "string" },
+            "receiptDigest": { "$ref": "#/$defs/sha256" },
+            "receiptUrl": { "type": "string" },
+            "consumerRepository": { "type": "string" },
+            "consumerRole": { "type": "string" },
+            "targetLineage": { "type": "string" },
+            "verifiedOutcomes": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "noUnclaimedEffects": { "const": true },
+            "candidateDigestMatches": { "const": true }
+          }
+        },
+        "repoFactory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "issue",
+            "receiptId",
+            "receiptKind",
+            "receiptDigest",
+            "receiptUrl",
+            "consumerRepository",
+            "consumerRole",
+            "targetLineage",
+            "verifiedOutcomes",
+            "noUnclaimedEffects",
+            "candidateDigestMatches"
+          ],
+          "properties": {
+            "issue": { "type": "string" },
+            "receiptId": { "type": "string" },
+            "receiptKind": { "type": "string" },
+            "receiptDigest": { "$ref": "#/$defs/sha256" },
+            "receiptUrl": { "type": "string" },
+            "consumerRepository": { "type": "string" },
+            "consumerRole": { "type": "string" },
+            "targetLineage": { "type": "string" },
+            "verifiedOutcomes": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "noUnclaimedEffects": { "const": true },
+            "candidateDigestMatches": { "const": true }
+          }
+        }
+      }
+    },
+    "publishedReleaseReceipt": {
+      "type": "object"
+    },
+    "canonicalDigests": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/sha256"
+      }
+    },
+    "manifestDigests": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "releasePayloadSet",
+        "artifactManifest",
+        "capabilityBundleRegistry"
+      ],
+      "properties": {
+        "releasePayloadSet": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "manifestDigest",
+            "payloadDigestAlgorithm",
+            "payloadDigest",
+            "entryCount"
+          ],
+          "properties": {
+            "path": { "type": "string" },
+            "manifestDigest": { "$ref": "#/$defs/sha256" },
+            "payloadDigestAlgorithm": { "type": "string" },
+            "payloadDigest": { "$ref": "#/$defs/sha256" },
+            "entryCount": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "artifactManifest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "manifestDigest",
+            "artifactDigestAlgorithm",
+            "artifactDigest"
+          ],
+          "properties": {
+            "path": { "type": "string" },
+            "manifestDigest": { "$ref": "#/$defs/sha256" },
+            "artifactDigestAlgorithm": { "type": "string" },
+            "artifactDigest": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "capabilityBundleRegistry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "registryDigest",
+            "bundles"
+          ],
+          "properties": {
+            "path": { "type": "string" },
+            "registryDigest": { "$ref": "#/$defs/sha256" },
+            "bundles": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["version", "digest"],
+                "properties": {
+                  "version": { "$ref": "#/$defs/semver" },
+                  "digest": { "$ref": "#/$defs/sha256" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "proofOfDetectionSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "outcomeStates",
+        "outcomeInvariants",
+        "migrationRule",
+        "metaGate"
+      ],
+      "properties": {
+        "rule": { "type": "string" },
+        "outcomeStates": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "outcomeInvariants": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "migrationRule": { "type": "string" },
+        "metaGate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "entrypoint",
+            "crashSafetyLedger",
+            "selfTest"
+          ],
+          "properties": {
+            "entrypoint": { "type": "string" },
+            "crashSafetyLedger": { "type": "string" },
+            "selfTest": { "type": "string" }
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repositoryVerification",
+        "checks"
+      ],
+      "properties": {
+        "repositoryVerification": {
+          "const": "green"
+        },
+        "checks": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["command", "result"],
+            "properties": {
+              "command": { "type": "string" },
+              "result": { "const": "passed" }
+            }
+          }
+        }
+      }
+    },
+    "readback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "releaseAuthority",
+        "releaseId",
+        "tagName",
+        "resolvedCommit",
+        "resolvedTree",
+        "candidateCommitMatches",
+        "candidateTreeMatches",
+        "allCanonicalDigestsMatch",
+        "firstCanaryAgrees",
+        "secondCanaryAgrees",
+        "readbackTimestamp"
+      ],
+      "properties": {
+        "releaseAuthority": { "const": "repo-template/release-receipt/v1" },
+        "releaseId": { "type": "string" },
+        "tagName": { "type": "string" },
+        "resolvedCommit": { "$ref": "#/$defs/gitSha1" },
+        "resolvedTree": { "$ref": "#/$defs/gitSha1" },
+        "candidateCommitMatches": { "const": true },
+        "candidateTreeMatches": { "const": true },
+        "allCanonicalDigestsMatch": { "const": true },
+        "firstCanaryAgrees": { "const": true },
+        "secondCanaryAgrees": { "const": true },
+        "readbackTimestamp": { "type": "string" }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "disposition",
+        "supersession",
+        "rollbackRef"
+      ],
+      "properties": {
+        "disposition": { "const": "immutable-correct-forward" },
+        "supersession": { "const": "new-semver-only" },
+        "rollbackRef": { "$ref": "#/$defs/gitSha1" }
+      }
+    },
+    "publicationTime": {
+      "type": "string"
+    },
+    "digestAlgorithm": {
+      "const": "sha256-rfc8785-v1"
+    },
+    "receiptDigest": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "gitSha1": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "semver": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 80,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*|[A-Za-z-][0-9A-Za-z-]*)(?:\\.(?:0|[1-9][0-9]*|[A-Za-z-][0-9A-Za-z-]*))*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    }
+  }
+}

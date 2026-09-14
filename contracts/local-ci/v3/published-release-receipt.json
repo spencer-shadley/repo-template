@@ -1,0 +1,128 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/template-release-receipt.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "56640de35655e7eb92953cbb27a2c247f6dbf775584671d6cd052458791b7da7",
+  "contractId": "repo-template/adoption-shell-v2",
+  "receiptKind": "repo-template/release-receipt/v1",
+  "publicationState": "published",
+  "releaseId": "spencer-shadley/repo-template@3.1.0",
+  "receiptDigestAlgorithm": "sha256-rfc8785-v1",
+  "producer": {
+    "repository": "spencer-shadley/repo-template",
+    "origin": "https://github.com/spencer-shadley/repo-template.git",
+    "semver": "3.1.0",
+    "tag": "v3.1.0",
+    "commit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
+    "tree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2"
+  },
+  "receiptTransport": {
+    "kind": "annotated-git-tag-message/v1",
+    "tagName": "v3.1.0",
+    "targetObjectType": "commit",
+    "bodyEncoding": "utf-8",
+    "bodyCanonicalization": "rfc8785"
+  },
+  "payloadSet": {
+    "manifestPath": "release/release-payload-set.json",
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+    "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+    "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+    "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+    "entryCount": 99
+  },
+  "capabilityBundles": [
+    {
+      "id": "repo-template/local-ci-contract-v2",
+      "version": "2.0.0",
+      "digest": "12e6604b74413263039d55b4705e4d0e1cc3b854d7aead900d91cd9cef093e60"
+    },
+    {
+      "id": "repo-template/local-ci-contract-v3",
+      "version": "3.0.0",
+      "digest": "88b0d1f44eac757962de977f4c58682f546f31d2065f113ab001e50cf53b343d"
+    },
+    {
+      "id": "repo-template/proof-of-detection",
+      "version": "1.0.0",
+      "digest": "69d8f6c55dbee595c2f4907085d478d2531091b37d726ef4670462c2642ee95f"
+    },
+    {
+      "id": "repo-template/quality-lint",
+      "version": "1.1.0",
+      "digest": "6acbd065f751cd08e13d030c02a710f29f0ad7aa4daf85e5bed4e82c0ada5277"
+    },
+    {
+      "id": "repo-template/user-surface-lint",
+      "version": "2.6.0",
+      "digest": "28c17d3287f732bfcf1bab72735f8185374f091113b83d92757a0c4680413cfe"
+    }
+  ],
+  "materializer": {
+    "contractId": "repo-template/adoption-shell-v2",
+    "contractVersion": "2.0.0",
+    "artifactManifestPath": "artifacts/adoption-shell-v2/artifact-manifest.json",
+    "artifactManifestSchemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
+    "artifactManifestSchemaVersion": "2.0.0",
+    "artifactManifestSchemaDigest": "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
+    "artifactManifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+    "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a",
+    "entrypoint": "index.js",
+    "validatorExport": "validateMaterializerInputV2",
+    "runtimeCompatibility": ">=24.16.0 <25",
+    "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
+  },
+  "releaseEvidence": {
+    "review": {
+      "subject": "producer-commit",
+      "url": "https://github.com/spencer-shadley/repo-template/pull/360#pullrequestreview-5662961928",
+      "result": "approved"
+    },
+    "canaryReceipts": {
+      "model-gateway": {
+        "url": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654",
+        "receiptSha256": "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b"
+      },
+      "repo-factory": {
+        "url": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327",
+        "receiptSha256": "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749"
+      }
+    },
+    "checks": {
+      "repo-template-verify": {
+        "command": "corepack pnpm verify",
+        "result": "passed"
+      },
+      "proof-of-detection-self-test": {
+        "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
+        "result": "passed"
+      },
+      "local-ci-v3-contract-unit": {
+        "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
+        "result": "passed"
+      },
+      "local-ci-outcome-v1-unit": {
+        "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
+        "result": "passed"
+      },
+      "release-payload-check": {
+        "command": "node tools/release-payload.ts check",
+        "result": "passed"
+      },
+      "artifact-build-verify": {
+        "command": "node tools/artifact-build.ts verify",
+        "result": "passed"
+      }
+    },
+    "publicationReadback": {
+      "kind": "producer-tag-ref/v1"
+    },
+    "rollback": {
+      "disposition": "immutable-correct-forward",
+      "supersession": "new-semver-only"
+    }
+  },
+  "migrationRefs": [],
+  "receiptDigest": "3ca5937a7c27c8e99a966beabb2e5b4cf56407188b9a4aef82ad8800a6b69d41"
+}
