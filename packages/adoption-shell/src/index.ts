@@ -218,3 +218,36 @@ export type {
   ParsedPrioritiesRow,
   ProductSliMigrationReceiptV1,
 } from "./product-sli-probe-v1.ts";
+export {
+  CANONICAL_TURBO_TASKS,
+  CORE_PRODUCT_ROOT_FAMILIES,
+  FULL_STACK_PROFILE,
+  LIBRARY_PROFILE,
+  OPTIONAL_ROOT_FAMILIES,
+  PORTABLE_ROOT_FAMILIES,
+  REPOSITORY_SHAPE_BUNDLE_ID,
+  REPOSITORY_SHAPE_BUNDLE_VERSION,
+  REPOSITORY_SHAPE_CONTRACT_ID,
+  REPOSITORY_SHAPE_SCHEMA_ID,
+  REPOSITORY_SHAPE_SCHEMA_VERSION,
+  SERVICE_PROFILE,
+  STANDALONE_PROFILE,
+  TURBO_SCHEMA_ID,
+  composeTurboTaskGraph,
+  createRepositoryShapeBundle,
+  createRepositorySkeletonEntries,
+  createTurboJsonContent,
+  createTurboJsonPayloadEntry,
+  materializeRepositoryShapeEntries,
+  resolveRepositoryShapeRoots,
+  validateRepositoryProfile,
+  validateTurboTaskGraph,
+} from "./repository-shape.ts";
+export type {
+  CanonicalTurboTask,
+  PortableRootFamily,
+  RepositoryProfile,
+  TurboTaskDefinition,
+  TurboTaskGraph,
+} from "./repository-shape.ts";
+

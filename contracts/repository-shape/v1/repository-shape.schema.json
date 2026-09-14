@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/repository-shape/v1/repository-shape.schema.json",
+  "title": "RepositoryShapeProfileV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaId",
+    "schemaVersion",
+    "contractId",
+    "profileId",
+    "monorepo",
+    "rootFamilies",
+    "declaredScripts"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/repository-shape/v1/repository-shape.schema.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "contractId": {
+      "const": "repo-template/repository-shape/v1"
+    },
+    "profileId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80,
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "monorepo": {
+      "type": "boolean"
+    },
+    "rootFamilies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "apps",
+          "services",
+          "native",
+          "tools",
+          "packages",
+          "database",
+          "infrastructure"
+        ]
+      }
+    },
+    "declaredScripts": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_:-]+$"
+      }
+    }
+  }
+}

@@ -7,6 +7,10 @@ import {
   DELIVERY_STAGES,
   SCHEMA_DIGESTS,
   SCHEMA_IDS,
+  FULL_STACK_PROFILE,
+  REPOSITORY_SHAPE_BUNDLE_ID,
+  createRepositoryShapeBundle,
+  materializeRepositoryShapeEntries,
   type DeliveryDeclarationV1,
   type DeliveryEventV1,
 } from "../packages/adoption-shell/src/index.ts";
@@ -356,3 +360,21 @@ export const lintInput = input(
   lintRegistry,
   [reference(lintBundle)],
 );
+
+export const repositoryShapeId = REPOSITORY_SHAPE_BUNDLE_ID;
+export const repositoryShapeProfile = FULL_STACK_PROFILE;
+export const repositoryShapeBundle = createRepositoryShapeBundle(repositoryShapeProfile);
+export const repositoryShapeRegistry = registry([repositoryShapeBundle]);
+export const repositoryShapeEntries = materializeRepositoryShapeEntries(
+  repositoryShapeProfile,
+  repositoryShapeId,
+);
+export const repositoryShapeInput = input(
+  release([
+    baseEntry,
+    ...repositoryShapeEntries,
+  ]),
+  repositoryShapeRegistry,
+  [reference(repositoryShapeBundle)],
+);
+

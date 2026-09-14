@@ -1,0 +1,154 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+  "contractId": "repo-template/adoption-shell-v2",
+  "release": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+    "payloadDigest": "f3b218d1024afb7490f83ffb18a9b88d1ff910b4676b355187497be1b468faff",
+    "entryCount": 8,
+    "migrationRefs": [],
+    "entries": [
+      {
+        "path": "README.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null,
+        "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+      },
+      {
+        "path": "apps/.gitkeep",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/repository-shape",
+        "contentBase64": ""
+      },
+      {
+        "path": "database/.gitkeep",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/repository-shape",
+        "contentBase64": ""
+      },
+      {
+        "path": "infrastructure/.gitkeep",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/repository-shape",
+        "contentBase64": ""
+      },
+      {
+        "path": "packages/.gitkeep",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/repository-shape",
+        "contentBase64": ""
+      },
+      {
+        "path": "services/.gitkeep",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/repository-shape",
+        "contentBase64": ""
+      },
+      {
+        "path": "tools/.gitkeep",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/repository-shape",
+        "contentBase64": ""
+      },
+      {
+        "path": "turbo.json",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "8cd4774a64a4d8034757370ad011e5f0120ab716c8195aa0a466ea0192cb9bc2",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/repository-shape",
+        "contentBase64": "ewogICIkc2NoZW1hIjogImh0dHBzOi8vdHVyYm8uYnVpbGQvc2NoZW1hLmpzb24iLAogICJ0YXNrcyI6IHsKICAgICJidWlsZCI6IHsKICAgICAgImRlcGVuZHNPbiI6IFsKICAgICAgICAiXmJ1aWxkIgogICAgICBdLAogICAgICAib3V0cHV0cyI6IFsKICAgICAgICAiZGlzdC8qKiIKICAgICAgXQogICAgfSwKICAgICJsaW50IjogewogICAgICAiZGVwZW5kc09uIjogW10KICAgIH0sCiAgICAidGVzdCI6IHsKICAgICAgImRlcGVuZHNPbiI6IFsKICAgICAgICAiXmJ1aWxkIgogICAgICBdCiAgICB9LAogICAgInZlcmlmeSI6IHsKICAgICAgImRlcGVuZHNPbiI6IFsKICAgICAgICAiYnVpbGQiLAogICAgICAgICJsaW50IiwKICAgICAgICAidGVzdCIKICAgICAgXQogICAgfQogIH0KfQo="
+      }
+    ],
+    "releaseDigest": "951d1f3d6c5e1a0c8ce629d91bdc9ae64a17aae802ee5432c12efcc2190488dc"
+  },
+  "capabilities": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "bundles": [
+      {
+        "id": "repo-template/repository-shape",
+        "version": "1.0.0",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "dependencies": [],
+        "artifacts": [
+          "apps/.gitkeep",
+          "database/.gitkeep",
+          "infrastructure/.gitkeep",
+          "packages/.gitkeep",
+          "services/.gitkeep",
+          "tools/.gitkeep",
+          "turbo.json"
+        ],
+        "fixtures": [],
+        "goldens": [],
+        "modes": [
+          {
+            "id": "task-graph",
+            "entrypoint": "turbo.json",
+            "requiredPaths": [
+              "apps/.gitkeep",
+              "database/.gitkeep",
+              "infrastructure/.gitkeep",
+              "packages/.gitkeep",
+              "services/.gitkeep",
+              "tools/.gitkeep",
+              "turbo.json"
+            ]
+          }
+        ],
+        "digest": "9bdec6f0e408f11e6240f9fadf4e3aa0afa546b4cf83b847ba9ea6b8d2af26f7"
+      }
+    ],
+    "registryDigest": "dafd396b2c2100b4da06621fe2d402668c407ca4d0e6ed716b1fe4e53116ecb9"
+  },
+  "requestedBundles": [
+    {
+      "id": "repo-template/repository-shape",
+      "version": "1.0.0",
+      "digest": "9bdec6f0e408f11e6240f9fadf4e3aa0afa546b4cf83b847ba9ea6b8d2af26f7"
+    }
+  ],
+  "conformance": {
+    "noLocalIssueTemplateOverride": true,
+    "noPreCustodyWorkflows": true
+  }
+}

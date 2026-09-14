@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.repo-template.dev/repository-shape/v1/repository-shape.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/repository-shape/v1/repository-shape.schema.json",
+  "schemaVersion": "1.0.0",
+  "contractId": "repo-template/repository-shape/v1",
+  "profileId": "full-stack",
+  "monorepo": true,
+  "rootFamilies": [
+    "apps",
+    "services",
+    "tools",
+    "packages",
+    "database",
+    "infrastructure"
+  ],
+  "declaredScripts": [
+    "build",
+    "lint",
+    "test",
+    "verify"
+  ]
+}
