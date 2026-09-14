@@ -135,6 +135,12 @@ const PROOF_OF_DETECTION_ARTIFACT_PATHS = [
   ".runtime-artifact-registry.json",
   ".runtime-artifact-registry.schema.json",
 ] as const;
+const REPOSITORY_SHAPE_ARTIFACT_PATHS = [
+  "contracts/repository-shape/v1/fixtures/valid-monorepo-profile.json",
+  "contracts/repository-shape/v1/fixtures/valid-turbo.json",
+  "contracts/repository-shape/v1/repository-shape.schema.json",
+  "contracts/repository-shape/v1/turbo.schema.json",
+] as const;
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -290,6 +296,7 @@ function fixtureRows(
     ...LOCAL_CI_V3_ARTIFACT_PATHS,
     ...PROOF_OF_DETECTION_ARTIFACT_PATHS,
     ...PRODUCT_SLI_PROBE_ARTIFACT_PATHS,
+    ...REPOSITORY_SHAPE_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
     compare(left.path, right.path),
@@ -531,10 +538,12 @@ function verifyPackage(): void {
   const expectedDev = {
     "@spencer-shadley/repo-quality": "file:packages/repo-quality",
     "@types/node": "24.13.3",
+    "@types/semver": "7.8.0",
     ajv: "8.17.1",
     "ajv-formats": "3.0.1",
     eslint: "10.8.1",
     jiti: "2.7.0",
+    semver: "7.8.5",
     typescript: "7.0.2",
   };
   const engines = packageJson["engines"];

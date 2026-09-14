@@ -35,13 +35,15 @@ function hasBuildAllowlist(workspace: string): boolean {
 }
 
 function packageManagerPnpmVersion(pkg: Record<string, unknown>): string | null {
-  if (typeof pkg.packageManager !== "string") return null;
-  return /^pnpm@(.+)$/u.exec(pkg.packageManager)?.[1] ?? null;
+  const pm = pkg["packageManager"];
+  if (typeof pm !== "string") return null;
+  return /^pnpm@(.+)$/u.exec(pm)?.[1] ?? null;
 }
 
 function engines(pkg: Record<string, unknown>): Record<string, unknown> {
-  return typeof pkg.engines === "object" && pkg.engines !== null && !Array.isArray(pkg.engines)
-    ? pkg.engines as Record<string, unknown>
+  const eng = pkg["engines"];
+  return typeof eng === "object" && eng !== null && !Array.isArray(eng)
+    ? eng as Record<string, unknown>
     : {};
 }
 
@@ -73,14 +75,14 @@ export function checkSupplyChainControls(input: Inputs): SupplyChainViolation[] 
   const pkg = packageData(input.packageJson);
   const expectedPnpm = packageManagerPnpmVersion(pkg);
   const declaredEngines = engines(pkg);
-  if (expectedPnpm === null || declaredEngines.pnpm !== expectedPnpm) {
+  if (expectedPnpm === null || declaredEngines["pnpm"] !== expectedPnpm) {
     violations.push({
       rule: "SC4",
       message: "SC4 package.json engines.pnpm must exactly equal the pnpm version in packageManager",
     });
   }
 
-  const nodeEngine = declaredEngines.node;
+  const nodeEngine = declaredEngines["node"];
   if (typeof nodeEngine !== "string" || nodeEngine.trim() === "" || isBareExactVersion(nodeEngine)) {
     violations.push({
       rule: "SC5",

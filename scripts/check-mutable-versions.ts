@@ -2,7 +2,7 @@
 /**
  * Enforce AI-First stack guide §1.2 mutable-version policy (repo-template#325).
  *
- * The audit targets living prose: tracked root *.md plus docs/**/*.md. ADRs,
+ * The audit targets living prose: tracked root *.md plus docs subdirectories (*.md). ADRs,
  * adoption-status snapshots, operations snapshots, template-fleet-adoption snapshots,
  * CHANGELOG.md, and plans are dated/history surfaces and are intentionally excluded.
  */
@@ -120,9 +120,9 @@ function parseAllowlist(raw: string): AllowlistEntry[] {
       }
     }
     entries.push({
-      token: String(record.token),
-      reason: String(record.reason),
-      reviewTrigger: String(record.reviewTrigger),
+      token: String(record["token"]),
+      reason: String(record["reason"]),
+      reviewTrigger: String(record["reviewTrigger"]),
     });
   }
   const actual = new Set(entries.map((entry) => entry.token));
