@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/product-overlay/v1/product-overlay.schema.json",
+  "title": "ProductPlatformOverlayV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "platforms"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/product-overlay/v1/product-overlay.schema.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "contractId": {
+      "const": "repo-template/product-overlay/v1"
+    },
+    "bootstrappedFromGuideVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lastAuditedAgainstGuideVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "templateRelease": {
+      "type": "string",
+      "minLength": 1
+    },
+    "templateDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "templateCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contractId": {
+          "type": "string"
+        },
+        "templateRelease": {
+          "type": "string",
+          "minLength": 1
+        },
+        "templateDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "templateCommit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "bootstrappedFromGuideVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lastAuditedAgainstGuideVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "platforms": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "$ref": "#/$defs/platformDefinition"
+      }
+    },
+    "grandfatheredDivergences": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/grandfatheredDivergence"
+      }
+    }
+  },
+  "$defs": {
+    "platformDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "secondary",
+            "accessory",
+            "specialized",
+            "dormant",
+            "not-targeted"
+          ]
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "revisitTrigger": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "acceptanceSuites": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "dormant"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "revisitTrigger"
+            ],
+            "properties": {
+              "revisitTrigger": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "not-targeted"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rationale"
+            ],
+            "properties": {
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "grandfatheredDivergence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "component",
+        "current",
+        "guideDefault",
+        "rationale"
+      ],
+      "properties": {
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "current": {
+          "type": "string",
+          "minLength": 1
+        },
+        "guideDefault": {
+          "type": "string",
+          "minLength": 1
+        },
+        "guideSection": {
+          "type": "string"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revisitTrigger": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

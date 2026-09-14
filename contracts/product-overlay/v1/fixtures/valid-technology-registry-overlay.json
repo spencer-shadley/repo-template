@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-overlay/v1/technology-registry.overlay.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-overlay/v1/technology-registry.overlay.schema.json",
+  "schemaVersion": "1.0.0",
+  "contractId": "repo-template/product-overlay/v1",
+  "registryKind": "technology",
+  "bootstrappedFromGuideVersion": "2.0.0",
+  "lastAuditedAgainstGuideVersion": "2.0.0",
+  "provenance": {
+    "contractId": "repo-template/adoption-shell-v2",
+    "templateRelease": "2.0.0",
+    "templateDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97"
+  },
+  "technologies": {
+    "technology.typescript": {
+      "state": "preferred-default",
+      "rationale": "Primary language across all fleet applications"
+    },
+    "technology.pnpm": {
+      "state": "preferred-default",
+      "rationale": "Host execution and supply-chain isolation"
+    }
+  }
+}
