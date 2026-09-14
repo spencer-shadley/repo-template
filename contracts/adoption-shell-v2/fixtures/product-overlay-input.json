@@ -1,0 +1,106 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+  "schemaVersion": "2.0.0",
+  "schemaDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+  "contractId": "repo-template/adoption-shell-v2",
+  "release": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+    "payloadDigest": "c7c6c26587bcd1ef85aa855fdbbc63081a3f154f2f549fd27a5cfb3db7fd75cd",
+    "entryCount": 4,
+    "migrationRefs": [],
+    "entries": [
+      {
+        "path": "README.md",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+        "role": "generic-base-text",
+        "encoding": "utf-8",
+        "bundleId": null,
+        "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+      },
+      {
+        "path": "component-registry.overlay.yaml",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "7366c3f4bd5fb07550ba515c8bb1050f1a48f9895683ca981387408a01b5fe70",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/product-overlay",
+        "contentBase64": "IiRzY2hlbWEiOiBodHRwczovL3NjaGVtYXMucmVwby10ZW1wbGF0ZS5kZXYvcHJvZHVjdC1vdmVybGF5L3YxL2NvbXBvbmVudC1yZWdpc3RyeS5vdmVybGF5LnNjaGVtYS5qc29uCmJvb3RzdHJhcHBlZEZyb21HdWlkZVZlcnNpb246IDIuMC4wCmNvbXBvbmVudHM6CiAgY29tcG9uZW50LmRibWF0ZToKICAgIHJhdGlvbmFsZTogT3JkZXJlZCBkYXRhYmFzZSBtaWdyYXRpb25zCiAgICBzdGF0ZTogcHJlZmVycmVkLWRlZmF1bHQKICBjb21wb25lbnQudGFuc3RhY2stcm91dGVyOgogICAgcmF0aW9uYWxlOiBUeXBlLXNhZmUgcm91dGluZyBmb3Igd2ViIHN1cmZhY2VzCiAgICBzdGF0ZTogcHJlZmVycmVkLWRlZmF1bHQKY29udHJhY3RJZDogcmVwby10ZW1wbGF0ZS9wcm9kdWN0LW92ZXJsYXkvdjEKbGFzdEF1ZGl0ZWRBZ2FpbnN0R3VpZGVWZXJzaW9uOiAyLjAuMApwcm92ZW5hbmNlOgogIGNvbnRyYWN0SWQ6IHJlcG8tdGVtcGxhdGUvcHJvZHVjdC1vdmVybGF5L3YxCiAgdGVtcGxhdGVEaWdlc3Q6IGZlNTUyN2JlNzNkNGU2NTJjMTRjNDIzZjQyOGM2NmJmNWM1NmFhMWYyMDZiZTE1OWUyZjU2NmYyYTliYThjOTcKICB0ZW1wbGF0ZVJlbGVhc2U6IDIuMC4wCnJlZ2lzdHJ5S2luZDogY29tcG9uZW50CnNjaGVtYUlkOiBodHRwczovL3NjaGVtYXMucmVwby10ZW1wbGF0ZS5kZXYvcHJvZHVjdC1vdmVybGF5L3YxL2NvbXBvbmVudC1yZWdpc3RyeS5vdmVybGF5LnNjaGVtYS5qc29uCnNjaGVtYVZlcnNpb246IDEuMC4wCg=="
+      },
+      {
+        "path": "product-overlay.yaml",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "b91d71714eb488aa1e7c03ddc78bfca0434fa6ba88c3945dc18f3b3548803623",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/product-overlay",
+        "contentBase64": "IiRzY2hlbWEiOiBodHRwczovL3NjaGVtYXMucmVwby10ZW1wbGF0ZS5kZXYvcHJvZHVjdC1vdmVybGF5L3YxL3Byb2R1Y3Qtb3ZlcmxheS5zY2hlbWEuanNvbgpib290c3RyYXBwZWRGcm9tR3VpZGVWZXJzaW9uOiAyLjAuMApjb250cmFjdElkOiByZXBvLXRlbXBsYXRlL3Byb2R1Y3Qtb3ZlcmxheS92MQpsYXN0QXVkaXRlZEFnYWluc3RHdWlkZVZlcnNpb246IDIuMC4wCnBsYXRmb3JtczoKICBhbmRyb2lkOgogICAgcHJpb3JpdHk6IDIKICAgIHJvbGU6IHNlY29uZGFyeQogIGJyb3dzZXItZXh0ZW5zaW9uOgogICAgcHJpb3JpdHk6IDMKICAgIHJvbGU6IGFjY2Vzc29yeQogIGNocm9tZW9zOgogICAgcmF0aW9uYWxlOiBDb3ZlcmVkIGJ5IHdlYiBQV0Egc3VyZmFjZQogICAgcm9sZTogbm90LXRhcmdldGVkCiAgY2xpOgogICAgcHJpb3JpdHk6IDQKICAgIHJhdGlvbmFsZTogRGV2ZWxvcGVyIGFuZCBvcGVyYXRpb25zIHRvb2xpbmcKICAgIHJvbGU6IHNwZWNpYWxpemVkCiAgaW9zOgogICAgcmV2aXNpdFRyaWdnZXI6IEV2YWx1YXRlIG1vYmlsZSBpT1Mgc3VwcG9ydCB1cG9uIHVzZXIgZGVtYW5kCiAgICByb2xlOiBkb3JtYW50CiAgbGludXg6CiAgICByZXZpc2l0VHJpZ2dlcjogRXZhbHVhdGUgZGVza3RvcCBzdXBwb3J0IHVwb24gY3VzdG9tZXIgZGVtYW5kCiAgICByb2xlOiBkb3JtYW50CiAgbWFjb3M6CiAgICByZXZpc2l0VHJpZ2dlcjogRXZhbHVhdGUgZGVza3RvcCBzdXBwb3J0IHVwb24gY3VzdG9tZXIgZGVtYW5kCiAgICByb2xlOiBkb3JtYW50CiAgc2NoZWR1bGVkLWpvYjoKICAgIHByaW9yaXR5OiA1CiAgICByYXRpb25hbGU6IEJhY2tncm91bmQgd29ya2VyIGV4ZWN1dGlvbgogICAgcm9sZTogc3BlY2lhbGl6ZWQKICB3ZWI6CiAgICBwcmlvcml0eTogMQogICAgcm9sZTogcHJpbWFyeQogIHdpbmRvd3M6CiAgICByZXZpc2l0VHJpZ2dlcjogRXZhbHVhdGUgZGVza3RvcCBzdXBwb3J0IHVwb24gY3VzdG9tZXIgZGVtYW5kCiAgICByb2xlOiBkb3JtYW50CnByb3ZlbmFuY2U6CiAgY29udHJhY3RJZDogcmVwby10ZW1wbGF0ZS9wcm9kdWN0LW92ZXJsYXkvdjEKICB0ZW1wbGF0ZURpZ2VzdDogZmU1NTI3YmU3M2Q0ZTY1MmMxNGM0MjNmNDI4YzY2YmY1YzU2YWExZjIwNmJlMTU5ZTJmNTY2ZjJhOWJhOGM5NwogIHRlbXBsYXRlUmVsZWFzZTogMi4wLjAKc2NoZW1hSWQ6IGh0dHBzOi8vc2NoZW1hcy5yZXBvLXRlbXBsYXRlLmRldi9wcm9kdWN0LW92ZXJsYXkvdjEvcHJvZHVjdC1vdmVybGF5LnNjaGVtYS5qc29uCnNjaGVtYVZlcnNpb246IDEuMC4wCg=="
+      },
+      {
+        "path": "technology-registry.overlay.yaml",
+        "kind": "file",
+        "mode": "100644",
+        "contentSha256": "d8386740a892049b55c305528f698103686fe0f5455797ad1bd8fae6a13bba82",
+        "role": "capability-config",
+        "encoding": "utf-8",
+        "bundleId": "repo-template/product-overlay",
+        "contentBase64": "IiRzY2hlbWEiOiBodHRwczovL3NjaGVtYXMucmVwby10ZW1wbGF0ZS5kZXYvcHJvZHVjdC1vdmVybGF5L3YxL3RlY2hub2xvZ3ktcmVnaXN0cnkub3ZlcmxheS5zY2hlbWEuanNvbgpib290c3RyYXBwZWRGcm9tR3VpZGVWZXJzaW9uOiAyLjAuMApjb250cmFjdElkOiByZXBvLXRlbXBsYXRlL3Byb2R1Y3Qtb3ZlcmxheS92MQpsYXN0QXVkaXRlZEFnYWluc3RHdWlkZVZlcnNpb246IDIuMC4wCnByb3ZlbmFuY2U6CiAgY29udHJhY3RJZDogcmVwby10ZW1wbGF0ZS9wcm9kdWN0LW92ZXJsYXkvdjEKICB0ZW1wbGF0ZURpZ2VzdDogZmU1NTI3YmU3M2Q0ZTY1MmMxNGM0MjNmNDI4YzY2YmY1YzU2YWExZjIwNmJlMTU5ZTJmNTY2ZjJhOWJhOGM5NwogIHRlbXBsYXRlUmVsZWFzZTogMi4wLjAKcmVnaXN0cnlLaW5kOiB0ZWNobm9sb2d5CnNjaGVtYUlkOiBodHRwczovL3NjaGVtYXMucmVwby10ZW1wbGF0ZS5kZXYvcHJvZHVjdC1vdmVybGF5L3YxL3RlY2hub2xvZ3ktcmVnaXN0cnkub3ZlcmxheS5zY2hlbWEuanNvbgpzY2hlbWFWZXJzaW9uOiAxLjAuMAp0ZWNobm9sb2dpZXM6CiAgdGVjaG5vbG9neS5kb2NrZXI6CiAgICByYXRpb25hbGU6IEhlcm1ldGljIGNvbnRhaW5lciBydW50aW1lIGZvciBsb2NhbCBhbmQgQ0kgc2VydmljZXMKICAgIHN0YXRlOiBwcmVmZXJyZWQtZGVmYXVsdAogIHRlY2hub2xvZ3kucG5wbToKICAgIHJhdGlvbmFsZTogSG9zdCBleGVjdXRpb24gYW5kIHN1cHBseS1jaGFpbiBpc29sYXRpb24KICAgIHN0YXRlOiBwcmVmZXJyZWQtZGVmYXVsdAogIHRlY2hub2xvZ3kucG9zdGdyZXNxbDoKICAgIHJhdGlvbmFsZTogQXV0aG9yaXRhdGl2ZSByZWxhdGlvbmFsIGRhdGFiYXNlCiAgICBzdGF0ZTogcHJlZmVycmVkLWRlZmF1bHQKICB0ZWNobm9sb2d5LnR1cmJvcmVwbzoKICAgIHJhdGlvbmFsZTogVGFzayBncmFwaCBwaXBlbGluZSBmb3IgbW9ub3JlcG8gd29ya3NwYWNlcwogICAgc3RhdGU6IHByZWZlcnJlZC1kZWZhdWx0CiAgdGVjaG5vbG9neS50eXBlc2NyaXB0OgogICAgcmF0aW9uYWxlOiBQcmltYXJ5IGxhbmd1YWdlIGFjcm9zcyBhbGwgZmxlZXQgYXBwbGljYXRpb25zCiAgICBzdGF0ZTogcHJlZmVycmVkLWRlZmF1bHQK"
+      }
+    ],
+    "releaseDigest": "b790e0d007761d9215b79711126911bf5cfa95d13a00609da20aba3dc25c5edb"
+  },
+  "capabilities": {
+    "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+    "schemaVersion": "2.0.0",
+    "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+    "contractId": "repo-template/adoption-shell-v2",
+    "digestAlgorithm": "sha256-rfc8785-v1",
+    "bundles": [
+      {
+        "id": "repo-template/product-overlay",
+        "version": "1.0.0",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "dependencies": [],
+        "artifacts": [
+          "component-registry.overlay.yaml",
+          "product-overlay.yaml",
+          "technology-registry.overlay.yaml"
+        ],
+        "fixtures": [],
+        "goldens": [],
+        "modes": [
+          {
+            "id": "overlay-validation",
+            "entrypoint": "product-overlay.yaml",
+            "requiredPaths": [
+              "component-registry.overlay.yaml",
+              "product-overlay.yaml",
+              "technology-registry.overlay.yaml"
+            ]
+          }
+        ],
+        "digest": "c5b48aa89f4fed6245344ff0973fe910fce8f7770aefb169537f33b95cfb6c42"
+      }
+    ],
+    "registryDigest": "b3eaaa4cffbef6aec90a2bd9dcc28b81613cd8222fd169682b12e2e58f77c0bd"
+  },
+  "requestedBundles": [
+    {
+      "id": "repo-template/product-overlay",
+      "version": "1.0.0",
+      "digest": "c5b48aa89f4fed6245344ff0973fe910fce8f7770aefb169537f33b95cfb6c42"
+    }
+  ],
+  "conformance": {
+    "noLocalIssueTemplateOverride": true,
+    "noPreCustodyWorkflows": true
+  }
+}

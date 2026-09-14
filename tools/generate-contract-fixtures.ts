@@ -36,6 +36,7 @@ import {
   lintInput,
   multiInput,
   portableCapabilityRegistry,
+  productOverlayInput,
   repositoryShapeInput,
 } from "./contract-fixtures-data.ts";
 import { negativeFixtures } from "./generate-negative-fixtures.ts";
@@ -392,6 +393,8 @@ export function generateContractFixtures(
   writeJson(path.join(fixtureRoot, "portable-docs-input.json"), portableDocsInput);
   writeJson(path.join(fixtureRoot, "user-surface-lint-input.json"), lintInput);
   writeJson(path.join(fixtureRoot, "monorepo-shape-input.json"), repositoryShapeInput);
+  writeJson(path.join(fixtureRoot, "product-overlay-input.json"), productOverlayInput);
+
   writeJson(
     path.join(fixtureRoot, "template-release-receipt.json"),
     templateReleaseReceiptFixture(),
