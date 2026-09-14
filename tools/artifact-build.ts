@@ -153,6 +153,11 @@ const REPOSITORY_SHAPE_ARTIFACT_PATHS = [
   "contracts/repository-shape/v1/repository-shape.schema.json",
   "contracts/repository-shape/v1/turbo.schema.json",
 ] as const;
+const TEST_HARNESS_ARTIFACT_PATHS = [
+  "contracts/test-harness/v1/fixtures/invalid-test-harness.json",
+  "contracts/test-harness/v1/fixtures/valid-vitest-harness.json",
+  "contracts/test-harness/v1/test-harness.schema.json",
+] as const;
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -310,6 +315,7 @@ function fixtureRows(
     ...PRODUCT_SLI_PROBE_ARTIFACT_PATHS,
     ...PRODUCT_OVERLAY_ARTIFACT_PATHS,
     ...REPOSITORY_SHAPE_ARTIFACT_PATHS,
+    ...TEST_HARNESS_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
     compare(left.path, right.path),

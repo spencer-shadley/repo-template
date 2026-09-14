@@ -1,0 +1,6 @@
+{
+  "profileId": "invalid-harness",
+  "framework": "unsupported-framework",
+  "configPath": "",
+  "smokeTestPath": ""
+}

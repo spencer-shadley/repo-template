@@ -97,6 +97,7 @@ void test("valid fixtures materialize deterministically without mutating inputs"
     "user-surface-lint-input.json",
     "monorepo-shape-input.json",
     "product-overlay-input.json",
+    "test-harness-input.json",
   ]) {
     const input = readMaterializerInput(
       `contracts/adoption-shell-v2/fixtures/${name}`,

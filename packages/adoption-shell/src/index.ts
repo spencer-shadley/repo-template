@@ -294,5 +294,29 @@ export type {
   TechnologyOverlayEntry,
   TechnologyRegistryOverlay,
 } from "./product-overlay.ts";
-
-
+export {
+  DEFAULT_SMOKE_TEST_PATH,
+  DEFAULT_VITEST_CONFIG_PATH,
+  DEFAULT_VITEST_VERSION,
+  TEST_HARNESS_BUNDLE_ID,
+  TEST_HARNESS_BUNDLE_VERSION,
+  TEST_HARNESS_CONTRACT_ID,
+  TEST_HARNESS_SCHEMA_ID,
+  TEST_HARNESS_SCHEMA_VERSION,
+  VITEST_HARNESS_BUNDLE_ID,
+  composeTestHarnessReleaseEntries,
+  createSmokeTestContent,
+  createSmokeTestPayloadEntry,
+  createTestHarnessBundle,
+  createVitestConfigContent,
+  createVitestConfigPayloadEntry,
+  isTestHarnessApplicable,
+  materializeTestHarnessEntries,
+  mergePackageJsonWithTestHarness,
+  validateTestHarnessConfig,
+} from "./test-harness.ts";
+export type {
+  TestHarnessConfig,
+  TestHarnessOptions,
+  TestHarnessProfile,
+} from "./test-harness.ts";

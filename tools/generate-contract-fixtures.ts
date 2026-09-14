@@ -38,6 +38,7 @@ import {
   portableCapabilityRegistry,
   productOverlayInput,
   repositoryShapeInput,
+  testHarnessInput,
 } from "./contract-fixtures-data.ts";
 import { negativeFixtures } from "./generate-negative-fixtures.ts";
 
@@ -367,19 +368,15 @@ const rfc8785Vectors = {
   ],
 };
 
-export function generateContractFixtures(
-  contractRoot: string,
-  artifactDigest: string,
-): void {
-  const fixtureRoot = path.join(contractRoot, "fixtures");
-  const goldenRoot = path.join(contractRoot, "golden");
-  fs.rmSync(fixtureRoot, { recursive: true, force: true });
-  fs.rmSync(goldenRoot, { recursive: true, force: true });
+function writeContractFixtures(fixtureRoot: string): void {
+  const writeFixture = (name: string, value: unknown): void => {
+    writeJson(path.join(fixtureRoot, name), value);
+  };
 
-  writeJson(path.join(fixtureRoot, "minimal-input.json"), minimalInput);
-  writeJson(path.join(fixtureRoot, "delivery-declaration.json"), deliveryDeclarationFixture);
-  writeJson(path.join(fixtureRoot, "delivery-event.json"), deliveryEventFixture);
-  writeJson(path.join(fixtureRoot, "minimal-input-shuffled-keys.json"), {
+  writeFixture("minimal-input.json", minimalInput);
+  writeFixture("delivery-declaration.json", deliveryDeclarationFixture);
+  writeFixture("delivery-event.json", deliveryEventFixture);
+  writeFixture("minimal-input-shuffled-keys.json", {
     conformance: minimalInput.conformance,
     requestedBundles: minimalInput.requestedBundles,
     capabilities: minimalInput.capabilities,
@@ -389,16 +386,26 @@ export function generateContractFixtures(
     schemaVersion: minimalInput.schemaVersion,
     schemaId: minimalInput.schemaId,
   });
-  writeJson(path.join(fixtureRoot, "multi-bundle-input.json"), multiInput);
-  writeJson(path.join(fixtureRoot, "portable-docs-input.json"), portableDocsInput);
-  writeJson(path.join(fixtureRoot, "user-surface-lint-input.json"), lintInput);
-  writeJson(path.join(fixtureRoot, "monorepo-shape-input.json"), repositoryShapeInput);
-  writeJson(path.join(fixtureRoot, "product-overlay-input.json"), productOverlayInput);
-  writeJson(
-    path.join(fixtureRoot, "template-release-receipt.json"),
-    templateReleaseReceiptFixture(),
-  );
-  writeJson(path.join(fixtureRoot, "negative-inputs.json"), negativeFixtures());
+  writeFixture("multi-bundle-input.json", multiInput);
+  writeFixture("portable-docs-input.json", portableDocsInput);
+  writeFixture("user-surface-lint-input.json", lintInput);
+  writeFixture("monorepo-shape-input.json", repositoryShapeInput);
+  writeFixture("product-overlay-input.json", productOverlayInput);
+  writeFixture("test-harness-input.json", testHarnessInput);
+  writeFixture("template-release-receipt.json", templateReleaseReceiptFixture());
+  writeFixture("negative-inputs.json", negativeFixtures());
+}
+
+export function generateContractFixtures(
+  contractRoot: string,
+  artifactDigest: string,
+): void {
+  const fixtureRoot = path.join(contractRoot, "fixtures");
+  const goldenRoot = path.join(contractRoot, "golden");
+  fs.rmSync(fixtureRoot, { recursive: true, force: true });
+  fs.rmSync(goldenRoot, { recursive: true, force: true });
+
+  writeContractFixtures(fixtureRoot);
   writeJson(path.join(contractRoot, "capability-bundle-registry.json"), portableCapabilityRegistry);
   writeJson(path.join(goldenRoot, "rfc8785-vectors.json"), rfc8785Vectors);
   writeJson(path.join(goldenRoot, "user-surface-lint-modes.json"), {
