@@ -1,0 +1,23 @@
+schemaVersion: "component-registry-overlay/v1"
+contractId: "repo-template/component-registry-overlay-v1"
+provenance:
+  templateRelease:
+    repository: "spencer-shadley/repo-template"
+    semver: "2.0.0"
+    releaseDigest: "cfb262942b19e1aa8c5092bea566cdf2f2e345ae1a6f226768d1f5612d3c9f46"
+    releaseId: "repo-template-v2.0.0"
+  bootstrappedFromGuideVersion: "2.0.0"
+  lastAuditedAgainstGuideVersion: "2.0.0"
+components:
+  - logicalId: "quality-lint"
+    lifecycle: "preferred-default"
+    priority: 1
+    rationale: "Required fleet quality lint baseline."
+  - logicalId: "user-surface-lint"
+    lifecycle: "preferred-default"
+    priority: 1
+    rationale: "User surface leak detection."
+  - logicalId: "local-ci"
+    lifecycle: "preferred-default"
+    priority: 1
+    rationale: "Standardized local CI gate declaration."

@@ -2,6 +2,7 @@ import { AdoptionShellValidationError, CONTRACT_ID, CONTRACT_VERSION, ENVELOPE_D
 import { resolveCapabilityClosure } from "./capability-bundles.js";
 import { sha256CanonicalJson, sha256PayloadEntries } from "./digest.js";
 import { mergeDiagnostics, validateDocumentationLinks, } from "./validate-documentation.js";
+import { validateOverlayPayloadEntries } from "./product-registry-overlays-v1.js";
 import { validateMaterializerInputV2, } from "./validate.js";
 import { compareStrings } from "./validation-helpers.js";
 function selectedEntryDiagnostics(input, selectedBundleIds, selectedDeclaredPaths) {
@@ -71,7 +72,8 @@ export function materializeAdoptionShellV2(inputValue) {
         .map(cloneEntry)
         .toSorted((left, right) => compareStrings(left.path, right.path));
     const documentation = validateDocumentationLinks(selected);
-    const diagnostics = mergeDiagnostics(closure.diagnostics, ownership, documentation);
+    const overlays = validateOverlayPayloadEntries(selected);
+    const diagnostics = mergeDiagnostics(closure.diagnostics, ownership, documentation, overlays);
     if (diagnostics.length > 0) {
         throw new AdoptionShellValidationError(diagnostics);
     }

@@ -135,6 +135,21 @@ const PROOF_OF_DETECTION_ARTIFACT_PATHS = [
   ".runtime-artifact-registry.json",
   ".runtime-artifact-registry.schema.json",
 ] as const;
+const PRODUCT_OVERLAY_ARTIFACT_PATHS = [
+  "component-registry.overlay.yaml",
+  "contracts/overlays/v1/component-registry.overlay.schema.json",
+  "contracts/overlays/v1/fixtures/invalid-dormant-no-trigger.yaml",
+  "contracts/overlays/v1/fixtures/invalid-mutable-provenance.yaml",
+  "contracts/overlays/v1/fixtures/invalid-role.yaml",
+  "contracts/overlays/v1/fixtures/valid-component-registry.overlay.yaml",
+  "contracts/overlays/v1/fixtures/valid-product-overlay.yaml",
+  "contracts/overlays/v1/fixtures/valid-technology-registry.overlay.yaml",
+  "contracts/overlays/v1/product-overlay.schema.json",
+  "contracts/overlays/v1/technology-registry.overlay.schema.json",
+  "docs/adr/0011-product-and-registry-overlays-with-immutable-provenance.md",
+  "product-overlay.yaml",
+  "technology-registry.overlay.yaml",
+] as const;
 
 function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
@@ -290,6 +305,7 @@ function fixtureRows(
     ...LOCAL_CI_V3_ARTIFACT_PATHS,
     ...PROOF_OF_DETECTION_ARTIFACT_PATHS,
     ...PRODUCT_SLI_PROBE_ARTIFACT_PATHS,
+    ...PRODUCT_OVERLAY_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
     compare(left.path, right.path),

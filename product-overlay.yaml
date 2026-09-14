@@ -1,0 +1,49 @@
+schemaVersion: "product-overlay/v1"
+contractId: "repo-template/product-overlay-v1"
+profile: "repository-template"
+provenance:
+  templateRelease:
+    repository: "spencer-shadley/repo-template"
+    semver: "2.0.0"
+    releaseDigest: "cfb262942b19e1aa8c5092bea566cdf2f2e345ae1a6f226768d1f5612d3c9f46"
+    releaseId: "repo-template-v2.0.0"
+  bootstrappedFromGuideVersion: "2.0.0"
+  lastAuditedAgainstGuideVersion: "2.0.0"
+platforms:
+  tooling:
+    role: "primary"
+    priority: 1
+    owner: "repo-template-manager"
+    acceptanceSuites:
+      - "unit"
+      - "verify"
+  service:
+    role: "not-targeted"
+    priority: 2
+    owner: "repo-template-manager"
+    acceptanceSuites: []
+    rationale: "Repository engineering tooling; no network service or daemon."
+  web:
+    role: "not-targeted"
+    priority: 3
+    owner: "repo-template-manager"
+    acceptanceSuites: []
+    rationale: "Repository engineering tooling; no web application surface."
+  mobile:
+    role: "not-targeted"
+    priority: 4
+    owner: "repo-template-manager"
+    acceptanceSuites: []
+    rationale: "Repository engineering tooling; no mobile surface."
+  desktop:
+    role: "not-targeted"
+    priority: 5
+    owner: "repo-template-manager"
+    acceptanceSuites: []
+    rationale: "Repository engineering tooling; no desktop surface."
+  extension:
+    role: "dormant"
+    priority: 6
+    owner: "repo-template-manager"
+    acceptanceSuites: []
+    revisitTrigger: "Revisit if IDE/editor extension distribution becomes required."

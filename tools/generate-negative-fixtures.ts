@@ -1,5 +1,10 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import {
   type MaterializerInput,
+  type PayloadEntry,
   sha256Bytes,
   sha256CanonicalJson,
 } from "../packages/adoption-shell/src/index.ts";
@@ -252,6 +257,56 @@ function buildDocCases(): NegativeFixture[] {
   return rows;
 }
 
+function projectRoot(): string {
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+}
+
+function overlayTextEntry(fixturePath: string): PayloadEntry {
+  const content = fs.readFileSync(path.join(projectRoot(), ...fixturePath.split("/")), "utf8");
+  return textEntry("product-overlay.yaml", content, "generic-base-text", null);
+}
+
+function buildOverlayCases(): NegativeFixture[] {
+  return [
+    invalid(
+      "overlay-unknown-role",
+      ["E_OVERLAY_ROLE"],
+      input(
+        release([
+          baseEntry,
+          overlayTextEntry("contracts/overlays/v1/fixtures/invalid-role.yaml"),
+        ]),
+        registry([]),
+        [],
+      ),
+    ),
+    invalid(
+      "overlay-dormant-missing-trigger",
+      ["E_DORMANT_REVISIT_TRIGGER"],
+      input(
+        release([
+          baseEntry,
+          overlayTextEntry("contracts/overlays/v1/fixtures/invalid-dormant-no-trigger.yaml"),
+        ]),
+        registry([]),
+        [],
+      ),
+    ),
+    invalid(
+      "overlay-mutable-provenance",
+      ["E_PROVENANCE_INCOMPATIBLE"],
+      input(
+        release([
+          baseEntry,
+          overlayTextEntry("contracts/overlays/v1/fixtures/invalid-mutable-provenance.yaml"),
+        ]),
+        registry([]),
+        [],
+      ),
+    ),
+  ];
+}
+
 const FOREIGN_FIELDS = [
   "targetRepository", "repositoryOwner", "origin", "defaultBranch", "checkoutPath",
   "github", "registry", "factory", "lifecycle", "schedule", "activation", "queue",
@@ -267,6 +322,7 @@ export function negativeFixtures(): readonly NegativeFixture[] {
     ...buildIntegrityCases(),
     ...buildBundleCases(),
     ...buildDocCases(),
+    ...buildOverlayCases(),
     ...FOREIGN_FIELDS.map(foreignFieldCase),
   ];
 }

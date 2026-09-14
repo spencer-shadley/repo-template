@@ -1,0 +1,26 @@
+schemaVersion: "technology-registry-overlay/v1"
+contractId: "repo-template/technology-registry-overlay-v1"
+provenance:
+  templateRelease:
+    repository: "spencer-shadley/repo-template"
+    semver: "2.0.0"
+    releaseDigest: "cfb262942b19e1aa8c5092bea566cdf2f2e345ae1a6f226768d1f5612d3c9f46"
+    releaseId: "repo-template-v2.0.0"
+  bootstrappedFromGuideVersion: "2.0.0"
+  lastAuditedAgainstGuideVersion: "2.0.0"
+technologies:
+  - logicalId: "node"
+    lifecycle: "preferred-default"
+    priority: 1
+    rationale: "Standard runtime environment."
+    selectedVersion: "24.19.0"
+  - logicalId: "typescript"
+    lifecycle: "preferred-default"
+    priority: 1
+    rationale: "Typechecked build pipeline."
+    selectedVersion: "7.0.2"
+  - logicalId: "pnpm"
+    lifecycle: "preferred-default"
+    priority: 1
+    rationale: "Deterministic package manager."
+    selectedVersion: "11.17.0"

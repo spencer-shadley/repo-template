@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "bd91a18f7b283f6028ddc822e95b1e0a31540971e71575bef71304b92697ea0d",
+  "artifactDigest": "6cc126b58f34542060bab93e33ce518ea6b33b1850e13ef5d6360e2bc0a8ed94",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "13b3feb27ea91ea95ba793882c7b9bb97827df728a82174459804bc53bfcc761",
-      "bytes": 5753
+      "sha256": "e1c79703b9635814f141f53ceb7d0d171d3f9f0f09908f128d25a059ce3190c5",
+      "bytes": 6780
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -98,8 +98,8 @@
       "path": "packages/adoption-shell/src/materialize.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "1df14aca3506aacdc3a6778625982e8a7ddbe929747ac5948c73822791802200",
-      "bytes": 4778
+      "sha256": "b1508177985768654ac8f167563fe2f5efde8d780aa2598b33ba8f12d9cf1119",
+      "bytes": 4931
     },
     {
       "path": "packages/adoption-shell/src/path-policy.ts",
@@ -114,6 +114,13 @@
       "mode": "100644",
       "sha256": "ef1c2e93bf67e9057243d85074285f6389768d30b4e9a0e766c1426a017047ee",
       "bytes": 16407
+    },
+    {
+      "path": "packages/adoption-shell/src/product-registry-overlays-v1.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "57b70a25c71fd262f33db2f27be201d9b1d7342e5fe7a645983a6f20d63cb233",
+      "bytes": 27769
     },
     {
       "path": "packages/adoption-shell/src/product-sli-probe-v1.ts",
@@ -379,15 +386,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a3e6ff3de3d6eafbd05474aa0c946b2e3e930b02d41337e35abe72fb7ae21ef2",
-      "bytes": 5419
+      "sha256": "45ba920ba3e93bb5e2c93100ffde9ef7b66df456db0e38738e9af22a87754e7b",
+      "bytes": 6384
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a45a07dd1ea624dd08facc7751fba79b03a8aebce4165e60040039c8f180c419",
-      "bytes": 3242
+      "sha256": "89a0ebd16a3959be35a94ccfc2d67abfb1834f5f5a66f06e76c87b46cf23a1ef",
+      "bytes": 3909
     },
     {
       "path": "local-ci-contract-v2.d.ts",
@@ -442,8 +449,8 @@
       "path": "materialize.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "20d1baa11cd57f01fb71d0fbd76cb1d126f98427a0b89e4b869d7b44cdfacc95",
-      "bytes": 4587
+      "sha256": "773e8b31b42ff9801b97d2b1eee92312ce32a2fd4b8c3e269eb1bdf6899b0da1",
+      "bytes": 4742
     },
     {
       "path": "path-policy.d.ts",
@@ -472,6 +479,20 @@
       "mode": "100644",
       "sha256": "d53e3dfeb8421646ae86eddbb55d89afd2720e2f25436c4cac8b34951f97c3d1",
       "bytes": 13421
+    },
+    {
+      "path": "product-registry-overlays-v1.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "56e5ca5dffe50269647e9ebc1dd2e912c24a90417d813348589ad24c8a54d8c5",
+      "bytes": 5202
+    },
+    {
+      "path": "product-registry-overlays-v1.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "96e1ba1fb80deb932c3107b1211463f79d5a76de48c751e5e66ffb9502f81c16",
+      "bytes": 26244
     },
     {
       "path": "product-sli-probe-v1.d.ts",
@@ -665,11 +686,18 @@
       "bytes": 3175
     },
     {
+      "path": "component-registry.overlay.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "6e76267d0ff2004b74ad598f199e965f28236cb353165e9ead26bfd417d1d092",
+      "bytes": 824
+    },
+    {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "38e08045f1cecf7031d75f6d584da31552e5623ac766575f9efd7a0c89f6c032",
-      "bytes": 12160
+      "sha256": "59776d0b234ada245ff5d5cbc6e1082fe976d89ad130051724d2b279f97f649b",
+      "bytes": 13353
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/delivery-declaration.json",
@@ -710,8 +738,8 @@
       "path": "contracts/adoption-shell-v2/fixtures/negative-inputs.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "ec5d6ee8caa26e09b9d8f303b6720f49bd0fae9fb39213ecdb1f0d01e97de156",
-      "bytes": 278725
+      "sha256": "6d580333b8484818cb8d2003c41829ae2ceb302b72bec11a7cabda939ff6f6b2",
+      "bytes": 288668
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/portable-docs-input.json",
@@ -719,6 +747,13 @@
       "mode": "100644",
       "sha256": "e001269814b843268ca120b4c1fbb152ff7fd60731ed12dce2887be32958db7b",
       "bytes": 3353
+    },
+    {
+      "path": "contracts/adoption-shell-v2/fixtures/product-overlay-input.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "5012c6b879efd16df120d035d99bc51c8fce17e4c1e4defc26315bbaf0a327bf",
+      "bytes": 34676
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/template-release-receipt.json",
@@ -917,6 +952,69 @@
       "bytes": 1793
     },
     {
+      "path": "contracts/overlays/v1/component-registry.overlay.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "e80bc8d6915e7902d41a5c04b530acff9fab552dd5e0fac5b60f921a3972a795",
+      "bytes": 1746
+    },
+    {
+      "path": "contracts/overlays/v1/fixtures/invalid-dormant-no-trigger.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "9b368c0325d47bd4268c3e2627f9965f2d5f9bf572b28e2daf2d77725c4c6886",
+      "bytes": 530
+    },
+    {
+      "path": "contracts/overlays/v1/fixtures/invalid-mutable-provenance.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "93daae68dafb9d137e751dc081dda12a02c4137e35a21d5f68b5ab315a5f6acb",
+      "bytes": 617
+    },
+    {
+      "path": "contracts/overlays/v1/fixtures/invalid-role.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "92b0e7f309ec784ad59d3b78b5dce4a6a506dc85ab784b070e9e25717808462d",
+      "bytes": 545
+    },
+    {
+      "path": "contracts/overlays/v1/fixtures/valid-component-registry.overlay.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "5f44a0dd21c35fc0fddc25a8b9fcb4a5261df09fd218a96ded7f8f16d9a42768",
+      "bytes": 817
+    },
+    {
+      "path": "contracts/overlays/v1/fixtures/valid-product-overlay.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "88827e1740121bd6e97b6763b33c7d557c4fd9d2456a1bd3018c0bc814e4ffcf",
+      "bytes": 1357
+    },
+    {
+      "path": "contracts/overlays/v1/fixtures/valid-technology-registry.overlay.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2d75704c460ee160009628eb0ee4b8efed7ff8c9f5ba3b88cd314d3f87b42de9",
+      "bytes": 882
+    },
+    {
+      "path": "contracts/overlays/v1/product-overlay.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "7c0ae3b2bddd8e186bf075e846dbf17fc3fc17cf5d403884668adcef8cfebb1f",
+      "bytes": 3416
+    },
+    {
+      "path": "contracts/overlays/v1/technology-registry.overlay.schema.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f8fdeb1f67656699bec55a7c8fc8bad03395c9a1b082982f9a3a768ac9eda7e6",
+      "bytes": 2461
+    },
+    {
       "path": "contracts/plan-record/v1/fixtures/classification-cases.json",
       "kind": "file",
       "mode": "100644",
@@ -1050,6 +1148,13 @@
       "bytes": 13193
     },
     {
+      "path": "docs/adr/0011-product-and-registry-overlays-with-immutable-provenance.md",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "db06996bba361cc8c0a83fcc4112c5d86f32f0d226f03856d90071a37f598a37",
+      "bytes": 4069
+    },
+    {
       "path": "eslint.config.ts",
       "kind": "file",
       "mode": "100644",
@@ -1069,6 +1174,13 @@
       "mode": "100644",
       "sha256": "2cb304998bcb704d0054243f96a83b4128104a6bf6c9f8311782f3049372603f",
       "bytes": 795
+    },
+    {
+      "path": "product-overlay.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "192a02bc362289cd2b623db56f25909d09179ca296aca200e66da372bc349f34",
+      "bytes": 1496
     },
     {
       "path": "scripts/check-runtime-artifact-registry.ts",
@@ -1125,6 +1237,13 @@
       "mode": "100644",
       "sha256": "d639483e3caf50a32aedde008d6a5afdb5360db808d9491339fe82c05ed33952",
       "bytes": 14515
+    },
+    {
+      "path": "technology-registry.overlay.yaml",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "decf948e562e2b5332fc5eec21945b59d0ef86fc8d174045d922daa597206f38",
+      "bytes": 924
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -1244,7 +1363,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "00e5694ee01e7cfd967fb96da12f970c79ce04a8810c1d347e8af27c4bcced6d",
+      "sha256": "e47f95af42545446d92d9f5ef1f38bd86675a5071750f555aff616274b4af9bf",
       "bytes": 876
     },
     {
@@ -1276,5 +1395,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "2ecc779a2b8e276d18b4393b988df1bf8556c0d9e94aa357caae17b9edd1afc1"
+  "manifestDigest": "e61b9f025e6eae1cf8280ef8d75adb3503227fd496987bf265cc8082f5277669"
 }

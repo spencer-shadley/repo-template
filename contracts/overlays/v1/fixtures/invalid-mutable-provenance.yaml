@@ -1,0 +1,18 @@
+schemaVersion: "product-overlay/v1"
+contractId: "repo-template/product-overlay-v1"
+profile: "standalone-service"
+provenance:
+  templateRelease:
+    repository: "spencer-shadley/repo-template"
+    semver: "2.0.0"
+    releaseDigest: "cfb262942b19e1aa8c5092bea566cdf2f2e345ae1a6f226768d1f5612d3c9f46"
+    releaseId: "repo-template-v2.0.0"
+  bootstrappedFromGuideVersion: "https://github.com/spencer-shadley/agent-orchestrator/blob/master/docs/AI-FIRST.md"
+  lastAuditedAgainstGuideVersion: "2.0.0"
+platforms:
+  service:
+    role: "primary"
+    priority: 1
+    owner: "platform-team"
+    acceptanceSuites:
+      - "unit"

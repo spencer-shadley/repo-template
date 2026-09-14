@@ -19,6 +19,7 @@ import {
   mergeDiagnostics,
   validateDocumentationLinks,
 } from "./validate-documentation.ts";
+import { validateOverlayPayloadEntries } from "./product-registry-overlays-v1.ts";
 import {
   validateMaterializerInputV2,
 } from "./validate.ts";
@@ -107,7 +108,8 @@ export function materializeAdoptionShellV2(inputValue: unknown): Materialization
     .map(cloneEntry)
     .toSorted((left, right) => compareStrings(left.path, right.path));
   const documentation = validateDocumentationLinks(selected);
-  const diagnostics = mergeDiagnostics(closure.diagnostics, ownership, documentation);
+  const overlays = validateOverlayPayloadEntries(selected);
+  const diagnostics = mergeDiagnostics(closure.diagnostics, ownership, documentation, overlays);
   if (diagnostics.length > 0) {
     throw new AdoptionShellValidationError(diagnostics);
   }

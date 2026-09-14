@@ -116,6 +116,32 @@
       "digest": "88b0d1f44eac757962de977f4c58682f546f31d2065f113ab001e50cf53b343d"
     },
     {
+      "id": "repo-template/product-registry-overlays",
+      "version": "1.0.0",
+      "dependencies": [],
+      "artifacts": [
+        "component-registry.overlay.yaml",
+        "contracts/overlays/v1/component-registry.overlay.schema.json",
+        "contracts/overlays/v1/product-overlay.schema.json",
+        "contracts/overlays/v1/technology-registry.overlay.schema.json",
+        "docs/adr/0011-product-and-registry-overlays-with-immutable-provenance.md",
+        "product-overlay.yaml",
+        "technology-registry.overlay.yaml"
+      ],
+      "fixtures": [
+        "contracts/overlays/v1/fixtures/invalid-dormant-no-trigger.yaml",
+        "contracts/overlays/v1/fixtures/invalid-mutable-provenance.yaml",
+        "contracts/overlays/v1/fixtures/invalid-role.yaml",
+        "contracts/overlays/v1/fixtures/valid-component-registry.overlay.yaml",
+        "contracts/overlays/v1/fixtures/valid-product-overlay.yaml",
+        "contracts/overlays/v1/fixtures/valid-technology-registry.overlay.yaml"
+      ],
+      "goldens": [],
+      "modes": [],
+      "digestAlgorithm": "sha256-rfc8785-v1",
+      "digest": "811b9e1af1bfbab7f276ee045dc2fd0288f1336d7cea18eb0fb4e1d049966bbd"
+    },
+    {
       "id": "repo-template/proof-of-detection",
       "version": "1.0.0",
       "dependencies": [
@@ -257,5 +283,5 @@
       "digest": "28c17d3287f732bfcf1bab72735f8185374f091113b83d92757a0c4680413cfe"
     }
   ],
-  "registryDigest": "ec411f0cc955dcefa6fa21512352e4319b2a28e84f6df808260bcccce1058cca"
+  "registryDigest": "5b4039e688e5e37d372c8e63ee6a94c39a1b2c7d364ef3165374415a65414037"
 }

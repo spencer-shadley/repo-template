@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/overlays/v1/technology-registry.overlay.schema.json",
+  "title": "Technology registry overlay",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "provenance",
+    "technologies"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "enum": ["1.0.0", "technology-registry-overlay/v1"]
+    },
+    "contractId": {
+      "const": "repo-template/technology-registry-overlay-v1"
+    },
+    "provenance": {
+      "$ref": "./product-overlay.schema.json#/$defs/provenance"
+    },
+    "technologies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/technologyEntry"
+      }
+    }
+  },
+  "$defs": {
+    "lifecycle": {
+      "type": "string",
+      "enum": [
+        "preferred-default",
+        "context-preferred",
+        "supported-alternative",
+        "candidate",
+        "legacy-compatibility",
+        "discouraged",
+        "prohibited"
+      ]
+    },
+    "technologyEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "logicalId",
+        "lifecycle",
+        "priority",
+        "rationale"
+      ],
+      "properties": {
+        "logicalId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lifecycle": {
+          "$ref": "#/$defs/lifecycle"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "package": {
+          "type": "string"
+        },
+        "selectedVersion": {
+          "type": "string"
+        },
+        "evaluation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner",
+            "reviewTrigger",
+            "targetEvidence",
+            "exitCriteria"
+          ],
+          "properties": {
+            "owner": {
+              "type": "string",
+              "minLength": 1
+            },
+            "reviewTrigger": {
+              "type": "string",
+              "minLength": 1
+            },
+            "targetEvidence": {
+              "type": "string",
+              "minLength": 1
+            },
+            "exitCriteria": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

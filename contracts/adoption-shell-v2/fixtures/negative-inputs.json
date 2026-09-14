@@ -3250,6 +3250,186 @@
     }
   },
   {
+    "name": "overlay-unknown-role",
+    "expectedCodes": [
+      "E_OVERLAY_ROLE"
+    ],
+    "input": {
+      "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+      "schemaVersion": "2.0.0",
+      "schemaDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+      "contractId": "repo-template/adoption-shell-v2",
+      "release": {
+        "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+        "schemaVersion": "2.0.0",
+        "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+        "contractId": "repo-template/adoption-shell-v2",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+        "payloadDigest": "fafb5785688e2dae1e0d3453e82ce469721afc40ec69ce653522809111885668",
+        "entryCount": 2,
+        "migrationRefs": [],
+        "entries": [
+          {
+            "path": "README.md",
+            "kind": "file",
+            "mode": "100644",
+            "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+            "role": "generic-base-text",
+            "encoding": "utf-8",
+            "bundleId": null,
+            "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+          },
+          {
+            "path": "product-overlay.yaml",
+            "kind": "file",
+            "mode": "100644",
+            "contentSha256": "92b0e7f309ec784ad59d3b78b5dce4a6a506dc85ab784b070e9e25717808462d",
+            "role": "generic-base-text",
+            "encoding": "utf-8",
+            "bundleId": null,
+            "contentBase64": "c2NoZW1hVmVyc2lvbjogInByb2R1Y3Qtb3ZlcmxheS92MSIKY29udHJhY3RJZDogInJlcG8tdGVtcGxhdGUvcHJvZHVjdC1vdmVybGF5LXYxIgpwcm9maWxlOiAic3RhbmRhbG9uZS1zZXJ2aWNlIgpwcm92ZW5hbmNlOgogIHRlbXBsYXRlUmVsZWFzZToKICAgIHJlcG9zaXRvcnk6ICJzcGVuY2VyLXNoYWRsZXkvcmVwby10ZW1wbGF0ZSIKICAgIHNlbXZlcjogIjIuMC4wIgogICAgcmVsZWFzZURpZ2VzdDogImNmYjI2Mjk0MmIxOWUxYWE4YzUwOTJiZWE1NjZjZGYyZjJlMzQ1YWUxYTZmMjI2NzY4ZDFmNTYxMmQzYzlmNDYiCiAgICByZWxlYXNlSWQ6ICJyZXBvLXRlbXBsYXRlLXYyLjAuMCIKICBib290c3RyYXBwZWRGcm9tR3VpZGVWZXJzaW9uOiAiMi4wLjAiCiAgbGFzdEF1ZGl0ZWRBZ2FpbnN0R3VpZGVWZXJzaW9uOiAiMi4wLjAiCnBsYXRmb3JtczoKICBzZXJ2aWNlOgogICAgcm9sZTogImV4cGVyaW1lbnRhbCIKICAgIHByaW9yaXR5OiAxCiAgICBvd25lcjogInBsYXRmb3JtLXRlYW0iCiAgICBhY2NlcHRhbmNlU3VpdGVzOgogICAgICAtICJ1bml0Igo="
+          }
+        ],
+        "releaseDigest": "3c9bcc9d2a4b0751c18e4902ca6c994ff64376a892be1450477a71272b2b6aeb"
+      },
+      "capabilities": {
+        "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+        "schemaVersion": "2.0.0",
+        "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+        "contractId": "repo-template/adoption-shell-v2",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "bundles": [],
+        "registryDigest": "4839f876f0d53a59efcb0e53585ee4a82db099bdac7261cba5fb0528ecf21a48"
+      },
+      "requestedBundles": [],
+      "conformance": {
+        "noLocalIssueTemplateOverride": true,
+        "noPreCustodyWorkflows": true
+      }
+    }
+  },
+  {
+    "name": "overlay-dormant-missing-trigger",
+    "expectedCodes": [
+      "E_DORMANT_REVISIT_TRIGGER"
+    ],
+    "input": {
+      "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+      "schemaVersion": "2.0.0",
+      "schemaDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+      "contractId": "repo-template/adoption-shell-v2",
+      "release": {
+        "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+        "schemaVersion": "2.0.0",
+        "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+        "contractId": "repo-template/adoption-shell-v2",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+        "payloadDigest": "1ee9c011578f35fd8a57a0fb7a7c143daf8fd2448b354bc56cf95336ffde6f4a",
+        "entryCount": 2,
+        "migrationRefs": [],
+        "entries": [
+          {
+            "path": "README.md",
+            "kind": "file",
+            "mode": "100644",
+            "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+            "role": "generic-base-text",
+            "encoding": "utf-8",
+            "bundleId": null,
+            "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+          },
+          {
+            "path": "product-overlay.yaml",
+            "kind": "file",
+            "mode": "100644",
+            "contentSha256": "9b368c0325d47bd4268c3e2627f9965f2d5f9bf572b28e2daf2d77725c4c6886",
+            "role": "generic-base-text",
+            "encoding": "utf-8",
+            "bundleId": null,
+            "contentBase64": "c2NoZW1hVmVyc2lvbjogInByb2R1Y3Qtb3ZlcmxheS92MSIKY29udHJhY3RJZDogInJlcG8tdGVtcGxhdGUvcHJvZHVjdC1vdmVybGF5LXYxIgpwcm9maWxlOiAic3RhbmRhbG9uZS1zZXJ2aWNlIgpwcm92ZW5hbmNlOgogIHRlbXBsYXRlUmVsZWFzZToKICAgIHJlcG9zaXRvcnk6ICJzcGVuY2VyLXNoYWRsZXkvcmVwby10ZW1wbGF0ZSIKICAgIHNlbXZlcjogIjIuMC4wIgogICAgcmVsZWFzZURpZ2VzdDogImNmYjI2Mjk0MmIxOWUxYWE4YzUwOTJiZWE1NjZjZGYyZjJlMzQ1YWUxYTZmMjI2NzY4ZDFmNTYxMmQzYzlmNDYiCiAgICByZWxlYXNlSWQ6ICJyZXBvLXRlbXBsYXRlLXYyLjAuMCIKICBib290c3RyYXBwZWRGcm9tR3VpZGVWZXJzaW9uOiAiMi4wLjAiCiAgbGFzdEF1ZGl0ZWRBZ2FpbnN0R3VpZGVWZXJzaW9uOiAiMi4wLjAiCnBsYXRmb3JtczoKICBleHRlbnNpb246CiAgICByb2xlOiAiZG9ybWFudCIKICAgIHByaW9yaXR5OiA2CiAgICBvd25lcjogInBsYXRmb3JtLXRlYW0iCiAgICBhY2NlcHRhbmNlU3VpdGVzOiBbXQo="
+          }
+        ],
+        "releaseDigest": "789a5ee966e088145ce8a19cbd6852b4204b9331fa66c2206b8112bcc0f90c4e"
+      },
+      "capabilities": {
+        "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+        "schemaVersion": "2.0.0",
+        "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+        "contractId": "repo-template/adoption-shell-v2",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "bundles": [],
+        "registryDigest": "4839f876f0d53a59efcb0e53585ee4a82db099bdac7261cba5fb0528ecf21a48"
+      },
+      "requestedBundles": [],
+      "conformance": {
+        "noLocalIssueTemplateOverride": true,
+        "noPreCustodyWorkflows": true
+      }
+    }
+  },
+  {
+    "name": "overlay-mutable-provenance",
+    "expectedCodes": [
+      "E_PROVENANCE_INCOMPATIBLE"
+    ],
+    "input": {
+      "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/materializer-input.schema.json",
+      "schemaVersion": "2.0.0",
+      "schemaDigest": "fe5527be73d4e652c14c423f428c66bf5c56aa1f206be159e2f566f2a9ba8c97",
+      "contractId": "repo-template/adoption-shell-v2",
+      "release": {
+        "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
+        "schemaVersion": "2.0.0",
+        "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
+        "contractId": "repo-template/adoption-shell-v2",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
+        "payloadDigest": "aeedf9a06717c15177740d5c9c91cbe0e0de24d24f5f0d890ef90193e6ba636f",
+        "entryCount": 2,
+        "migrationRefs": [],
+        "entries": [
+          {
+            "path": "README.md",
+            "kind": "file",
+            "mode": "100644",
+            "contentSha256": "66bb74a2f6bed9c3d7dc238828f51ddd03021bf8d4d92b74b8091e7d582c1b09",
+            "role": "generic-base-text",
+            "encoding": "utf-8",
+            "bundleId": null,
+            "contentBase64": "IyBHZW5lcmljIHNoZWxsCgpUYXJnZXQtc3BlY2lmaWMgc2V0dXAgaGFwcGVucyBhZnRlciBtYXRlcmlhbGl6YXRpb24uCg=="
+          },
+          {
+            "path": "product-overlay.yaml",
+            "kind": "file",
+            "mode": "100644",
+            "contentSha256": "93daae68dafb9d137e751dc081dda12a02c4137e35a21d5f68b5ab315a5f6acb",
+            "role": "generic-base-text",
+            "encoding": "utf-8",
+            "bundleId": null,
+            "contentBase64": "c2NoZW1hVmVyc2lvbjogInByb2R1Y3Qtb3ZlcmxheS92MSIKY29udHJhY3RJZDogInJlcG8tdGVtcGxhdGUvcHJvZHVjdC1vdmVybGF5LXYxIgpwcm9maWxlOiAic3RhbmRhbG9uZS1zZXJ2aWNlIgpwcm92ZW5hbmNlOgogIHRlbXBsYXRlUmVsZWFzZToKICAgIHJlcG9zaXRvcnk6ICJzcGVuY2VyLXNoYWRsZXkvcmVwby10ZW1wbGF0ZSIKICAgIHNlbXZlcjogIjIuMC4wIgogICAgcmVsZWFzZURpZ2VzdDogImNmYjI2Mjk0MmIxOWUxYWE4YzUwOTJiZWE1NjZjZGYyZjJlMzQ1YWUxYTZmMjI2NzY4ZDFmNTYxMmQzYzlmNDYiCiAgICByZWxlYXNlSWQ6ICJyZXBvLXRlbXBsYXRlLXYyLjAuMCIKICBib290c3RyYXBwZWRGcm9tR3VpZGVWZXJzaW9uOiAiaHR0cHM6Ly9naXRodWIuY29tL3NwZW5jZXItc2hhZGxleS9hZ2VudC1vcmNoZXN0cmF0b3IvYmxvYi9tYXN0ZXIvZG9jcy9BSS1GSVJTVC5tZCIKICBsYXN0QXVkaXRlZEFnYWluc3RHdWlkZVZlcnNpb246ICIyLjAuMCIKcGxhdGZvcm1zOgogIHNlcnZpY2U6CiAgICByb2xlOiAicHJpbWFyeSIKICAgIHByaW9yaXR5OiAxCiAgICBvd25lcjogInBsYXRmb3JtLXRlYW0iCiAgICBhY2NlcHRhbmNlU3VpdGVzOgogICAgICAtICJ1bml0Igo="
+          }
+        ],
+        "releaseDigest": "69acffc81e9adb4b9958e8117d7c13c130dfb8023394ff1f3625d7d7952285ab"
+      },
+      "capabilities": {
+        "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
+        "schemaVersion": "2.0.0",
+        "schemaDigest": "956cbe96172c5067e2e67327e63c0ea88542983991c595ad489e5413c6a42dd0",
+        "contractId": "repo-template/adoption-shell-v2",
+        "digestAlgorithm": "sha256-rfc8785-v1",
+        "bundles": [],
+        "registryDigest": "4839f876f0d53a59efcb0e53585ee4a82db099bdac7261cba5fb0528ecf21a48"
+      },
+      "requestedBundles": [],
+      "conformance": {
+        "noLocalIssueTemplateOverride": true,
+        "noPreCustodyWorkflows": true
+      }
+    }
+  },
+  {
     "name": "foreign-targetRepository",
     "expectedCodes": [
       "E_UNKNOWN_PROPERTY"

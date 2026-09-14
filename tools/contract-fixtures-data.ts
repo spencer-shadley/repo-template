@@ -330,10 +330,53 @@ export const proofOfDetectionBundle = bundle({
     },
   ],
 });
+export const productOverlayId = "repo-template/product-registry-overlays";
+export const productOverlayArtifacts = [
+  "component-registry.overlay.yaml",
+  "contracts/overlays/v1/component-registry.overlay.schema.json",
+  "contracts/overlays/v1/product-overlay.schema.json",
+  "contracts/overlays/v1/technology-registry.overlay.schema.json",
+  "docs/adr/0011-product-and-registry-overlays-with-immutable-provenance.md",
+  "product-overlay.yaml",
+  "technology-registry.overlay.yaml",
+];
+export const productOverlayFixtures = [
+  "contracts/overlays/v1/fixtures/invalid-dormant-no-trigger.yaml",
+  "contracts/overlays/v1/fixtures/invalid-mutable-provenance.yaml",
+  "contracts/overlays/v1/fixtures/invalid-role.yaml",
+  "contracts/overlays/v1/fixtures/valid-component-registry.overlay.yaml",
+  "contracts/overlays/v1/fixtures/valid-product-overlay.yaml",
+  "contracts/overlays/v1/fixtures/valid-technology-registry.overlay.yaml",
+];
+export const productOverlayBundle = bundle({
+  id: productOverlayId,
+  version: "1.0.0",
+  dependencies: [],
+  artifacts: productOverlayArtifacts,
+  fixtures: productOverlayFixtures,
+  goldens: [],
+  modes: [],
+});
+export const productOverlayRegistry = registry([productOverlayBundle]);
+export const productOverlayInput = input(
+  release([
+    baseEntry,
+    ...productOverlayArtifacts.map((portablePath) =>
+      fileEntry(portablePath, "capability-config", productOverlayId),
+    ),
+    ...productOverlayFixtures.map((portablePath) =>
+      fileEntry(portablePath, "capability-fixture", productOverlayId),
+    ),
+  ]),
+  productOverlayRegistry,
+  [reference(productOverlayBundle)],
+);
+
 export const portableCapabilityRegistry = registry([
   lintBundle,
   localCiBundle,
   localCiV3Bundle,
+  productOverlayBundle,
   proofOfDetectionBundle,
   qualityLintBundle,
 ]);
@@ -356,3 +399,4 @@ export const lintInput = input(
   lintRegistry,
   [reference(lintBundle)],
 );
+

@@ -94,6 +94,7 @@ void test("valid fixtures materialize deterministically without mutating inputs"
     "minimal-input-shuffled-keys.json",
     "multi-bundle-input.json",
     "portable-docs-input.json",
+    "product-overlay-input.json",
     "user-surface-lint-input.json",
   ]) {
     const input = readMaterializerInput(
