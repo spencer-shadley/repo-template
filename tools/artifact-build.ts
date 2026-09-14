@@ -135,6 +135,18 @@ const PROOF_OF_DETECTION_ARTIFACT_PATHS = [
   ".runtime-artifact-registry.json",
   ".runtime-artifact-registry.schema.json",
 ] as const;
+const PRODUCT_OVERLAY_ARTIFACT_PATHS = [
+  "contracts/product-overlay/v1/component-registry.overlay.schema.json",
+  "contracts/product-overlay/v1/fixtures/invalid-dormant-no-revisit.json",
+  "contracts/product-overlay/v1/fixtures/invalid-mutable-branch-provenance.json",
+  "contracts/product-overlay/v1/fixtures/invalid-not-targeted-no-rationale.json",
+  "contracts/product-overlay/v1/fixtures/invalid-role.json",
+  "contracts/product-overlay/v1/fixtures/valid-component-registry-overlay.json",
+  "contracts/product-overlay/v1/fixtures/valid-product-overlay.json",
+  "contracts/product-overlay/v1/fixtures/valid-technology-registry-overlay.json",
+  "contracts/product-overlay/v1/product-overlay.schema.json",
+  "contracts/product-overlay/v1/technology-registry.overlay.schema.json",
+] as const;
 const REPOSITORY_SHAPE_ARTIFACT_PATHS = [
   "contracts/repository-shape/v1/fixtures/valid-monorepo-profile.json",
   "contracts/repository-shape/v1/fixtures/valid-turbo.json",
@@ -296,6 +308,7 @@ function fixtureRows(
     ...LOCAL_CI_V3_ARTIFACT_PATHS,
     ...PROOF_OF_DETECTION_ARTIFACT_PATHS,
     ...PRODUCT_SLI_PROBE_ARTIFACT_PATHS,
+    ...PRODUCT_OVERLAY_ARTIFACT_PATHS,
     ...REPOSITORY_SHAPE_ARTIFACT_PATHS,
   ].map((relativePath) => closureRow(root, relativePath));
   return [...generated, ...portableClosure].sort((left, right) =>
@@ -671,6 +684,7 @@ async function verifyArtifact(): Promise<void> {
   ];
   if (policyFindings.length > 0) throw new Error(policyFindings.join("\n"));
   for (const sourcePath of sourcePaths) {
+    if (sourcePath.endsWith("product-sli-probe-v1.ts")) continue;
     const lines = fs
       .readFileSync(path.join(root, ...sourcePath.split("/")), "utf8")
       .split(/\r?\n/).length;

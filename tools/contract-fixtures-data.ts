@@ -8,8 +8,11 @@ import {
   SCHEMA_DIGESTS,
   SCHEMA_IDS,
   FULL_STACK_PROFILE,
+  PRODUCT_OVERLAY_BUNDLE_ID,
   REPOSITORY_SHAPE_BUNDLE_ID,
+  createProductOverlayBundle,
   createRepositoryShapeBundle,
+  materializeProductOverlayEntries,
   materializeRepositoryShapeEntries,
   type DeliveryDeclarationV1,
   type DeliveryEventV1,
@@ -377,4 +380,23 @@ export const repositoryShapeInput = input(
   repositoryShapeRegistry,
   [reference(repositoryShapeBundle)],
 );
+
+export const productOverlayId = PRODUCT_OVERLAY_BUNDLE_ID;
+export const productOverlayProfile = FULL_STACK_PROFILE;
+export const productOverlayBundle = createProductOverlayBundle(productOverlayProfile);
+export const productOverlayRegistry = registry([productOverlayBundle]);
+export const productOverlayEntries = materializeProductOverlayEntries(
+  productOverlayProfile,
+  undefined,
+  productOverlayId,
+);
+export const productOverlayInput = input(
+  release([
+    baseEntry,
+    ...productOverlayEntries,
+  ]),
+  productOverlayRegistry,
+  [reference(productOverlayBundle)],
+);
+
 

@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.repo-template.dev/product-overlay/v1/technology-registry.overlay.schema.json",
+  "title": "TechnologyRegistryOverlayV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registryKind",
+    "technologies"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaId": {
+      "const": "https://schemas.repo-template.dev/product-overlay/v1/technology-registry.overlay.schema.json"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "contractId": {
+      "const": "repo-template/product-overlay/v1"
+    },
+    "registryKind": {
+      "type": "string",
+      "enum": [
+        "technology",
+        "technology-overlay"
+      ]
+    },
+    "bootstrappedFromGuideVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lastAuditedAgainstGuideVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "templateRelease": {
+      "type": "string",
+      "minLength": 1
+    },
+    "templateDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "templateCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contractId": {
+          "type": "string"
+        },
+        "templateRelease": {
+          "type": "string",
+          "minLength": 1
+        },
+        "templateDigest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "templateCommit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "bootstrappedFromGuideVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lastAuditedAgainstGuideVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "technologies": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/technologyOverlayEntry"
+      }
+    }
+  },
+  "$defs": {
+    "technologyOverlayEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "preferred-default",
+            "context-preferred",
+            "supported-alternative",
+            "candidate",
+            "legacy-compatibility",
+            "discouraged",
+            "prohibited"
+          ]
+        },
+        "category": {
+          "type": "string"
+        },
+        "contexts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rationale": {
+          "type": "string"
+        },
+        "revisitTrigger": {
+          "type": "string"
+        },
+        "versionPolicy": {
+          "type": "string"
+        },
+        "selectedVersion": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
