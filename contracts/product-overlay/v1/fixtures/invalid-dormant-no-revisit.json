@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schemas.repo-template.dev/product-overlay/v1/product-overlay.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/product-overlay/v1/product-overlay.schema.json",
+  "schemaVersion": "1.0.0",
+  "contractId": "repo-template/product-overlay/v1",
+  "bootstrappedFromGuideVersion": "2.0.0",
+  "lastAuditedAgainstGuideVersion": "2.0.0",
+  "platforms": {
+    "windows": {
+      "role": "dormant"
+    }
+  }
+}
