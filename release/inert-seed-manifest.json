@@ -4,8 +4,8 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "8e4a15f8f2f1e734ae456e6f5f9699d4a9afb9f072b0f916fd8b273041de82c2",
-  "entryCount": 84,
+  "inventoryDigest": "a248c8bd3f2ce4e8bc14c0e9d6abbe10c72046b7aa2d8ebd50cb0b2e9ec767c1",
+  "entryCount": 99,
   "excludedCount": 9,
   "entries": [
     {
@@ -119,6 +119,20 @@
       "gitMode": "100644",
       "contentSha256": "43d85d2ef36292f7527680f25ad7e66aed7c22d55b9afd42d6355bdf4a9deca8",
       "bytes": 4420
+    },
+    {
+      "path": "artifacts/adoption-shell-v2/product-sli-probe-v1.d.ts",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "36dc3c859b8e72697fe6867671d24f65e5c8168fee722a353a8a5da3da78faef",
+      "bytes": 6443
+    },
+    {
+      "path": "artifacts/adoption-shell-v2/product-sli-probe-v1.js",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "ec094e396e08b0584b99094f5b44a1743f7a02010b6f966ef5c7a9c0f392ed4b",
+      "bytes": 22139
     },
     {
       "path": "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
@@ -303,6 +317,97 @@
       "bytes": 1793
     },
     {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-destructive-effect.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "5e39c3bf5d31aad9e487abe3ea9c114425f3cef9f76cf64845ca341127136303",
+      "bytes": 965
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-duplicate-id.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "66339e9ea3d327dde0f3d2c9927e0bbb299ac8dfec6e1e12028536ff0754d2ee",
+      "bytes": 1198
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-missing-required.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "8c4490c6cb1a78e2148a8e1c3185e34d5747fca92aa4aa22f5be137d6b8a4a42",
+      "bytes": 401
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-path-escape.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "ed4225208e4ce0f877c696ef42243f37cc6718cc91b9715ed9c19bb5286540b0",
+      "bytes": 950
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-shell-injection.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "2de272fd533c8577761d0090b1006e8874e51e41826bb7561433ad3fc3d68c2e",
+      "bytes": 965
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-spend-effect.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "60e372f1794a75af8fab5a6f710c98b96e27d60876af68adf120aad74a76289b",
+      "bytes": 935
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/invalid-unsupported-version.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "acb1b102355c9226a8493008c6db1ed19207834cec93bbe32937954b2bfc8bf3",
+      "bytes": 366
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/report-only-probe.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "19eabc4cbc9be4f0c50531738ba19a6f964dd09508d7eb4f8d876af56d6a2440",
+      "bytes": 1032
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/valid-gmail-read-only.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "1343649d236179d60bbbad4ef03800624837395f7e1f6613b4f93d2f60643b24",
+      "bytes": 1181
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/fixtures/valid-sharingan-read-only.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "3dbe56ccf4c76959fa2c767e7d77bf31aabaf800d107a7083f0545dddbc1af0c",
+      "bytes": 1174
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/product-sli-observation.schema.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "0bd8ea48c4be5ebfb77d65ecee1dde5357d2dbf0dedda8aa608a52670634dfc1",
+      "bytes": 2694
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/product-sli-probe.example.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "10fe7d24fcbb9b0336a6446b2e1c8599246165d0dee81518d65e4fcbca6a8cce",
+      "bytes": 1792
+    },
+    {
+      "path": "contracts/product-sli-probe/v1/product-sli-probe.schema.json",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "9416a2abcf524a594f80371586186e3d2dcdaceb184acc333241079de1596ea9",
+      "bytes": 5125
+    },
+    {
       "path": "docs/ARCHITECTURE.md",
       "templateMode": "copy",
       "gitMode": "100644",
@@ -320,8 +425,8 @@
       "path": "docs/MIGRATION.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "8f224caffc72faa3ef882d3cce93f6530f3fef940d00f2cf9c573ebd58f94122",
-      "bytes": 16425
+      "contentSha256": "7a312cb0165d63e56866375cfc32a555addccb25e95044b1e90e43e727bb9d07",
+      "bytes": 19458
     },
     {
       "path": "docs/OBSERVABILITY.md",
@@ -644,5 +749,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "ef943edc1093721c8e22014a8cd32ec72fc649c36aec4977b794b29325607082"
+  "manifestDigest": "d8a0cdb7e55fade17a50bfd8578b18db284692b48e69780d2b7810bad0bb8d1d"
 }
