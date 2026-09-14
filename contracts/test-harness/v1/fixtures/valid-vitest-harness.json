@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schemas.repo-template.dev/test-harness/v1/test-harness.schema.json",
+  "schemaId": "https://schemas.repo-template.dev/test-harness/v1/test-harness.schema.json",
+  "schemaVersion": "1.0.0",
+  "contractId": "repo-template/test-harness/v1",
+  "profileId": "full-stack",
+  "framework": "vitest",
+  "language": "typescript",
+  "configPath": "vitest.config.ts",
+  "smokeTestPath": "test/smoke.test.ts",
+  "vitestVersion": "3.0.7",
+  "declaredScripts": [
+    "build",
+    "lint",
+    "test",
+    "verify"
+  ]
+}

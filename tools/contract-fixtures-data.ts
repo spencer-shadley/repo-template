@@ -10,10 +10,14 @@ import {
   FULL_STACK_PROFILE,
   PRODUCT_OVERLAY_BUNDLE_ID,
   REPOSITORY_SHAPE_BUNDLE_ID,
+  TEST_HARNESS_BUNDLE_ID,
   createProductOverlayBundle,
   createRepositoryShapeBundle,
+  createTestHarnessBundle,
   materializeProductOverlayEntries,
   materializeRepositoryShapeEntries,
+  materializeTestHarnessEntries,
+  mergePackageJsonWithTestHarness,
   type DeliveryDeclarationV1,
   type DeliveryEventV1,
 } from "../packages/adoption-shell/src/index.ts";
@@ -397,6 +401,42 @@ export const productOverlayInput = input(
   ]),
   productOverlayRegistry,
   [reference(productOverlayBundle)],
+);
+
+export const testHarnessId = TEST_HARNESS_BUNDLE_ID;
+export const testHarnessProfile = FULL_STACK_PROFILE;
+export const testHarnessBundle = createTestHarnessBundle(testHarnessProfile);
+export const testHarnessRegistry = registry([testHarnessBundle]);
+export const testHarnessEntries = materializeTestHarnessEntries(
+  testHarnessProfile,
+  undefined,
+  testHarnessId,
+);
+export const testHarnessPackageJsonEntry = textEntry(
+  "package.json",
+  mergePackageJsonWithTestHarness(
+    JSON.stringify({
+      name: "generated-consumer",
+      version: "0.0.0",
+      private: true,
+      type: "module",
+      scripts: {
+        build: "tsc",
+        verify: "pnpm test",
+      },
+    }),
+  ),
+  "generic-base-text",
+  null,
+);
+export const testHarnessInput = input(
+  release([
+    baseEntry,
+    testHarnessPackageJsonEntry,
+    ...testHarnessEntries,
+  ]),
+  testHarnessRegistry,
+  [reference(testHarnessBundle)],
 );
 
 
