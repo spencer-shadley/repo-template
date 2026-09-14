@@ -354,5 +354,12 @@
   "contracts/local-ci/v3/canary-candidate-receipt.schema.json": "self",
   "contracts/local-ci/v3/pre-publication-receipt.json": "self",
   "packages/adoption-shell/test/local-ci-v3-candidate.test.ts": "self",
-  "scripts/freeze-local-ci-v3-candidate.ts": "self"
+  "scripts/freeze-local-ci-v3-candidate.ts": "self",
+  "contracts/local-ci/v3/post-publication-readback-receipt.json": "self",
+  "contracts/local-ci/v3/post-publication-readback-receipt.schema.json": "self",
+  "contracts/local-ci/v3/post-publication-receipt.json": "self",
+  "contracts/local-ci/v3/published-release-receipt.json": "self",
+  "docs/receipts/receipt-issue-341-mu15pl0x.json": "self",
+  "packages/adoption-shell/test/local-ci-v3-release.test.ts": "self",
+  "scripts/publish-local-ci-v3-release.ts": "self"
 }
