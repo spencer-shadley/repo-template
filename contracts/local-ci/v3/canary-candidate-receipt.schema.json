@@ -340,6 +340,8 @@
         "repositoryVerification",
         "evidenceBoundCommit",
         "evidencePath",
+        "evidenceDigest",
+        "evidenceSource",
         "checks"
       ],
       "properties": {
@@ -351,6 +353,12 @@
         },
         "evidencePath": {
           "type": "string"
+        },
+        "evidenceDigest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "evidenceSource": {
+          "const": "committed-bytes"
         },
         "checks": {
           "type": "object",

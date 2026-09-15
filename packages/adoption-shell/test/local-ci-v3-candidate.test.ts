@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -29,6 +30,7 @@ import {
   loadFrozenCapabilityRegistry,
   loadFrozenPayloadSet,
   loadVerificationEvidence,
+  readCommittedBytes,
   readFrozenBlob,
   readFrozenVersion,
   resolveCommitTree,
@@ -596,6 +598,71 @@ void test("RT-340b: a frozen manifest that parses but is not a JSON object is re
   assert.ok(
     codes.includes("E_FROZEN_INPUT_UNREADABLE") || codes.includes("E_FROZEN_INPUT_MISMATCH"),
     JSON.stringify(codes),
+  );
+});
+
+// --- repo-template#368 (RT-340c) ------------------------------------------
+// RT-340b left one working-tree read whose content reached `receiptDigest`:
+// `loadVerificationEvidence()` read the ledger with `fs.readFileSync`, and each
+// check's `startedAt`/`finishedAt` were copied into the digested receipt body.
+// The PR #365 reviewer moved one `finishedAt` to 2099 and `receiptDigest` moved
+// with it, while `candidate.commit`, `candidate.tree` and
+// `treeVerification.matches: true` stayed correct and every gate accepted the
+// result. The ledger provably cannot live in the frozen tree -- evidence about a
+// commit postdates that commit -- so it is bound to committed bytes instead.
+
+void test("RT-340c: an uncommitted edit to the verification evidence ledger cannot reach receiptDigest", () => {
+  const relativePath = "contracts/local-ci/v3/verification-evidence.json";
+  const fullPath = path.join(root, ...relativePath.split("/"));
+  const original = fs.readFileSync(fullPath);
+  const before = serializeReceipt(buildPrePublicationReceipt());
+
+  const ledger: unknown = JSON.parse(original.toString("utf8"));
+  assert.ok(ledger !== null && typeof ledger === "object", "ledger must be a JSON object");
+  const checks = (ledger as { checks: Record<string, { finishedAt: string }> }).checks;
+  const [firstCheckId] = Object.keys(checks);
+  assert.ok(firstCheckId, "the ledger must contain at least one check");
+  const firstCheck = checks[firstCheckId];
+  assert.ok(firstCheck, "the first check must exist");
+
+  // The reviewer's exact mutation.
+  firstCheck.finishedAt = "2099-01-01T00:00:00.000Z";
+  try {
+    fs.writeFileSync(fullPath, `${JSON.stringify(ledger, null, 2)}
+`, "utf8");
+    assert.throws(
+      () => buildPrePublicationReceipt(),
+      /differ from its committed bytes/,
+      "an uncommitted ledger edit must refuse the freeze, never mint a new receiptDigest",
+    );
+    assert.throws(() => loadVerificationEvidence(), /differ from its committed bytes/);
+  } finally {
+    fs.writeFileSync(fullPath, original);
+  }
+
+  assert.equal(
+    serializeReceipt(buildPrePublicationReceipt()),
+    before,
+    "restoring the committed bytes must restore the exact receipt",
+  );
+});
+
+void test("RT-340c: the receipt names the exact evidence bytes it consumed", () => {
+  const receipt = loadReceipt("contracts/local-ci/v3/pre-publication-receipt.json");
+  assert.equal(receipt.verification.evidenceSource, "committed-bytes");
+  assert.equal(
+    receipt.verification.evidenceDigest,
+    createHash("sha256")
+      .update(readCommittedBytes("contracts/local-ci/v3/verification-evidence.json"))
+      .digest("hex"),
+  );
+  assert.equal(receipt.verification.evidenceBoundCommit, FROZEN_CANDIDATE_COMMIT);
+});
+
+void test("RT-340c: readCommittedBytes rejects a file that is not committed at HEAD", () => {
+  assert.throws(
+    () => readCommittedBytes("contracts/local-ci/v3/does-not-exist-rt340c.json"),
+    /Failed to read committed bytes/,
   );
 });
 

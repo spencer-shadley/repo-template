@@ -9,7 +9,7 @@
   "issue": "https://github.com/spencer-shadley/repo-template/issues/341",
   "producerFreezeIssue": "https://github.com/spencer-shadley/repo-template/issues/340",
   "producerCandidateReceiptId": "receipt-issue-340-rt340repair1",
-  "producerCandidateReceiptDigest": "79d5c6963c7e30dc7cec9e7fd4a2a31d099fadea09a5d08602b2f85676e2fc18",
+  "producerCandidateReceiptDigest": "e7021ea10b694f37b03275a7cbd9c9ea6ca0d3b72f1806c2e3ed50814897bb5d",
   "candidate": {
     "repository": "spencer-shadley/repo-template",
     "origin": "https://github.com/spencer-shadley/repo-template.git",
@@ -327,5 +327,5 @@
   },
   "publicationTime": "2026-09-14T11:25:00Z",
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "07ba50339761f3a136ade331b135482297df04c097d4b641a5781b2fd3aadc53"
+  "receiptDigest": "af24d9dadb9c979bafa6340ff5436fd2af8abc0163c3be7ab42794a63ee30894"
 }
