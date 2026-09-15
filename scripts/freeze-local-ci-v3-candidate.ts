@@ -1089,7 +1089,7 @@ function selfTestEvidenceLedgerIsCommitted(receipt: PrePublicationReceipt): void
  */
 function mutateTimestamp(current: unknown, checkId: string): string {
   if (typeof current !== "string" || Number.isNaN(Date.parse(current))) {
-    throw new Error(
+    throw new TypeError(
       `Check "${checkId}" in ${VERIFICATION_EVIDENCE_PATH} has no parseable finishedAt timestamp to mutate.`,
     );
   }
@@ -1141,7 +1141,12 @@ function selfTestEvidenceLedgerDigestIsPinned(): void {
       "A timestamp-only re-record of the verification evidence ledger was accepted. The pinned digest must refuse it: the ledger's timestamps reach receiptDigest, so accepting it moves the published cross-repository identity for a non-substantive change (repo-template#368).",
     );
   }
-  const message = refusal instanceof Error ? refusal.message : String(refusal);
+  if (!(refusal instanceof Error)) {
+    throw new TypeError(
+      `The pinned-ledger gate must refuse with an Error so the caller gets a message it can act on; it threw a ${typeof refusal}.`,
+    );
+  }
+  const message = refusal.message;
   for (const required of [
     sha256Bytes(reRecorded),
     FROZEN_VERIFICATION_EVIDENCE_DIGEST,

@@ -719,7 +719,7 @@ const CLONE_GIT_IDENTITY = [
 ] as const;
 
 const LEDGER_PATH = "contracts/local-ci/v3/verification-evidence.json";
-const NEWLINE = String.fromCharCode(10);
+const NEWLINE = "\n";
 
 function gitIn(cwd: string, args: readonly string[]): string {
   return execFileSync("git", [...args], { cwd, encoding: "utf8" }).trim();
@@ -819,7 +819,7 @@ function runFreeze(clone: string, mode: string): { status: number; output: strin
   });
   return {
     status: result.status ?? 1,
-    output: (result.stdout ?? "") + (result.stderr ?? ""),
+    output: result.stdout + result.stderr,
   };
 }
 
