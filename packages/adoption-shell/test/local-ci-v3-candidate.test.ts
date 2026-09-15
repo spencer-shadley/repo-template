@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -19,8 +20,10 @@ import {
   FROZEN_CANDIDATE_COMMIT,
   FROZEN_CANDIDATE_TREE,
   FROZEN_SEMVER,
+  FROZEN_VERIFICATION_EVIDENCE_DIGEST,
   RECEIPT_ID,
   TARGET_RECEIPT_PATHS,
+  assertVerificationEvidenceDigestIsPinned,
   buildPrePublicationReceipt,
   buildVerificationFromEvidence,
   buildVersionBinding,
@@ -29,6 +32,7 @@ import {
   loadFrozenCapabilityRegistry,
   loadFrozenPayloadSet,
   loadVerificationEvidence,
+  readCommittedBytes,
   readFrozenBlob,
   readFrozenVersion,
   resolveCommitTree,
@@ -599,6 +603,71 @@ void test("RT-340b: a frozen manifest that parses but is not a JSON object is re
   );
 });
 
+// --- repo-template#368 (RT-340c) ------------------------------------------
+// RT-340b left one working-tree read whose content reached `receiptDigest`:
+// `loadVerificationEvidence()` read the ledger with `fs.readFileSync`, and each
+// check's `startedAt`/`finishedAt` were copied into the digested receipt body.
+// The PR #365 reviewer moved one `finishedAt` to 2099 and `receiptDigest` moved
+// with it, while `candidate.commit`, `candidate.tree` and
+// `treeVerification.matches: true` stayed correct and every gate accepted the
+// result. The ledger provably cannot live in the frozen tree -- evidence about a
+// commit postdates that commit -- so it is bound to committed bytes instead.
+
+void test("RT-340c: an uncommitted edit to the verification evidence ledger cannot reach receiptDigest", () => {
+  const relativePath = "contracts/local-ci/v3/verification-evidence.json";
+  const fullPath = path.join(root, ...relativePath.split("/"));
+  const original = fs.readFileSync(fullPath);
+  const before = serializeReceipt(buildPrePublicationReceipt());
+
+  const ledger: unknown = JSON.parse(original.toString("utf8"));
+  assert.ok(ledger !== null && typeof ledger === "object", "ledger must be a JSON object");
+  const checks = (ledger as { checks: Record<string, { finishedAt: string }> }).checks;
+  const [firstCheckId] = Object.keys(checks);
+  assert.ok(firstCheckId, "the ledger must contain at least one check");
+  const firstCheck = checks[firstCheckId];
+  assert.ok(firstCheck, "the first check must exist");
+
+  // The reviewer's exact mutation.
+  firstCheck.finishedAt = "2099-01-01T00:00:00.000Z";
+  try {
+    fs.writeFileSync(fullPath, `${JSON.stringify(ledger, null, 2)}
+`, "utf8");
+    assert.throws(
+      () => buildPrePublicationReceipt(),
+      /differ from its committed bytes/,
+      "an uncommitted ledger edit must refuse the freeze, never mint a new receiptDigest",
+    );
+    assert.throws(() => loadVerificationEvidence(), /differ from its committed bytes/);
+  } finally {
+    fs.writeFileSync(fullPath, original);
+  }
+
+  assert.equal(
+    serializeReceipt(buildPrePublicationReceipt()),
+    before,
+    "restoring the committed bytes must restore the exact receipt",
+  );
+});
+
+void test("RT-340c: the receipt names the exact evidence bytes it consumed", () => {
+  const receipt = loadReceipt("contracts/local-ci/v3/pre-publication-receipt.json");
+  assert.equal(receipt.verification.evidenceSource, "committed-bytes");
+  assert.equal(
+    receipt.verification.evidenceDigest,
+    createHash("sha256")
+      .update(readCommittedBytes("contracts/local-ci/v3/verification-evidence.json"))
+      .digest("hex"),
+  );
+  assert.equal(receipt.verification.evidenceBoundCommit, FROZEN_CANDIDATE_COMMIT);
+});
+
+void test("RT-340c: readCommittedBytes rejects a file that is not committed at HEAD", () => {
+  assert.throws(
+    () => readCommittedBytes("contracts/local-ci/v3/does-not-exist-rt340c.json"),
+    /Failed to read committed bytes/,
+  );
+});
+
 void test("RT-340b: the receipt binds the frozen tree's own VERSION/TEMPLATE_VERSION and refuses a reused or regressed identity", () => {
   const receipt = loadReceipt("contracts/local-ci/v3/pre-publication-receipt.json");
 
@@ -622,4 +691,338 @@ void test("RT-340b: the receipt binds the frozen tree's own VERSION/TEMPLATE_VER
   );
   assert.throws(() => buildVersionBinding("3.0.0"), /not strictly ahead/);
   assert.throws(() => buildVersionBinding("3.2"), /bare X\.Y\.Z semver/);
+});
+
+// ---------------------------------------------------------------------------
+// repo-template#368 (RT-340c, repair round 2): the COMMITTED re-record attack.
+//
+// Round 1 bound the evidence ledger to committed bytes, which closed the
+// uncommitted path. The independent exact-head review of PR #369 (review
+// 5206050540) then proved by execution that committing the same mutation still
+// worked: one `finishedAt` 2026-09-15T03:15:05.604Z -> 2026-09-15T03:15:06.999Z
+// moved `receiptDigest` e7021ea1... -> e6821fb9..., and `--write`, `--check`,
+// `--self-test` and the consumer validator all exited 0.
+//
+// These two tests run that attack for real. They cannot run in-process: the
+// mutation must be COMMITTED, and committing in the lane's own worktree would
+// corrupt it. So they clone the repository (replaying the current working-tree
+// state of every tracked file this change has modified, so the code under test
+// is the code on disk rather than the last commit), commit the re-record there,
+// and run the real CLI gates inside the throwaway clone.
+// ---------------------------------------------------------------------------
+
+const CLONE_GIT_IDENTITY = [
+  "-c",
+  "user.name=rt340c-test",
+  "-c",
+  "user.email=rt340c@example.invalid",
+] as const;
+
+const LEDGER_PATH = "contracts/local-ci/v3/verification-evidence.json";
+const NEWLINE = "\n";
+
+function gitIn(cwd: string, args: readonly string[]): string {
+  return execFileSync("git", [...args], { cwd, encoding: "utf8" }).trim();
+}
+
+/**
+ * Clone the repository at HEAD into a throwaway directory and replay every
+ * tracked modification the working tree currently carries, so the clone
+ * exercises the bytes on disk. Returns the clone path; the caller removes it.
+ */
+function cloneWorkingStateAtHead(label: string): string {
+  const clone = path.join(fs.mkdtempSync(path.join(os.tmpdir(), label)), "repo");
+  gitIn(root, ["clone", "--quiet", "--no-hardlinks", root, clone]);
+
+  // `--name-only -z --no-renames` is the enumeration that cannot lose a path:
+  // NUL-separated so a path with spaces or non-ASCII bytes is never quoted or
+  // split, `--no-renames` so a rename appears as both its old and its new path
+  // rather than one record this loop would have to decompose, and `HEAD` so
+  // staged and unstaged changes are covered together. Untracked files are
+  // excluded by construction, which is what keeps the lane's own heartbeat logs
+  // out of the clone. A dropped path here would silently leave the clone on
+  // HEAD bytes while every assertion below still passed.
+  const dirty = execFileSync("git", ["diff", "--name-only", "-z", "--no-renames", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  })
+    .split("\0")
+    .filter((entry) => entry.length > 0);
+  for (const relative of dirty) {
+    const source = path.join(root, ...relative.split("/"));
+    const destination = path.join(clone, ...relative.split("/"));
+    if (fs.existsSync(source)) {
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.copyFileSync(source, destination);
+    } else {
+      fs.rmSync(destination, { force: true });
+    }
+  }
+  if (dirty.length > 0) {
+    gitIn(clone, ["add", "--all"]);
+    gitIn(clone, [
+      ...CLONE_GIT_IDENTITY,
+      "commit",
+      "--quiet",
+      "-m",
+      "working-tree state under test",
+    ]);
+  }
+  assert.equal(
+    gitIn(clone, ["status", "--porcelain"]),
+    "",
+    "the clone must start from a clean, fully committed tree",
+  );
+  // A clean clone is not proof the replay worked: a path the enumeration missed
+  // would leave the clone on HEAD bytes and still look clean. Assert the two
+  // inputs these tests actually depend on really are the bytes on disk.
+  for (const relative of ["scripts/freeze-local-ci-v3-candidate.ts", LEDGER_PATH]) {
+    assert.equal(
+      fs.readFileSync(path.join(clone, ...relative.split("/"))).equals(
+        fs.readFileSync(path.join(root, ...relative.split("/"))),
+      ),
+      true,
+      `the clone must carry the working-tree bytes of ${relative}, not HEAD's`,
+    );
+  }
+  return clone;
+}
+
+/** Commit the reviewer's exact attack: one timestamp moved, nothing substantive. */
+function commitTimestampOnlyReRecord(clone: string): { before: string; after: string } {
+  const fullPath = path.join(clone, ...LEDGER_PATH.split("/"));
+  const original = fs.readFileSync(fullPath);
+  const ledger = JSON.parse(original.toString("utf8")) as {
+    checks: Record<
+      string,
+      { finishedAt: string; exitCode: number; result: string; command: string }
+    >;
+  };
+  const [firstCheckId] = Object.keys(ledger.checks);
+  assert.ok(firstCheckId, "the ledger must contain at least one check");
+  const firstCheck = ledger.checks[firstCheckId];
+  assert.ok(firstCheck, "the first check must exist");
+  const before = firstCheck.finishedAt;
+  const after = new Date(Date.parse(before) + 1_395).toISOString();
+  firstCheck.finishedAt = after;
+
+  const rewritten = Buffer.from(JSON.stringify(ledger, null, 2) + NEWLINE, "utf8");
+  assert.equal(rewritten.equals(original), false, "the re-record must change the ledger bytes");
+
+  // Nothing a consumer must trust changes: same commands, same exit codes, same
+  // results. Only a timestamp moves. This is what makes the attack the hazard
+  // rather than an ordinary substantive edit.
+  const committed = JSON.parse(gitIn(clone, ["show", "HEAD:" + LEDGER_PATH])) as typeof ledger;
+  for (const [id, check] of Object.entries(ledger.checks)) {
+    const previous = committed.checks[id];
+    assert.ok(previous, `check ${id} must exist before the re-record`);
+    assert.equal(check.command, previous.command);
+    assert.equal(check.exitCode, previous.exitCode);
+    assert.equal(check.result, previous.result);
+  }
+
+  fs.writeFileSync(fullPath, rewritten);
+  gitIn(clone, [
+    ...CLONE_GIT_IDENTITY,
+    "commit",
+    "--quiet",
+    "-a",
+    "-m",
+    "re-record verification evidence timestamps",
+  ]);
+  assert.equal(gitIn(clone, ["status", "--porcelain"]), "", "the re-record must be committed");
+  return { before, after };
+}
+
+function runFreeze(clone: string, mode: string): { status: number; output: string } {
+  const result = spawnSync("node", ["scripts/freeze-local-ci-v3-candidate.ts", mode], {
+    cwd: clone,
+    encoding: "utf8",
+  });
+  return {
+    status: result.status ?? 1,
+    output: result.stdout + result.stderr,
+  };
+}
+
+function receiptDigestIn(clone: string): string {
+  const receipt = JSON.parse(
+    fs.readFileSync(
+      path.join(clone, "contracts", "local-ci", "v3", "pre-publication-receipt.json"),
+      "utf8",
+    ),
+  ) as PrePublicationReceipt;
+  return receipt.receiptDigest;
+}
+
+void test("RT-340c: every freeze gate refuses a COMMITTED timestamp-only re-record of the evidence ledger", () => {
+  const clone = cloneWorkingStateAtHead("rt340c-pinned-");
+  try {
+    const frozenDigest = receiptDigestIn(clone);
+    const { before, after } = commitTimestampOnlyReRecord(clone);
+    assert.notEqual(before, after);
+
+    for (const mode of ["--write", "--check", "--self-test"]) {
+      const { status, output } = runFreeze(clone, mode);
+      assert.notEqual(
+        status,
+        0,
+        `freeze ${mode} accepted a committed timestamp-only re-record. The ledger's timestamps reach receiptDigest, so accepting it moves the cross-repository identity repo-template#341, model-gateway#991 and repo-factory#187 pin, for a non-substantive change (repo-template#368). Output: ${output}`,
+      );
+      assert.ok(
+        output.includes(FROZEN_VERIFICATION_EVIDENCE_DIGEST),
+        `freeze ${mode} must name the pinned digest it expected. Output: ${output}`,
+      );
+      assert.match(
+        output,
+        /has sha256 [0-9a-f]{64}, but this candidate identity is frozen against sha256/,
+        `freeze ${mode} must name both the observed and the pinned digest (DOCTRINE section 51). Output: ${output}`,
+      );
+      assert.ok(
+        output.includes("FROZEN_VERIFICATION_EVIDENCE_DIGEST"),
+        `freeze ${mode} must name the deliberate exit (DOCTRINE section 51). Output: ${output}`,
+      );
+    }
+
+    // A refused --write must mint nothing at all.
+    assert.equal(
+      receiptDigestIn(clone),
+      frozenDigest,
+      "a refused freeze must leave the committed receipt untouched",
+    );
+    assert.equal(
+      gitIn(clone, ["status", "--porcelain"]),
+      "",
+      "a refused --write must not rewrite the receipt files",
+    );
+
+    // DOCTRINE section 51 corollary 1: the exit the refusal prescribes must
+    // actually change the refused state, not merely be asserted.
+    const history = gitIn(clone, ["log", "--format=%H", "--", LEDGER_PATH]).split(NEWLINE);
+    const pinnedAt = history[1];
+    assert.ok(pinnedAt, "the prescribed git log must find the commit carrying the pinned bytes");
+    gitIn(clone, ["checkout", pinnedAt, "--", LEDGER_PATH]);
+    gitIn(clone, [
+      ...CLONE_GIT_IDENTITY,
+      "commit",
+      "--quiet",
+      "-a",
+      "-m",
+      "restore the pinned ledger bytes",
+    ]);
+    assert.equal(
+      runFreeze(clone, "--check").status,
+      0,
+      "the exit the refusal prescribes must actually clear the refusal",
+    );
+  } finally {
+    fs.rmSync(path.dirname(clone), { recursive: true, force: true });
+  }
+});
+
+void test("RT-340c negative control: without the pinned digest the same committed re-record is accepted and moves receiptDigest", () => {
+  const clone = cloneWorkingStateAtHead("rt340c-unpinned-");
+  try {
+    commitTimestampOnlyReRecord(clone);
+
+    // Remove ONLY the pin: turn the gate into a pass-through and leave RT-340c
+    // round 1's committed-bytes binding fully intact. Whatever this control
+    // reproduces is therefore attributable to the pin and to nothing else.
+    const scriptPath = path.join(clone, "scripts", "freeze-local-ci-v3-candidate.ts");
+    const marker =
+      "export function assertVerificationEvidenceDigestIsPinned(bytes: Buffer): Buffer {";
+    const source = fs.readFileSync(scriptPath, "utf8");
+    assert.ok(source.includes(marker), "the pinned-digest gate must exist to be removable");
+    fs.writeFileSync(
+      scriptPath,
+      source.replace(marker, marker + NEWLINE + "  return bytes; // negative control: pin removed"),
+      "utf8",
+    );
+    gitIn(clone, [
+      ...CLONE_GIT_IDENTITY,
+      "commit",
+      "--quiet",
+      "-a",
+      "-m",
+      "negative control: remove the pinned-ledger gate",
+    ]);
+
+    const before = receiptDigestIn(clone);
+    const write = runFreeze(clone, "--write");
+    assert.equal(
+      write.status,
+      0,
+      `without the pin the freeze must accept the re-record: that is the defect repo-template#368 was reopened for. Output: ${write.output}`,
+    );
+    const after = receiptDigestIn(clone);
+    assert.notEqual(
+      after,
+      before,
+      "without the pin a timestamp-only re-record must move receiptDigest; if it does not, this control proves nothing about what the pin is doing",
+    );
+
+    gitIn(clone, [
+      ...CLONE_GIT_IDENTITY,
+      "commit",
+      "--quiet",
+      "-a",
+      "-m",
+      "mint the re-recorded receipt",
+    ]);
+    assert.equal(
+      runFreeze(clone, "--check").status,
+      0,
+      "without the pin --check accepts the moved identity, exactly as review 5206050540 found",
+    );
+
+    // ...and so does the consumer validator. Nothing downstream objects either,
+    // which is why the gate has to live on the producer.
+    const moved = JSON.parse(
+      fs.readFileSync(
+        path.join(clone, "contracts", "local-ci", "v3", "pre-publication-receipt.json"),
+        "utf8",
+      ),
+    ) as unknown;
+    assert.equal(
+      validateLocalCiV3CandidateReceiptV1(moved).ok,
+      true,
+      "the moved receipt is internally consistent: no consumer-side check can see this",
+    );
+  } finally {
+    fs.rmSync(path.dirname(clone), { recursive: true, force: true });
+  }
+});
+
+void test("RT-340c: the pinned-ledger gate accepts the pinned bytes and refuses a timestamp-only re-record", () => {
+  const pinned = readCommittedBytes(LEDGER_PATH);
+  assert.equal(
+    createHash("sha256").update(pinned).digest("hex"),
+    FROZEN_VERIFICATION_EVIDENCE_DIGEST,
+    "the committed ledger must be the exact bytes the constant names",
+  );
+  assert.equal(assertVerificationEvidenceDigestIsPinned(pinned), pinned);
+
+  const ledger = JSON.parse(pinned.toString("utf8")) as {
+    checks: Record<string, { finishedAt: string }>;
+  };
+  const [firstCheckId] = Object.keys(ledger.checks);
+  assert.ok(firstCheckId, "the ledger must contain at least one check");
+  const firstCheck = ledger.checks[firstCheckId];
+  assert.ok(firstCheck, "the first check must exist");
+  firstCheck.finishedAt = new Date(Date.parse(firstCheck.finishedAt) + 1_000).toISOString();
+  assert.throws(
+    () =>
+      assertVerificationEvidenceDigestIsPinned(
+        Buffer.from(JSON.stringify(ledger, null, 2) + NEWLINE, "utf8"),
+      ),
+    // Built from the imported constant, never a copied literal (PR #369
+    // CodeRabbit nit): a reviewed bump of FROZEN_VERIFICATION_EVIDENCE_DIGEST
+    // must not leave this assertion silently passing against the old digest.
+    (error: unknown) =>
+      error instanceof Error &&
+      error.message.includes(
+        `is frozen against sha256 ${FROZEN_VERIFICATION_EVIDENCE_DIGEST}`,
+      ),
+    "a timestamp-only re-record must be refused by the pin",
+  );
 });

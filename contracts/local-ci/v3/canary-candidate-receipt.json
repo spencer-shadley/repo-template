@@ -217,6 +217,8 @@
     "repositoryVerification": "green",
     "evidenceBoundCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
     "evidencePath": "contracts/local-ci/v3/verification-evidence.json",
+    "evidenceDigest": "4909577d95def2b0b5c8094f0eead2f16d70c4a069ddd389b6322270dc5fa378",
+    "evidenceSource": "committed-bytes",
     "checks": {
       "proof-of-detection-self-test": {
         "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
@@ -281,5 +283,5 @@
     }
   },
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "79d5c6963c7e30dc7cec9e7fd4a2a31d099fadea09a5d08602b2f85676e2fc18"
+  "receiptDigest": "e7021ea10b694f37b03275a7cbd9c9ea6ca0d3b72f1806c2e3ed50814897bb5d"
 }

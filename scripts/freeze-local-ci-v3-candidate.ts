@@ -33,6 +33,37 @@ export const FROZEN_SEMVER = "3.2.0";
 export const RECEIPT_ID = "receipt-issue-340-rt340repair1";
 const TREE_VERIFICATION_METHOD = "git rev-parse <commit>^{tree}";
 
+/**
+ * The exact sha256 of the committed verification evidence ledger this candidate
+ * identity was frozen against.
+ *
+ * repo-template#368 (RT-340c, repair round 2): binding the ledger to committed
+ * bytes closed the *uncommitted* attack, but the independent exact-head review
+ * of PR #369 (review 5206050540) proved by execution that the *committed* one
+ * survived at full strength. Committing a timestamp-only re-record -- one
+ * `finishedAt` 2026-09-15T03:15:05.604Z -> 2026-09-15T03:15:06.999Z, nothing
+ * substantive -- moved `receiptDigest` e7021ea1... -> e6821fb9..., while
+ * `candidate.commit`, `candidate.tree` and `treeVerification.matches: true`
+ * stayed correct, and `--write`, `--check`, `--self-test` and the consumer
+ * validator all exited 0.
+ *
+ * The ledger is the ONLY receipt input read from mutable `HEAD`. Every other
+ * input is read out of the frozen commit's own tree, where no later commit can
+ * reach it; the ledger provably cannot live there, because evidence about a
+ * commit postdates that commit. This constant supplies the immutability the
+ * frozen tree supplies for everything else: the bytes are named, so any change
+ * to them -- timestamp-only included -- fails every freeze gate closed until
+ * this constant is deliberately bumped in the same reviewed change.
+ *
+ * Bumping it is the deliberate exit (DOCTRINE §51) and is a cross-repository
+ * identity change: `receiptDigest` moves, so the publication receipts and
+ * `PRODUCER_CANDIDATE_RECEIPT_DIGEST` in scripts/publish-local-ci-v3-release.ts
+ * move with it, and the canary pins in model-gateway#991 / repo-factory#187
+ * must be re-bound. Never bump it to make a red gate go green.
+ */
+export const FROZEN_VERIFICATION_EVIDENCE_DIGEST =
+  "4909577d95def2b0b5c8094f0eead2f16d70c4a069ddd389b6322270dc5fa378";
+
 // "corepack pnpm verify" (the complete repository gate) is deliberately NOT
 // one of these ledger-backed checks: this script's own --self-test/--check
 // runs as part of that same gate (see verify:self in package.json), so a
@@ -237,6 +268,8 @@ export interface PrePublicationReceipt {
     readonly repositoryVerification: string;
     readonly evidenceBoundCommit: string;
     readonly evidencePath: string;
+    readonly evidenceDigest: string;
+    readonly evidenceSource: "committed-bytes";
     readonly checks: Record<
       string,
       {
@@ -365,6 +398,7 @@ export function verifyCandidateTree(
 export function buildVerificationFromEvidence(
   evidence: VerificationEvidenceLedger,
   boundCommit: string,
+  evidenceDigest: string = sha256Bytes(readPinnedVerificationEvidenceBytes()),
 ): PrePublicationReceipt["verification"] {
   if (evidence.boundCommit !== boundCommit) {
     throw new Error(
@@ -404,6 +438,8 @@ export function buildVerificationFromEvidence(
     repositoryVerification: "green",
     evidenceBoundCommit: boundCommit,
     evidencePath: VERIFICATION_EVIDENCE_PATH,
+    evidenceDigest,
+    evidenceSource: "committed-bytes",
     checks,
   };
 }
@@ -421,14 +457,95 @@ function isVerificationEvidenceLedger(value: unknown): value is VerificationEvid
   );
 }
 
-export function loadVerificationEvidence(): VerificationEvidenceLedger {
-  const fullPath = path.join(root, ...VERIFICATION_EVIDENCE_PATH.split("/"));
-  if (!fs.existsSync(fullPath)) {
+function sha256Bytes(bytes: Buffer): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
+/**
+ * Read the committed bytes of a tracked file and fail closed when the working
+ * tree disagrees with them.
+ *
+ * repo-template#368 (RT-340c): the verification evidence ledger was the one
+ * remaining `fs.readFileSync` whose content reached `receiptDigest` -- editing a
+ * single `finishedAt` in the checkout and re-running `--write` moved
+ * `receiptDigest` while `candidate.commit`, `candidate.tree` and
+ * `treeVerification.matches: true` stayed correct, and every gate then accepted
+ * the result. The ledger provably cannot live in the frozen candidate's tree
+ * (evidence about a commit postdates that commit), so it is bound to the
+ * committed bytes of the producing commit instead: an uncommitted edit cannot
+ * reach the receipt at all, and a committed one is a reviewable diff that
+ * `freeze --check` forces to be regenerated in the same change.
+ */
+export function readCommittedBytes(relativePath: string): Buffer {
+  let committed: Buffer;
+  try {
+    committed = execFileSync("git", ["show", `HEAD:${relativePath}`], {
+      cwd: root,
+      maxBuffer: 64 * 1024 * 1024,
+    });
+  } catch (error) {
     throw new Error(
-      `Verification evidence ledger missing at ${VERIFICATION_EVIDENCE_PATH}. Run scripts/record-local-ci-v3-verification-evidence.ts --write before freezing a candidate.`,
+      `Failed to read committed bytes of ${relativePath} at HEAD: ${String(error)}. Evidence consumed by an immutable receipt must be committed before the receipt is frozen.`,
+      { cause: error },
     );
   }
-  const raw: unknown = JSON.parse(fs.readFileSync(fullPath, "utf8"));
+  const fullPath = path.join(root, ...relativePath.split("/"));
+  if (!fs.existsSync(fullPath)) {
+    throw new Error(`Tracked file missing from the checkout: ${relativePath}`);
+  }
+  const working = fs.readFileSync(fullPath);
+  if (!working.equals(committed)) {
+    throw new Error(
+      `Working-tree bytes of ${relativePath} (sha256 ${sha256Bytes(working)}) differ from its committed bytes at HEAD (sha256 ${sha256Bytes(committed)}). Commit the change before freezing: an immutable receipt must never digest uncommitted evidence.`,
+    );
+  }
+  return committed;
+}
+
+/**
+ * Refuse any verification evidence ledger whose bytes are not the exact bytes
+ * this candidate identity was frozen against.
+ *
+ * repo-template#368 (RT-340c, repair round 2). `readCommittedBytes()` alone only
+ * proves the ledger is committed; it does not stop the next commit from changing
+ * it. Because `startedAt`/`finishedAt` reach the digested receipt body, a
+ * committed timestamp-only re-record -- exactly what
+ * `scripts/record-local-ci-v3-verification-evidence.ts --write` produces in
+ * ordinary use -- moved the published `receiptDigest` with every gate exiting 0
+ * (PR #369 review 5206050540). This is the gate that objects.
+ *
+ * The refusal names both digests and the one exit its caller can actually reach
+ * (DOCTRINE §51): either restore the pinned bytes, which any caller can do, or
+ * deliberately bump `FROZEN_VERIFICATION_EVIDENCE_DIGEST` in the same reviewed
+ * change that re-binds the downstream identity.
+ */
+export function assertVerificationEvidenceDigestIsPinned(bytes: Buffer): Buffer {
+  const actual = sha256Bytes(bytes);
+  if (actual !== FROZEN_VERIFICATION_EVIDENCE_DIGEST) {
+    throw new Error(
+      [
+        `Verification evidence ledger ${VERIFICATION_EVIDENCE_PATH} has sha256 ${actual}, but this candidate identity is frozen against sha256 ${FROZEN_VERIFICATION_EVIDENCE_DIGEST}.`,
+        `The ledger is the only receipt input read from mutable HEAD, and its timestamps reach receiptDigest, so ANY change to it -- a timestamp-only re-record included -- moves the cross-repository identity that repo-template#341, model-gateway#991 and repo-factory#187 pin. Refusing to mint a new identity for a non-substantive change.`,
+        `Exit 1 (any caller, no extra authority): the change was accidental -- find the commit that still carries the pinned bytes with "git log --oneline -- ${VERIFICATION_EVIDENCE_PATH}" and restore them with "git checkout <that commit> -- ${VERIFICATION_EVIDENCE_PATH}", then commit. Re-running this command then exits 0.`,
+        `Exit 2 (deliberate, reviewed): if the ledger genuinely must change, update FROZEN_VERIFICATION_EVIDENCE_DIGEST in scripts/freeze-local-ci-v3-candidate.ts to ${actual} in the SAME change, re-run "node scripts/freeze-local-ci-v3-candidate.ts --write", and re-bind PRODUCER_CANDIDATE_RECEIPT_DIGEST plus the publication receipts to the moved receiptDigest. That constant is the deliberate exit (DOCTRINE §51); it is never a way to make a red gate go green.`,
+      ].join(" "),
+    );
+  }
+  return bytes;
+}
+
+/**
+ * The committed, pinned ledger bytes: committed at HEAD (RT-340c round 1) AND
+ * byte-identical to the frozen pin (RT-340c round 2). Every path whose content
+ * reaches `receiptDigest` reads the ledger through this function.
+ */
+export function readPinnedVerificationEvidenceBytes(): Buffer {
+  return assertVerificationEvidenceDigestIsPinned(readCommittedBytes(VERIFICATION_EVIDENCE_PATH));
+}
+
+export function loadVerificationEvidence(): VerificationEvidenceLedger {
+  const bytes = readPinnedVerificationEvidenceBytes();
+  const raw: unknown = JSON.parse(bytes.toString("utf8"));
   if (!isVerificationEvidenceLedger(raw)) {
     throw new Error(`Malformed verification evidence ledger at ${VERIFICATION_EVIDENCE_PATH}`);
   }
@@ -848,6 +965,12 @@ function selfTest(): void {
   // them must not move a single digest in the receipt, because none of them is
   // read from the checkout any more.
   selfTestManifestInputsAreFrozen(receipt);
+  selfTestEvidenceLedgerIsCommitted(receipt);
+
+  // repo-template#368 (RT-340c round 2): the ledger being committed is not
+  // enough -- a COMMITTED timestamp-only re-record still moved receiptDigest
+  // with all four gates exiting 0. The pinned digest is the gate that objects.
+  selfTestEvidenceLedgerDigestIsPinned();
 
   // The frozen payload set must remain reproducible by enumerating the frozen
   // commit's own tree.
@@ -881,6 +1004,158 @@ function selfTestManifestInputsAreFrozen(receipt: PrePublicationReceipt): void {
       }
     } finally {
       fs.writeFileSync(fullPath, original);
+    }
+  }
+}
+
+/**
+ * Mutate the checked-out evidence ledger the way the PR #365 reviewer did (one
+ * `finishedAt` moved to a far-future timestamp) and prove the freeze refuses
+ * rather than quietly minting a new `receiptDigest` under the same candidate
+ * identity (repo-template#368).
+ */
+function selfTestEvidenceLedgerIsCommitted(receipt: PrePublicationReceipt): void {
+  const fullPath = path.join(root, ...VERIFICATION_EVIDENCE_PATH.split("/"));
+  const original = fs.readFileSync(fullPath);
+  if (sha256Bytes(original) !== receipt.verification.evidenceDigest) {
+    throw new Error(
+      `Receipt records evidenceDigest ${receipt.verification.evidenceDigest}, which is not the digest of ${VERIFICATION_EVIDENCE_PATH}.`,
+    );
+  }
+  const mutated: unknown = JSON.parse(original.toString("utf8"));
+  if (!isPlainObject(mutated) || !isPlainObject(mutated["checks"])) {
+    throw new Error(`Malformed verification evidence ledger at ${VERIFICATION_EVIDENCE_PATH}`);
+  }
+  const [firstCheckId] = Object.keys(mutated["checks"]);
+  if (firstCheckId === undefined) {
+    throw new Error("Verification evidence ledger must contain at least one check");
+  }
+  const firstCheck = mutated["checks"][firstCheckId];
+  if (!isPlainObject(firstCheck)) {
+    throw new Error(`Malformed check "${firstCheckId}" in the verification evidence ledger`);
+  }
+  firstCheck["finishedAt"] = mutateTimestamp(firstCheck["finishedAt"], firstCheckId);
+  const mutatedBytes = Buffer.from(`${JSON.stringify(mutated, null, 2)}\n`, "utf8");
+  // repo-template#368 (PR #369 review 5206050540, non-blocking follow-up): the
+  // sentinel used to be a hardcoded 2099 timestamp. If the committed ledger ever
+  // legitimately carried that exact value the mutation silently became a no-op,
+  // and this self-test then failed with "accepted working-tree bytes ... that
+  // differ from HEAD" when the bytes provably did not differ -- a diagnostic
+  // that lies. The sentinel is now derived from the value actually present, and
+  // the bytes are proven to have moved before anything is concluded from the
+  // refusals below.
+  if (mutatedBytes.equals(original)) {
+    throw new Error(
+      `Self-test mutation of check "${firstCheckId}" did not change the bytes of ${VERIFICATION_EVIDENCE_PATH}; the refusals below would prove nothing.`,
+    );
+  }
+  let loaderRefused = false;
+  let freezeRefused = false;
+  try {
+    fs.writeFileSync(fullPath, mutatedBytes);
+    // Both must refuse independently. If only the freeze refuses, the ledger's
+    // content is still being taken from the checkout and the guard is
+    // incidental -- carried by some other committed-bytes read rather than by
+    // the loader that actually supplies the receipt's evidence.
+    try {
+      loadVerificationEvidence();
+    } catch {
+      loaderRefused = true;
+    }
+    try {
+      buildPrePublicationReceipt();
+    } catch {
+      freezeRefused = true;
+    }
+  } finally {
+    fs.writeFileSync(fullPath, original);
+  }
+  if (!loaderRefused) {
+    throw new Error(
+      `loadVerificationEvidence() accepted working-tree bytes of ${VERIFICATION_EVIDENCE_PATH} that differ from HEAD. Evidence reaching receiptDigest must come from committed bytes.`,
+    );
+  }
+  if (!freezeRefused) {
+    throw new Error(
+      "An uncommitted edit to the verification evidence ledger did not prevent the freeze.",
+    );
+  }
+}
+
+/**
+ * Derive a timestamp-only mutation from the value actually present, so the
+ * sentinel can never collide with it and turn the mutation into a no-op
+ * (repo-template#368, PR #369 review 5206050540 non-blocking follow-up).
+ */
+function mutateTimestamp(current: unknown, checkId: string): string {
+  if (typeof current !== "string" || Number.isNaN(Date.parse(current))) {
+    throw new TypeError(
+      `Check "${checkId}" in ${VERIFICATION_EVIDENCE_PATH} has no parseable finishedAt timestamp to mutate.`,
+    );
+  }
+  return new Date(Date.parse(current) + 1_000).toISOString();
+}
+
+/**
+ * Prove the committed-ledger pin is a live gate and not merely a recorded
+ * constant: hand the gate a timestamp-only re-record of the pinned bytes -- the
+ * precise mutation PR #369's review committed -- and require a refusal that
+ * names both digests and the deliberate exit (repo-template#368, DOCTRINE §51).
+ *
+ * This is the in-process half. The end-to-end half, which actually COMMITS the
+ * re-record in a throwaway clone and proves `--write`, `--check` and
+ * `--self-test` each refuse it, lives in
+ * `packages/adoption-shell/test/local-ci-v3-candidate.test.ts`
+ * ("RT-340c: every freeze gate refuses a COMMITTED timestamp-only re-record of
+ * the evidence ledger") and runs in the same `pnpm verify` gate as this
+ * self-test.
+ */
+function selfTestEvidenceLedgerDigestIsPinned(): void {
+  const pinned = readPinnedVerificationEvidenceBytes();
+  const ledger: unknown = JSON.parse(pinned.toString("utf8"));
+  if (!isPlainObject(ledger) || !isPlainObject(ledger["checks"])) {
+    throw new Error(`Malformed verification evidence ledger at ${VERIFICATION_EVIDENCE_PATH}`);
+  }
+  const [firstCheckId] = Object.keys(ledger["checks"]);
+  if (firstCheckId === undefined) {
+    throw new Error("Verification evidence ledger must contain at least one check");
+  }
+  const firstCheck = ledger["checks"][firstCheckId];
+  if (!isPlainObject(firstCheck)) {
+    throw new Error(`Malformed check "${firstCheckId}" in the verification evidence ledger`);
+  }
+  firstCheck["finishedAt"] = mutateTimestamp(firstCheck["finishedAt"], firstCheckId);
+  const reRecorded = Buffer.from(`${JSON.stringify(ledger, null, 2)}\n`, "utf8");
+  if (reRecorded.equals(pinned)) {
+    throw new Error("the timestamp-only re-record did not change the ledger bytes");
+  }
+
+  let refusal: unknown;
+  try {
+    assertVerificationEvidenceDigestIsPinned(reRecorded);
+  } catch (error) {
+    refusal = error;
+  }
+  if (refusal === undefined) {
+    throw new Error(
+      "A timestamp-only re-record of the verification evidence ledger was accepted. The pinned digest must refuse it: the ledger's timestamps reach receiptDigest, so accepting it moves the published cross-repository identity for a non-substantive change (repo-template#368).",
+    );
+  }
+  if (!(refusal instanceof Error)) {
+    throw new TypeError(
+      `The pinned-ledger gate must refuse with an Error so the caller gets a message it can act on; it threw a ${typeof refusal}.`,
+    );
+  }
+  const message = refusal.message;
+  for (const required of [
+    sha256Bytes(reRecorded),
+    FROZEN_VERIFICATION_EVIDENCE_DIGEST,
+    "FROZEN_VERIFICATION_EVIDENCE_DIGEST",
+  ]) {
+    if (!message.includes(required)) {
+      throw new Error(
+        `The pinned-ledger refusal must name ${required} so the caller can see what moved and how to get out (DOCTRINE §51). Got: ${message}`,
+      );
     }
   }
 }
