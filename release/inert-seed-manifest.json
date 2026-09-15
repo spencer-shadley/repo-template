@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "a248c8bd3f2ce4e8bc14c0e9d6abbe10c72046b7aa2d8ebd50cb0b2e9ec767c1",
+  "inventoryDigest": "09b4cbb6e79a7c4f09337e5e4a1ada214c056d2076d6f0812fe107ac7167d0a5",
   "entryCount": 99,
   "excludedCount": 9,
   "entries": [
@@ -495,8 +495,8 @@
       "path": "eslint-suppressions.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
-      "bytes": 3
+      "contentSha256": "2110ac52d77e452cb7ce69f8c0fd1a44e53577d40f1afa5ed27e90079471c760",
+      "bytes": 5267
     },
     {
       "path": "eslint.config.ts",
@@ -749,5 +749,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "d8a0cdb7e55fade17a50bfd8578b18db284692b48e69780d2b7810bad0bb8d1d"
+  "manifestDigest": "c18ac7d5ec87b554591bdb096e24b73324170c7cad0f04e520e9acb977fb37c6"
 }

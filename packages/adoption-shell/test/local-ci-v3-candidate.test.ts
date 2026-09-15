@@ -218,11 +218,13 @@ void test("REGRESSION: a skipped/failed check in the evidence ledger is rejected
   const evidence = loadVerificationEvidence();
   const [someCheckId] = Object.keys(evidence.checks);
   assert.ok(someCheckId, "evidence ledger must contain at least one check");
+  const baseCheck = evidence.checks[someCheckId];
+  assert.ok(baseCheck, "evidence ledger entry for someCheckId must exist");
   const skipped: VerificationEvidenceLedger = {
     ...evidence,
     checks: {
       ...evidence.checks,
-      [someCheckId]: { ...evidence.checks[someCheckId], result: "skipped", exitCode: 1 },
+      [someCheckId]: { ...baseCheck, result: "skipped", exitCode: 1 },
     },
   };
   assert.throws(
@@ -234,7 +236,7 @@ void test("REGRESSION: a skipped/failed check in the evidence ledger is rejected
     ...evidence,
     checks: {
       ...evidence.checks,
-      [someCheckId]: { ...evidence.checks[someCheckId], result: "failed", exitCode: 1 },
+      [someCheckId]: { ...baseCheck, result: "failed", exitCode: 1 },
     },
   };
   assert.throws(
