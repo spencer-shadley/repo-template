@@ -26,6 +26,19 @@
  * then copy the resulting ledger back into the repair worktree. This proves
  * the checks actually passed against the candidate's own frozen bytes, not
  * against unrelated repair-branch edits.
+ *
+ * repo-template#368 (RT-340c): a re-record is no longer a free operation. The
+ * ledger is the only frozen-receipt input read from mutable `HEAD`, and its
+ * timestamps reach `receiptDigest`, so `scripts/freeze-local-ci-v3-candidate.ts`
+ * pins the exact committed bytes as `FROZEN_VERIFICATION_EVIDENCE_DIGEST`.
+ * Running this script against an already-frozen candidate therefore produces
+ * bytes that `freeze --write`, `--check` and `--self-test` all refuse, by
+ * design: a re-recorded timestamp must not silently move the cross-repository
+ * identity that repo-template#341, model-gateway#991 and repo-factory#187 pin.
+ * The refusal names both exits (DOCTRINE §51) -- restore the pinned bytes, or
+ * deliberately bump the constant in the same reviewed change that re-binds the
+ * downstream digests. Nothing here is wedged; the second step is just no longer
+ * optional.
  */
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
