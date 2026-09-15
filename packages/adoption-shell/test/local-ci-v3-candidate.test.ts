@@ -1015,7 +1015,14 @@ void test("RT-340c: the pinned-ledger gate accepts the pinned bytes and refuses 
       assertVerificationEvidenceDigestIsPinned(
         Buffer.from(JSON.stringify(ledger, null, 2) + NEWLINE, "utf8"),
       ),
-    /is frozen against sha256 4909577d/,
+    // Built from the imported constant, never a copied literal (PR #369
+    // CodeRabbit nit): a reviewed bump of FROZEN_VERIFICATION_EVIDENCE_DIGEST
+    // must not leave this assertion silently passing against the old digest.
+    (error: unknown) =>
+      error instanceof Error &&
+      error.message.includes(
+        `is frozen against sha256 ${FROZEN_VERIFICATION_EVIDENCE_DIGEST}`,
+      ),
     "a timestamp-only re-record must be refused by the pin",
   );
 });
