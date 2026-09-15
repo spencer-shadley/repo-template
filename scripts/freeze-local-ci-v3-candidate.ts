@@ -850,10 +850,7 @@ function selfTest(): void {
   selfTestManifestInputsAreFrozen(receipt);
 
   // The frozen payload set must remain reproducible by enumerating the frozen
-  // commit's own tree, and must NOT equal the current HEAD's enumeration while
-  // HEAD has moved past the candidate -- otherwise this check could pass simply
-  // because nothing ever differs, and a HEAD-following regression would be
-  // invisible (exactly how the PR #363 defect survived a green gate).
+  // commit's own tree.
   selfTestPayloadEnumerationIsPinned(receipt);
 }
 
@@ -889,27 +886,28 @@ function selfTestManifestInputsAreFrozen(receipt: PrePublicationReceipt): void {
 }
 
 /**
- * Prove the payload-set enumeration is pinned to the frozen commit rather than
- * following `HEAD`. `tools/release-payload.ts` used to enumerate
+ * Prove the payload digest the receipt records is the one the frozen commit's
+ * own tree enumerates to. `tools/release-payload.ts` used to enumerate
  * `git ls-tree -rz HEAD`, so any commit on top of the candidate rewrote the
  * frozen receipt's payload digest.
+ *
+ * This deliberately does NOT assert that `HEAD` enumerates to something
+ * different. Non-selected paths (`self`-mode entries in `template-manifest.json`,
+ * and the explicitly excluded documents) contribute nothing to the payload
+ * digest, so a commit on top of the candidate that touches only those paths
+ * legitimately enumerates to the same digest -- a "HEAD must differ" assertion
+ * would fail a perfectly valid pinned receipt. The control that proves the
+ * enumeration really follows its `ref` argument uses a purpose-built descendant
+ * commit that changes a selected path, and lives in
+ * `packages/adoption-shell/test/local-ci-v3-candidate.test.ts`
+ * ("the release payload enumeration is pinned to the frozen commit, not HEAD"),
+ * which runs in the same `pnpm verify` gate as this self-test.
  */
 function selfTestPayloadEnumerationIsPinned(receipt: PrePublicationReceipt): void {
   const frozenDigest = constructReleasePayloadAt(FROZEN_CANDIDATE_COMMIT).payload.releaseDigest;
   if (receipt.manifestDigests.releasePayloadSet.manifestDigest !== frozenDigest) {
     throw new Error(
       `Receipt records releasePayloadSet digest ${receipt.manifestDigests.releasePayloadSet.manifestDigest}, but enumerating the frozen commit's tree yields ${frozenDigest}.`,
-    );
-  }
-  const headCommit = resolveCommitTree("HEAD");
-  if (headCommit === FROZEN_CANDIDATE_TREE) {
-    // The checkout is exactly the frozen tree, so "pinned" and "HEAD-following"
-    // are indistinguishable here and there is nothing further to prove.
-    return;
-  }
-  if (constructReleasePayloadAt("HEAD").payload.releaseDigest === frozenDigest) {
-    throw new Error(
-      "HEAD's tree differs from the frozen candidate tree, yet both enumerate to the same release digest. The pinning guard cannot distinguish frozen from HEAD-following and must not be trusted.",
     );
   }
 }

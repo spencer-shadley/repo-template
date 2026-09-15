@@ -580,6 +580,25 @@ void test("RT-340b: the consumer validator rejects an identity-mismatched receip
   );
 });
 
+void test("RT-340b: a frozen manifest that parses but is not a JSON object is reported, never silently skipped", () => {
+  const receipt = loadReceipt("contracts/local-ci/v3/pre-publication-receipt.json");
+  const poisoned = "artifacts/adoption-shell-v2/artifact-manifest.json";
+  const readBlob = (commit: string, relativePath: string): Uint8Array =>
+    relativePath === poisoned
+      ? new TextEncoder().encode("[]")
+      : readFrozenBlob(commit, relativePath);
+
+  // The raw-byte digest checks cannot catch this on their own, so the manifest
+  // binding check must refuse the file rather than drop its bindings.
+  const verdict = verifyLocalCiV3CandidateReceiptAgainstFrozenTree(receipt, readBlob);
+  assert.equal(verdict.ok, false);
+  const codes = diagnosticCodes(verdict);
+  assert.ok(
+    codes.includes("E_FROZEN_INPUT_UNREADABLE") || codes.includes("E_FROZEN_INPUT_MISMATCH"),
+    JSON.stringify(codes),
+  );
+});
+
 void test("RT-340b: the receipt binds the frozen tree's own VERSION/TEMPLATE_VERSION and refuses a reused or regressed identity", () => {
   const receipt = loadReceipt("contracts/local-ci/v3/pre-publication-receipt.json");
 

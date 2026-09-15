@@ -138,7 +138,14 @@ function verifyDeclaredBlobDigests(commit, pointer, rows, readFrozenBlob, diagno
 function frozenJson(commit, relativePath, readFrozenBlob) {
     const bytes = readFrozenBlob(commit, relativePath);
     const parsed = JSON.parse(new TextDecoder().decode(bytes));
-    return isRecord(parsed) ? parsed : undefined;
+    if (!isRecord(parsed)) {
+        // Readable JSON that is not an object (an array, a bare string, `null`)
+        // must be rejected, not skipped: the raw-byte digest checks pass whenever
+        // the declared hash matches, so silently dropping the manifest bindings
+        // here would leave the cited digests unverified.
+        throw new Error(`${relativePath} at commit ${commit} is not a JSON object`);
+    }
+    return parsed;
 }
 function verifyManifestDigestsDescribeFrozenTree(commit, manifestDigests, readFrozenBlob, diagnostics) {
     if (!isRecord(manifestDigests)) {
