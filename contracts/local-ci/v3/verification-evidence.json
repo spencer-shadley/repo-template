@@ -1,0 +1,48 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/local-ci-v3/verification-evidence.schema.json",
+  "schemaVersion": "1.0.0",
+  "boundCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
+  "generatedAt": "2026-09-15T02:54:07.392Z",
+  "checks": {
+    "proof-of-detection-self-test": {
+      "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
+      "exitCode": 0,
+      "result": "passed",
+      "startedAt": "2026-09-15T02:54:03.977Z",
+      "finishedAt": "2026-09-15T02:54:04.822Z",
+      "outputSha256": "279fccbb2055bd6cd1b49cab173d60e3b3235b1d58946d4838dda826b77850f1"
+    },
+    "local-ci-v3-contract-unit": {
+      "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
+      "exitCode": 0,
+      "result": "passed",
+      "startedAt": "2026-09-15T02:54:04.823Z",
+      "finishedAt": "2026-09-15T02:54:05.745Z",
+      "outputSha256": "3bb6322431db7f7a1dd05508db530dc70fe718ce6ec95a79ba8f671c8c2d7ba9"
+    },
+    "local-ci-outcome-v1-unit": {
+      "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
+      "exitCode": 0,
+      "result": "passed",
+      "startedAt": "2026-09-15T02:54:05.745Z",
+      "finishedAt": "2026-09-15T02:54:06.390Z",
+      "outputSha256": "78f94efd78a220d1eb3048482d515a903fbeef8aa3a98a2a4ad64b1f525977e3"
+    },
+    "release-payload-check": {
+      "command": "node tools/release-payload.ts check",
+      "exitCode": 0,
+      "result": "passed",
+      "startedAt": "2026-09-15T02:54:06.390Z",
+      "finishedAt": "2026-09-15T02:54:06.839Z",
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "artifact-build-verify": {
+      "command": "node tools/artifact-build.ts verify",
+      "exitCode": 0,
+      "result": "passed",
+      "startedAt": "2026-09-15T02:54:06.840Z",
+      "finishedAt": "2026-09-15T02:54:07.392Z",
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

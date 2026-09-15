@@ -8,15 +8,15 @@
   "programmeEpic": "https://github.com/spencer-shadley/repo-template/issues/102",
   "issue": "https://github.com/spencer-shadley/repo-template/issues/341",
   "producerFreezeIssue": "https://github.com/spencer-shadley/repo-template/issues/340",
-  "producerCandidateReceiptId": "receipt-issue-340-mu14imli",
-  "producerCandidateReceiptDigest": "8e06b92433edf7d01268b760644573bbb4432488e785012f70da3e57a0d3d6b2",
+  "producerCandidateReceiptId": "receipt-issue-340-rt340repair1",
+  "producerCandidateReceiptDigest": "54214b8bfb85dbcfd0eed784394cb8abbc6b0a5549fb1d723928a40fa8274cd8",
   "candidate": {
     "repository": "spencer-shadley/repo-template",
     "origin": "https://github.com/spencer-shadley/repo-template.git",
-    "semver": "3.1.0",
-    "tag": "v3.1.0",
-    "commit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
-    "tree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2"
+    "semver": "3.2.0",
+    "tag": "v3.2.0",
+    "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
   },
   "lineage": {
     "contractId": "repo-template/local-ci-v3",
@@ -73,19 +73,19 @@
     "contractId": "repo-template/adoption-shell-v2",
     "receiptKind": "repo-template/release-receipt/v1",
     "publicationState": "published",
-    "releaseId": "spencer-shadley/repo-template@3.1.0",
+    "releaseId": "spencer-shadley/repo-template@3.2.0",
     "receiptDigestAlgorithm": "sha256-rfc8785-v1",
     "producer": {
       "repository": "spencer-shadley/repo-template",
       "origin": "https://github.com/spencer-shadley/repo-template.git",
-      "semver": "3.1.0",
-      "tag": "v3.1.0",
-      "commit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
-      "tree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2"
+      "semver": "3.2.0",
+      "tag": "v3.2.0",
+      "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
+      "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
     },
     "receiptTransport": {
       "kind": "annotated-git-tag-message/v1",
-      "tagName": "v3.1.0",
+      "tagName": "v3.2.0",
       "targetObjectType": "commit",
       "bodyEncoding": "utf-8",
       "bodyCanonicalization": "rfc8785"
@@ -134,8 +134,8 @@
       "artifactManifestSchemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
       "artifactManifestSchemaVersion": "2.0.0",
       "artifactManifestSchemaDigest": "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
-      "artifactManifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
-      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a",
+      "artifactManifestDigest": "bc15d49e5bb10b9c2aeb5e1f62ead1dbb53bde67e642a5e62d8b3928f874796d",
+      "artifactDigest": "a865599db0354a2c301f12c851d624361e7b2e17ab0f7e9f6afef3c49b3bda4d",
       "entrypoint": "index.js",
       "validatorExport": "validateMaterializerInputV2",
       "runtimeCompatibility": ">=24.16.0 <25",
@@ -192,7 +192,7 @@
       }
     },
     "migrationRefs": [],
-    "receiptDigest": "3ca5937a7c27c8e99a966beabb2e5b4cf56407188b9a4aef82ad8800a6b69d41"
+    "receiptDigest": "37f868daf2cda22bff2da7ee4fbc41fbcf71b7d57cdd8b9c56e3c896dd915f2c"
   },
   "canonicalDigests": {
     "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
@@ -237,9 +237,9 @@
     },
     "artifactManifest": {
       "path": "artifacts/adoption-shell-v2/artifact-manifest.json",
-      "manifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+      "manifestDigest": "bc15d49e5bb10b9c2aeb5e1f62ead1dbb53bde67e642a5e62d8b3928f874796d",
       "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a"
+      "artifactDigest": "a865599db0354a2c301f12c851d624361e7b2e17ab0f7e9f6afef3c49b3bda4d"
     },
     "capabilityBundleRegistry": {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -309,10 +309,10 @@
   },
   "readback": {
     "releaseAuthority": "repo-template/release-receipt/v1",
-    "releaseId": "spencer-shadley/repo-template@3.1.0",
-    "tagName": "v3.1.0",
-    "resolvedCommit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
-    "resolvedTree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2",
+    "releaseId": "spencer-shadley/repo-template@3.2.0",
+    "tagName": "v3.2.0",
+    "resolvedCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "resolvedTree": "995ea497114b2eba0b86cc3adb3666306829e0fb",
     "candidateCommitMatches": true,
     "candidateTreeMatches": true,
     "allCanonicalDigestsMatch": true,
@@ -323,9 +323,9 @@
   "rollback": {
     "disposition": "immutable-correct-forward",
     "supersession": "new-semver-only",
-    "rollbackRef": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e"
+    "rollbackRef": "88591ee869bb109ef481171aa817d1ed204a970e"
   },
   "publicationTime": "2026-09-14T11:25:00Z",
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "f24c5609ab85280575135751608ca21638e35ecf0bfef4991952298c5eb034a7"
+  "receiptDigest": "33da86398e3605177bd3920662700bf3d9bdbbbc4de99d322fb8601ac54e19b5"
 }
