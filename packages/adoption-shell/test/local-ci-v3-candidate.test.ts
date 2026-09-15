@@ -734,10 +734,20 @@ function cloneWorkingStateAtHead(label: string): string {
   const clone = path.join(fs.mkdtempSync(path.join(os.tmpdir(), label)), "repo");
   gitIn(root, ["clone", "--quiet", "--no-hardlinks", root, clone]);
 
-  const dirty = gitIn(root, ["status", "--porcelain", "--untracked-files=no"])
-    .split(NEWLINE)
-    .map((line) => line.slice(3).trim())
-    .filter((entry) => entry.length > 0 && !entry.includes(" -> "));
+  // `--name-only -z --no-renames` is the enumeration that cannot lose a path:
+  // NUL-separated so a path with spaces or non-ASCII bytes is never quoted or
+  // split, `--no-renames` so a rename appears as both its old and its new path
+  // rather than one record this loop would have to decompose, and `HEAD` so
+  // staged and unstaged changes are covered together. Untracked files are
+  // excluded by construction, which is what keeps the lane's own heartbeat logs
+  // out of the clone. A dropped path here would silently leave the clone on
+  // HEAD bytes while every assertion below still passed.
+  const dirty = execFileSync("git", ["diff", "--name-only", "-z", "--no-renames", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  })
+    .split("\0")
+    .filter((entry) => entry.length > 0);
   for (const relative of dirty) {
     const source = path.join(root, ...relative.split("/"));
     const destination = path.join(clone, ...relative.split("/"));
@@ -763,6 +773,18 @@ function cloneWorkingStateAtHead(label: string): string {
     "",
     "the clone must start from a clean, fully committed tree",
   );
+  // A clean clone is not proof the replay worked: a path the enumeration missed
+  // would leave the clone on HEAD bytes and still look clean. Assert the two
+  // inputs these tests actually depend on really are the bytes on disk.
+  for (const relative of ["scripts/freeze-local-ci-v3-candidate.ts", LEDGER_PATH]) {
+    assert.equal(
+      fs.readFileSync(path.join(clone, ...relative.split("/"))).equals(
+        fs.readFileSync(path.join(root, ...relative.split("/"))),
+      ),
+      true,
+      `the clone must carry the working-tree bytes of ${relative}, not HEAD's`,
+    );
+  }
   return clone;
 }
 
