@@ -59,9 +59,9 @@
       "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
       "schemaVersion": "2.0.0",
       "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
-      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "manifestDigest": "cc700a5e5a43cb5e00d2f18339cdda6b14a2982a33bd9a817ab0e424a5590713",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+      "payloadDigest": "9c10a60b682dc60bc5916a7a7cf29d34743a080fe58966c7248542d10d005ccb",
       "entryCount": 99
     },
     "capabilityBundles": [
@@ -106,7 +106,7 @@
       "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
     },
     "migrationRefs": [],
-    "receiptDigest": "6d4c85154ba5640e5d616e5e917ce9f5f72718bbe07c422b93709cb194928d5e"
+    "receiptDigest": "12cb371e2305f33c947bd26ba166d511d0a2278fd7bac39f5c022f7eb57a5e17"
   },
   "canonicalDigests": {
     "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
@@ -144,9 +144,9 @@
   "manifestDigests": {
     "releasePayloadSet": {
       "path": "release/release-payload-set.json",
-      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "manifestDigest": "cc700a5e5a43cb5e00d2f18339cdda6b14a2982a33bd9a817ab0e424a5590713",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+      "payloadDigest": "9c10a60b682dc60bc5916a7a7cf29d34743a080fe58966c7248542d10d005ccb",
       "entryCount": 99
     },
     "artifactManifest": {
@@ -201,36 +201,36 @@
         "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T02:54:03.977Z",
-        "finishedAt": "2026-09-15T02:54:04.822Z"
+        "startedAt": "2026-09-15T03:15:04.728Z",
+        "finishedAt": "2026-09-15T03:15:05.604Z"
       },
       "local-ci-v3-contract-unit": {
         "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T02:54:04.823Z",
-        "finishedAt": "2026-09-15T02:54:05.745Z"
+        "startedAt": "2026-09-15T03:15:05.605Z",
+        "finishedAt": "2026-09-15T03:15:06.354Z"
       },
       "local-ci-outcome-v1-unit": {
         "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T02:54:05.745Z",
-        "finishedAt": "2026-09-15T02:54:06.390Z"
+        "startedAt": "2026-09-15T03:15:06.355Z",
+        "finishedAt": "2026-09-15T03:15:07.093Z"
       },
       "release-payload-check": {
         "command": "node tools/release-payload.ts check",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T02:54:06.390Z",
-        "finishedAt": "2026-09-15T02:54:06.839Z"
+        "startedAt": "2026-09-15T03:15:07.093Z",
+        "finishedAt": "2026-09-15T03:15:07.934Z"
       },
       "artifact-build-verify": {
         "command": "node tools/artifact-build.ts verify",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T02:54:06.840Z",
-        "finishedAt": "2026-09-15T02:54:07.392Z"
+        "startedAt": "2026-09-15T03:15:07.935Z",
+        "finishedAt": "2026-09-15T03:15:08.433Z"
       }
     }
   },
@@ -260,5 +260,5 @@
     }
   },
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "54214b8bfb85dbcfd0eed784394cb8abbc6b0a5549fb1d723928a40fa8274cd8"
+  "receiptDigest": "7fc146c2f4f42f4826b1b0f39d2cf9ed4ac38bd42d44a87ded3266b63c1d4bc6"
 }

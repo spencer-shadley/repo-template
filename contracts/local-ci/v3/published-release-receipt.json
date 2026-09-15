@@ -27,9 +27,9 @@
     "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
     "schemaVersion": "2.0.0",
     "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
-    "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+    "manifestDigest": "cc700a5e5a43cb5e00d2f18339cdda6b14a2982a33bd9a817ab0e424a5590713",
     "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-    "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+    "payloadDigest": "9c10a60b682dc60bc5916a7a7cf29d34743a080fe58966c7248542d10d005ccb",
     "entryCount": 99
   },
   "capabilityBundles": [
@@ -124,5 +124,5 @@
     }
   },
   "migrationRefs": [],
-  "receiptDigest": "37f868daf2cda22bff2da7ee4fbc41fbcf71b7d57cdd8b9c56e3c896dd915f2c"
+  "receiptDigest": "56f21e47ec8ab1b872f2c91e7a1018bf7b29f87059a5064ba5b5080ba5c8990c"
 }

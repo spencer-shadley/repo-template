@@ -305,11 +305,13 @@ export function verifyCandidateTree(
 /**
  * Load the committed, out-of-band verification evidence ledger
  * (produced once by `scripts/record-local-ci-v3-verification-evidence.ts`,
- * which actually executes every declared command) and fail closed unless
- * every required check is present, bound to the exact candidate commit, and
- * recorded with exit code 0 / result "passed". A skipped, failed, missing,
- * or wrongly-bound check must never silently read as "passed" (repo-template
- * #340 acceptance criteria, defect 2).
+ * run from a detached worktree checked out at the exact candidate commit --
+ * see that script's header comment -- so the checks execute against the
+ * candidate's own frozen bytes) and fail closed unless every required check
+ * is present, bound to the exact candidate commit passed in `boundCommit`,
+ * and recorded with exit code 0 / result "passed". A skipped, failed,
+ * missing, or wrongly-bound check must never silently read as "passed"
+ * (repo-template#340 acceptance criteria, defect 2).
  */
 export function buildVerificationFromEvidence(
   evidence: VerificationEvidenceLedger,

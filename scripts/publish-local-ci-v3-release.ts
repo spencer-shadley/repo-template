@@ -40,7 +40,7 @@ export const ISSUE_URL = "https://github.com/spencer-shadley/repo-template/issue
 export const PRODUCER_FREEZE_ISSUE = "https://github.com/spencer-shadley/repo-template/issues/340";
 export const PRODUCER_CANDIDATE_RECEIPT_ID = "receipt-issue-340-rt340repair1";
 export const PRODUCER_CANDIDATE_RECEIPT_DIGEST =
-  "54214b8bfb85dbcfd0eed784394cb8abbc6b0a5549fb1d723928a40fa8274cd8";
+  "7fc146c2f4f42f4826b1b0f39d2cf9ed4ac38bd42d44a87ded3266b63c1d4bc6";
 
 export const FIRST_CANARY_ISSUE = "https://github.com/spencer-shadley/model-gateway/issues/991";
 export const FIRST_CANARY_RECEIPT_ID = "receipt-issue-991-mu14rxy2";

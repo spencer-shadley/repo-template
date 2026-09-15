@@ -14,6 +14,18 @@
  * Fails closed: if any declared command exits non-zero, this script itself
  * exits non-zero and does NOT write a ledger claiming a pass (repo-template
  * #340 acceptance criteria, defect 2).
+ *
+ * Binds evidence to `git rev-parse HEAD` of wherever it is run. To produce
+ * evidence for an already-committed, immutable candidate commit (the normal
+ * case -- `scripts/freeze-local-ci-v3-candidate.ts`'s `FROZEN_CANDIDATE_COMMIT`
+ * is a historical commit, not the repair branch tip), run this from a
+ * detached worktree checked out at that exact commit, e.g.:
+ *   git worktree add ../candidate-snapshot <candidate-commit>
+ *   cd ../candidate-snapshot && corepack pnpm install --frozen-lockfile --ignore-scripts
+ *   node scripts/record-local-ci-v3-verification-evidence.ts --write
+ * then copy the resulting ledger back into the repair worktree. This proves
+ * the checks actually passed against the candidate's own frozen bytes, not
+ * against unrelated repair-branch edits.
  */
 import { execSync } from "node:child_process";
 import { createHash } from "node:crypto";
