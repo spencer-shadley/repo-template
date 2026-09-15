@@ -59,9 +59,9 @@
       "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
       "schemaVersion": "2.0.0",
       "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
-      "manifestDigest": "cc700a5e5a43cb5e00d2f18339cdda6b14a2982a33bd9a817ab0e424a5590713",
+      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "9c10a60b682dc60bc5916a7a7cf29d34743a080fe58966c7248542d10d005ccb",
+      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
       "entryCount": 99
     },
     "capabilityBundles": [
@@ -98,15 +98,36 @@
       "artifactManifestSchemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
       "artifactManifestSchemaVersion": "2.0.0",
       "artifactManifestSchemaDigest": "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
-      "artifactManifestDigest": "bc15d49e5bb10b9c2aeb5e1f62ead1dbb53bde67e642a5e62d8b3928f874796d",
-      "artifactDigest": "a865599db0354a2c301f12c851d624361e7b2e17ab0f7e9f6afef3c49b3bda4d",
+      "artifactManifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a",
       "entrypoint": "index.js",
       "validatorExport": "validateMaterializerInputV2",
       "runtimeCompatibility": ">=24.16.0 <25",
       "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
     },
     "migrationRefs": [],
-    "receiptDigest": "12cb371e2305f33c947bd26ba166d511d0a2278fd7bac39f5c022f7eb57a5e17"
+    "receiptDigest": "3dc9b0c1d04277e78ea35a695e899fd569de2fce7d90ea7095275e17811d0ced"
+  },
+  "frozenInputs": {
+    "blobReadMethod": "git show <commit>:<path>",
+    "treeEnumerationMethod": "git ls-tree -rz <commit>",
+    "enumerationTool": "tools/release-payload.ts",
+    "releasePayloadSetReproducedFromFrozenTree": true,
+    "blobDigests": {
+      "release/release-payload-set.json": "0bf07126825f43792226656024d2a0e5f43e099eeb253a3adaa3e9e589802ee7",
+      "contracts/adoption-shell-v2/capability-bundle-registry.json": "38e08045f1cecf7031d75f6d584da31552e5623ac766575f9efd7a0c89f6c032",
+      "artifacts/adoption-shell-v2/artifact-manifest.json": "8e40dc378f41014b2b021f199ee6a63565d2582db247fff8846c416406eb3544",
+      "VERSION": "b2f44d3b6e29f8b1b73ea4735f006affc4d198e1fd9c7d50e736159b1ef636c6",
+      "TEMPLATE_VERSION": "b2f44d3b6e29f8b1b73ea4735f006affc4d198e1fd9c7d50e736159b1ef636c6"
+    }
+  },
+  "versionBinding": {
+    "frozenVersion": "3.1.0",
+    "frozenTemplateVersion": "3.1.0",
+    "candidateSemver": "3.2.0",
+    "relation": "candidate-ahead-of-frozen-tree",
+    "publicationRule": "The frozen tree 995ea497114b2eba0b86cc3adb3666306829e0fb declares VERSION/TEMPLATE_VERSION 3.1.0; publication (repo-template#341) must bump both to 3.2.0 in its own publication commit and tag that commit. Minting v3.2.0 against commit 88591ee869bb109ef481171aa817d1ed204a970e is forbidden: the tagged bytes would contradict the tag. Tracked by https://github.com/spencer-shadley/repo-template/issues/364.",
+    "trackingIssue": "https://github.com/spencer-shadley/repo-template/issues/364"
   },
   "canonicalDigests": {
     "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
@@ -144,16 +165,16 @@
   "manifestDigests": {
     "releasePayloadSet": {
       "path": "release/release-payload-set.json",
-      "manifestDigest": "cc700a5e5a43cb5e00d2f18339cdda6b14a2982a33bd9a817ab0e424a5590713",
+      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "9c10a60b682dc60bc5916a7a7cf29d34743a080fe58966c7248542d10d005ccb",
+      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
       "entryCount": 99
     },
     "artifactManifest": {
       "path": "artifacts/adoption-shell-v2/artifact-manifest.json",
-      "manifestDigest": "bc15d49e5bb10b9c2aeb5e1f62ead1dbb53bde67e642a5e62d8b3928f874796d",
+      "manifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
       "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-      "artifactDigest": "a865599db0354a2c301f12c851d624361e7b2e17ab0f7e9f6afef3c49b3bda4d"
+      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a"
     },
     "capabilityBundleRegistry": {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -260,5 +281,5 @@
     }
   },
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "7fc146c2f4f42f4826b1b0f39d2cf9ed4ac38bd42d44a87ded3266b63c1d4bc6"
+  "receiptDigest": "79d5c6963c7e30dc7cec9e7fd4a2a31d099fadea09a5d08602b2f85676e2fc18"
 }

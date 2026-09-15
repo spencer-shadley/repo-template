@@ -62,11 +62,11 @@ function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function gitTreeAndBlobs(): {
+function gitTreeAndBlobs(ref: string): {
   readonly tree: ReadonlyMap<string, GitTreeEntry>;
   readonly blobs: ReadonlyMap<string, Buffer>;
 } {
-  const rows = execFileSync("git", ["ls-tree", "-rz", "HEAD"], {
+  const rows = execFileSync("git", ["ls-tree", "-rz", ref], {
     cwd: root,
     encoding: "utf8",
   })
@@ -200,13 +200,21 @@ function buildSelectionBody(
   };
 }
 
-function construct(): {
+/**
+ * Enumerate the release payload from the git tree of `ref` -- every byte comes
+ * from the object database for that exact commit-ish, never from the working
+ * tree and never from a moving `HEAD` unless `HEAD` is what the caller asked
+ * for. repo-template#340: the frozen-candidate receipt must describe the tree
+ * it names, so its producer passes the frozen candidate commit here. A later
+ * commit on top of the candidate therefore cannot change the frozen digests.
+ */
+export function constructReleasePayloadAt(ref: string): {
   readonly selection: Record<string, unknown>;
   readonly payload: ReleasePayloadSet;
 } {
-  const { tree, blobs } = gitTreeAndBlobs();
+  const { tree, blobs } = gitTreeAndBlobs(ref);
   const templateManifestRow = tree.get("template-manifest.json");
-  if (!templateManifestRow) throw new Error("HEAD lacks template-manifest.json");
+  if (!templateManifestRow) throw new Error(`${ref} lacks template-manifest.json`);
   const templateManifest: unknown = JSON.parse(
     blobs.get(templateManifestRow.object)?.toString("utf8") ?? "",
   );
@@ -248,9 +256,14 @@ function serialized(value: unknown): string {
 function main(): void {
   const mode = process.argv[2];
   if (mode !== "write" && mode !== "check") {
-    throw new Error("usage: node tools/release-payload.ts <write|check>");
+    throw new Error("usage: node tools/release-payload.ts <write|check> [--ref <commit-ish>]");
   }
-  const candidate = construct();
+  const refFlagIndex = process.argv.indexOf("--ref");
+  const refArgument = refFlagIndex === -1 ? undefined : process.argv[refFlagIndex + 1];
+  if (refFlagIndex !== -1 && (refArgument === undefined || refArgument.startsWith("--"))) {
+    throw new Error("--ref requires a commit-ish argument");
+  }
+  const candidate = constructReleasePayloadAt(refArgument ?? "HEAD");
   if (mode === "write") {
     fs.mkdirSync(path.dirname(selectionPath), { recursive: true });
     fs.writeFileSync(selectionPath, serialized(candidate.selection), "utf8");
@@ -268,4 +281,6 @@ function main(): void {
   }
 }
 
-main();
+if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
+  main();
+}

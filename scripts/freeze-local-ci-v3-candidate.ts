@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { constructReleasePayloadAt } from "../tools/release-payload.ts";
 import {
   canonicalizeJson,
   createTemplateReleaseCandidateV1,
@@ -67,6 +68,39 @@ const REQUIRED_VERIFICATION_CHECKS = [
 ] as const;
 
 export const VERIFICATION_EVIDENCE_PATH = "contracts/local-ci/v3/verification-evidence.json";
+
+/**
+ * The three manifest inputs that are NOT part of `CANONICAL_V3_PATHS` but whose
+ * content still reaches `manifestDigests` and `candidateReleaseReceipt`.
+ *
+ * repo-template#340 (RT-340b): before this repair these were read with
+ * `fs.readFileSync` from the current checkout, so the receipt named frozen
+ * commit 88591ee / tree 995ea497 while recording the branch tip's payload-set
+ * and artifact-manifest digests. They are now read from the frozen commit's
+ * git tree like every other receipt input.
+ */
+export const FROZEN_MANIFEST_INPUT_PATHS = {
+  releasePayloadSet: "release/release-payload-set.json",
+  capabilityBundleRegistry: "contracts/adoption-shell-v2/capability-bundle-registry.json",
+  artifactManifest: "artifacts/adoption-shell-v2/artifact-manifest.json",
+} as const;
+
+export const FROZEN_VERSION_PATHS = ["VERSION", "TEMPLATE_VERSION"] as const;
+
+const FROZEN_BLOB_READ_METHOD = "git show <commit>:<path>";
+const FROZEN_ENUMERATION_METHOD = "git ls-tree -rz <commit>";
+
+/**
+ * repo-template#340 (RT-340b): `VERSION`/`TEMPLATE_VERSION` inside the frozen
+ * tree are 3.1.0 while the candidate is labelled 3.2.0, because v3.1.0 was
+ * already released against a different tree. Publication (#341) must therefore
+ * bump VERSION/TEMPLATE_VERSION in its own publication commit and tag that
+ * commit; it must never mint v3.2.0 against the frozen tree, whose VERSION says
+ * otherwise. Recorded in the receipt under `versionBinding` and tracked by the
+ * governed issue below.
+ */
+export const VERSION_BINDING_ISSUE =
+  "https://github.com/spencer-shadley/repo-template/issues/364";
 
 export interface VerificationEvidenceEntry {
   readonly command: string;
@@ -152,6 +186,21 @@ export interface PrePublicationReceipt {
     readonly decisionRecord: string;
   };
   readonly candidateReleaseReceipt: unknown;
+  readonly frozenInputs: {
+    readonly blobReadMethod: string;
+    readonly treeEnumerationMethod: string;
+    readonly enumerationTool: string;
+    readonly releasePayloadSetReproducedFromFrozenTree: true;
+    readonly blobDigests: Record<string, string>;
+  };
+  readonly versionBinding: {
+    readonly frozenVersion: string;
+    readonly frozenTemplateVersion: string;
+    readonly candidateSemver: string;
+    readonly relation: "candidate-ahead-of-frozen-tree";
+    readonly publicationRule: string;
+    readonly trackingIssue: string;
+  };
   readonly canonicalDigests: Record<string, string>;
   readonly manifestDigests: {
     readonly releasePayloadSet: {
@@ -386,37 +435,152 @@ export function loadVerificationEvidence(): VerificationEvidenceLedger {
   return raw;
 }
 
-function loadPayloadSet(): ReleasePayloadSet {
-  const raw: unknown = JSON.parse(
-    fs.readFileSync(path.join(root, "release", "release-payload-set.json"), "utf8"),
+function parseFrozenJson(relativePath: string): unknown {
+  return JSON.parse(readFrozenBlob(FROZEN_CANDIDATE_COMMIT, relativePath).toString("utf8"));
+}
+
+/**
+ * Read the release payload set from the frozen commit's tree.
+ *
+ * repo-template#340 (RT-340b): this used to be `fs.readFileSync` of the current
+ * checkout, so an unrelated commit on top of the candidate silently moved
+ * `manifestDigests.releasePayloadSet` while `candidate.commit`/`candidate.tree`
+ * stayed frozen. Now the bytes come from the frozen commit only.
+ */
+export function loadFrozenPayloadSet(): ReleasePayloadSet {
+  const result = validateReleasePayloadSetV2(
+    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.releasePayloadSet),
   );
-  const result = validateReleasePayloadSetV2(raw);
   if (!result.ok) throw new Error("Invalid payload set: " + JSON.stringify(result.diagnostics));
   return result.value;
 }
 
-function loadCapabilityRegistry(): CapabilityBundleRegistry {
-  const raw: unknown = JSON.parse(
-    fs.readFileSync(
-      path.join(root, "contracts", "adoption-shell-v2", "capability-bundle-registry.json"),
-      "utf8",
-    ),
+/** Read the capability bundle registry from the frozen commit's tree (RT-340b). */
+export function loadFrozenCapabilityRegistry(): CapabilityBundleRegistry {
+  const result = validateCapabilityBundleRegistryV2(
+    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.capabilityBundleRegistry),
   );
-  const result = validateCapabilityBundleRegistryV2(raw);
   if (!result.ok) throw new Error("Invalid capability registry: " + JSON.stringify(result.diagnostics));
   return result.value;
 }
 
-function loadArtifactManifest(): ArtifactManifest {
-  const raw: unknown = JSON.parse(
-    fs.readFileSync(
-      path.join(root, "artifacts", "adoption-shell-v2", "artifact-manifest.json"),
-      "utf8",
-    ),
+/** Read the artifact manifest from the frozen commit's tree (RT-340b). */
+export function loadFrozenArtifactManifest(): ArtifactManifest {
+  const result = validateArtifactManifestV2(
+    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.artifactManifest),
   );
-  const result = validateArtifactManifestV2(raw);
   if (!result.ok) throw new Error("Invalid artifact manifest: " + JSON.stringify(result.diagnostics));
   return result.value;
+}
+
+/**
+ * Independently re-derive the release payload set by enumerating the frozen
+ * commit's own git tree (`git ls-tree -rz <commit>`) and prove it reproduces the
+ * payload set committed inside that same tree.
+ *
+ * This is the direct guard for the mutation the PR #363 reviewer executed: they
+ * committed one unrelated `.gitignore` line and re-derived, and the payload
+ * digest moved while the declared commit/tree did not. The enumeration is now
+ * pinned to `FROZEN_CANDIDATE_COMMIT`, so a later commit cannot reach it; and if
+ * the frozen tree's committed payload set ever stopped being reproducible from
+ * the frozen tree itself, this fails closed instead of freezing a receipt whose
+ * payload digest describes nothing checkable.
+ */
+export function verifyFrozenPayloadSetReproducible(payloadSet: ReleasePayloadSet): void {
+  const reDerived = constructReleasePayloadAt(FROZEN_CANDIDATE_COMMIT).payload;
+  const fields = ["releaseDigest", "payloadDigest", "payloadDigestAlgorithm", "entryCount"] as const;
+  for (const field of fields) {
+    if (reDerived[field] !== payloadSet[field]) {
+      throw new Error(
+        `Release payload set committed at ${FROZEN_CANDIDATE_COMMIT} is not reproducible from that commit's own tree: ${field} is ${String(payloadSet[field])} in the frozen file but ${String(reDerived[field])} when re-enumerated with "${FROZEN_ENUMERATION_METHOD}".`,
+      );
+    }
+  }
+}
+
+/** Read a single-line version file from the frozen commit's tree. */
+export function readFrozenVersion(relativePath: string): string {
+  return readFrozenBlob(FROZEN_CANDIDATE_COMMIT, relativePath).toString("utf8").trim();
+}
+
+function parseSemver(value: string): readonly [number, number, number] {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(value);
+  if (!match?.[1] || !match[2] || !match[3]) {
+    throw new Error(`Expected a bare X.Y.Z semver, received ${JSON.stringify(value)}`);
+  }
+  return [Number(match[1]), Number(match[2]), Number(match[3])];
+}
+
+function isStrictlyAhead(candidate: string, frozen: string): boolean {
+  const left = parseSemver(candidate);
+  const right = parseSemver(frozen);
+  for (let index = 0; index < 3; index += 1) {
+    if ((left[index] ?? 0) !== (right[index] ?? 0)) return (left[index] ?? 0) > (right[index] ?? 0);
+  }
+  return false;
+}
+
+/**
+ * Bind the frozen tree's own declared version into the receipt and fail closed
+ * on any relation other than "the candidate label is strictly ahead of what the
+ * frozen tree declares".
+ *
+ * The frozen tree says 3.1.0; the candidate is labelled 3.2.0 because v3.1.0 was
+ * already released against a different tree. That is now a recorded discrepancy
+ * rather than a silent one: publication (#341) must bump VERSION/TEMPLATE_VERSION
+ * in its own commit and tag that commit, never mint v3.2.0 against this tree.
+ * Tracked by repo-template#364. Equal-or-behind would mean the candidate reuses
+ * or regresses an already-released identity, and fails here
+ * (repo-template#340 deliverable 4).
+ */
+export function buildVersionBinding(
+  candidateSemver: string = FROZEN_SEMVER,
+): PrePublicationReceipt["versionBinding"] {
+  const [versionPath, templateVersionPath] = FROZEN_VERSION_PATHS;
+  const frozenVersion = readFrozenVersion(versionPath);
+  const frozenTemplateVersion = readFrozenVersion(templateVersionPath);
+  if (frozenVersion !== frozenTemplateVersion) {
+    throw new Error(
+      `Frozen tree declares ${versionPath}=${frozenVersion} but ${templateVersionPath}=${frozenTemplateVersion}. Refusing to freeze a candidate whose own tree disagrees with itself about its version.`,
+    );
+  }
+  if (!isStrictlyAhead(candidateSemver, frozenVersion)) {
+    throw new Error(
+      `Candidate semver ${candidateSemver} is not strictly ahead of the frozen tree's declared version ${frozenVersion}. A candidate must never reuse or regress an already-released identity (repo-template#364).`,
+    );
+  }
+  return {
+    frozenVersion,
+    frozenTemplateVersion,
+    candidateSemver,
+    relation: "candidate-ahead-of-frozen-tree",
+    publicationRule: `The frozen tree ${FROZEN_CANDIDATE_TREE} declares VERSION/TEMPLATE_VERSION ${frozenVersion}; publication (repo-template#341) must bump both to ${candidateSemver} in its own publication commit and tag that commit. Minting v${candidateSemver} against commit ${FROZEN_CANDIDATE_COMMIT} is forbidden: the tagged bytes would contradict the tag. Tracked by ${VERSION_BINDING_ISSUE}.`,
+    trackingIssue: VERSION_BINDING_ISSUE,
+  };
+}
+
+/**
+ * Record, in the receipt itself, how every non-canonical input was obtained and
+ * the sha256 of the exact frozen blob consumed. A reader can re-run
+ * `git show <commit>:<path>` against the declared commit and reproduce these
+ * numbers, so no field of this receipt describes a tree other than the one it
+ * names (repo-template#340 deliverable 1).
+ */
+export function buildFrozenInputs(): PrePublicationReceipt["frozenInputs"] {
+  const blobDigests: Record<string, string> = {};
+  for (const relativePath of [
+    ...Object.values(FROZEN_MANIFEST_INPUT_PATHS),
+    ...FROZEN_VERSION_PATHS,
+  ]) {
+    blobDigests[relativePath] = sha256File(relativePath);
+  }
+  return {
+    blobReadMethod: FROZEN_BLOB_READ_METHOD,
+    treeEnumerationMethod: FROZEN_ENUMERATION_METHOD,
+    enumerationTool: "tools/release-payload.ts",
+    releasePayloadSetReproducedFromFrozenTree: true,
+    blobDigests,
+  };
 }
 
 function buildLineage(): PrePublicationReceipt["lineage"] {
@@ -526,9 +690,10 @@ function buildCanaryGuidance(): PrePublicationReceipt["canaryGuidance"] {
 }
 
 export function buildPrePublicationReceipt(): PrePublicationReceipt {
-  const payloadSet = loadPayloadSet();
-  const capabilityRegistry = loadCapabilityRegistry();
-  const artifactManifest = loadArtifactManifest();
+  const payloadSet = loadFrozenPayloadSet();
+  const capabilityRegistry = loadFrozenCapabilityRegistry();
+  const artifactManifest = loadFrozenArtifactManifest();
+  verifyFrozenPayloadSetReproducible(payloadSet);
 
   const treeVerification = verifyCandidateTree(FROZEN_CANDIDATE_COMMIT, FROZEN_CANDIDATE_TREE);
   const evidence = loadVerificationEvidence();
@@ -568,6 +733,8 @@ export function buildPrePublicationReceipt(): PrePublicationReceipt {
     treeVerification,
     lineage: buildLineage(),
     candidateReleaseReceipt: candidateClosure.value.receipt,
+    frozenInputs: buildFrozenInputs(),
+    versionBinding: buildVersionBinding(),
     canonicalDigests: computeCanonicalDigests(),
     manifestDigests: buildManifestDigests(payloadSet, artifactManifest, capabilityRegistry),
     proofOfDetectionSemantics: buildProofOfDetectionSemantics(),
@@ -674,6 +841,76 @@ function selfTest(): void {
     }
   } finally {
     fs.writeFileSync(fullPath, original);
+  }
+
+  // repo-template#340 (RT-340b): the same guard for the three manifest inputs
+  // that were still read from the working tree after PR #363. Mutating any of
+  // them must not move a single digest in the receipt, because none of them is
+  // read from the checkout any more.
+  selfTestManifestInputsAreFrozen(receipt);
+
+  // The frozen payload set must remain reproducible by enumerating the frozen
+  // commit's own tree, and must NOT equal the current HEAD's enumeration while
+  // HEAD has moved past the candidate -- otherwise this check could pass simply
+  // because nothing ever differs, and a HEAD-following regression would be
+  // invisible (exactly how the PR #363 defect survived a green gate).
+  selfTestPayloadEnumerationIsPinned(receipt);
+}
+
+/**
+ * Mutate each manifest input in the working tree and prove the receipt is
+ * byte-identical afterwards. Before RT-340b this would have moved
+ * `manifestDigests.releasePayloadSet`, `manifestDigests.artifactManifest`,
+ * `manifestDigests.capabilityBundleRegistry`, `candidateReleaseReceipt` and
+ * therefore `receiptDigest`, while `candidate.commit`/`candidate.tree` stayed
+ * frozen -- the accepted identity-mismatched receipt the reviewer produced.
+ */
+function selfTestManifestInputsAreFrozen(receipt: PrePublicationReceipt): void {
+  const expected = serializeReceipt(receipt);
+  for (const relativePath of Object.values(FROZEN_MANIFEST_INPUT_PATHS)) {
+    const fullPath = path.join(root, ...relativePath.split("/"));
+    const original = fs.readFileSync(fullPath);
+    const mutated: unknown = JSON.parse(original.toString("utf8"));
+    if (!isPlainObject(mutated)) {
+      throw new Error(`Expected ${relativePath} to contain a JSON object`);
+    }
+    mutated["mutatedForSelfTest"] = FROZEN_CANDIDATE_COMMIT;
+    try {
+      fs.writeFileSync(fullPath, `${JSON.stringify(mutated, null, 2)}\n`, "utf8");
+      if (serializeReceipt(buildPrePublicationReceipt()) !== expected) {
+        throw new Error(
+          `Mutating the working-tree copy of ${relativePath} changed the frozen receipt. Every receipt input must be read from ${FROZEN_CANDIDATE_COMMIT}, never from the checkout.`,
+        );
+      }
+    } finally {
+      fs.writeFileSync(fullPath, original);
+    }
+  }
+}
+
+/**
+ * Prove the payload-set enumeration is pinned to the frozen commit rather than
+ * following `HEAD`. `tools/release-payload.ts` used to enumerate
+ * `git ls-tree -rz HEAD`, so any commit on top of the candidate rewrote the
+ * frozen receipt's payload digest.
+ */
+function selfTestPayloadEnumerationIsPinned(receipt: PrePublicationReceipt): void {
+  const frozenDigest = constructReleasePayloadAt(FROZEN_CANDIDATE_COMMIT).payload.releaseDigest;
+  if (receipt.manifestDigests.releasePayloadSet.manifestDigest !== frozenDigest) {
+    throw new Error(
+      `Receipt records releasePayloadSet digest ${receipt.manifestDigests.releasePayloadSet.manifestDigest}, but enumerating the frozen commit's tree yields ${frozenDigest}.`,
+    );
+  }
+  const headCommit = resolveCommitTree("HEAD");
+  if (headCommit === FROZEN_CANDIDATE_TREE) {
+    // The checkout is exactly the frozen tree, so "pinned" and "HEAD-following"
+    // are indistinguishable here and there is nothing further to prove.
+    return;
+  }
+  if (constructReleasePayloadAt("HEAD").payload.releaseDigest === frozenDigest) {
+    throw new Error(
+      "HEAD's tree differs from the frozen candidate tree, yet both enumerate to the same release digest. The pinning guard cannot distinguish frozen from HEAD-following and must not be trusted.",
+    );
   }
 }
 

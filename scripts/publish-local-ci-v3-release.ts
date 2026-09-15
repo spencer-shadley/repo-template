@@ -19,7 +19,11 @@ import {
 import {
   CANONICAL_V3_PATHS,
   computeCanonicalDigests,
+  loadFrozenArtifactManifest,
+  loadFrozenCapabilityRegistry,
+  loadFrozenPayloadSet,
   sha256File,
+  verifyFrozenPayloadSetReproducible,
 } from "./freeze-local-ci-v3-candidate.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -40,7 +44,7 @@ export const ISSUE_URL = "https://github.com/spencer-shadley/repo-template/issue
 export const PRODUCER_FREEZE_ISSUE = "https://github.com/spencer-shadley/repo-template/issues/340";
 export const PRODUCER_CANDIDATE_RECEIPT_ID = "receipt-issue-340-rt340repair1";
 export const PRODUCER_CANDIDATE_RECEIPT_DIGEST =
-  "7fc146c2f4f42f4826b1b0f39d2cf9ed4ac38bd42d44a87ded3266b63c1d4bc6";
+  "79d5c6963c7e30dc7cec9e7fd4a2a31d099fadea09a5d08602b2f85676e2fc18";
 
 export const FIRST_CANARY_ISSUE = "https://github.com/spencer-shadley/model-gateway/issues/991";
 export const FIRST_CANARY_RECEIPT_ID = "receipt-issue-991-mu14rxy2";
@@ -178,43 +182,17 @@ export interface PostPublicationReadbackReceipt {
   readonly receiptDigest: string;
 }
 
-function loadPayloadSet(): ReleasePayloadSet {
-  const raw: unknown = JSON.parse(
-    fs.readFileSync(path.join(root, "release", "release-payload-set.json"), "utf8"),
-  );
-  const result = validateReleasePayloadSetV2(raw);
-  if (!result.ok) throw new Error("Invalid payload set: " + JSON.stringify(result.diagnostics));
-  return result.value;
-}
-
-function loadCapabilityRegistry(): CapabilityBundleRegistry {
-  const raw: unknown = JSON.parse(
-    fs.readFileSync(
-      path.join(root, "contracts", "adoption-shell-v2", "capability-bundle-registry.json"),
-      "utf8",
-    ),
-  );
-  const result = validateCapabilityBundleRegistryV2(raw);
-  if (!result.ok) throw new Error("Invalid capability registry: " + JSON.stringify(result.diagnostics));
-  return result.value;
-}
-
-function loadArtifactManifest(): ArtifactManifest {
-  const raw: unknown = JSON.parse(
-    fs.readFileSync(
-      path.join(root, "artifacts", "adoption-shell-v2", "artifact-manifest.json"),
-      "utf8",
-    ),
-  );
-  const result = validateArtifactManifestV2(raw);
-  if (!result.ok) throw new Error("Invalid artifact manifest: " + JSON.stringify(result.diagnostics));
-  return result.value;
-}
+// repo-template#340 (RT-340b): this script used to carry its own
+// `fs.readFileSync` copies of these three loaders, so the published release
+// receipt described the working tree while naming the frozen candidate commit
+// -- the same defect the candidate freeze had. It now consumes the single
+// frozen-tree implementation in scripts/freeze-local-ci-v3-candidate.ts.
 
 export function buildPublishedReleaseReceipt(): TemplateReleaseReceipt {
-  const payloadSet = loadPayloadSet();
-  const capabilityRegistry = loadCapabilityRegistry();
-  const artifactManifest = loadArtifactManifest();
+  const payloadSet = loadFrozenPayloadSet();
+  const capabilityRegistry = loadFrozenCapabilityRegistry();
+  const artifactManifest = loadFrozenArtifactManifest();
+  verifyFrozenPayloadSetReproducible(payloadSet);
 
   const releaseEvidence: TemplateReleaseEvidence = {
     review: {
@@ -304,9 +282,10 @@ export function buildPublishedReleaseReceipt(): TemplateReleaseReceipt {
 }
 
 export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackReceipt {
-  const payloadSet = loadPayloadSet();
-  const capabilityRegistry = loadCapabilityRegistry();
-  const artifactManifest = loadArtifactManifest();
+  const payloadSet = loadFrozenPayloadSet();
+  const capabilityRegistry = loadFrozenCapabilityRegistry();
+  const artifactManifest = loadFrozenArtifactManifest();
+  verifyFrozenPayloadSetReproducible(payloadSet);
   const canonicalDigests = computeCanonicalDigests();
 
   const prePubPath = path.join(root, "contracts", "local-ci", "v3", "pre-publication-receipt.json");

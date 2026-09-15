@@ -47,4 +47,29 @@ export interface LocalCiV3CandidateReceiptLike {
  */
 export declare function validateLocalCiV3CandidateReceiptV1(value: unknown): ValidationResult<LocalCiV3CandidateReceiptLike>;
 export declare function isValidLocalCiV3CandidateReceiptV1(value: unknown): boolean;
+/**
+ * Reads the exact bytes a commit recorded at `relativePath`. A consumer that has
+ * the producer repository checked out supplies one of these (typically wrapping
+ * `git show <commit>:<path>`); a consumer holding only the receipt does not.
+ */
+export type FrozenBlobReader = (commit: string, relativePath: string) => Uint8Array;
+/**
+ * Prove the receipt's declared digests really describe the tree the receipt
+ * names, by re-reading every declared input from the declared commit.
+ *
+ * `validateLocalCiV3CandidateReceiptV1` alone cannot do this. It rejects a
+ * *tampered* receipt (a `receiptDigest` that was not recomputed after an edit),
+ * but it accepts a *mismatched* one -- a receipt whose digest was honestly
+ * recomputed over a body describing a different tree than `candidate.commit`.
+ * That is exactly the defect repo-template#340 was reopened for: the producer
+ * paired frozen commit 88591ee with the branch tip's payload-set and
+ * artifact-manifest digests, and every digest-only gate accepted it.
+ *
+ * Model Gateway (#991) and Repo Factory (#187) check out the candidate commit
+ * anyway, so they can and must run this before binding. It checks three things
+ * against the declared commit: every `canonicalDigests` entry, every
+ * `frozenInputs.blobDigests` entry, and that each `manifestDigests` value equals
+ * the corresponding field inside the frozen file it cites.
+ */
+export declare function verifyLocalCiV3CandidateReceiptAgainstFrozenTree(value: unknown, readFrozenBlob: FrozenBlobReader): ValidationResult<LocalCiV3CandidateReceiptLike>;
 export type { Diagnostic };
