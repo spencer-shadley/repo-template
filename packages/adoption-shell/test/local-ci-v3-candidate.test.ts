@@ -362,6 +362,13 @@ function commitOnTopOfFrozenCandidate(relativePath: string, appended: string): s
   }
 }
 
+/** The diagnostic codes a validation result carries, or none when it succeeded. */
+function diagnosticCodes(
+  result: { readonly ok: true } | { readonly ok: false; readonly diagnostics: readonly { readonly code: string }[] },
+): readonly string[] {
+  return result.ok ? [] : result.diagnostics.map((row) => row.code);
+}
+
 /** Temporarily replace a tracked working-tree file, then restore it exactly. */
 function withMutatedWorkingTreeFile(relativePath: string, run: () => void): void {
   const fullPath = path.join(root, ...relativePath.split("/"));
@@ -536,10 +543,10 @@ void test("RT-340b: the consumer validator rejects an identity-mismatched receip
     readBlob,
   );
   assert.equal(payloadVerdict.ok, false);
+  const payloadCodes = diagnosticCodes(payloadVerdict);
   assert.ok(
-    !payloadVerdict.ok
-      && payloadVerdict.diagnostics.some((row) => row.code === "E_FROZEN_INPUT_MISMATCH"),
-    JSON.stringify(!payloadVerdict.ok && payloadVerdict.diagnostics),
+    payloadCodes.includes("E_FROZEN_INPUT_MISMATCH"),
+    JSON.stringify(payloadCodes),
   );
 
   // Case 2: a frozen-input blob digest that the named commit does not record.

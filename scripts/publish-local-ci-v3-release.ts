@@ -6,23 +6,15 @@ import {
   canonicalizeJson,
   createTemplateReleaseCandidateV1,
   sha256CanonicalJson,
-  validateArtifactManifestV2,
-  validateCapabilityBundleRegistryV2,
   validatePublishedTemplateReleaseReceiptV1,
-  validateReleasePayloadSetV2,
-  type ArtifactManifest,
-  type CapabilityBundleRegistry,
-  type ReleasePayloadSet,
   type TemplateReleaseEvidence,
   type TemplateReleaseReceipt,
 } from "../artifacts/adoption-shell-v2/index.js";
 import {
-  CANONICAL_V3_PATHS,
   computeCanonicalDigests,
   loadFrozenArtifactManifest,
   loadFrozenCapabilityRegistry,
   loadFrozenPayloadSet,
-  sha256File,
   verifyFrozenPayloadSetReproducible,
 } from "./freeze-local-ci-v3-candidate.ts";
 

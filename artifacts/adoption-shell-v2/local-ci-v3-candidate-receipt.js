@@ -193,8 +193,12 @@ export function verifyLocalCiV3CandidateReceiptAgainstFrozenTree(value, readFroz
     const base = validateLocalCiV3CandidateReceiptV1(value);
     if (!base.ok)
         return base;
-    const receipt = value;
     const diagnostics = new Diagnostics();
+    if (!isRecord(value)) {
+        diagnostics.add("E_TYPE", "", "expected object");
+        return finish(undefined, diagnostics);
+    }
+    const receipt = value;
     const commit = base.value.candidate.commit;
     const canonicalDigests = sha256Record(receipt["canonicalDigests"], "/canonicalDigests", diagnostics);
     const frozenInputs = receipt["frozenInputs"];
