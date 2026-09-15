@@ -3,17 +3,22 @@
   "schemaVersion": "3.0.0",
   "contractId": "repo-template/local-ci-v3-canary-candidate",
   "receiptKind": "repo-template/local-ci-v3-candidate-receipt/v1",
-  "receiptId": "receipt-issue-340-mu14imli",
+  "receiptId": "receipt-issue-340-rt340repair1",
   "publicationState": "candidate",
   "programmeEpic": "https://github.com/spencer-shadley/repo-template/issues/102",
   "issue": "https://github.com/spencer-shadley/repo-template/issues/340",
   "candidate": {
     "repository": "spencer-shadley/repo-template",
     "origin": "https://github.com/spencer-shadley/repo-template.git",
-    "semver": "3.1.0",
-    "tag": "v3.1.0",
-    "commit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
-    "tree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2"
+    "semver": "3.2.0",
+    "tag": "v3.2.0",
+    "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
+  },
+  "treeVerification": {
+    "method": "git rev-parse <commit>^{tree}",
+    "resolvedTree": "995ea497114b2eba0b86cc3adb3666306829e0fb",
+    "matches": true
   },
   "lineage": {
     "contractId": "repo-template/local-ci-v3",
@@ -32,19 +37,19 @@
     "contractId": "repo-template/adoption-shell-v2",
     "receiptKind": "repo-template/release-receipt/v1",
     "publicationState": "candidate",
-    "releaseId": "spencer-shadley/repo-template@3.1.0",
+    "releaseId": "spencer-shadley/repo-template@3.2.0",
     "receiptDigestAlgorithm": "sha256-rfc8785-v1",
     "producer": {
       "repository": "spencer-shadley/repo-template",
       "origin": "https://github.com/spencer-shadley/repo-template.git",
-      "semver": "3.1.0",
-      "tag": "v3.1.0",
-      "commit": "003bcc16deb5a1db3ab37dc17991b9f616a6d09e",
-      "tree": "495c6914c00f046c17e053efb61eb24fcf3cc7f2"
+      "semver": "3.2.0",
+      "tag": "v3.2.0",
+      "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
+      "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
     },
     "receiptTransport": {
       "kind": "annotated-git-tag-message/v1",
-      "tagName": "v3.1.0",
+      "tagName": "v3.2.0",
       "targetObjectType": "commit",
       "bodyEncoding": "utf-8",
       "bodyCanonicalization": "rfc8785"
@@ -54,9 +59,9 @@
       "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
       "schemaVersion": "2.0.0",
       "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
-      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "manifestDigest": "cc700a5e5a43cb5e00d2f18339cdda6b14a2982a33bd9a817ab0e424a5590713",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+      "payloadDigest": "9c10a60b682dc60bc5916a7a7cf29d34743a080fe58966c7248542d10d005ccb",
       "entryCount": 99
     },
     "capabilityBundles": [
@@ -93,15 +98,15 @@
       "artifactManifestSchemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
       "artifactManifestSchemaVersion": "2.0.0",
       "artifactManifestSchemaDigest": "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
-      "artifactManifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
-      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a",
+      "artifactManifestDigest": "bc15d49e5bb10b9c2aeb5e1f62ead1dbb53bde67e642a5e62d8b3928f874796d",
+      "artifactDigest": "a865599db0354a2c301f12c851d624361e7b2e17ab0f7e9f6afef3c49b3bda4d",
       "entrypoint": "index.js",
       "validatorExport": "validateMaterializerInputV2",
       "runtimeCompatibility": ">=24.16.0 <25",
       "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
     },
     "migrationRefs": [],
-    "receiptDigest": "9b69bdffd7204a341a476f0266af43f8db244cf5bc5ef4e84decb46cd28e6449"
+    "receiptDigest": "12cb371e2305f33c947bd26ba166d511d0a2278fd7bac39f5c022f7eb57a5e17"
   },
   "canonicalDigests": {
     "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
@@ -139,16 +144,16 @@
   "manifestDigests": {
     "releasePayloadSet": {
       "path": "release/release-payload-set.json",
-      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "manifestDigest": "cc700a5e5a43cb5e00d2f18339cdda6b14a2982a33bd9a817ab0e424a5590713",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
+      "payloadDigest": "9c10a60b682dc60bc5916a7a7cf29d34743a080fe58966c7248542d10d005ccb",
       "entryCount": 99
     },
     "artifactManifest": {
       "path": "artifacts/adoption-shell-v2/artifact-manifest.json",
-      "manifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+      "manifestDigest": "bc15d49e5bb10b9c2aeb5e1f62ead1dbb53bde67e642a5e62d8b3928f874796d",
       "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a"
+      "artifactDigest": "a865599db0354a2c301f12c851d624361e7b2e17ab0f7e9f6afef3c49b3bda4d"
     },
     "capabilityBundleRegistry": {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -189,30 +194,43 @@
   },
   "verification": {
     "repositoryVerification": "green",
+    "evidenceBoundCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "evidencePath": "contracts/local-ci/v3/verification-evidence.json",
     "checks": {
-      "repo-template-verify": {
-        "command": "corepack pnpm verify",
-        "result": "passed"
-      },
       "proof-of-detection-self-test": {
         "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
-        "result": "passed"
+        "result": "passed",
+        "exitCode": 0,
+        "startedAt": "2026-09-15T03:15:04.728Z",
+        "finishedAt": "2026-09-15T03:15:05.604Z"
       },
       "local-ci-v3-contract-unit": {
         "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
-        "result": "passed"
+        "result": "passed",
+        "exitCode": 0,
+        "startedAt": "2026-09-15T03:15:05.605Z",
+        "finishedAt": "2026-09-15T03:15:06.354Z"
       },
       "local-ci-outcome-v1-unit": {
         "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
-        "result": "passed"
+        "result": "passed",
+        "exitCode": 0,
+        "startedAt": "2026-09-15T03:15:06.355Z",
+        "finishedAt": "2026-09-15T03:15:07.093Z"
       },
       "release-payload-check": {
         "command": "node tools/release-payload.ts check",
-        "result": "passed"
+        "result": "passed",
+        "exitCode": 0,
+        "startedAt": "2026-09-15T03:15:07.093Z",
+        "finishedAt": "2026-09-15T03:15:07.934Z"
       },
       "artifact-build-verify": {
         "command": "node tools/artifact-build.ts verify",
-        "result": "passed"
+        "result": "passed",
+        "exitCode": 0,
+        "startedAt": "2026-09-15T03:15:07.935Z",
+        "finishedAt": "2026-09-15T03:15:08.433Z"
       }
     }
   },
@@ -242,5 +260,5 @@
     }
   },
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "8e06b92433edf7d01268b760644573bbb4432488e785012f70da3e57a0d3d6b2"
+  "receiptDigest": "7fc146c2f4f42f4826b1b0f39d2cf9ed4ac38bd42d44a87ded3266b63c1d4bc6"
 }

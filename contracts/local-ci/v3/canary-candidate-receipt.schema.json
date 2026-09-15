@@ -14,6 +14,7 @@
     "programmeEpic",
     "issue",
     "candidate",
+    "treeVerification",
     "lineage",
     "candidateReleaseReceipt",
     "canonicalDigests",
@@ -80,6 +81,22 @@
         },
         "tree": {
           "$ref": "#/$defs/gitSha1"
+        }
+      }
+    },
+    "treeVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "resolvedTree", "matches"],
+      "properties": {
+        "method": {
+          "const": "git rev-parse <commit>^{tree}"
+        },
+        "resolvedTree": {
+          "$ref": "#/$defs/gitSha1"
+        },
+        "matches": {
+          "const": true
         }
       }
     },
@@ -247,11 +264,19 @@
       "additionalProperties": false,
       "required": [
         "repositoryVerification",
+        "evidenceBoundCommit",
+        "evidencePath",
         "checks"
       ],
       "properties": {
         "repositoryVerification": {
           "const": "green"
+        },
+        "evidenceBoundCommit": {
+          "$ref": "#/$defs/gitSha1"
+        },
+        "evidencePath": {
+          "type": "string"
         },
         "checks": {
           "type": "object",
@@ -259,10 +284,13 @@
           "additionalProperties": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["command", "result"],
+            "required": ["command", "result", "exitCode", "startedAt", "finishedAt"],
             "properties": {
               "command": { "type": "string" },
-              "result": { "const": "passed" }
+              "result": { "const": "passed" },
+              "exitCode": { "const": 0 },
+              "startedAt": { "type": "string" },
+              "finishedAt": { "type": "string" }
             }
           }
         }

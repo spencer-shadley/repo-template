@@ -106,7 +106,11 @@ void test("published release receipt validates with validatePublishedTemplateRel
   );
   const receipt = JSON.parse(raw);
   const validation = validatePublishedTemplateReleaseReceiptV1(receipt);
-  assert.equal(validation.ok, true, JSON.stringify(validation.diagnostics, null, 2));
+  assert.equal(
+    validation.ok,
+    true,
+    validation.ok ? undefined : JSON.stringify(validation.diagnostics, null, 2),
+  );
   assert.equal(receipt.publicationState, "published");
   assert.equal(receipt.releaseId, `spencer-shadley/repo-template@${FROZEN_SEMVER}`);
   assert.equal(receipt.producer.commit, FROZEN_CANDIDATE_COMMIT);

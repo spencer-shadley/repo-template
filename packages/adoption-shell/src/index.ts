@@ -169,6 +169,13 @@ export type {
   OrderedLocalCiCommandV3,
 } from "./local-ci-contract-v3.ts";
 export {
+  isValidLocalCiV3CandidateReceiptV1,
+  validateLocalCiV3CandidateReceiptV1,
+} from "./local-ci-v3-candidate-receipt.ts";
+export type {
+  LocalCiV3CandidateReceiptLike,
+} from "./local-ci-v3-candidate-receipt.ts";
+export {
   LOCAL_CI_OUTCOME_V1_ID,
   LOCAL_CI_OUTCOME_V1_SCHEMA_ID,
   LOCAL_CI_OUTCOME_V1_SCHEMA_VERSION,

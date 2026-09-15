@@ -24,16 +24,23 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-export const FROZEN_CANDIDATE_COMMIT = "003bcc16deb5a1db3ab37dc17991b9f616a6d09e";
-export const FROZEN_CANDIDATE_TREE = "495c6914c00f046c17e053efb61eb24fcf3cc7f2";
-export const FROZEN_SEMVER = "3.1.0";
+// NOTE (repo-template#340 repair): these must stay in lockstep with the
+// repaired producer candidate in scripts/freeze-local-ci-v3-candidate.ts.
+// The commit/tree/semver moved forward from the pre-repair identity
+// (003bcc16.../495c6914...@3.1.0, which reused an already-released 3.1.0 tag
+// -- see #340 comment 5663732372) to the repaired identity below. This is a
+// producer-side consistency fixture only: no tag is moved or published here
+// (that remains #341's own scope, a later chunk).
+export const FROZEN_CANDIDATE_COMMIT = "88591ee869bb109ef481171aa817d1ed204a970e";
+export const FROZEN_CANDIDATE_TREE = "995ea497114b2eba0b86cc3adb3666306829e0fb";
+export const FROZEN_SEMVER = "3.2.0";
 export const RECEIPT_ID = "receipt-issue-341-mu15pl0x";
 export const PROGRAMME_EPIC = "https://github.com/spencer-shadley/repo-template/issues/102";
 export const ISSUE_URL = "https://github.com/spencer-shadley/repo-template/issues/341";
 export const PRODUCER_FREEZE_ISSUE = "https://github.com/spencer-shadley/repo-template/issues/340";
-export const PRODUCER_CANDIDATE_RECEIPT_ID = "receipt-issue-340-mu14imli";
+export const PRODUCER_CANDIDATE_RECEIPT_ID = "receipt-issue-340-rt340repair1";
 export const PRODUCER_CANDIDATE_RECEIPT_DIGEST =
-  "8e06b92433edf7d01268b760644573bbb4432488e785012f70da3e57a0d3d6b2";
+  "7fc146c2f4f42f4826b1b0f39d2cf9ed4ac38bd42d44a87ded3266b63c1d4bc6";
 
 export const FIRST_CANARY_ISSUE = "https://github.com/spencer-shadley/model-gateway/issues/991";
 export const FIRST_CANARY_RECEIPT_ID = "receipt-issue-991-mu14rxy2";

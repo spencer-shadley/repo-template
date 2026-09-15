@@ -7,18 +7,27 @@ import { fileURLToPath } from "node:url";
 import type { AnySchema } from "ajv";
 import { Ajv2020 } from "ajv/dist/2020.js";
 
-import { sha256CanonicalJson } from "../../../artifacts/adoption-shell-v2/index.js";
 import {
+  sha256CanonicalJson,
+  validateLocalCiV3CandidateReceiptV1,
+} from "../../../artifacts/adoption-shell-v2/index.js";
+import {
+  CANONICAL_V3_PATHS,
   FROZEN_CANDIDATE_COMMIT,
   FROZEN_CANDIDATE_TREE,
   FROZEN_SEMVER,
   RECEIPT_ID,
   TARGET_RECEIPT_PATHS,
   buildPrePublicationReceipt,
+  buildVerificationFromEvidence,
   computeCanonicalDigests,
+  loadVerificationEvidence,
+  resolveCommitTree,
   serializeReceipt,
   sha256File,
+  verifyCandidateTree,
   type PrePublicationReceipt,
+  type VerificationEvidenceLedger,
 } from "../../../scripts/freeze-local-ci-v3-candidate.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -156,4 +165,121 @@ void test("schema rejects invalid git commit sha", () => {
   };
   const isValid = validateReceiptSchema(invalid);
   assert.equal(isValid, false, "Schema must reject invalid git commit sha");
+});
+
+// --- repo-template#340 repair regressions -----------------------------------
+// Each of these proves one of the four failure modes named in the repair
+// acceptance criteria fails closed: a mutated working tree, a wrong frozen
+// tree, a skipped/failed/unbound verification check, and a schema-valid
+// tampered receipt.
+
+void test("REGRESSION: a mutated working-tree copy of a canonical file does not change the frozen digest (defect: working-tree hashing)", () => {
+  const [firstCanonicalPath] = CANONICAL_V3_PATHS;
+  assert.ok(firstCanonicalPath, "CANONICAL_V3_PATHS must not be empty");
+  const fullPath = path.join(root, ...firstCanonicalPath.split("/"));
+  const original = fs.readFileSync(fullPath);
+  const before = sha256File(firstCanonicalPath);
+  try {
+    fs.writeFileSync(
+      fullPath,
+      Buffer.concat([original, Buffer.from("\n// REGRESSION-mutation\n")]),
+    );
+    const after = sha256File(firstCanonicalPath);
+    assert.equal(
+      after,
+      before,
+      "sha256File must read the frozen commit's git object, not the mutated working-tree bytes",
+    );
+  } finally {
+    fs.writeFileSync(fullPath, original);
+  }
+});
+
+void test("REGRESSION: a wrong declared candidate tree is rejected (defect: commit/tree pairing never proven)", () => {
+  const realTree = resolveCommitTree(FROZEN_CANDIDATE_COMMIT);
+  assert.equal(realTree, FROZEN_CANDIDATE_TREE);
+  assert.throws(
+    () => verifyCandidateTree(FROZEN_CANDIDATE_COMMIT, "0".repeat(40)),
+    /tree mismatch/i,
+    "A commit/tree pairing that does not actually resolve must throw, not freeze",
+  );
+});
+
+void test("REGRESSION: verification evidence for a different commit is rejected (unbound evidence)", () => {
+  const evidence = loadVerificationEvidence();
+  const unbound: VerificationEvidenceLedger = { ...evidence, boundCommit: "1".repeat(40) };
+  assert.throws(
+    () => buildVerificationFromEvidence(unbound, FROZEN_CANDIDATE_COMMIT),
+    /not the declared candidate/,
+  );
+});
+
+void test("REGRESSION: a skipped/failed check in the evidence ledger is rejected, never silently 'passed'", () => {
+  const evidence = loadVerificationEvidence();
+  const [someCheckId] = Object.keys(evidence.checks);
+  assert.ok(someCheckId, "evidence ledger must contain at least one check");
+  const baseCheck = evidence.checks[someCheckId];
+  assert.ok(baseCheck, "evidence ledger entry for someCheckId must exist");
+  const skipped: VerificationEvidenceLedger = {
+    ...evidence,
+    checks: {
+      ...evidence.checks,
+      [someCheckId]: { ...baseCheck, result: "skipped", exitCode: 1 },
+    },
+  };
+  assert.throws(
+    () => buildVerificationFromEvidence(skipped, evidence.boundCommit),
+    /did not pass/,
+  );
+
+  const failed: VerificationEvidenceLedger = {
+    ...evidence,
+    checks: {
+      ...evidence.checks,
+      [someCheckId]: { ...baseCheck, result: "failed", exitCode: 1 },
+    },
+  };
+  assert.throws(
+    () => buildVerificationFromEvidence(failed, evidence.boundCommit),
+    /did not pass/,
+  );
+
+  const missing: VerificationEvidenceLedger = {
+    ...evidence,
+    checks: Object.fromEntries(
+      Object.entries(evidence.checks).filter(([id]) => id !== someCheckId),
+    ),
+  };
+  assert.throws(
+    () => buildVerificationFromEvidence(missing, evidence.boundCommit),
+    /missing required check/,
+  );
+});
+
+void test("REGRESSION: a schema-valid tampered receipt is rejected by the consumer digest validator", () => {
+  const receipt = buildPrePublicationReceipt();
+
+  // Sanity: the real, untampered receipt validates.
+  const genuine = validateLocalCiV3CandidateReceiptV1(receipt);
+  assert.equal(genuine.ok, true, JSON.stringify(!genuine.ok && genuine.diagnostics));
+
+  // Tamper a field without recomputing receiptDigest. Every individual field
+  // still matches its declared shape/pattern (schema-valid), but the digest
+  // no longer matches the canonical recomputation of the body.
+  const tampered = {
+    ...receipt,
+    candidate: { ...receipt.candidate, commit: "1".repeat(40) },
+  };
+  assert.equal(
+    validateReceiptSchema(tampered),
+    true,
+    "the tampered receipt must still be schema-valid for this to be a meaningful regression",
+  );
+
+  const validated = validateLocalCiV3CandidateReceiptV1(tampered);
+  assert.equal(
+    validated.ok,
+    false,
+    "the consumer digest validator must reject a schema-valid but digest-tampered receipt",
+  );
 });
