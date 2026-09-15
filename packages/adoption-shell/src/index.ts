@@ -171,8 +171,10 @@ export type {
 export {
   isValidLocalCiV3CandidateReceiptV1,
   validateLocalCiV3CandidateReceiptV1,
+  verifyLocalCiV3CandidateReceiptAgainstFrozenTree,
 } from "./local-ci-v3-candidate-receipt.ts";
 export type {
+  FrozenBlobReader,
   LocalCiV3CandidateReceiptLike,
 } from "./local-ci-v3-candidate-receipt.ts";
 export {

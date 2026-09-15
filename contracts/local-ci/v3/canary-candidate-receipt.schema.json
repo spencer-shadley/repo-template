@@ -17,6 +17,8 @@
     "treeVerification",
     "lineage",
     "candidateReleaseReceipt",
+    "frozenInputs",
+    "versionBinding",
     "canonicalDigests",
     "manifestDigests",
     "proofOfDetectionSemantics",
@@ -142,6 +144,78 @@
     },
     "candidateReleaseReceipt": {
       "type": "object"
+    },
+    "frozenInputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "blobReadMethod",
+        "treeEnumerationMethod",
+        "enumerationTool",
+        "releasePayloadSetReproducedFromFrozenTree",
+        "blobDigests"
+      ],
+      "properties": {
+        "blobReadMethod": {
+          "const": "git show <commit>:<path>"
+        },
+        "treeEnumerationMethod": {
+          "const": "git ls-tree -rz <commit>"
+        },
+        "enumerationTool": {
+          "const": "tools/release-payload.ts"
+        },
+        "releasePayloadSetReproducedFromFrozenTree": {
+          "const": true
+        },
+        "blobDigests": {
+          "type": "object",
+          "required": [
+            "release/release-payload-set.json",
+            "contracts/adoption-shell-v2/capability-bundle-registry.json",
+            "artifacts/adoption-shell-v2/artifact-manifest.json",
+            "VERSION",
+            "TEMPLATE_VERSION"
+          ],
+          "additionalProperties": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      }
+    },
+    "versionBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frozenVersion",
+        "frozenTemplateVersion",
+        "candidateSemver",
+        "relation",
+        "publicationRule",
+        "trackingIssue"
+      ],
+      "properties": {
+        "frozenVersion": {
+          "$ref": "#/$defs/semver"
+        },
+        "frozenTemplateVersion": {
+          "$ref": "#/$defs/semver"
+        },
+        "candidateSemver": {
+          "$ref": "#/$defs/semver"
+        },
+        "relation": {
+          "const": "candidate-ahead-of-frozen-tree"
+        },
+        "publicationRule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trackingIssue": {
+          "type": "string",
+          "pattern": "^https://github\\.com/spencer-shadley/"
+        }
+      }
     },
     "canonicalDigests": {
       "type": "object",

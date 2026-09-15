@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { sha256CanonicalJson } from "./digest.js";
 import {} from "./contract.js";
 import { Diagnostics, isRecord } from "./validation-helpers.js";
@@ -73,4 +74,152 @@ export function validateLocalCiV3CandidateReceiptV1(value) {
 }
 export function isValidLocalCiV3CandidateReceiptV1(value) {
     return validateLocalCiV3CandidateReceiptV1(value).ok;
+}
+/**
+ * The manifest fields whose values must agree with the frozen file they cite:
+ * receipt pointer -> [frozen path, field inside that file, field inside the
+ * receipt's manifestDigests entry].
+ */
+const MANIFEST_DIGEST_BINDINGS = [
+    ["releasePayloadSet", "release/release-payload-set.json", "releaseDigest", "manifestDigest"],
+    ["releasePayloadSet", "release/release-payload-set.json", "payloadDigest", "payloadDigest"],
+    [
+        "artifactManifest",
+        "artifacts/adoption-shell-v2/artifact-manifest.json",
+        "manifestDigest",
+        "manifestDigest",
+    ],
+    [
+        "artifactManifest",
+        "artifacts/adoption-shell-v2/artifact-manifest.json",
+        "artifactDigest",
+        "artifactDigest",
+    ],
+    [
+        "capabilityBundleRegistry",
+        "contracts/adoption-shell-v2/capability-bundle-registry.json",
+        "registryDigest",
+        "registryDigest",
+    ],
+];
+function sha256Bytes(bytes) {
+    return createHash("sha256").update(bytes).digest("hex");
+}
+function sha256Record(value, pointer, diagnostics) {
+    if (!isRecord(value)) {
+        diagnostics.add("E_TYPE", pointer, "expected object");
+        return undefined;
+    }
+    const rows = {};
+    for (const [key, entry] of Object.entries(value)) {
+        if (typeof entry !== "string" || !SHA256_PATTERN.test(entry)) {
+            diagnostics.add("E_SHA256", `${pointer}/${key}`, "must be lowercase SHA-256 hex");
+            continue;
+        }
+        rows[key] = entry;
+    }
+    return rows;
+}
+function verifyDeclaredBlobDigests(commit, pointer, rows, readFrozenBlob, diagnostics) {
+    for (const [relativePath, expected] of Object.entries(rows)) {
+        let actual;
+        try {
+            actual = sha256Bytes(readFrozenBlob(commit, relativePath));
+        }
+        catch (error) {
+            diagnostics.add("E_FROZEN_INPUT_UNREADABLE", `${pointer}/${relativePath}`, `could not read ${relativePath} at commit ${commit}: ${String(error)}`);
+            continue;
+        }
+        if (actual !== expected) {
+            diagnostics.add("E_FROZEN_INPUT_MISMATCH", `${pointer}/${relativePath}`, `receipt declares ${expected} for ${relativePath}, but commit ${commit} records ${actual}`);
+        }
+    }
+}
+function frozenJson(commit, relativePath, readFrozenBlob) {
+    const bytes = readFrozenBlob(commit, relativePath);
+    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    if (!isRecord(parsed)) {
+        // Readable JSON that is not an object (an array, a bare string, `null`)
+        // must be rejected, not skipped: the raw-byte digest checks pass whenever
+        // the declared hash matches, so silently dropping the manifest bindings
+        // here would leave the cited digests unverified.
+        throw new Error(`${relativePath} at commit ${commit} is not a JSON object`);
+    }
+    return parsed;
+}
+function verifyManifestDigestsDescribeFrozenTree(commit, manifestDigests, readFrozenBlob, diagnostics) {
+    if (!isRecord(manifestDigests)) {
+        diagnostics.add("E_TYPE", "/manifestDigests", "expected object");
+        return;
+    }
+    const frozenCache = new Map();
+    for (const [group, relativePath, frozenField, receiptField] of MANIFEST_DIGEST_BINDINGS) {
+        const declaredGroup = manifestDigests[group];
+        if (!isRecord(declaredGroup)) {
+            diagnostics.add("E_TYPE", `/manifestDigests/${group}`, "expected object");
+            continue;
+        }
+        if (!frozenCache.has(relativePath)) {
+            try {
+                frozenCache.set(relativePath, frozenJson(commit, relativePath, readFrozenBlob));
+            }
+            catch (error) {
+                frozenCache.set(relativePath, undefined);
+                diagnostics.add("E_FROZEN_INPUT_UNREADABLE", `/manifestDigests/${group}`, `could not read ${relativePath} at commit ${commit}: ${String(error)}`);
+            }
+        }
+        const frozen = frozenCache.get(relativePath);
+        if (frozen === undefined)
+            continue;
+        const expected = frozen[frozenField];
+        const declared = declaredGroup[receiptField];
+        if (declared !== expected) {
+            diagnostics.add("E_FROZEN_INPUT_MISMATCH", `/manifestDigests/${group}/${receiptField}`, `receipt declares ${String(declared)}, but ${relativePath} at commit ${commit} declares ${frozenField} ${String(expected)}`);
+        }
+    }
+}
+/**
+ * Prove the receipt's declared digests really describe the tree the receipt
+ * names, by re-reading every declared input from the declared commit.
+ *
+ * `validateLocalCiV3CandidateReceiptV1` alone cannot do this. It rejects a
+ * *tampered* receipt (a `receiptDigest` that was not recomputed after an edit),
+ * but it accepts a *mismatched* one -- a receipt whose digest was honestly
+ * recomputed over a body describing a different tree than `candidate.commit`.
+ * That is exactly the defect repo-template#340 was reopened for: the producer
+ * paired frozen commit 88591ee with the branch tip's payload-set and
+ * artifact-manifest digests, and every digest-only gate accepted it.
+ *
+ * Model Gateway (#991) and Repo Factory (#187) check out the candidate commit
+ * anyway, so they can and must run this before binding. It checks three things
+ * against the declared commit: every `canonicalDigests` entry, every
+ * `frozenInputs.blobDigests` entry, and that each `manifestDigests` value equals
+ * the corresponding field inside the frozen file it cites.
+ */
+export function verifyLocalCiV3CandidateReceiptAgainstFrozenTree(value, readFrozenBlob) {
+    const base = validateLocalCiV3CandidateReceiptV1(value);
+    if (!base.ok)
+        return base;
+    const diagnostics = new Diagnostics();
+    if (!isRecord(value)) {
+        diagnostics.add("E_TYPE", "", "expected object");
+        return finish(undefined, diagnostics);
+    }
+    const receipt = value;
+    const commit = base.value.candidate.commit;
+    const canonicalDigests = sha256Record(receipt["canonicalDigests"], "/canonicalDigests", diagnostics);
+    const frozenInputs = receipt["frozenInputs"];
+    if (!isRecord(frozenInputs)) {
+        diagnostics.add("E_TYPE", "/frozenInputs", "expected object");
+    }
+    const blobDigests = isRecord(frozenInputs)
+        ? sha256Record(frozenInputs["blobDigests"], "/frozenInputs/blobDigests", diagnostics)
+        : undefined;
+    if (diagnostics.rows.length > 0 || canonicalDigests === undefined || blobDigests === undefined) {
+        return finish(undefined, diagnostics);
+    }
+    verifyDeclaredBlobDigests(commit, "/canonicalDigests", canonicalDigests, readFrozenBlob, diagnostics);
+    verifyDeclaredBlobDigests(commit, "/frozenInputs/blobDigests", blobDigests, readFrozenBlob, diagnostics);
+    verifyManifestDigestsDescribeFrozenTree(commit, receipt["manifestDigests"], readFrozenBlob, diagnostics);
+    return finish(diagnostics.rows.length === 0 ? base.value : undefined, diagnostics);
 }

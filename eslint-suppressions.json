@@ -210,9 +210,6 @@
     },
     "sonarjs/cognitive-complexity": {
       "count": 1
-    },
-    "sonarjs/unused-import": {
-      "count": 2
     }
   },
   "scripts/rotate-changelog-weekly.ts": {
