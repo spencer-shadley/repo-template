@@ -270,6 +270,51 @@ void test("REGRESSION: a skipped/failed check in the evidence ledger is rejected
   );
 });
 
+void test("RT-370: committed exitCode 0→1 on the committed-bytes path is refused by freeze gates", () => {
+  // In-memory skipped/failed coverage above does not exercise the committed-bytes
+  // path added by #369. Clone, commit an exitCode flip on proof-of-detection-self-test,
+  // and assert every freeze gate refuses (repo-template#370).
+  const clone = cloneWorkingStateAtHead("rt370-exitcode-");
+  try {
+    const fullPath = path.join(clone, ...LEDGER_PATH.split("/"));
+    const ledger = JSON.parse(fs.readFileSync(fullPath, "utf8")) as {
+      boundCommit: string;
+      checks: Record<
+        string,
+        { finishedAt: string; exitCode: number; result: string; command: string }
+      >;
+    };
+    const targetId = "proof-of-detection-self-test";
+    const target = ledger.checks[targetId];
+    assert.ok(target, "ledger must contain proof-of-detection-self-test");
+    assert.equal(target.exitCode, 0);
+    assert.equal(target.result, "passed");
+    ledger.checks[targetId] = { ...target, exitCode: 1, result: "failed" };
+    fs.writeFileSync(fullPath, `${JSON.stringify(ledger, null, 2)}\n`);
+    gitIn(clone, ["add", "--", LEDGER_PATH]);
+    gitIn(clone, [
+      "-c",
+      "user.name=rt370",
+      "-c",
+      "user.email=rt370@example.com",
+      "commit",
+      "-m",
+      "test: flip proof-of-detection-self-test exitCode 0→1",
+    ]);
+    for (const mode of ["--check", "--write", "--self-test"] as const) {
+      const { status, output } = runFreeze(clone, mode);
+      assert.notEqual(status, 0, `freeze ${mode} must refuse committed exitCode flip`);
+      assert.match(
+        output,
+        /did not pass|evidenceDigest|Verification check|FROZEN_VERIFICATION_EVIDENCE_DIGEST|proof-of-detection-self-test/,
+        `freeze ${mode} refusal must name the verification failure`,
+      );
+    }
+  } finally {
+    fs.rmSync(path.dirname(clone), { recursive: true, force: true });
+  }
+});
+
 void test("REGRESSION: a schema-valid tampered receipt is rejected by the consumer digest validator", () => {
   const receipt = buildPrePublicationReceipt();
 
