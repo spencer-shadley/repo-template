@@ -395,11 +395,21 @@ export function verifyCandidateTree(
  * missing, or wrongly-bound check must never silently read as "passed"
  * (repo-template#340 acceptance criteria, defect 2).
  */
+/**
+ * Test-only digest override. Production callers must omit this argument so the
+ * digest is always derived from pinned committed evidence bytes (repo-template#370).
+ */
+export type VerificationDigestTestOverride = {
+  readonly __testEvidenceDigest: string;
+};
+
 export function buildVerificationFromEvidence(
   evidence: VerificationEvidenceLedger,
   boundCommit: string,
-  evidenceDigest: string = sha256Bytes(readPinnedVerificationEvidenceBytes()),
+  testOverride?: VerificationDigestTestOverride,
 ): PrePublicationReceipt["verification"] {
+  const evidenceDigest =
+    testOverride?.__testEvidenceDigest ?? sha256Bytes(readPinnedVerificationEvidenceBytes());
   if (evidence.boundCommit !== boundCommit) {
     throw new Error(
       `Verification evidence is bound to commit ${evidence.boundCommit}, not the declared candidate ${boundCommit}. Refusing to consume unbound evidence.`,
