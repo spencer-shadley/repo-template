@@ -310,6 +310,8 @@
   "scripts/verify-quality-lint-required.ts": "copy",
   "scripts/verify-repo-quality-npm.ts": "self",
   "SECURITY.md": "copy",
+  "skills/full-validation/SKILL.md": "copy",
+  "skills/pr-validation/SKILL.md": "copy",
   "TEMPLATE_VERSION": "self",
   "template-manifest.json": "self",
   "tests/fixtures/user-surface-lint/allowlisted/config.json": "copy",
