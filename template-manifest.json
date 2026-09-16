@@ -294,6 +294,7 @@
   "release/inert-seed-manifest.json": "self",
   "release/release-payload-set.json": "self",
   "scripts/build-repo-quality-npm.ts": "self",
+  "scripts/check-validation-contract-skills.ts": "self",
   "scripts/check-dir-breadth.ts": "self",
   "scripts/check-issue-template-intake.ts": "self",
   "scripts/check-prefer-typescript.selfcheck.ts": "self",
