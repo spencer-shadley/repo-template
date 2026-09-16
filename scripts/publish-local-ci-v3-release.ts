@@ -666,7 +666,11 @@ function main(): void {
     console.log("Post-publication readback and release receipts written successfully.");
   } else if (mode === "--check") {
     checkReceipts();
-    console.log("Post-publication readback and release receipts match candidate bytes     // #364: frozen candidate commit still says 3.1.0; declaring 3.2.0 against it must fail closed.
+    console.log("Post-publication readback and release receipts match candidate bytes cleanly.");
+  } else if (mode === "--self-test") {
+    selfTest();
+    checkReceipts();
+    // #364: frozen candidate commit still says 3.1.0; declaring 3.2.0 against it must fail closed.
     {
       const show = (commitSha: string, pathName: string) =>
         execFileSync("git", ["show", `${commitSha}:${pathName}`], { cwd: root, encoding: "utf8" });
@@ -680,10 +684,6 @@ function main(): void {
         throw new Error("expected assertCommitVersionMatchesDeclaredSemver to refuse frozen 3.1.0 tree under 3.2.0 label");
       }
     }
-cleanly.");
-  } else if (mode === "--self-test") {
-    selfTest();
-    checkReceipts();
     console.log("Local CI V3 publication and readback self-test: PASS");
   } else {
     throw new Error("usage: node scripts/publish-local-ci-v3-release.ts <--write|--check|--self-test>");
