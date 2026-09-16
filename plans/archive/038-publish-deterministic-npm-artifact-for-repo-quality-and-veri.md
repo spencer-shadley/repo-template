@@ -17,7 +17,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/038-publish-deterministic-npm-artifact-for-repo-quality-and-veri
-- **Status:** draft   <!-- draft | ready for implement | ready for implement (legacy) | implemented | verified -->
+- **Status:** superseded — CEO queue hygiene: draft status with no executable value
 - **Issue:** owner/repository#123   <!-- Primary lifecycle edge. enqueue-plan repository-qualifies
      it, stamps a stable UUID `WorkItemId` when absent, and treats this relationship as `fixes`. -->
 <!-- Preserve an existing `- **WorkItemId:** <uuid>` exactly across retries/successors. Additional
