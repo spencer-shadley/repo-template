@@ -2,7 +2,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/036-require-explicit-repository-charters
-- **Status:** ready for implement
+- **Status:** superseded — CEO queue hygiene 2026-09-15: linked issue #116 CLOSED COMPLETED; no fleet value keeping closed work on WorkProjection (AO#7116 / #8736)
 - **Priority:** P2
 - **Effort:** medium
 - **Issue:** https://github.com/spencer-shadley/repo-template/issues/116
