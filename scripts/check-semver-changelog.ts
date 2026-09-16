@@ -16,7 +16,7 @@ import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import semver from "semver";
 
-export type SemverChangelogRule = "SVC1" | "SVC2" | "SVC3" | "SVC4" | "SVC5";
+export type SemverChangelogRule = "SVC1" | "SVC2" | "SVC3" | "SVC4" | "SVC5" | "SVC6";
 
 export interface SemverChangelogViolation {
   readonly rule: SemverChangelogRule;
@@ -42,11 +42,44 @@ export function isValidCanonicalSemVer(raw: string): boolean {
   return formatCanonical(parsed) === raw;
 }
 
+
+/** Return property names newly present in `after.required` vs `before.required`. */
+export function requiredPropertiesAdded(before: unknown, after: unknown): string[] {
+  const beforeRequired = new Set(readRequiredArray(before));
+  const afterRequired = readRequiredArray(after);
+  return afterRequired.filter((name) => !beforeRequired.has(name)).toSorted();
+}
+
+function readRequiredArray(schema: unknown): string[] {
+  if (!schema || typeof schema !== "object" || Array.isArray(schema)) return [];
+  const required = (schema as { required?: unknown }).required;
+  if (!Array.isArray(required)) return [];
+  return required.filter((entry): entry is string => typeof entry === "string");
+}
+
+/** Trailing Keep-a-Changelog class token at the end of an Unreleased bullet (MAJOR|MINOR|PATCH). */
+export function parseTrailingSemverLabel(text: string): "MAJOR" | "MINOR" | "PATCH" | null {
+  // Keep-a-Changelog class token near the end of an Unreleased bullet, optionally
+  // followed by "Fixes #N" / "Refs #N" (see CHANGELOG.md Unreleased entries).
+  const match = /\b(MAJOR|MINOR|PATCH)\.?(?=\s+(?:Fixes|Refs)\b|[\s.]*$)/iu.exec(text.trim());
+  return match ? (match[1]!.toUpperCase() as "MAJOR" | "MINOR" | "PATCH") : null;
+}
+
+export interface SchemaDiffInput {
+  readonly path: string;
+  readonly before: unknown;
+  readonly after: unknown;
+  /** Unreleased CHANGELOG bullet(s) covering this schema change; used for label check. */
+  readonly unreleasedLabelText?: string;
+}
+
 export function checkSemverChangelog(options: {
   versionContent?: string;
   changelogContent?: string;
   archiveFiles?: Record<string, string>; // filename -> content
   repoRoot?: string;
+  /** Optional schema diffs — SVC6 flags required-property additions under a non-MAJOR label. */
+  schemaDiffs?: readonly SchemaDiffInput[];
 }): SemverChangelogViolation[] {
   const violations: SemverChangelogViolation[] = [];
   let version = options.versionContent;
@@ -242,6 +275,25 @@ export function checkSemverChangelog(options: {
     }
   }
 
+  // SVC6: required-property additions in contracts/**/*.schema.json require a MAJOR label
+  if (options.schemaDiffs) {
+    for (const diff of options.schemaDiffs) {
+      const added = requiredPropertiesAdded(diff.before, diff.after);
+      if (added.length === 0) continue;
+      const label = diff.unreleasedLabelText
+        ? parseTrailingSemverLabel(diff.unreleasedLabelText)
+        : null;
+      if (label !== "MAJOR") {
+        violations.push({
+          rule: "SVC6",
+          file: diff.path,
+          message:
+            `Required-property addition(s) [${added.join(", ")}] in a contracts schema require a MAJOR CHANGELOG label (AGENTS.md); got ${label ?? "none"}`,
+        });
+      }
+    }
+  }
+
   return violations;
 }
 
@@ -343,6 +395,42 @@ export function selfTest(): void {
     changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [1.0.0-rc.1] - 2026-09-13\n\n## [1.0.0-beta.11] - 2026-09-12\n",
   });
   assert.ok(precedenceMismatch.some((v) => v.rule === "SVC3"));
+
+
+  // SVC6: required-property addition under MINOR is refused; under MAJOR is accepted
+  const schemaBefore = { type: "object", required: ["a"], properties: { a: { type: "string" } } };
+  const schemaAfter = {
+    type: "object",
+    required: ["a", "evidenceDigest"],
+    properties: { a: { type: "string" }, evidenceDigest: { type: "string" } },
+  };
+  assert.deepEqual(requiredPropertiesAdded(schemaBefore, schemaAfter), ["evidenceDigest"]);
+  const svc6Minor = checkSemverChangelog({
+    versionContent: "3.1.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.1.0] - 2026-07-29\n",
+    schemaDiffs: [
+      {
+        path: "contracts/local-ci/v3/canary-candidate-receipt.schema.json",
+        before: schemaBefore,
+        after: schemaAfter,
+        unreleasedLabelText: "Added required evidenceDigest. MINOR.",
+      },
+    ],
+  });
+  assert.ok(svc6Minor.some((v) => v.rule === "SVC6"));
+  const svc6Major = checkSemverChangelog({
+    versionContent: "3.1.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.1.0] - 2026-07-29\n",
+    schemaDiffs: [
+      {
+        path: "contracts/local-ci/v3/canary-candidate-receipt.schema.json",
+        before: schemaBefore,
+        after: schemaAfter,
+        unreleasedLabelText: "Added required evidenceDigest. MAJOR.",
+      },
+    ],
+  });
+  assert.ok(!svc6Major.some((v) => v.rule === "SVC6"));
 
   // Architectural check: verify no hand-written SemVer parser/comparator is reintroduced
   const scriptPath = fileURLToPath(import.meta.url);

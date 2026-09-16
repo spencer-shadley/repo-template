@@ -8,6 +8,8 @@ import {
   checkSemverChangelog,
   isValidCanonicalSemVer,
   ISO_WEEK_ARCHIVE_REGEX,
+  parseTrailingSemverLabel,
+  requiredPropertiesAdded,
 } from "../../../scripts/check-semver-changelog.ts";
 
 import {
@@ -383,3 +385,48 @@ test("architectural assertion: no duplicate SemVer parser or comparator in repos
     "rotate-changelog-weekly.ts must not define parseSemVerNumbers",
   );
 });
+
+test("SVC6: required-property additions in contracts schemas require MAJOR label", () => {
+  const before = { type: "object", required: ["frozenInputs"], properties: { frozenInputs: { type: "object" } } };
+  const after = {
+    type: "object",
+    required: ["frozenInputs", "evidenceDigest", "evidenceSource"],
+    properties: {
+      frozenInputs: { type: "object" },
+      evidenceDigest: { type: "string" },
+      evidenceSource: { type: "string" },
+    },
+  };
+  assert.deepEqual(requiredPropertiesAdded(before, after), ["evidenceDigest", "evidenceSource"]);
+  assert.equal(parseTrailingSemverLabel("… MINOR."), "MINOR");
+  assert.equal(parseTrailingSemverLabel("… MAJOR."), "MAJOR");
+
+  const underMinor = checkSemverChangelog({
+    versionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+    schemaDiffs: [
+      {
+        path: "contracts/local-ci/v3/canary-candidate-receipt.schema.json",
+        before,
+        after,
+        unreleasedLabelText: "Added required evidenceDigest/evidenceSource. MINOR. Fixes #369.",
+      },
+    ],
+  });
+  assert.ok(underMinor.some((v) => v.rule === "SVC6"));
+
+  const underMajor = checkSemverChangelog({
+    versionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+    schemaDiffs: [
+      {
+        path: "contracts/local-ci/v3/canary-candidate-receipt.schema.json",
+        before,
+        after,
+        unreleasedLabelText: "Added required evidenceDigest/evidenceSource. MAJOR. Fixes #371.",
+      },
+    ],
+  });
+  assert.equal(underMajor.filter((v) => v.rule === "SVC6").length, 0);
+});
+
