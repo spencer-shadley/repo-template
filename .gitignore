@@ -44,6 +44,8 @@ plans/*.paused
 .ops/issue-deps/**
 # runtime-artifact: owner=agent-orchestrator incident=repo-template#172
 .ops/receipts/work-spine-lag/*.json
+# Lane liveness heartbeat logs (repo-template#367). Stay untracked despite !.ops/**.
+.ops/receipts/lane-*.log
 
 # local tool state (Serena MCP)
 .serena/
