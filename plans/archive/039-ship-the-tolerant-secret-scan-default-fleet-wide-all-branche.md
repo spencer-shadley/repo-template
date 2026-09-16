@@ -17,7 +17,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/039-ship-the-tolerant-secret-scan-default-fleet-wide-all-branche
-- **Status:** ready for implement
+- **Status:** superseded — CEO queue hygiene 2026-09-15: linked issue #302 CLOSED COMPLETED; no fleet value keeping closed work on WorkProjection (AO#7116 / #8736)
 - **Requeue-reason:** critic-available: automatic dead-letter recovery plan=039 draftHash=1500d6a750bcd03f trigger=critic-available source=critic-deadletter-retry
 - **Issue:** spencer-shadley/repo-template#302
 - **WorkItemId:** 959481d3-e9b9-4075-bad5-098e4c7ff307
