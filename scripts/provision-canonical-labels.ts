@@ -153,6 +153,16 @@ const STATIC_CANONICAL_LABELS: readonly CanonicalLabel[] = Object.freeze([
     color: "0E8A16",
     description: "Accepted into a governed implementation plan",
   },
+  {
+    name: "needs-rebase",
+    color: "B60205",
+    description: "Current conflict signal: branch needs rebase onto base; not merge approval or semantic suitability (repo-template#346).",
+  },
+  {
+    name: "needs-verification",
+    color: "FBCA04",
+    description: "Outstanding verification request; not dequeue, merge approval, or completion (repo-template#347).",
+  },
 
   // Terminal Dispositions
   {

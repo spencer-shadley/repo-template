@@ -35,6 +35,11 @@ for (const dim of ["effort:low", "effort:medium", "effort:high", "tier:auto", "h
   assert.ok(CANONICAL_LABELS.some((l) => l.name === dim), `Missing ${dim}`);
 }
 
+// PR conflict / verification request signals (repo-template#346/#347)
+for (const signal of ["needs-rebase", "needs-verification"]) {
+  assert.ok(CANONICAL_LABELS.some((l) => l.name === signal), `Missing ${signal}`);
+}
+
 // Ensure terminal dispositions exist
 for (const disp of [
   "obsolete",
