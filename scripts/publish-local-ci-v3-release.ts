@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -55,6 +56,31 @@ export const SECOND_CANARY_RECEIPT_URL =
   "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327";
 
 export const PUBLICATION_TIME = "2026-09-14T11:25:00Z";
+
+/**
+ * repo-template#364: a published tag/semver must equal VERSION and
+ * TEMPLATE_VERSION bytes of the commit being published (read from that
+ * commit, never the working tree).
+ */
+export function assertCommitVersionMatchesDeclaredSemver(
+  commit: string,
+  declaredSemver: string,
+  runGitShow: (commitSha: string, pathName: string) => string,
+): void {
+  const version = runGitShow(commit, "VERSION").trim();
+  const templateVersion = runGitShow(commit, "TEMPLATE_VERSION").trim();
+  if (version !== templateVersion) {
+    throw new Error(
+      `Commit ${commit} declares VERSION=${version} but TEMPLATE_VERSION=${templateVersion}.`,
+    );
+  }
+  if (version !== declaredSemver) {
+    throw new Error(
+      `Declared publication semver ${declaredSemver} disagrees with commit ${commit} VERSION/TEMPLATE_VERSION ${version}. Bump VERSION on the publication commit (repo-template#364) or retarget the tag.`,
+    );
+  }
+}
+
 
 export interface PostPublicationReadbackReceipt {
   readonly schemaId: string;
@@ -640,7 +666,21 @@ function main(): void {
     console.log("Post-publication readback and release receipts written successfully.");
   } else if (mode === "--check") {
     checkReceipts();
-    console.log("Post-publication readback and release receipts match candidate bytes cleanly.");
+    console.log("Post-publication readback and release receipts match candidate bytes     // #364: frozen candidate commit still says 3.1.0; declaring 3.2.0 against it must fail closed.
+    {
+      const show = (commitSha: string, pathName: string) =>
+        execFileSync("git", ["show", `${commitSha}:${pathName}`], { cwd: root, encoding: "utf8" });
+      let refused = false;
+      try {
+        assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, FROZEN_SEMVER, show);
+      } catch (error) {
+        refused = /disagrees with commit/.test(String(error));
+      }
+      if (!refused) {
+        throw new Error("expected assertCommitVersionMatchesDeclaredSemver to refuse frozen 3.1.0 tree under 3.2.0 label");
+      }
+    }
+cleanly.");
   } else if (mode === "--self-test") {
     selfTest();
     checkReceipts();
