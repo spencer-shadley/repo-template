@@ -193,17 +193,30 @@ export function checkSemverChangelog(options: {
     }
 
     // Check release versions in CHANGELOG.md
-    const releaseVersions: string[] = [];
+    const validReleaseVersions: string[] = [];
+    let hasMalformedRelease = false;
     for (const h2 of h2Headings) {
+      if (h2.text === "[Unreleased]") continue;
       const vMatch = BRACKETED_RELEASE_PATTERN.exec(`## ${h2.text}`);
       if (vMatch?.[1]) {
-        releaseVersions.push(vMatch[1]);
+        const ver = vMatch[1];
+        if (!isValidCanonicalSemVer(ver)) {
+          hasMalformedRelease = true;
+          violations.push({
+            rule: "SVC3",
+            file: "CHANGELOG.md",
+            line: h2.line,
+            message: `Release version '${ver}' in CHANGELOG.md is not valid SemVer 2.0.0`,
+          });
+        } else {
+          validReleaseVersions.push(ver);
+        }
       }
     }
 
     if (trimmedVersion) {
-      if (releaseVersions.length > 0) {
-        const highestRelease = releaseVersions.reduce((highest, current) => {
+      if (validReleaseVersions.length > 0) {
+        const highestRelease = validReleaseVersions.reduce((highest, current) => {
           const cmp = semver.compare(current, highest);
           if (cmp > 0) return current;
           if (cmp === 0 && current === trimmedVersion) return current;
@@ -216,7 +229,7 @@ export function checkSemverChangelog(options: {
             message: `Highest release version '${highestRelease}' in CHANGELOG.md does not match VERSION '${trimmedVersion}'`,
           });
         }
-      } else if (archiveFiles && Object.keys(archiveFiles).length > 0) {
+      } else if (!hasMalformedRelease && archiveFiles && Object.keys(archiveFiles).length > 0) {
         // If active changelog only has [Unreleased], check highest version in archives
         let highestArchived: string | null = null;
         for (const [filename, content] of Object.entries(archiveFiles)) {
@@ -225,12 +238,14 @@ export function checkSemverChangelog(options: {
             const aMatch = BRACKETED_RELEASE_PATTERN.exec(aLine.trim());
             if (aMatch?.[1]) {
               const current = aMatch[1];
-              if (highestArchived === null) {
-                highestArchived = current;
-              } else {
-                const cmp = semver.compare(current, highestArchived);
-                if (cmp > 0 || (cmp === 0 && current === trimmedVersion)) {
+              if (isValidCanonicalSemVer(current)) {
+                if (highestArchived === null) {
                   highestArchived = current;
+                } else {
+                  const cmp = semver.compare(current, highestArchived);
+                  if (cmp > 0 || (cmp === 0 && current === trimmedVersion)) {
+                    highestArchived = current;
+                  }
                 }
               }
             }
@@ -270,6 +285,23 @@ export function checkSemverChangelog(options: {
             line: 1,
             message: `Archive file '${filename}' missing header '# Changelog Archive \u2014 ${week}' at start of file`,
           });
+        }
+        // Also validate all release headings in the archive
+        const rawLines = content.split(/\r?\n/);
+        for (let lineIdx = 0; lineIdx < rawLines.length; lineIdx += 1) {
+          const aLine = rawLines[lineIdx]?.trim() ?? "";
+          const aMatch = BRACKETED_RELEASE_PATTERN.exec(aLine);
+          if (aMatch?.[1]) {
+            const ver = aMatch[1];
+            if (!isValidCanonicalSemVer(ver)) {
+              violations.push({
+                rule: "SVC5",
+                file: `docs/changelogs/${filename}`,
+                line: lineIdx + 1,
+                message: `Archived release version '${ver}' in docs/changelogs/${filename} is not valid SemVer 2.0.0`,
+              });
+            }
+          }
         }
       }
     }
@@ -395,6 +427,51 @@ export function selfTest(): void {
     changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [1.0.0-rc.1] - 2026-09-13\n\n## [1.0.0-beta.11] - 2026-09-12\n",
   });
   assert.ok(precedenceMismatch.some((v) => v.rule === "SVC3"));
+
+  // Malformed release version in CHANGELOG.md (e.g. 1.0.0-01, 1.0.0-alpha..1) produces structured SVC3 violations without throwing
+  const malformedChangelog = checkSemverChangelog({
+    versionContent: "1.0.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [1.0.0-01] - 2026-09-13\n\n## [1.0.0-alpha..1] - 2026-09-12\n",
+  });
+  const svc3Malformed = malformedChangelog.filter((v) => v.rule === "SVC3");
+  assert.equal(svc3Malformed.length, 2);
+  assert.ok(svc3Malformed.some((v) => v.message.includes("'1.0.0-01'") && v.line === 5));
+  assert.ok(svc3Malformed.some((v) => v.message.includes("'1.0.0-alpha..1'") && v.line === 7));
+
+  // Malformed release version in archive files produces structured SVC5 violations
+  const malformedArchive = checkSemverChangelog({
+    versionContent: "1.0.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n",
+    archiveFiles: {
+      "2026-W37.md": "# Changelog Archive \u2014 2026-W37\n\n## [1.0.0-01] - 2026-09-13\n\n## [1.0.0-alpha..1] - 2026-09-12\n",
+    },
+  });
+  const svc5Malformed = malformedArchive.filter((v) => v.rule === "SVC5");
+  assert.ok(svc5Malformed.some((v) => v.message.includes("'1.0.0-01'")));
+  assert.ok(svc5Malformed.some((v) => v.message.includes("'1.0.0-alpha..1'")));
+
+  // Official SemVer 2.0.0 precedence vectors
+  const semverOrder = [
+    "1.0.0-alpha",
+    "1.0.0-alpha.1",
+    "1.0.0-alpha.beta",
+    "1.0.0-beta",
+    "1.0.0-beta.2",
+    "1.0.0-beta.11",
+    "1.0.0-rc.1",
+    "1.0.0",
+  ];
+  for (let i = 0; i < semverOrder.length - 1; i += 1) {
+    const a = semverOrder[i]!;
+    const b = semverOrder[i + 1]!;
+    assert.ok(semver.compare(a, b) < 0, `Expected ${a} < ${b}`);
+    assert.ok(semver.compare(b, a) > 0, `Expected ${b} > ${a}`);
+  }
+
+  // Numeric vs non-numeric prerelease identifiers
+  assert.ok(semver.compare("1.0.0-1", "1.0.0-alpha") < 0);
+  // Build metadata has equal precedence in SemVer 2.0.0
+  assert.equal(semver.compare("1.0.0-alpha+001", "1.0.0-alpha+20130313144700"), 0);
 
 
   // SVC6: required-property addition under MINOR is refused; under MAJOR is accepted

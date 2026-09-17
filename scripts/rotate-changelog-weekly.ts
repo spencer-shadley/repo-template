@@ -16,6 +16,7 @@ import { dirname, join, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import semver from "semver";
+import { isValidCanonicalSemVer } from "./check-semver-changelog.ts";
 
 const H2_RELEASE_PATTERN = /^## \[(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)\] - (\d{4}-\d{2}-\d{2})$/;
 const H2_PATTERN = /^##\s+(.*)$/;
@@ -200,8 +201,30 @@ export interface RotateResult {
  */
 export function rotateChangelogWeekly(options: RotateOptions): RotateResult {
   const { header, unreleasedSection, releases } = parseChangelog(options.changelogContent);
+
+  // Validate all active release headings before processing or sorting
+  for (const rel of releases) {
+    if (!isValidCanonicalSemVer(rel.version)) {
+      throw new Error(
+        `Cannot rotate changelog: release version '${rel.version}' is not valid SemVer 2.0.0 in heading '${rel.heading}'`,
+      );
+    }
+  }
+
   const keepCount = options.keepLatestCount ?? 0;
   const archives: Record<string, string> = { ...(options.existingArchives ?? {}) };
+
+  // Validate all existing archive release headings
+  for (const [week, content] of Object.entries(archives)) {
+    const existing = parseArchiveReleases(content);
+    for (const rel of existing) {
+      if (!isValidCanonicalSemVer(rel.version)) {
+        throw new Error(
+          `Cannot rotate changelog: archived release version '${rel.version}' in docs/changelogs/${week}.md is not valid SemVer 2.0.0 in heading '${rel.heading}'`,
+        );
+      }
+    }
+  }
 
   const toKeep: ReleaseBlock[] = [];
   const toArchive: ReleaseBlock[] = [];
@@ -322,6 +345,32 @@ export function selfTest(): void {
   assert.ok(keepLatestResult.updatedChangelog.includes("## [1.1.0] - 2026-07-27"));
   assert.ok(!keepLatestResult.updatedChangelog.includes("## [1.0.0] - 2026-07-20"));
   assert.ok(keepLatestResult.archives["2026-W30"]?.includes("## [1.0.0] - 2026-07-20"));
+
+  // Test deterministic error on malformed version in active changelog (1.0.0-01)
+  const malformedActiveChangelog = `# Changelog\n\n## [Unreleased]\n\n## [1.0.0-01] - 2026-07-27\n\n- Fix bug\n`;
+  assert.throws(
+    () => rotateChangelogWeekly({ changelogContent: malformedActiveChangelog }),
+    /Cannot rotate changelog: release version '1\.0\.0-01' is not valid SemVer 2\.0\.0/,
+  );
+
+  // Test deterministic error on malformed version in active changelog (1.0.0-alpha..1)
+  const malformedPreChangelog = `# Changelog\n\n## [Unreleased]\n\n## [1.0.0-alpha..1] - 2026-07-27\n\n- Fix bug\n`;
+  assert.throws(
+    () => rotateChangelogWeekly({ changelogContent: malformedPreChangelog }),
+    /Cannot rotate changelog: release version '1\.0\.0-alpha\.\.1' is not valid SemVer 2\.0\.0/,
+  );
+
+  // Test deterministic error on malformed version in existing archive
+  assert.throws(
+    () =>
+      rotateChangelogWeekly({
+        changelogContent: testChangelog,
+        existingArchives: {
+          "2026-W30": "# Changelog Archive \u2014 2026-W30\n\n## [1.0.0-01] - 2026-07-20\n",
+        },
+      }),
+    /Cannot rotate changelog: archived release version '1\.0\.0-01' in docs\/changelogs\/2026-W30\.md is not valid SemVer 2\.0\.0/,
+  );
 
   console.log("rotate-changelog-weekly: self-test passed");
 }
