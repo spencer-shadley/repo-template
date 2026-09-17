@@ -3,11 +3,15 @@
  * Validate canonical repository SemVer and weekly preserved changelog rotation (Issue #90).
  *
  * Rules:
- *   SVC1: VERSION file exists at repository root and contains exactly one line of valid SemVer 2.0.0
+ *   SVC1: One authoritative SemVer per released public contract. In single-contract repositories,
+ *         root VERSION contains exactly one line of valid SemVer 2.0.0. In multi-contract repositories,
+ *         derived root VERSION must match the primary contract authority (e.g. TEMPLATE_VERSION),
+ *         and independent package manifests (e.g. packages/repo-quality/package.json) maintain independent SemVer authority.
  *   SVC2: CHANGELOG.md exists and its first '## ' heading is '## [Unreleased]'
  *   SVC3: Highest bracketed release version in CHANGELOG.md (or latest archived release) matches VERSION
  *   SVC4: Archived changelog files under docs/changelogs/ match YYYY-Www.md format (ignoring .gitkeep)
  *   SVC5: Archived changelog files contain valid archive headings
+ *   SVC6: Required-property additions in contracts schemas require a MAJOR changelog label
  */
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
@@ -23,6 +27,13 @@ export interface SemverChangelogViolation {
   readonly file: string;
   readonly line?: number;
   readonly message: string;
+}
+
+export interface PublicContractAuthority {
+  readonly name: string;
+  readonly path: string;
+  readonly version: string;
+  readonly isDerived?: boolean;
 }
 
 export const ISO_WEEK_ARCHIVE_REGEX = /^(\d{4})-W(0[1-9]|[1-4]\d|5[0-3])\.md$/;
@@ -41,7 +52,6 @@ export function isValidCanonicalSemVer(raw: string): boolean {
   if (!parsed) return false;
   return formatCanonical(parsed) === raw;
 }
-
 
 /** Return property names newly present in `after.required` vs `before.required`. */
 export function requiredPropertiesAdded(before: unknown, after: unknown): string[] {
@@ -73,54 +83,22 @@ export interface SchemaDiffInput {
   readonly unreleasedLabelText?: string;
 }
 
-export function checkSemverChangelog(options: {
+export interface CheckSemverChangelogOptions {
   versionContent?: string;
+  templateVersionContent?: string;
   changelogContent?: string;
   archiveFiles?: Record<string, string>; // filename -> content
   repoRoot?: string;
+  packageManifests?: Record<string, string>;
   /** Optional schema diffs — SVC6 flags required-property additions under a non-MAJOR label. */
   schemaDiffs?: readonly SchemaDiffInput[];
-}): SemverChangelogViolation[] {
-  const violations: SemverChangelogViolation[] = [];
-  let version = options.versionContent;
-  let changelog = options.changelogContent;
-  let archiveFiles = options.archiveFiles;
+}
 
-  if (options.repoRoot) {
-    const vPath = join(options.repoRoot, "VERSION");
-    if (existsSync(vPath)) {
-      version = readFileSync(vPath, "utf8");
-    } else {
-      violations.push({
-        rule: "SVC1",
-        file: "VERSION",
-        message: "Missing VERSION file at repository root",
-      });
-    }
-
-    const cPath = join(options.repoRoot, "CHANGELOG.md");
-    if (existsSync(cPath)) {
-      changelog = readFileSync(cPath, "utf8");
-    } else {
-      violations.push({
-        rule: "SVC2",
-        file: "CHANGELOG.md",
-        message: "Missing CHANGELOG.md file at repository root",
-      });
-    }
-
-    const archDir = join(options.repoRoot, "docs", "changelogs");
-    if (existsSync(archDir)) {
-      archiveFiles = {};
-      const entries = readdirSync(archDir);
-      for (const entry of entries) {
-        if (entry === ".gitkeep") continue;
-        archiveFiles[entry] = readFileSync(join(archDir, entry), "utf8");
-      }
-    }
-  }
-
-  // SVC1: Validate VERSION
+export function validateVersionFile(
+  version: string | undefined,
+  templateVersion: string | undefined,
+  violations: SemverChangelogViolation[],
+): string {
   let trimmedVersion = "";
   if (version !== undefined) {
     const lines = version.split(/\r?\n/).filter((l, idx, arr) => {
@@ -155,6 +133,162 @@ export function checkSemverChangelog(options: {
       }
     }
   }
+
+  if (templateVersion !== undefined && trimmedVersion !== "") {
+    const trimmedTemplate = templateVersion.trim();
+    if (isValidCanonicalSemVer(trimmedTemplate) && trimmedVersion !== trimmedTemplate) {
+      violations.push({
+        rule: "SVC1",
+        file: "VERSION",
+        line: 1,
+        message: `Derived repository VERSION '${trimmedVersion}' does not match primary contract authority TEMPLATE_VERSION '${trimmedTemplate}'`,
+      });
+    }
+  }
+
+  return trimmedVersion;
+}
+
+export function validatePackageContracts(
+  repoRoot: string | undefined,
+  packageManifests: Record<string, string> | undefined,
+  violations: SemverChangelogViolation[],
+): void {
+  const manifests: Record<string, string> = { ...(packageManifests ?? {}) };
+  if (repoRoot) {
+    const packagesDir = join(repoRoot, "packages");
+    if (existsSync(packagesDir)) {
+      try {
+        const entries = readdirSync(packagesDir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory()) {
+            const pkgPath = join(packagesDir, entry.name, "package.json");
+            if (existsSync(pkgPath)) {
+              manifests[join("packages", entry.name, "package.json")] = readFileSync(pkgPath, "utf8");
+            }
+          }
+        }
+      } catch {
+        // ignore read errors
+      }
+    }
+  }
+
+  for (const [relPath, content] of Object.entries(manifests)) {
+    try {
+      const parsed = JSON.parse(content) as { version?: unknown; private?: unknown };
+      if (typeof parsed.version === "string" && parsed.private !== true) {
+        if (!isValidCanonicalSemVer(parsed.version)) {
+          violations.push({
+            rule: "SVC1",
+            file: relPath,
+            message: `Public package manifest '${relPath}' version '${parsed.version}' is not valid SemVer 2.0.0`,
+          });
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+}
+
+export function discoverPublicContracts(repoRoot: string): PublicContractAuthority[] {
+  const contracts: PublicContractAuthority[] = [];
+  const tvPath = join(repoRoot, "TEMPLATE_VERSION");
+  const hasTemplateVersion = existsSync(tvPath);
+  if (hasTemplateVersion) {
+    const tv = readFileSync(tvPath, "utf8").trim();
+    contracts.push({ name: "template", path: "TEMPLATE_VERSION", version: tv });
+  }
+
+  const vPath = join(repoRoot, "VERSION");
+  if (existsSync(vPath)) {
+    const v = readFileSync(vPath, "utf8").trim();
+    contracts.push({
+      name: hasTemplateVersion ? "repository-derived" : "repository",
+      path: "VERSION",
+      version: v,
+      ...(hasTemplateVersion ? { isDerived: true } : {}),
+    });
+  }
+
+  const packagesDir = join(repoRoot, "packages");
+  if (existsSync(packagesDir)) {
+    try {
+      const entries = readdirSync(packagesDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const pkgJsonPath = join(packagesDir, entry.name, "package.json");
+          if (existsSync(pkgJsonPath)) {
+            const content = readFileSync(pkgJsonPath, "utf8");
+            const parsed = JSON.parse(content) as { name?: string; version?: string; private?: boolean };
+            if (typeof parsed.version === "string" && parsed.private !== true) {
+              contracts.push({
+                name: parsed.name ?? entry.name,
+                path: join("packages", entry.name, "package.json"),
+                version: parsed.version,
+              });
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return contracts;
+}
+
+export function checkSemverChangelog(options: CheckSemverChangelogOptions): SemverChangelogViolation[] {
+  const violations: SemverChangelogViolation[] = [];
+  let version = options.versionContent;
+  let templateVersion = options.templateVersionContent;
+  let changelog = options.changelogContent;
+  let archiveFiles = options.archiveFiles;
+
+  if (options.repoRoot) {
+    const vPath = join(options.repoRoot, "VERSION");
+    if (existsSync(vPath)) {
+      version = readFileSync(vPath, "utf8");
+    } else {
+      violations.push({
+        rule: "SVC1",
+        file: "VERSION",
+        message: "Missing VERSION file at repository root",
+      });
+    }
+
+    const tvPath = join(options.repoRoot, "TEMPLATE_VERSION");
+    if (existsSync(tvPath)) {
+      templateVersion = readFileSync(tvPath, "utf8");
+    }
+
+    const cPath = join(options.repoRoot, "CHANGELOG.md");
+    if (existsSync(cPath)) {
+      changelog = readFileSync(cPath, "utf8");
+    } else {
+      violations.push({
+        rule: "SVC2",
+        file: "CHANGELOG.md",
+        message: "Missing CHANGELOG.md file at repository root",
+      });
+    }
+
+    const archDir = join(options.repoRoot, "docs", "changelogs");
+    if (existsSync(archDir)) {
+      archiveFiles = {};
+      const entries = readdirSync(archDir);
+      for (const entry of entries) {
+        if (entry === ".gitkeep") continue;
+        archiveFiles[entry] = readFileSync(join(archDir, entry), "utf8");
+      }
+    }
+  }
+
+  // SVC1: Validate VERSION and package contracts
+  const trimmedVersion = validateVersionFile(version, templateVersion, violations);
+  validatePackageContracts(options.repoRoot, options.packageManifests, violations);
 
   // SVC2 & SVC3: Validate CHANGELOG.md
   if (changelog !== undefined) {
@@ -508,6 +642,44 @@ export function selfTest(): void {
     ],
   });
   assert.ok(!svc6Major.some((v) => v.rule === "SVC6"));
+
+  // SVC1: Test derived VERSION matching primary contract authority TEMPLATE_VERSION
+  const validDerived = checkSemverChangelog({
+    versionContent: "3.2.0\n",
+    templateVersionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+    packageManifests: {
+      "packages/repo-quality/package.json": JSON.stringify({ name: "@spencer-shadley/repo-quality", version: "1.8.0" }),
+    },
+  });
+  assert.deepEqual(validDerived, []);
+
+  // SVC1: Test derived VERSION mismatch with TEMPLATE_VERSION
+  const mismatchDerived = checkSemverChangelog({
+    versionContent: "3.3.0\n",
+    templateVersionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+  });
+  assert.ok(
+    mismatchDerived.some(
+      (v) => v.rule === "SVC1" && v.message.includes("does not match primary contract authority TEMPLATE_VERSION"),
+    ),
+  );
+
+  // SVC1: Test invalid package manifest SemVer
+  const badPkgSemver = checkSemverChangelog({
+    versionContent: "3.2.0\n",
+    templateVersionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+    packageManifests: {
+      "packages/repo-quality/package.json": JSON.stringify({ name: "@spencer-shadley/repo-quality", version: "invalid" }),
+    },
+  });
+  assert.ok(
+    badPkgSemver.some(
+      (v) => v.rule === "SVC1" && v.file.includes("packages/repo-quality/package.json"),
+    ),
+  );
 
   // Architectural check: verify no hand-written SemVer parser/comparator is reintroduced
   const scriptPath = fileURLToPath(import.meta.url);

@@ -4,8 +4,8 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "344c2c9a5f99a5b27f5b7e29400c1bd24191acc2ee74de1c887de57892845b0c",
-  "entryCount": 99,
+  "inventoryDigest": "929626bbe482e295d3a0bccba8a5589d45aa6b9c6aa8c5aca73996e0b75eb688",
+  "entryCount": 101,
   "excludedCount": 9,
   "entries": [
     {
@@ -446,8 +446,8 @@
       "path": "docs/QUEUE-ENROLLMENT.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "1671f57b5dee60f1e0d349925e2846fa45c685ac8a42a13e529b4e9ebc343358",
-      "bytes": 2676
+      "contentSha256": "ff051ab1899c17a3ee7020562ce3cc996047fa0b24d1f00a2c950595bab873ef",
+      "bytes": 4484
     },
     {
       "path": "docs/adr/0000-template.md",
@@ -579,8 +579,8 @@
       "path": "scripts/provision-canonical-labels.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "d2cdd73af04ebc210e69a779e6df70f8de658d0f6847c84494eb3249cf18515e",
-      "bytes": 14055
+      "contentSha256": "f41208e12c2939c4418283fa5390c3ff0e443ddbde7651468c84795ae5dcc698",
+      "bytes": 12408
     },
     {
       "path": "scripts/verify-quality-lint-required.ts",
@@ -588,6 +588,20 @@
       "gitMode": "100644",
       "contentSha256": "d639483e3caf50a32aedde008d6a5afdb5360db808d9491339fe82c05ed33952",
       "bytes": 14515
+    },
+    {
+      "path": "skills/full-validation/SKILL.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "d2dbc241de1ca225e2de93f2e73b1259c9f81928cb2fde48f5f8db8d996b72b6",
+      "bytes": 2902
+    },
+    {
+      "path": "skills/pr-validation/SKILL.md",
+      "templateMode": "copy",
+      "gitMode": "100644",
+      "contentSha256": "fd99403987656e9e2afcc6fbec0c935d6f9e83cc379403a8812e2ec6c26c2ab8",
+      "bytes": 2772
     },
     {
       "path": "tests/fixtures/user-surface-lint/allowlisted/config.json",
@@ -749,5 +763,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "c0b1add315216504e6e8f44e6052d2e9de24f75a9751dbd3868d4ca82065c60e"
+  "manifestDigest": "3da0fabc5b701f1dc5f5a57de687726c6574e1277c0bbc5b93502fa9ba4afcc2"
 }

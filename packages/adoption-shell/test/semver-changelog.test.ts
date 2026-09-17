@@ -6,6 +6,7 @@ import semver from "semver";
 
 import {
   checkSemverChangelog,
+  discoverPublicContracts,
   isValidCanonicalSemVer,
   ISO_WEEK_ARCHIVE_REGEX,
   parseTrailingSemverLabel,
@@ -428,5 +429,87 @@ test("SVC6: required-property additions in contracts schemas require MAJOR label
     ],
   });
   assert.equal(underMajor.filter((v) => v.rule === "SVC6").length, 0);
+});
+
+test("SVC1: enforces one authoritative SemVer per released public contract and verifies derived repository VERSION matches TEMPLATE_VERSION", () => {
+  // Baseline valid with template contract authority and derived root VERSION
+  const valid = checkSemverChangelog({
+    versionContent: "3.2.0\n",
+    templateVersionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+    packageManifests: {
+      "packages/repo-quality/package.json": JSON.stringify({
+        name: "@spencer-shadley/repo-quality",
+        version: "1.8.0",
+      }),
+    },
+  });
+  assert.deepEqual(valid, []);
+
+  // Divergent root VERSION fails SVC1 because derived metadata cannot contradict contract authority
+  const divergent = checkSemverChangelog({
+    versionContent: "3.3.0\n",
+    templateVersionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+  });
+  assert.ok(
+    divergent.some(
+      (v) => v.rule === "SVC1" && v.message.includes("does not match primary contract authority TEMPLATE_VERSION"),
+    ),
+  );
+
+  // Independent public package contract (repo-quality@1.8.0) is not forced to match root VERSION (3.2.0)
+  const independentPackage = checkSemverChangelog({
+    versionContent: "3.2.0\n",
+    templateVersionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+    packageManifests: {
+      "packages/repo-quality/package.json": JSON.stringify({
+        name: "@spencer-shadley/repo-quality",
+        version: "1.8.0",
+      }),
+    },
+  });
+  assert.equal(independentPackage.filter((v) => v.file.includes("packages/repo-quality")).length, 0);
+
+  // Invalid SemVer in a package manifest is flagged under SVC1
+  const invalidPackage = checkSemverChangelog({
+    versionContent: "3.2.0\n",
+    templateVersionContent: "3.2.0\n",
+    changelogContent: "# Changelog\n\n## [Unreleased]\n\n## [3.2.0] - 2026-09-15\n",
+    packageManifests: {
+      "packages/repo-quality/package.json": JSON.stringify({
+        name: "@spencer-shadley/repo-quality",
+        version: "v1.8.0",
+      }),
+    },
+  });
+  assert.ok(
+    invalidPackage.some(
+      (v) => v.rule === "SVC1" && v.file.includes("packages/repo-quality") && v.message.includes("is not valid SemVer 2.0.0"),
+    ),
+  );
+});
+
+test("discoverPublicContracts discovers independent public contracts and tags derived metadata", () => {
+  const rootDir = fileURLToPath(new URL("../../../", import.meta.url));
+  const contracts = discoverPublicContracts(rootDir);
+
+  const template = contracts.find((c) => c.name === "template");
+  assert.ok(template);
+  assert.equal(template.path, "TEMPLATE_VERSION");
+  assert.equal(template.version, "3.2.0");
+  assert.equal(template.isDerived, undefined);
+
+  const derived = contracts.find((c) => c.name === "repository-derived");
+  assert.ok(derived);
+  assert.equal(derived.path, "VERSION");
+  assert.equal(derived.version, "3.2.0");
+  assert.equal(derived.isDerived, true);
+
+  const repoQuality = contracts.find((c) => c.name === "@spencer-shadley/repo-quality");
+  assert.ok(repoQuality);
+  assert.equal(repoQuality.version, "1.8.0");
+  assert.equal(repoQuality.isDerived, undefined);
 });
 
