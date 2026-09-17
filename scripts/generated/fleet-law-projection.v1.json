@@ -1,0 +1,417 @@
+{
+  "schema": "FleetLawProjectionV1",
+  "revision": 1,
+  "sourceCommit": "01b0b59c2247fad24323a3a7d63de906f81b5ca7",
+  "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
+  "governedIntakeRevision": 11,
+  "currentTriageLabel": "triaged:v11",
+  "bannedLabels": [
+    "work:triaged",
+    "tier:human",
+    "priority:provisional",
+    "needs-info",
+    "human-approval"
+  ],
+  "initialLabels": {
+    "exact": [
+      "priority:triage-tbd",
+      "work:untriaged"
+    ],
+    "prohibitedFilerPatterns": [
+      "^effort:",
+      "^tier:",
+      "^work:(triaged|planned|in-progress|in-review|implemented)$",
+      "^disposition:",
+      "^obsolete$",
+      "^priority:guess:",
+      "^priority:repo:p[0-5]$",
+      "^priority:fleet:p[0-5]$"
+    ]
+  },
+  "intake": {
+    "workTypes": [
+      "defect",
+      "feature",
+      "engineering_leverage",
+      "risk_reduction",
+      "discovery"
+    ],
+    "initialPriorityGuesses": [
+      "P0 candidate",
+      "P1",
+      "P2",
+      "P3",
+      "P4",
+      "P5"
+    ],
+    "priorityReason": {
+      "required": true,
+      "singleLine": true,
+      "nonEmpty": true
+    },
+    "history": {
+      "preserveIssueBody": true,
+      "preserveEvidenceComments": true
+    }
+  },
+  "priority": {
+    "levels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "rubricLabel": "priority:rubric-v1",
+    "tbdLabel": "priority:triage-tbd",
+    "p0CandidateLabel": "priority:p0-candidate",
+    "waitSloBreachedLabel": "wait-slo-breached",
+    "repoPrefix": "priority:repo:p",
+    "fleetPrefix": "priority:fleet:p",
+    "triage": {
+      "cadenceAuthority": "external",
+      "confirmationTargetMinutes": {
+        "P0 candidate": 60,
+        "P1": 1440,
+        "P2": 2880,
+        "P3": 4320,
+        "P4": 5760,
+        "P5": 7200
+      },
+      "missedTarget": "record_and_investigate_only",
+      "never": [
+        "stale",
+        "expire",
+        "reject",
+        "close"
+      ]
+    },
+    "confirmedTriplet": {
+      "requiredExactLabels": [
+        "priority:rubric-v1"
+      ],
+      "repositoryPriorityPatterns": [
+        "^priority:repo:p[0-5]$"
+      ],
+      "fleetPriorityPatterns": [
+        "^priority:fleet:p[0-5]$"
+      ],
+      "requiredCountPerPriorityDimension": 1
+    },
+    "waitSloHours": {
+      "0": 1,
+      "1": 24,
+      "2": 48,
+      "3": 72,
+      "4": 96,
+      "5": 120
+    },
+    "repoColors": {
+      "0": "B60205",
+      "1": "D93F0B",
+      "2": "FBCA04",
+      "3": "0E8A16",
+      "4": "1D76DB",
+      "5": "6A737D"
+    },
+    "fleetColors": {
+      "0": "B60205",
+      "1": "D93F0B",
+      "2": "FBCA04",
+      "3": "0E8A16",
+      "4": "1D76DB",
+      "5": "6A737D"
+    },
+    "p0": {
+      "selfAdmission": false,
+      "classification": "candidate_only_until_intake_authority_validates_all_predicates",
+      "confirmCas": {
+        "requiresSixP0Predicates": true,
+        "requiresCompleteTripletIncludingRubricV1": true,
+        "withoutValidatedPredicates": "leave_priority_triage_tbd_only_or_add_priority_p0_candidate_and_commission_auto_page",
+        "neverApplyAuthoritativeRepoOrFleetP0WithoutValidation": true,
+        "neverSilentTbdStripLeavingP0AsAuthority": true,
+        "note": "Intake/confirm CAS (code#1992): applying priority:repo:p0 / priority:fleet:p0 requires the six P0 predicates plus a complete triplet with priority:rubric-v1 in the same mutation. Otherwise retain priority:triage-tbd (and optionally priority:p0-candidate) and page Spencer — never self-admit P0."
+      }
+    }
+  },
+  "status": {
+    "labels": [
+      "work:untriaged",
+      "work:planned",
+      "work:in-progress",
+      "work:in-review",
+      "work:implemented"
+    ],
+    "filingDefault": "work:untriaged",
+    "progressStagesOrdered": [
+      "work:planned",
+      "work:in-progress",
+      "work:in-review",
+      "work:implemented"
+    ]
+  },
+  "effort": {
+    "labels": [
+      "effort:low",
+      "effort:medium",
+      "effort:high"
+    ],
+    "exactlyOneWhenTriaged": true,
+    "missingMeansNotCheap": true
+  },
+  "tier": {
+    "labels": [
+      "tier:auto",
+      "human-required"
+    ],
+    "exactlyOneWhenTriaged": true
+  },
+  "terminalDispositions": {
+    "labels": [
+      "obsolete",
+      "disposition:land",
+      "disposition:explicit-discard",
+      "disposition:preserve-as-history",
+      "disposition:bounded-successor"
+    ],
+    "vocabulary": [
+      "land",
+      "explicit-discard",
+      "preserve-as-history",
+      "bounded-successor"
+    ],
+    "mutuallyExclusive": true
+  },
+  "p1TagOnlyBackfill": {
+    "scope": "open_frozen_p1_cohort_lacking_complete_confirmed_triplet",
+    "issueState": "open",
+    "cohort": "frozen_p1",
+    "confirmedTriplet": {
+      "requiredExactLabels": [
+        "priority:rubric-v1"
+      ],
+      "repositoryPriorityPatterns": [
+        "^priority:repo:p[0-5]$"
+      ],
+      "fleetPriorityPatterns": [
+        "^priority:fleet:p[0-5]$"
+      ],
+      "requiredCountPerPriorityDimension": 1
+    },
+    "candidatePredicate": "lacks_complete_confirmed_triplet",
+    "addOnly": [
+      "priority:triage-tbd"
+    ],
+    "freshReadRequired": true,
+    "compareAndSwapRequired": true,
+    "receiptRequired": true,
+    "bodyRewriteAllowed": false,
+    "commentMutationAllowed": false,
+    "idempotent": true
+  },
+  "labels": [
+    {
+      "name": "disposition:bounded-successor",
+      "description": "Terminal disposition: disposition:bounded-successor",
+      "color": "FBCA04"
+    },
+    {
+      "name": "disposition:explicit-discard",
+      "description": "Terminal disposition: disposition:explicit-discard",
+      "color": "E11D48"
+    },
+    {
+      "name": "disposition:land",
+      "description": "Terminal disposition: disposition:land",
+      "color": "0E8A16"
+    },
+    {
+      "name": "disposition:preserve-as-history",
+      "description": "Terminal disposition: disposition:preserve-as-history",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "effort:high",
+      "description": "Work effort: high",
+      "color": "E99695"
+    },
+    {
+      "name": "effort:low",
+      "description": "Work effort: low",
+      "color": "C2E0C6"
+    },
+    {
+      "name": "effort:medium",
+      "description": "Work effort: medium",
+      "color": "FEF2C0"
+    },
+    {
+      "name": "human-required",
+      "description": "Human input/merge floor (exact ask in comments); replaces banned tier:human",
+      "color": "D93F0B"
+    },
+    {
+      "name": "obsolete",
+      "description": "Terminal disposition: obsolete",
+      "color": "FFFFFF"
+    },
+    {
+      "name": "priority:fleet:p0",
+      "description": "Authoritative fleet priority P0 — eligible start within 1 hour; validated immediate unblock.",
+      "color": "B60205"
+    },
+    {
+      "name": "priority:fleet:p1",
+      "description": "Authoritative fleet priority P1 — eligible start within 24 hours.",
+      "color": "D93F0B"
+    },
+    {
+      "name": "priority:fleet:p2",
+      "description": "Authoritative fleet priority P2 — eligible start within 48 hours.",
+      "color": "FBCA04"
+    },
+    {
+      "name": "priority:fleet:p3",
+      "description": "Authoritative fleet priority P3 — eligible start within 72 hours.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "priority:fleet:p4",
+      "description": "Authoritative fleet priority P4 — eligible start within 96 hours.",
+      "color": "1D76DB"
+    },
+    {
+      "name": "priority:fleet:p5",
+      "description": "Authoritative fleet priority P5 — eligible start within 120 hours.",
+      "color": "6A737D"
+    },
+    {
+      "name": "priority:p0-candidate",
+      "description": "P0 candidate; requires immediate-unblock validation before authoritative assignment.",
+      "color": "B60205"
+    },
+    {
+      "name": "priority:repo:p0",
+      "description": "Authoritative repository priority P0 — eligible start within 1 hour; validated immediate unblock.",
+      "color": "B60205"
+    },
+    {
+      "name": "priority:repo:p1",
+      "description": "Authoritative repository priority P1 — eligible start within 24 hours.",
+      "color": "D93F0B"
+    },
+    {
+      "name": "priority:repo:p2",
+      "description": "Authoritative repository priority P2 — eligible start within 48 hours.",
+      "color": "FBCA04"
+    },
+    {
+      "name": "priority:repo:p3",
+      "description": "Authoritative repository priority P3 — eligible start within 72 hours.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "priority:repo:p4",
+      "description": "Authoritative repository priority P4 — eligible start within 96 hours.",
+      "color": "1D76DB"
+    },
+    {
+      "name": "priority:repo:p5",
+      "description": "Authoritative repository priority P5 — eligible start within 120 hours.",
+      "color": "6A737D"
+    },
+    {
+      "name": "priority:rubric-v1",
+      "description": "Priority Rubric v1 assessed; body block holds current RP/FP or provisional status.",
+      "color": "1D76DB"
+    },
+    {
+      "name": "priority:triage-tbd",
+      "description": "Awaiting durable priority confirmation; not an authoritative priority.",
+      "color": "FBCA04"
+    },
+    {
+      "name": "tier:auto",
+      "description": "Merge tier: auto",
+      "color": "BFD4F2"
+    },
+    {
+      "name": "triaged:v10",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 10; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v11",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 11; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v3",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 3; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v4",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 4; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v5",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 5; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v6",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 6; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v7",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 7; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v8",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 8; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v9",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 9; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "wait-slo-breached",
+      "description": "Eligible-wait clock breached after confirmed triage; coexists with complete priority triplet.",
+      "color": "D93F0B"
+    },
+    {
+      "name": "work:implemented",
+      "description": "Work spine completed stage: implemented",
+      "color": "5319E7"
+    },
+    {
+      "name": "work:in-progress",
+      "description": "Work spine completed stage: in-progress",
+      "color": "FBCA04"
+    },
+    {
+      "name": "work:in-review",
+      "description": "Work spine completed stage: in-review",
+      "color": "D93F0B"
+    },
+    {
+      "name": "work:planned",
+      "description": "Work spine completed stage: planned",
+      "color": "1D76DB"
+    },
+    {
+      "name": "work:untriaged",
+      "description": "Work spine filing default; not yet triaged for effort/tier/priority.",
+      "color": "BFDADC"
+    }
+  ],
+  "contentDigest": "sha256:1cdf277d78a1973430180cd39a87cc84fe2ba0fa1a6aa2f11064c8c2438019c2"
+}
