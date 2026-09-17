@@ -19,125 +19,27 @@
  */
 
 import { spawnSync } from "node:child_process";
+import {
+  assertFleetLawValid,
+  FLEET_LAW_EVIDENCE,
+  FLEET_LAW_PROJECTION,
+  type FleetLawLabelDefinition,
+} from "./generated/fleet-law.ts";
 
 export const SCHEMA = "ProvisionCanonicalLabelsReportV1";
 export const ISSUE = "https://github.com/spencer-shadley/repo-template/issues/308";
 
-export interface CanonicalLabel {
-  name: string;
-  color: string;
-  description: string;
-}
-
-const PRIORITY_REPO_HOURS: Record<number, string> = {
-  0: "1 hour",
-  1: "24 hours",
-  2: "48 hours",
-  3: "72 hours",
-  4: "96 hours",
-  5: "120 hours",
-};
-
-const PRIORITY_COLORS: Record<number, string> = {
-  0: "B60205",
-  1: "D93F0B",
-  2: "FBCA04",
-  3: "0E8A16",
-  4: "1D76DB",
-  5: "6A737D",
-};
+export type CanonicalLabel = FleetLawLabelDefinition;
 
 export const BANNED_LABELS: readonly string[] = Object.freeze([
-  "work:triaged",
-  "tier:human",
-  "priority:provisional",
-  "needs-info",
-  "human-approval",
+  ...FLEET_LAW_PROJECTION.bannedLabels,
 ]);
 
-const STATIC_CANONICAL_LABELS: readonly CanonicalLabel[] = Object.freeze([
-  // Priority Triplet & Rubric
-  {
-    name: "priority:triage-tbd",
-    color: "FBCA04",
-    description: "Awaiting durable priority confirmation; not an authoritative priority.",
-  },
-  {
-    name: "priority:p0-candidate",
-    color: "B60205",
-    description: "P0 candidate; requires immediate-unblock validation before authoritative assignment.",
-  },
-  {
-    name: "priority:rubric-v1",
-    color: "1D76DB",
-    description: "Priority Rubric v1 assessed; body block holds current RP/FP or provisional status.",
-  },
-  {
-    name: "wait-slo-breached",
-    color: "D93F0B",
-    description: "Wait SLO breached",
-  },
-  {
-    name: "priority:disposition:consolidated",
-    color: "0E8A16",
-    description: "Triaged and consolidated with aligned fleet priority",
-  },
-
-  // Work Spine Lifecycle
-  {
-    name: "work:untriaged",
-    color: "BFDADC",
-    description: "Work spine filing default; not yet triaged for effort/tier/priority.",
-  },
-  {
-    name: "work:planned",
-    color: "1D76DB",
-    description: "Work spine completed stage: planned",
-  },
-  {
-    name: "work:in-progress",
-    color: "FBCA04",
-    description: "Work spine completed stage: in-progress",
-  },
-  {
-    name: "work:in-review",
-    color: "D93F0B",
-    description: "Work spine completed stage: in-review",
-  },
-  {
-    name: "work:implemented",
-    color: "5319E7",
-    description: "Work spine completed stage: implemented",
-  },
-
-  // Dimensions
-  {
-    name: "effort:low",
-    color: "C2E0C6",
-    description: "Work effort: low",
-  },
-  {
-    name: "effort:medium",
-    color: "FEF2C0",
-    description: "Work effort: medium",
-  },
-  {
-    name: "effort:high",
-    color: "E99695",
-    description: "Work effort: high",
-  },
-  {
-    name: "tier:auto",
-    color: "BFD4F2",
-    description: "Merge tier: auto",
-  },
-  {
-    name: "human-required",
-    color: "D93F0B",
-    description: "Human input/merge floor (exact ask in comments); replaces banned tier:human",
-  },
-
-  // Intake
+/**
+ * Portable additions owned specifically by Repo Template (outside Code fleet-law slice).
+ * Composed into the canonical label kit without collision.
+ */
+const TEMPLATE_PORTABLE_LABELS: readonly CanonicalLabel[] = Object.freeze([
   {
     name: "agent-review",
     color: "5319E7",
@@ -156,66 +58,57 @@ const STATIC_CANONICAL_LABELS: readonly CanonicalLabel[] = Object.freeze([
   {
     name: "needs-rebase",
     color: "B60205",
-    description: "Current conflict signal: branch needs rebase onto base; not merge approval or semantic suitability (repo-template#346).",
+    description:
+      "Current conflict signal: branch needs rebase onto base; not merge approval or semantic suitability (repo-template#346).",
   },
   {
     name: "needs-verification",
     color: "FBCA04",
-    description: "Outstanding verification request; not dequeue, merge approval, or completion (repo-template#347).",
-  },
-
-  // Terminal Dispositions
-  {
-    name: "obsolete",
-    color: "FFFFFF",
-    description: "Terminal disposition: obsolete",
+    description:
+      "Outstanding verification request; not dequeue, merge approval, or completion (repo-template#347).",
   },
   {
-    name: "disposition:land",
+    name: "priority:disposition:consolidated",
     color: "0E8A16",
-    description: "Terminal disposition: disposition:land",
-  },
-  {
-    name: "disposition:explicit-discard",
-    color: "E11D48",
-    description: "Terminal disposition: disposition:explicit-discard",
-  },
-  {
-    name: "disposition:preserve-as-history",
-    color: "C5DEF5",
-    description: "Terminal disposition: disposition:preserve-as-history",
-  },
-  {
-    name: "disposition:bounded-successor",
-    color: "FBCA04",
-    description: "Terminal disposition: disposition:bounded-successor",
+    description: "Triaged and consolidated with aligned fleet priority",
   },
 ]);
 
-function buildNumberedPriorityLabels(scope: "repo" | "fleet"): CanonicalLabel[] {
-  const result: CanonicalLabel[] = [];
-  const scopeName = scope === "repo" ? "repository" : "fleet";
-  for (let level = 0; level <= 5; level += 1) {
-    const levelStr = String(level);
-    const hours = PRIORITY_REPO_HOURS[level] ?? "120 hours";
-    const desc = level === 0
-      ? `Authoritative ${scopeName} priority P0 — eligible start within 1 hour; validated immediate unblock.`
-      : `Authoritative ${scopeName} priority P${levelStr} — eligible start within ${hours}.`;
-    result.push({
-      name: `priority:${scope}:p${levelStr}`,
-      color: PRIORITY_COLORS[level] ?? "6A737D",
-      description: desc,
+export function buildCanonicalLabels(): readonly CanonicalLabel[] {
+  assertFleetLawValid();
+  const map = new Map<string, CanonicalLabel>();
+
+  // 1. Code-owned managed label slice from exact FleetLawProjectionV1 artifact:
+  for (const def of FLEET_LAW_PROJECTION.labels) {
+    map.set(def.name.toLowerCase(), {
+      name: def.name,
+      color: def.color,
+      description: def.description,
     });
   }
-  return result;
-}
 
-export function buildCanonicalLabels(): readonly CanonicalLabel[] {
-  const all: CanonicalLabel[] = [
-    ...STATIC_CANONICAL_LABELS,
-    ...buildNumberedPriorityLabels("repo"),
-    ...buildNumberedPriorityLabels("fleet"),
-  ];
+  // Ensure current triaged:vN completion label is present dynamically from projection:
+  const currentTriage = FLEET_LAW_PROJECTION.currentTriageLabel;
+  if (!map.has(currentTriage.toLowerCase())) {
+    map.set(currentTriage.toLowerCase(), {
+      name: currentTriage,
+      color: "0E8A16",
+      description: `Triage checklist completion stamp for GovernedIntakeBodyV1 version ${String(FLEET_LAW_PROJECTION.governedIntakeRevision)}; strip on re-triage.`,
+    });
+  }
+
+  // 2. Repo Template portable additions:
+  for (const def of TEMPLATE_PORTABLE_LABELS) {
+    if (!map.has(def.name.toLowerCase())) {
+      map.set(def.name.toLowerCase(), {
+        name: def.name,
+        color: def.color,
+        description: def.description,
+      });
+    }
+  }
+
+  const all = Array.from(map.values());
   return Object.freeze(all.toSorted((a, b) => a.name.localeCompare(b.name)));
 }
 
@@ -420,6 +313,7 @@ export function runProvision(options: {
   dryRun?: boolean | undefined;
   purgeBanned?: boolean | undefined;
 } = {}) {
+  assertFleetLawValid();
   const repo = options.repo || resolveCurrentRepoSlug();
   const existing = fetchExistingLabels(repo);
   const plan = computeProvisionPlan(existing, CANONICAL_LABELS, BANNED_LABELS, {
@@ -433,6 +327,13 @@ export function runProvision(options: {
     issue: ISSUE,
     repo,
     dryRun: Boolean(options.dryRun),
+    fleetLawEvidence: {
+      sourceCommit: FLEET_LAW_EVIDENCE.sourceCommit,
+      schema: FLEET_LAW_EVIDENCE.schema,
+      revision: FLEET_LAW_EVIDENCE.revision,
+      contentDigest: FLEET_LAW_EVIDENCE.contentDigest,
+      governedIntakeRevision: FLEET_LAW_EVIDENCE.governedIntakeRevision,
+    },
     plan: {
       createCount: plan.create.length,
       updateCount: plan.update.length,
