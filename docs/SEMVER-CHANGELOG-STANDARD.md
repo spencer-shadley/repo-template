@@ -10,10 +10,19 @@ This document defines the canonical repository standard for:
 
 ## 1. Context & Motivation
 
-Repositories across the fleet require a single, machine-readable release version for orchestration provenance, admission gating, build artifacts, and release receipts. Without a uniform standard:
+Repositories across the fleet require clear, machine-readable release versions for orchestration provenance, admission gating, build artifacts, and release receipts. The governing architectural rule is **one authoritative SemVer per released public contract** (DOCTRINE §53).
+
+Without a uniform standard:
 - Package files (`package.json`, etc.) often carry internal or private package versions (e.g. `0.0.0-private`) that do not reflect the repository release state.
 - Monolithic `CHANGELOG.md` files grow without bound, increasing merge conflicts and cluttering active planning.
 - Ad-hoc versioning schemes cause provenance inconsistencies across the fleet.
+
+In single-contract repositories (the standard case), `VERSION` at the repository root serves as the single release authority.
+In multi-contract repositories with independently released public contracts (such as `repo-template`, which ships both the Template contract and the `@spencer-shadley/repo-quality` package), each released public contract declares its own authoritative SemVer:
+- **Template release contract**: `TEMPLATE_VERSION` (+ immutable template release tag and release receipt).
+- **Independent package contracts**: `packages/<pkg>/package.json.version` (+ immutable package release tag and release receipt, e.g. `repo-quality-v1.8.0`).
+
+Root `VERSION` in multi-contract repositories is derived non-authoritative metadata (in `repo-template`, derived from `TEMPLATE_VERSION`) providing a uniform root release view for orchestrators and build tools without overriding or competing with independent public contracts. An authoritative repo-wide version must never override independently versioned public packages.
 
 `repo-template` defines the standard, generator, validator, and projected defaults. Consuming repositories implement their own bounded adoption; Agent Orchestrator (AO) consumes `VERSION` for orchestration provenance and admission.
 
@@ -23,10 +32,12 @@ Repositories across the fleet require a single, machine-readable release version
 
 ### 2.1 Machine-Readable Repository SemVer (`VERSION`)
 - **Path**: `VERSION` at the repository root.
-- **Format**: Exactly one line containing a valid [SemVer 2.0.0](https://semver.org) string (e.g. `0.1.0`, `1.0.0`, `3.1.0`).
+- **Format**: Exactly one line containing a valid [SemVer 2.0.0](https://semver.org) string (e.g. `0.1.0`, `1.0.0`, `3.1.0`, `3.2.0`).
 - **Encoding**: UTF-8 / ASCII text, terminated with an optional standard newline (`\n`).
-- **Authority**: The single source of truth for the repository's current release version.
-- **Distinction**: `VERSION` represents the repository's own release version. (In `repo-template`, `TEMPLATE_VERSION` represents the template engine version).
+- **Authority**:
+  - In single-contract repositories: the authoritative release SemVer.
+  - In multi-contract repositories: derived non-authoritative metadata reflecting the primary repository contract (e.g. `TEMPLATE_VERSION`), providing a uniform root release identity for tools and orchestration admission without competing with independent package contracts.
+- **Distinction**: In `repo-template`, `TEMPLATE_VERSION` is the authoritative version for the Template release contract, while `packages/repo-quality/package.json.version` is the authoritative version for the repo-quality package. Root `VERSION` is derived metadata that must match `TEMPLATE_VERSION`.
 
 ### 2.2 Active Root Changelog (`CHANGELOG.md`)
 - **Path**: `CHANGELOG.md` at the repository root.
