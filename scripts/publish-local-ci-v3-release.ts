@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,7 +9,6 @@ import {
   createTemplateReleaseCandidateV1,
   sha256CanonicalJson,
   validatePublishedTemplateReleaseReceiptV1,
-  type TemplateReleaseEvidence,
   type TemplateReleaseReceipt,
 } from "../artifacts/adoption-shell-v2/index.js";
 import {
@@ -21,16 +21,15 @@ import {
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-// NOTE (repo-template#340 repair): these must stay in lockstep with the
-// repaired producer candidate in scripts/freeze-local-ci-v3-candidate.ts.
-// The commit/tree/semver moved forward from the pre-repair identity
-// (003bcc16.../495c6914...@3.1.0, which reused an already-released 3.1.0 tag
-// -- see #340 comment 5663732372) to the repaired identity below. This is a
-// producer-side consistency fixture only: no tag is moved or published here
-// (that remains #341's own scope, a later chunk).
+// Frozen LocalCiContractV3 candidate identity (producer #340 / canaries #991/#187).
+// Publication identity is a *new unused SemVer* whose tagged commit VERSION bytes
+// equal the tag (repo-template#364 / #341 CHANGE of PR 400). Do not move or reuse
+// v3.1.0 or v3.2.0; v3.2.1 is the sibling #380 general skill-bearing release.
 export const FROZEN_CANDIDATE_COMMIT = "88591ee869bb109ef481171aa817d1ed204a970e";
 export const FROZEN_CANDIDATE_TREE = "995ea497114b2eba0b86cc3adb3666306829e0fb";
 export const FROZEN_SEMVER = "3.2.0";
+export const PUBLICATION_SEMVER = "3.3.0";
+export const PUBLICATION_TAG = `v${PUBLICATION_SEMVER}`;
 export const RECEIPT_ID = "receipt-issue-341-mu15pl0x";
 export const PROGRAMME_EPIC = "https://github.com/spencer-shadley/repo-template/issues/102";
 export const ISSUE_URL = "https://github.com/spencer-shadley/repo-template/issues/341";
@@ -45,7 +44,7 @@ export const FIRST_CANARY_RECEIPT_KIND = "model-gateway/local-ci-v3-canary-recei
 export const FIRST_CANARY_RECEIPT_DIGEST =
   "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b";
 export const FIRST_CANARY_RECEIPT_URL =
-  "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016";
+  "https://github.com/spencer-shadley/model-gateway/blob/master/docs/receipts/receipt-issue-991-mu14rxy2.json";
 
 export const SECOND_CANARY_ISSUE = "https://github.com/spencer-shadley/repo-factory/issues/187";
 export const SECOND_CANARY_RECEIPT_ID = "receipt-issue-187-mu14zjfz";
@@ -53,12 +52,15 @@ export const SECOND_CANARY_RECEIPT_KIND = "repo-factory/local-ci-v3-canary-recei
 export const SECOND_CANARY_RECEIPT_DIGEST =
   "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72";
 export const SECOND_CANARY_RECEIPT_URL =
-  "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813";
+  "https://github.com/spencer-shadley/repo-factory/blob/master/docs/receipts/receipt-issue-187-mu14zjfz.json";
 
-export const PRODUCER_REVIEW_URL =
-  "https://github.com/spencer-shadley/repo-template/pull/369#pullrequestreview-5206920572";
+export const PUBLICATION_TIME = "2026-09-18T07:30:00Z";
 
-export const PUBLICATION_TIME = "2026-09-18T05:30:00Z";
+export type GitRunner = (args: readonly string[]) => string;
+
+export function defaultGit(args: readonly string[]): string {
+  return execFileSync("git", [...args], { cwd: root, encoding: "utf8" }).trim();
+}
 
 /**
  * repo-template#364: a published tag/semver must equal VERSION and
@@ -82,6 +84,70 @@ export function assertCommitVersionMatchesDeclaredSemver(
       `Declared publication semver ${declaredSemver} disagrees with commit ${commit} VERSION/TEMPLATE_VERSION ${version}. Bump VERSION on the publication commit (repo-template#364) or retarget the tag.`,
     );
   }
+}
+
+export function assertCanaryReceiptUrl(url: string, receiptId: string): void {
+  const escapedId = receiptId.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const blobPattern = new RegExp(
+    `^https://github\\.com/spencer-shadley/[A-Za-z0-9_.-]+/blob/[A-Za-z0-9._/-]+/(?:docs/receipts|contracts/local-ci/v3)/${escapedId}\\.json$`,
+  );
+  if (!blobPattern.test(url)) {
+    throw new Error(
+      `Canary receiptUrl is not a durable receipt artifact for ${receiptId}: ${url}`,
+    );
+  }
+}
+
+export interface PublicationIdentity {
+  readonly commit: string;
+  readonly tree: string;
+  readonly semver: string;
+  readonly tag: string;
+}
+
+export function resolveRemotePeeledCommit(
+  remote: string,
+  tagName: string,
+  runGit: GitRunner = defaultGit,
+): string {
+  let lsRemote: string;
+  try {
+    lsRemote = runGit(["ls-remote", "--tags", remote, `refs/tags/${tagName}*`]);
+  } catch (error) {
+    throw new Error(`Remote ${remote} could not be queried for refs/tags/${tagName}`, {
+      cause: error,
+    });
+  }
+  if (!lsRemote) {
+    throw new Error(`Remote tag refs/tags/${tagName} not found on remote ${remote}`);
+  }
+  for (const line of lsRemote.split("\n")) {
+    const [sha, ref] = line.trim().split(/\s+/, 2);
+    if (ref === `refs/tags/${tagName}^{}` && sha) {
+      return sha;
+    }
+  }
+  throw new Error(
+    `Remote tag refs/tags/${tagName} is not an annotated tag with a peeled commit on ${remote}`,
+  );
+}
+
+export function resolvePublishedIdentity(
+  remote: string = "origin",
+  tagName: string = PUBLICATION_TAG,
+  runGit: GitRunner = defaultGit,
+): PublicationIdentity {
+  const commit = resolveRemotePeeledCommit(remote, tagName, runGit);
+  assertCommitVersionMatchesDeclaredSemver(commit, PUBLICATION_SEMVER, (commitSha, pathName) =>
+    runGit(["show", `${commitSha}:${pathName}`]),
+  );
+  const tree = runGit(["rev-parse", `${commit}^{tree}`]);
+  return {
+    commit,
+    tree,
+    semver: PUBLICATION_SEMVER,
+    tag: tagName,
+  };
 }
 
 
@@ -209,71 +275,26 @@ export interface PostPublicationReadbackReceipt {
 // -- the same defect the candidate freeze had. It now consumes the single
 // frozen-tree implementation in scripts/freeze-local-ci-v3-candidate.ts.
 
-export function buildPublishedReleaseReceipt(): TemplateReleaseReceipt {
+export function buildPublishedReleaseReceipt(
+  identity: PublicationIdentity,
+): TemplateReleaseReceipt {
   const payloadSet = loadFrozenPayloadSet();
   const capabilityRegistry = loadFrozenCapabilityRegistry();
   const artifactManifest = loadFrozenArtifactManifest();
   verifyFrozenPayloadSetReproducible(payloadSet);
 
-  const releaseEvidence: TemplateReleaseEvidence = {
-    review: {
-      subject: "producer-commit",
-      url: PRODUCER_REVIEW_URL,
-      result: "approved",
-    },
-    canaryReceipts: {
-      "model-gateway": {
-        url: FIRST_CANARY_RECEIPT_URL,
-        receiptSha256: FIRST_CANARY_RECEIPT_DIGEST,
-      },
-      "repo-factory": {
-        url: SECOND_CANARY_RECEIPT_URL,
-        receiptSha256: SECOND_CANARY_RECEIPT_DIGEST,
-      },
-    },
-    checks: {
-      "repo-template-verify": {
-        command: "corepack pnpm verify",
-        result: "passed",
-      },
-      "proof-of-detection-self-test": {
-        command: "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
-        result: "passed",
-      },
-      "local-ci-v3-contract-unit": {
-        command: "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
-        result: "passed",
-      },
-      "local-ci-outcome-v1-unit": {
-        command: "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
-        result: "passed",
-      },
-      "release-payload-check": {
-        command: "node tools/release-payload.ts check",
-        result: "passed",
-      },
-      "artifact-build-verify": {
-        command: "node tools/artifact-build.ts verify",
-        result: "passed",
-      },
-    },
-    publicationReadback: {
-      kind: "producer-tag-ref/v1",
-    },
-    rollback: {
-      disposition: "immutable-correct-forward",
-      supersession: "new-semver-only",
-    },
-  };
-
+  // Nested releaseEvidence is omitted: its review.subject is const
+  // "producer-commit" and canary URLs are constrained to issue comments, but
+  // #341 CHANGE forbids labeling a later PR review as a review of the frozen
+  // producer and forbids triage/progress comments as canary receipt bodies.
+  // Canary join lives on the outer readback receipt with durable blob URLs.
   const candidateClosure = createTemplateReleaseCandidateV1({
-    semver: FROZEN_SEMVER,
-    commit: FROZEN_CANDIDATE_COMMIT,
-    tree: FROZEN_CANDIDATE_TREE,
+    semver: identity.semver,
+    commit: identity.commit,
+    tree: identity.tree,
     payloadSet,
     capabilityRegistry,
     artifactManifest,
-    releaseEvidence,
   });
 
   if (!candidateClosure.ok) {
@@ -305,11 +326,11 @@ export function buildPublishedReleaseReceipt(): TemplateReleaseReceipt {
 export const VENDOR_MG_RECEIPT_PATH = "vendor/model-gateway/canary-receipt.json";
 export const VENDOR_RF_RECEIPT_PATH = "vendor/repo-factory/canary-receipt.json";
 
-function readValidatedTagReceipt(tagName: string): void {
-  const rawTag = execFileSync("git", ["cat-file", "-p", `refs/tags/${tagName}`], {
-    cwd: root,
-    encoding: "utf8",
-  });
+export function readValidatedTagReceipt(
+  tagName: string,
+  runGit: GitRunner = defaultGit,
+): TemplateReleaseReceipt {
+  const rawTag = runGit(["cat-file", "-p", `refs/tags/${tagName}`]);
   const headerEnd = rawTag.indexOf("\n\n");
   if (headerEnd === -1) {
     throw new Error(`Invalid annotated tag format for refs/tags/${tagName}`);
@@ -322,111 +343,138 @@ function readValidatedTagReceipt(tagName: string): void {
       `Remote tag message is not a valid published release receipt: ${JSON.stringify(validated.diagnostics)}`,
     );
   }
+  return validated.value;
 }
 
-let cachedRemotePeeledCommit: string | null = null;
-
-function resolveRemotePeeledCommit(remote: string, tagName: string): string | null {
-  if (cachedRemotePeeledCommit) return cachedRemotePeeledCommit;
-  try {
-    const lsRemote = execFileSync(
-      "git",
-      ["ls-remote", "--tags", remote, `refs/tags/${tagName}*`],
-      { cwd: root, encoding: "utf8" },
-    ).trim();
-    if (!lsRemote) {
-      throw new Error(`Remote tag refs/tags/${tagName} not found on remote ${remote}`);
-    }
-    for (const line of lsRemote.split("\n")) {
-      const [sha, ref] = line.trim().split(/\s+/, 2);
-      if (ref === `refs/tags/${tagName}^{}` && sha) {
-        cachedRemotePeeledCommit = sha;
-        return sha;
-      }
-    }
-  } catch (error) {
-    const localTag = execFileSync(
-      "git",
-      ["tag", "-l", tagName],
-      { cwd: root, encoding: "utf8" },
-    ).trim();
-    if (localTag !== tagName) {
-      throw new Error(`Tag ${tagName} not found remotely or locally: ${String(error)}`, { cause: error });
-    }
-  }
-  return null;
-}
-
-export function performRemoteReadback(
-  remote: string = "origin",
-  tagName: string = `v${FROZEN_SEMVER}`,
-): PostPublicationReadbackReceipt["readback"] {
-  const remotePeeledCommit = resolveRemotePeeledCommit(remote, tagName);
-
-  if (remotePeeledCommit && remotePeeledCommit !== FROZEN_CANDIDATE_COMMIT) {
-    throw new Error(
-      `Remote tag refs/tags/${tagName}^{} peeled commit ${remotePeeledCommit} does not match frozen candidate ${FROZEN_CANDIDATE_COMMIT}`,
-    );
-  }
-
-  const resolvedCommit = execFileSync(
-    "git",
-    ["rev-parse", `refs/tags/${tagName}^{commit}`],
-    { cwd: root, encoding: "utf8" },
-  ).trim();
-
-  if (resolvedCommit !== FROZEN_CANDIDATE_COMMIT) {
-    throw new Error(
-      `Tag ${tagName} peeled commit ${resolvedCommit} does not match frozen candidate ${FROZEN_CANDIDATE_COMMIT}`,
-    );
-  }
-
-  const resolvedTree = execFileSync(
-    "git",
-    ["rev-parse", `refs/tags/${tagName}^{tree}`],
-    { cwd: root, encoding: "utf8" },
-  ).trim();
-
-  if (resolvedTree !== FROZEN_CANDIDATE_TREE) {
-    throw new Error(
-      `Tag ${tagName} peeled tree ${resolvedTree} does not match frozen candidate ${FROZEN_CANDIDATE_TREE}`,
-    );
-  }
-
-  readValidatedTagReceipt(tagName);
-
-  return {
-    releaseAuthority: "repo-template/release-receipt/v1",
-    releaseId: `spencer-shadley/repo-template@${FROZEN_SEMVER}`,
-    tagName: `v${FROZEN_SEMVER}`,
-    resolvedCommit,
-    resolvedTree,
-    candidateCommitMatches: true,
-    candidateTreeMatches: true,
-    allCanonicalDigestsMatch: true,
-    firstCanaryAgrees: true,
-    secondCanaryAgrees: true,
-    readbackTimestamp: PUBLICATION_TIME,
+export interface DurableCanaryReceipt {
+  readonly receiptId: string;
+  readonly receiptDigest: string;
+  readonly candidate: {
+    readonly commit: string;
+    readonly tree: string;
+    readonly candidateReceiptDigest?: string;
+  };
+  readonly producerVendoring?: {
+    readonly producerReceiptDigest?: string;
   };
 }
 
+export function assertLoadedCanaryReceipt(
+  parsed: DurableCanaryReceipt,
+  expectedDigest: string,
+  label: string,
+): DurableCanaryReceipt {
+  const { receiptDigest: claimedDigest, ...body } = parsed;
+  const calculatedDigest = sha256CanonicalJson(body);
+  if (calculatedDigest !== expectedDigest) {
+    throw new Error(
+      `${label} canary receipt digest mismatch: calculated ${calculatedDigest}, expected ${expectedDigest}`,
+    );
+  }
+  if (claimedDigest !== expectedDigest) {
+    throw new Error(
+      `${label} canary receipt claimed digest mismatch: claimed ${claimedDigest}, expected ${expectedDigest}`,
+    );
+  }
+  if (parsed.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
+    throw new Error(
+      `${label} candidate commit mismatch: ${parsed.candidate.commit} !== ${FROZEN_CANDIDATE_COMMIT}`,
+    );
+  }
+  if (parsed.candidate.tree !== FROZEN_CANDIDATE_TREE) {
+    throw new Error(
+      `${label} candidate tree mismatch: ${parsed.candidate.tree} !== ${FROZEN_CANDIDATE_TREE}`,
+    );
+  }
+  return parsed;
+}
+
+export function loadDurableCanaryReceipt(
+  relativePath: string,
+  expectedDigest: string,
+  label: string,
+): DurableCanaryReceipt {
+  const fullPath = path.join(root, ...relativePath.split("/"));
+  if (!fs.existsSync(fullPath)) {
+    throw new Error(`Missing durable ${label} canary receipt at ${relativePath}`);
+  }
+  const raw = fs.readFileSync(fullPath, "utf8");
+  return assertLoadedCanaryReceipt(
+    JSON.parse(raw) as DurableCanaryReceipt,
+    expectedDigest,
+    label,
+  );
+}
+
 export function validateCanaryReceipts(): void {
-  const mgPath = path.join(root, ...VENDOR_MG_RECEIPT_PATH.split("/"));
-  if (!fs.existsSync(mgPath)) {
-    throw new Error(`Missing durable Model Gateway canary receipt at ${VENDOR_MG_RECEIPT_PATH}`);
+  assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
+  assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);
+  loadDurableCanaryReceipt(VENDOR_MG_RECEIPT_PATH, FIRST_CANARY_RECEIPT_DIGEST, "Model Gateway");
+  loadDurableCanaryReceipt(VENDOR_RF_RECEIPT_PATH, SECOND_CANARY_RECEIPT_DIGEST, "Repo Factory");
+}
+
+export function performRemoteReadback(
+  identity: PublicationIdentity,
+  agreements: {
+    readonly allCanonicalDigestsMatch: boolean;
+    readonly firstCanaryAgrees: boolean;
+    readonly secondCanaryAgrees: boolean;
+  },
+  remote: string = "origin",
+  tagName: string = PUBLICATION_TAG,
+  runGit: GitRunner = defaultGit,
+): PostPublicationReadbackReceipt["readback"] {
+  if (!agreements.allCanonicalDigestsMatch) {
+    throw new Error("Canonical LocalCi V3 digests do not match the frozen candidate");
   }
-  const mgRaw = fs.readFileSync(mgPath, "utf8");
-  if (!mgRaw.includes(FIRST_CANARY_RECEIPT_DIGEST)) {
-    throw new Error("Model Gateway canary receipt does not contain expected digest");
+  if (!agreements.firstCanaryAgrees) {
+    throw new Error("Model Gateway canary does not agree with the frozen candidate");
   }
-  const rfPath = path.join(root, ...VENDOR_RF_RECEIPT_PATH.split("/"));
-  if (!fs.existsSync(rfPath)) {
-    throw new Error(`Missing durable Repo Factory canary receipt at ${VENDOR_RF_RECEIPT_PATH}`);
+  if (!agreements.secondCanaryAgrees) {
+    throw new Error("Repo Factory canary does not agree with the frozen candidate");
   }
-  const rfRaw = fs.readFileSync(rfPath, "utf8");
-  if (!rfRaw.includes(SECOND_CANARY_RECEIPT_DIGEST)) {
-    throw new Error("Repo Factory canary receipt does not contain expected digest");
+
+  const remotePeeledCommit = resolveRemotePeeledCommit(remote, tagName, runGit);
+  const candidateCommitMatches = remotePeeledCommit === identity.commit;
+  if (!candidateCommitMatches) {
+    throw new Error(
+      `Remote tag refs/tags/${tagName}^{} peeled commit ${remotePeeledCommit} does not match publication commit ${identity.commit}`,
+    );
   }
+
+  const resolvedTree = runGit(["rev-parse", `${remotePeeledCommit}^{tree}`]);
+  const candidateTreeMatches = resolvedTree === identity.tree;
+  if (!candidateTreeMatches) {
+    throw new Error(
+      `Remote tag refs/tags/${tagName}^{} tree ${resolvedTree} does not match publication tree ${identity.tree}`,
+    );
+  }
+
+  const tagReceipt = readValidatedTagReceipt(tagName, runGit);
+  if (tagReceipt.producer.commit !== identity.commit) {
+    throw new Error(
+      `Annotated tag ${tagName} producer.commit ${tagReceipt.producer.commit} does not match publication commit ${identity.commit}`,
+    );
+  }
+  if (tagReceipt.producer.semver !== PUBLICATION_SEMVER) {
+    throw new Error(
+      `Annotated tag ${tagName} producer.semver ${tagReceipt.producer.semver} does not match ${PUBLICATION_SEMVER}`,
+    );
+  }
+
+  return {
+    releaseAuthority: "repo-template/release-receipt/v1",
+    releaseId: `spencer-shadley/repo-template@${PUBLICATION_SEMVER}`,
+    tagName: PUBLICATION_TAG,
+    resolvedCommit: remotePeeledCommit,
+    resolvedTree,
+    candidateCommitMatches,
+    candidateTreeMatches,
+    allCanonicalDigestsMatch: agreements.allCanonicalDigestsMatch,
+    firstCanaryAgrees: agreements.firstCanaryAgrees,
+    secondCanaryAgrees: agreements.secondCanaryAgrees,
+    readbackTimestamp: PUBLICATION_TIME,
+  };
 }
 
 export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackReceipt {
@@ -454,38 +502,13 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
     throw new Error("Producer candidate receipt digest mismatch in pre-publication receipt");
   }
 
-  const mgFullPath = path.join(root, ...VENDOR_MG_RECEIPT_PATH.split("/"));
-  if (!fs.existsSync(mgFullPath)) {
-    throw new Error(`Missing durable Model Gateway canary receipt at ${VENDOR_MG_RECEIPT_PATH}`);
-  }
-  const mgRaw = fs.readFileSync(mgFullPath, "utf8");
-  const mg = JSON.parse(mgRaw) as {
-    receiptId: string;
-    receiptDigest: string;
-    candidate: { commit: string; tree: string; candidateReceiptDigest?: string };
-  };
-  const { receiptDigest: mgClaimedDigest, ...mgBody } = mg;
-  const mgCalculatedDigest = sha256CanonicalJson(mgBody);
-  if (mgCalculatedDigest !== FIRST_CANARY_RECEIPT_DIGEST) {
-    throw new Error(
-      `Model Gateway canary receipt digest mismatch: calculated ${mgCalculatedDigest}, expected ${FIRST_CANARY_RECEIPT_DIGEST}`,
-    );
-  }
-  if (mgClaimedDigest !== FIRST_CANARY_RECEIPT_DIGEST) {
-    throw new Error(
-      `Model Gateway canary receipt claimed digest mismatch: claimed ${mgClaimedDigest}, expected ${FIRST_CANARY_RECEIPT_DIGEST}`,
-    );
-  }
-  if (mg.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
-    throw new Error(
-      `Model Gateway candidate commit mismatch: ${mg.candidate.commit} !== ${FROZEN_CANDIDATE_COMMIT}`,
-    );
-  }
-  if (mg.candidate.tree !== FROZEN_CANDIDATE_TREE) {
-    throw new Error(
-      `Model Gateway candidate tree mismatch: ${mg.candidate.tree} !== ${FROZEN_CANDIDATE_TREE}`,
-    );
-  }
+  assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
+  assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);
+  const mg = loadDurableCanaryReceipt(
+    VENDOR_MG_RECEIPT_PATH,
+    FIRST_CANARY_RECEIPT_DIGEST,
+    "Model Gateway",
+  );
   if (
     mg.candidate.candidateReceiptDigest &&
     mg.candidate.candidateReceiptDigest !== PRODUCER_CANDIDATE_RECEIPT_DIGEST
@@ -495,39 +518,11 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
     );
   }
 
-  const rfFullPath = path.join(root, ...VENDOR_RF_RECEIPT_PATH.split("/"));
-  if (!fs.existsSync(rfFullPath)) {
-    throw new Error(`Missing durable Repo Factory canary receipt at ${VENDOR_RF_RECEIPT_PATH}`);
-  }
-  const rfRaw = fs.readFileSync(rfFullPath, "utf8");
-  const rf = JSON.parse(rfRaw) as {
-    receiptId: string;
-    receiptDigest: string;
-    candidate: { commit: string; tree: string; candidateReceiptDigest?: string };
-    producerVendoring?: { producerReceiptDigest?: string };
-  };
-  const { receiptDigest: rfClaimedDigest, ...rfBody } = rf;
-  const rfCalculatedDigest = sha256CanonicalJson(rfBody);
-  if (rfCalculatedDigest !== SECOND_CANARY_RECEIPT_DIGEST) {
-    throw new Error(
-      `Repo Factory canary receipt digest mismatch: calculated ${rfCalculatedDigest}, expected ${SECOND_CANARY_RECEIPT_DIGEST}`,
-    );
-  }
-  if (rfClaimedDigest !== SECOND_CANARY_RECEIPT_DIGEST) {
-    throw new Error(
-      `Repo Factory canary receipt claimed digest mismatch: claimed ${rfClaimedDigest}, expected ${SECOND_CANARY_RECEIPT_DIGEST}`,
-    );
-  }
-  if (rf.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
-    throw new Error(
-      `Repo Factory candidate commit mismatch: ${rf.candidate.commit} !== ${FROZEN_CANDIDATE_COMMIT}`,
-    );
-  }
-  if (rf.candidate.tree !== FROZEN_CANDIDATE_TREE) {
-    throw new Error(
-      `Repo Factory candidate tree mismatch: ${rf.candidate.tree} !== ${FROZEN_CANDIDATE_TREE}`,
-    );
-  }
+  const rf = loadDurableCanaryReceipt(
+    VENDOR_RF_RECEIPT_PATH,
+    SECOND_CANARY_RECEIPT_DIGEST,
+    "Repo Factory",
+  );
   const rfProducerDigest =
     rf.candidate.candidateReceiptDigest ?? rf.producerVendoring?.producerReceiptDigest;
   if (rfProducerDigest && rfProducerDigest !== PRODUCER_CANDIDATE_RECEIPT_DIGEST) {
@@ -536,7 +531,19 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
     );
   }
 
-  const readback = performRemoteReadback();
+  const identity = resolvePublishedIdentity();
+  const firstCanaryAgrees =
+    mg.candidate.commit === FROZEN_CANDIDATE_COMMIT &&
+    mg.candidate.tree === FROZEN_CANDIDATE_TREE;
+  const secondCanaryAgrees =
+    rf.candidate.commit === FROZEN_CANDIDATE_COMMIT &&
+    rf.candidate.tree === FROZEN_CANDIDATE_TREE;
+  const allCanonicalDigestsMatch = Object.keys(canonicalDigests).length > 0;
+  const readback = performRemoteReadback(identity, {
+    allCanonicalDigestsMatch,
+    firstCanaryAgrees,
+    secondCanaryAgrees,
+  });
 
   const v3Bundle = capabilityRegistry.bundles.find(
     (bundle) => bundle.id === "repo-template/local-ci-contract-v3",
@@ -547,7 +554,7 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
   );
   if (!podBundle) throw new Error("Missing repo-template/proof-of-detection bundle");
 
-  const publishedReleaseReceipt = buildPublishedReleaseReceipt();
+  const publishedReleaseReceipt = buildPublishedReleaseReceipt(identity);
 
   const bodyWithoutDigest = {
     schemaId:
@@ -733,7 +740,7 @@ export function checkReceipts(): void {
     }
   }
 
-  const expectedRelease = buildPublishedReleaseReceipt();
+  const expectedRelease = buildPublishedReleaseReceipt(resolvePublishedIdentity());
   const expectedReleaseSerialized = serializeReceipt(expectedRelease);
   for (const relativePath of TARGET_RELEASE_RECEIPT_PATHS) {
     const fullPath = path.join(root, ...relativePath.split("/"));
@@ -756,8 +763,7 @@ export function writeReceipts(): void {
     fs.writeFileSync(fullPath, readbackSerialized, "utf8");
   }
 
-  const releaseReceipt = buildPublishedReleaseReceipt();
-  const releaseSerialized = serializeReceipt(releaseReceipt);
+  const releaseSerialized = serializeReceipt(readbackReceipt.publishedReleaseReceipt);
   for (const relativePath of TARGET_RELEASE_RECEIPT_PATHS) {
     const fullPath = path.join(root, ...relativePath.split("/"));
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
@@ -798,42 +804,104 @@ export function selfTest(): void {
     throw new Error("tampering was not detected");
   }
 
-  // Verify published release receipt validation
-  const releaseReceipt = buildPublishedReleaseReceipt();
-  const releaseValidation = validatePublishedTemplateReleaseReceiptV1(releaseReceipt);
+  const releaseValidation = validatePublishedTemplateReleaseReceiptV1(
+    receipt.publishedReleaseReceipt,
+  );
   if (!releaseValidation.ok) {
     throw new Error("Published release receipt failed validation in self-test");
   }
+  if (receipt.publishedReleaseReceipt.producer.semver !== PUBLICATION_SEMVER) {
+    throw new Error("published release producer.semver must equal PUBLICATION_SEMVER");
+  }
+  if (receipt.readback.tagName !== PUBLICATION_TAG) {
+    throw new Error("readback tag must equal the unused publication tag");
+  }
+  if (receipt.readback.resolvedCommit !== receipt.publishedReleaseReceipt.producer.commit) {
+    throw new Error("readback resolved commit must equal published producer commit");
+  }
+}
+
+function showFromGit(commitSha: string, pathName: string): string {
+  return defaultGit(["show", `${commitSha}:${pathName}`]);
+}
+
+function assertVersionAlignmentGates(): void {
+  let frozenRefused = false;
+  try {
+    assertCommitVersionMatchesDeclaredSemver(
+      FROZEN_CANDIDATE_COMMIT,
+      PUBLICATION_SEMVER,
+      showFromGit,
+    );
+  } catch (error) {
+    frozenRefused = /disagrees with commit/.test(String(error));
+  }
+  if (!frozenRefused) {
+    throw new Error(
+      `expected assertCommitVersionMatchesDeclaredSemver to refuse frozen 3.1.0 tree under ${PUBLICATION_SEMVER} label`,
+    );
+  }
+
+  const identity = resolvePublishedIdentity();
+  assertCommitVersionMatchesDeclaredSemver(identity.commit, PUBLICATION_SEMVER, showFromGit);
+}
+
+export function mintPublicationTag(runGit: GitRunner = defaultGit): PublicationIdentity {
+  const commit = runGit(["rev-parse", "HEAD"]);
+  assertCommitVersionMatchesDeclaredSemver(commit, PUBLICATION_SEMVER, (commitSha, pathName) =>
+    runGit(["show", `${commitSha}:${pathName}`]),
+  );
+  let remoteListing: string;
+  try {
+    remoteListing = runGit(["ls-remote", "--tags", "origin", `refs/tags/${PUBLICATION_TAG}*`]);
+  } catch (error) {
+    throw new Error(`Remote origin could not be queried for ${PUBLICATION_TAG}`, { cause: error });
+  }
+  if (remoteListing) {
+    throw new Error(
+      `Refusing to mint ${PUBLICATION_TAG}: already present on origin:\n${remoteListing}`,
+    );
+  }
+  const tree = runGit(["rev-parse", `${commit}^{tree}`]);
+  const identity = {
+    commit,
+    tree,
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  const receipt = buildPublishedReleaseReceipt(identity);
+  const messagePath = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), "repo-template-tag-")),
+    `${PUBLICATION_TAG}.json`,
+  );
+  fs.writeFileSync(messagePath, `${JSON.stringify(receipt)}\n`, "utf8");
+  runGit(["tag", "-a", PUBLICATION_TAG, commit, "-F", messagePath]);
+  return identity;
 }
 
 function main(): void {
   const mode = process.argv[2];
-  if (mode === "--write") {
+  if (mode === "--mint-tag") {
+    const identity = mintPublicationTag();
+    console.log(`Minted annotated tag ${PUBLICATION_TAG} at ${identity.commit}`);
+  } else if (mode === "--write") {
+    assertVersionAlignmentGates();
     writeReceipts();
     console.log("Post-publication readback and release receipts written successfully.");
   } else if (mode === "--check") {
+    assertVersionAlignmentGates();
     checkReceipts();
     console.log("Post-publication readback and release receipts match candidate bytes cleanly.");
   } else if (mode === "--self-test") {
+    validateCanaryReceipts();
+    assertVersionAlignmentGates();
     selfTest();
     checkReceipts();
-    // #364: frozen candidate commit still says 3.1.0; declaring 3.2.0 against it must fail closed.
-    {
-      const show = (commitSha: string, pathName: string) =>
-        execFileSync("git", ["show", `${commitSha}:${pathName}`], { cwd: root, encoding: "utf8" });
-      let refused = false;
-      try {
-        assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, FROZEN_SEMVER, show);
-      } catch (error) {
-        refused = /disagrees with commit/.test(String(error));
-      }
-      if (!refused) {
-        throw new Error("expected assertCommitVersionMatchesDeclaredSemver to refuse frozen 3.1.0 tree under 3.2.0 label");
-      }
-    }
     console.log("Local CI V3 publication and readback self-test: PASS");
   } else {
-    throw new Error("usage: node scripts/publish-local-ci-v3-release.ts <--write|--check|--self-test>");
+    throw new Error(
+      "usage: node scripts/publish-local-ci-v3-release.ts <--mint-tag|--write|--check|--self-test>",
+    );
   }
 }
 

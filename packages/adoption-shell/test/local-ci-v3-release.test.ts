@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -15,15 +16,27 @@ import {
   FROZEN_CANDIDATE_COMMIT,
   FROZEN_CANDIDATE_TREE,
   FROZEN_SEMVER,
+  PUBLICATION_SEMVER,
+  PUBLICATION_TAG,
   RECEIPT_ID,
   FIRST_CANARY_RECEIPT_DIGEST,
+  FIRST_CANARY_RECEIPT_ID,
+  FIRST_CANARY_RECEIPT_URL,
   SECOND_CANARY_RECEIPT_DIGEST,
+  SECOND_CANARY_RECEIPT_ID,
+  SECOND_CANARY_RECEIPT_URL,
   TARGET_READBACK_RECEIPT_PATHS,
   TARGET_RELEASE_RECEIPT_PATHS,
+  assertCanaryReceiptUrl,
+  assertCommitVersionMatchesDeclaredSemver,
   buildPostPublicationReadbackReceipt,
-  buildPublishedReleaseReceipt,
-  validateCanaryReceipts,
+  assertLoadedCanaryReceipt,
+  loadDurableCanaryReceipt,
+  performRemoteReadback,
+  resolveRemotePeeledCommit,
   serializeReceipt,
+  validateCanaryReceipts,
+  VENDOR_MG_RECEIPT_PATH,
   type PostPublicationReadbackReceipt,
 } from "../../../scripts/publish-local-ci-v3-release.ts";
 import {
@@ -113,21 +126,11 @@ void test("published release receipt validates with validatePublishedTemplateRel
     validation.ok ? undefined : JSON.stringify(validation.diagnostics, null, 2),
   );
   assert.equal(receipt.publicationState, "published");
-  assert.equal(receipt.releaseId, `spencer-shadley/repo-template@${FROZEN_SEMVER}`);
-  assert.equal(receipt.producer.commit, FROZEN_CANDIDATE_COMMIT);
-  assert.equal(receipt.producer.tree, FROZEN_CANDIDATE_TREE);
-  assert.ok(receipt.releaseEvidence);
-  assert.equal(receipt.releaseEvidence.review.result, "approved");
-  assert.equal(
-    receipt.releaseEvidence.canaryReceipts["model-gateway"].receiptSha256,
-    FIRST_CANARY_RECEIPT_DIGEST,
-  );
-  assert.equal(
-    receipt.releaseEvidence.canaryReceipts["repo-factory"].receiptSha256,
-    SECOND_CANARY_RECEIPT_DIGEST,
-  );
-  assert.equal(receipt.releaseEvidence.publicationReadback.kind, "producer-tag-ref/v1");
-  assert.equal(receipt.releaseEvidence.rollback.disposition, "immutable-correct-forward");
+  assert.equal(receipt.releaseId, `spencer-shadley/repo-template@${PUBLICATION_SEMVER}`);
+  assert.equal(receipt.producer.semver, PUBLICATION_SEMVER);
+  assert.equal(receipt.producer.tag, PUBLICATION_TAG);
+  assert.notEqual(receipt.producer.commit, FROZEN_CANDIDATE_COMMIT);
+  assert.equal(receipt.releaseEvidence, undefined);
 });
 
 void test("readback receipt binds exact immutable candidate identity, lineage, and canaries", () => {
@@ -163,14 +166,19 @@ void test("readback receipt binds exact immutable candidate identity, lineage, a
     SECOND_CANARY_RECEIPT_DIGEST,
   );
   assert.equal(receipt.canaryReceipts.repoFactory.candidateDigestMatches, true);
+  assert.equal(receipt.canaryReceipts.modelGateway.receiptUrl, FIRST_CANARY_RECEIPT_URL);
+  assert.equal(receipt.canaryReceipts.repoFactory.receiptUrl, SECOND_CANARY_RECEIPT_URL);
 
   assert.equal(receipt.readback.candidateCommitMatches, true);
   assert.equal(receipt.readback.candidateTreeMatches, true);
   assert.equal(receipt.readback.allCanonicalDigestsMatch, true);
   assert.equal(receipt.readback.firstCanaryAgrees, true);
   assert.equal(receipt.readback.secondCanaryAgrees, true);
-  assert.equal(receipt.readback.resolvedCommit, FROZEN_CANDIDATE_COMMIT);
-  assert.equal(receipt.readback.resolvedTree, FROZEN_CANDIDATE_TREE);
+  assert.equal(receipt.readback.tagName, PUBLICATION_TAG);
+  assert.equal(receipt.readback.releaseId, `spencer-shadley/repo-template@${PUBLICATION_SEMVER}`);
+  assert.equal(receipt.readback.resolvedCommit, receipt.publishedReleaseReceipt.producer.commit);
+  assert.equal(receipt.readback.resolvedTree, receipt.publishedReleaseReceipt.producer.tree);
+  assert.notEqual(receipt.readback.resolvedCommit, FROZEN_CANDIDATE_COMMIT);
 });
 
 void test("readback receipt deterministically matches recomputed bytes and digest", () => {
@@ -272,5 +280,121 @@ void test("validateCanaryReceipts passes cleanly on registered durable receipts"
   assert.doesNotThrow(() => {
     validateCanaryReceipts();
   });
+});
+
+void test("missing remote tag fails closed and does not copy match flags", () => {
+  assert.throws(
+    () =>
+      resolveRemotePeeledCommit("origin", PUBLICATION_TAG, () => {
+        return "";
+      }),
+    /Remote tag refs\/tags\/v3\.3\.0 not found/,
+  );
+  assert.throws(
+    () =>
+      resolveRemotePeeledCommit("origin", PUBLICATION_TAG, () => {
+        throw new Error("network down");
+      }),
+    /could not be queried/,
+  );
+  assert.throws(
+    () =>
+      resolveRemotePeeledCommit("origin", PUBLICATION_TAG, () => {
+        return "6ded3cbea5b79b86dbf6cb02f83e137ef05ff4c6\trefs/tags/v3.3.0";
+      }),
+    /is not an annotated tag with a peeled commit/,
+  );
+});
+
+void test("VERSION/tag disagreement on the frozen 3.1.0 tree fails closed", () => {
+  const show = (commitSha: string, pathName: string) =>
+    execFileSync("git", ["show", `${commitSha}:${pathName}`], {
+      cwd: root,
+      encoding: "utf8",
+    });
+  assert.throws(
+    () => assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, PUBLICATION_SEMVER, show),
+    /disagrees with commit/,
+  );
+  assert.throws(
+    () => assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, FROZEN_SEMVER, show),
+    /disagrees with commit/,
+  );
+});
+
+void test("non-receipt canary URL fails closed", () => {
+  assert.throws(
+    () =>
+      assertCanaryReceiptUrl(
+        "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813",
+        SECOND_CANARY_RECEIPT_ID,
+      ),
+    /not a durable receipt artifact/,
+  );
+  assert.throws(
+    () =>
+      assertCanaryReceiptUrl(
+        "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016",
+        FIRST_CANARY_RECEIPT_ID,
+      ),
+    /not a durable receipt artifact/,
+  );
+  assert.doesNotThrow(() => {
+    assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
+    assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);
+  });
+});
+
+void test("canary loader rejects a tampered candidate.commit even when the digest is recomputed", () => {
+  const genuine = loadDurableCanaryReceipt(
+    VENDOR_MG_RECEIPT_PATH,
+    FIRST_CANARY_RECEIPT_DIGEST,
+    "Model Gateway",
+  );
+  const { receiptDigest: _ignored, ...body } = genuine;
+  const tamperedBody = {
+    ...body,
+    candidate: {
+      ...genuine.candidate,
+      commit: "0000000000000000000000000000000000000000",
+    },
+  };
+  const tampered = {
+    ...tamperedBody,
+    receiptDigest: sha256CanonicalJson(tamperedBody),
+  };
+  assert.throws(
+    () => assertLoadedCanaryReceipt(tampered, tampered.receiptDigest, "Model Gateway"),
+    /candidate commit mismatch/,
+  );
+});
+
+void test("performRemoteReadback throws when a canary agreement flag is false instead of copying true", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  assert.throws(
+    () =>
+      performRemoteReadback(
+        identity,
+        {
+          allCanonicalDigestsMatch: true,
+          firstCanaryAgrees: false,
+          secondCanaryAgrees: true,
+        },
+        "origin",
+        PUBLICATION_TAG,
+        (args) => {
+          if (args[0] === "ls-remote") {
+            return `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`;
+          }
+          throw new Error(`unexpected git ${args.join(" ")}`);
+        },
+      ),
+    /Model Gateway canary does not agree/,
+  );
 });
 

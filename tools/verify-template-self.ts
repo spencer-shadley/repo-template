@@ -454,8 +454,8 @@ if (gitBlobId(issueTemplate) !== "3b7be4edefb951c932c94ecc1fc7ca74ab0d9440") {
   boundaryErrors.push("predecessor issue template bytes changed");
 }
 const workingVersion = fs.readFileSync(path.join(root, "TEMPLATE_VERSION"), "utf8");
-if (workingVersion.trim() !== "3.2.0") {
-  boundaryErrors.push("TEMPLATE_VERSION must publish inert-seed closure release 3.2.0");
+if (workingVersion.trim() !== "3.3.0") {
+  boundaryErrors.push("TEMPLATE_VERSION must publish inert-seed closure release 3.3.0");
 }
 
 if (process.argv.includes("--portable-charter")) {

@@ -498,13 +498,13 @@ test("discoverPublicContracts discovers independent public contracts and tags de
   const template = contracts.find((c) => c.name === "template");
   assert.ok(template);
   assert.equal(template.path, "TEMPLATE_VERSION");
-  assert.equal(template.version, "3.2.0");
+  assert.equal(template.version, "3.3.0");
   assert.equal(template.isDerived, undefined);
 
   const derived = contracts.find((c) => c.name === "repository-derived");
   assert.ok(derived);
   assert.equal(derived.path, "VERSION");
-  assert.equal(derived.version, "3.2.0");
+  assert.equal(derived.version, "3.3.0");
   assert.equal(derived.isDerived, true);
 
   const repoQuality = contracts.find((c) => c.name === "@spencer-shadley/repo-quality");
