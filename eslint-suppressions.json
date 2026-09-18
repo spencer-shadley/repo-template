@@ -72,11 +72,6 @@
       "count": 1
     }
   },
-  "packages/adoption-shell/test/local-ci-v3-release.test.ts": {
-    "sonarjs/unused-import": {
-      "count": 1
-    }
-  },
   "packages/adoption-shell/test/product-overlay.test.ts": {
     "sonarjs/no-clear-text-protocols": {
       "count": 1
@@ -274,15 +269,9 @@
   },
   "scripts/publish-local-ci-v3-release.ts": {
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 3
-    },
-    "complexity": {
-      "count": 1
-    },
-    "max-lines-per-function": {
       "count": 2
     },
-    "sonarjs/cognitive-complexity": {
+    "max-lines-per-function": {
       "count": 1
     }
   },

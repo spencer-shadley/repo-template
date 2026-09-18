@@ -33,8 +33,8 @@
       "issue": "https://github.com/spencer-shadley/model-gateway/issues/991",
       "receiptId": "receipt-issue-991-mu14rxy2",
       "receiptKind": "model-gateway/local-ci-v3-canary-receipt/v1",
-      "receiptDigest": "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b",
-      "receiptUrl": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654",
+      "receiptDigest": "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b",
+      "receiptUrl": "https://github.com/spencer-shadley/model-gateway/blob/964f3befa7c10e00fd5ed363bc06d143a22a01f8/docs/receipts/receipt-issue-991-mu14rxy2.json",
       "consumerRepository": "spencer-shadley/model-gateway",
       "consumerRole": "first dissimilar canary",
       "targetLineage": "runtime/checks/effects",
@@ -51,8 +51,8 @@
       "issue": "https://github.com/spencer-shadley/repo-factory/issues/187",
       "receiptId": "receipt-issue-187-mu14zjfz",
       "receiptKind": "repo-factory/local-ci-v3-canary-receipt/v1",
-      "receiptDigest": "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749",
-      "receiptUrl": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327",
+      "receiptDigest": "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72",
+      "receiptUrl": "https://github.com/spencer-shadley/repo-factory/blob/b3ebef5a334bfe8467383986b5b5dfe6bb798cf3/docs/receipts/receipt-issue-187-mu14zjfz.json",
       "consumerRepository": "spencer-shadley/repo-factory",
       "consumerRole": "second dissimilar canary",
       "targetLineage": "entrypoint/gates/flags",
@@ -73,19 +73,19 @@
     "contractId": "repo-template/adoption-shell-v2",
     "receiptKind": "repo-template/release-receipt/v1",
     "publicationState": "published",
-    "releaseId": "spencer-shadley/repo-template@3.2.0",
+    "releaseId": "spencer-shadley/repo-template@3.3.0",
     "receiptDigestAlgorithm": "sha256-rfc8785-v1",
     "producer": {
       "repository": "spencer-shadley/repo-template",
       "origin": "https://github.com/spencer-shadley/repo-template.git",
-      "semver": "3.2.0",
-      "tag": "v3.2.0",
-      "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
-      "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
+      "semver": "3.3.0",
+      "tag": "v3.3.0",
+      "commit": "32377fe16d952876428e2495d2fe3176a507eb4d",
+      "tree": "0b7e2e7e020f381b11618b8a04ce50c61ba075ba"
     },
     "receiptTransport": {
       "kind": "annotated-git-tag-message/v1",
-      "tagName": "v3.2.0",
+      "tagName": "v3.3.0",
       "targetObjectType": "commit",
       "bodyEncoding": "utf-8",
       "bodyCanonicalization": "rfc8785"
@@ -141,58 +141,8 @@
       "runtimeCompatibility": ">=24.16.0 <25",
       "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
     },
-    "releaseEvidence": {
-      "review": {
-        "subject": "producer-commit",
-        "url": "https://github.com/spencer-shadley/repo-template/pull/360#pullrequestreview-5662961928",
-        "result": "approved"
-      },
-      "canaryReceipts": {
-        "model-gateway": {
-          "url": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654",
-          "receiptSha256": "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b"
-        },
-        "repo-factory": {
-          "url": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327",
-          "receiptSha256": "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749"
-        }
-      },
-      "checks": {
-        "repo-template-verify": {
-          "command": "corepack pnpm verify",
-          "result": "passed"
-        },
-        "proof-of-detection-self-test": {
-          "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
-          "result": "passed"
-        },
-        "local-ci-v3-contract-unit": {
-          "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
-          "result": "passed"
-        },
-        "local-ci-outcome-v1-unit": {
-          "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
-          "result": "passed"
-        },
-        "release-payload-check": {
-          "command": "node tools/release-payload.ts check",
-          "result": "passed"
-        },
-        "artifact-build-verify": {
-          "command": "node tools/artifact-build.ts verify",
-          "result": "passed"
-        }
-      },
-      "publicationReadback": {
-        "kind": "producer-tag-ref/v1"
-      },
-      "rollback": {
-        "disposition": "immutable-correct-forward",
-        "supersession": "new-semver-only"
-      }
-    },
     "migrationRefs": [],
-    "receiptDigest": "bb6c08e4eaa11a89ac8f079f261411f529c4fa431e0602594b2060a4a116c684"
+    "receiptDigest": "337c4768869b0f2888eca1a3b01d27e2ba96aa32558cca7662344824010ac9b4"
   },
   "canonicalDigests": {
     "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
@@ -309,23 +259,23 @@
   },
   "readback": {
     "releaseAuthority": "repo-template/release-receipt/v1",
-    "releaseId": "spencer-shadley/repo-template@3.2.0",
-    "tagName": "v3.2.0",
-    "resolvedCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
-    "resolvedTree": "995ea497114b2eba0b86cc3adb3666306829e0fb",
+    "releaseId": "spencer-shadley/repo-template@3.3.0",
+    "tagName": "v3.3.0",
+    "resolvedCommit": "32377fe16d952876428e2495d2fe3176a507eb4d",
+    "resolvedTree": "0b7e2e7e020f381b11618b8a04ce50c61ba075ba",
     "candidateCommitMatches": true,
     "candidateTreeMatches": true,
     "allCanonicalDigestsMatch": true,
     "firstCanaryAgrees": true,
     "secondCanaryAgrees": true,
-    "readbackTimestamp": "2026-09-14T11:25:00Z"
+    "readbackTimestamp": "2026-09-18T07:30:00Z"
   },
   "rollback": {
     "disposition": "immutable-correct-forward",
     "supersession": "new-semver-only",
     "rollbackRef": "88591ee869bb109ef481171aa817d1ed204a970e"
   },
-  "publicationTime": "2026-09-14T11:25:00Z",
+  "publicationTime": "2026-09-18T07:30:00Z",
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "af24d9dadb9c979bafa6340ff5436fd2af8abc0163c3be7ab42794a63ee30894"
+  "receiptDigest": "370cbbeb5e55bb8270fc571cedbda57fe755d73b0e5d2970de5fae4777fd5b8c"
 }

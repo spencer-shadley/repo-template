@@ -375,5 +375,7 @@
   "scripts/publish-local-ci-v3-release.ts": "self",
   "scripts/check-fleet-law-sync.ts": "self",
   "scripts/generated/fleet-law-projection.v1.json": "self",
-  "scripts/generated/fleet-law.ts": "self"
+  "scripts/generated/fleet-law.ts": "self",
+  "vendor/model-gateway/canary-receipt.json": "self",
+  "vendor/repo-factory/canary-receipt.json": "self"
 }

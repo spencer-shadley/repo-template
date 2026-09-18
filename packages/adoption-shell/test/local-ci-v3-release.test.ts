@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -15,14 +16,28 @@ import {
   FROZEN_CANDIDATE_COMMIT,
   FROZEN_CANDIDATE_TREE,
   FROZEN_SEMVER,
+  PUBLICATION_SEMVER,
+  PUBLICATION_TAG,
   RECEIPT_ID,
   FIRST_CANARY_RECEIPT_DIGEST,
+  FIRST_CANARY_RECEIPT_ID,
+  FIRST_CANARY_RECEIPT_URL,
   SECOND_CANARY_RECEIPT_DIGEST,
+  SECOND_CANARY_RECEIPT_ID,
+  SECOND_CANARY_RECEIPT_URL,
   TARGET_READBACK_RECEIPT_PATHS,
   TARGET_RELEASE_RECEIPT_PATHS,
+  assertCanaryReceiptUrl,
+  assertCommitVersionMatchesDeclaredSemver,
   buildPostPublicationReadbackReceipt,
-  buildPublishedReleaseReceipt,
+  assertLoadedCanaryReceipt,
+  compareCanonicalDigests,
+  loadDurableCanaryReceipt,
+  performRemoteReadback,
+  resolveRemotePeeledCommit,
   serializeReceipt,
+  validateCanaryReceipts,
+  VENDOR_MG_RECEIPT_PATH,
   type PostPublicationReadbackReceipt,
 } from "../../../scripts/publish-local-ci-v3-release.ts";
 import {
@@ -112,21 +127,11 @@ void test("published release receipt validates with validatePublishedTemplateRel
     validation.ok ? undefined : JSON.stringify(validation.diagnostics, null, 2),
   );
   assert.equal(receipt.publicationState, "published");
-  assert.equal(receipt.releaseId, `spencer-shadley/repo-template@${FROZEN_SEMVER}`);
-  assert.equal(receipt.producer.commit, FROZEN_CANDIDATE_COMMIT);
-  assert.equal(receipt.producer.tree, FROZEN_CANDIDATE_TREE);
-  assert.ok(receipt.releaseEvidence);
-  assert.equal(receipt.releaseEvidence.review.result, "approved");
-  assert.equal(
-    receipt.releaseEvidence.canaryReceipts["model-gateway"].receiptSha256,
-    FIRST_CANARY_RECEIPT_DIGEST,
-  );
-  assert.equal(
-    receipt.releaseEvidence.canaryReceipts["repo-factory"].receiptSha256,
-    SECOND_CANARY_RECEIPT_DIGEST,
-  );
-  assert.equal(receipt.releaseEvidence.publicationReadback.kind, "producer-tag-ref/v1");
-  assert.equal(receipt.releaseEvidence.rollback.disposition, "immutable-correct-forward");
+  assert.equal(receipt.releaseId, `spencer-shadley/repo-template@${PUBLICATION_SEMVER}`);
+  assert.equal(receipt.producer.semver, PUBLICATION_SEMVER);
+  assert.equal(receipt.producer.tag, PUBLICATION_TAG);
+  assert.notEqual(receipt.producer.commit, FROZEN_CANDIDATE_COMMIT);
+  assert.equal(receipt.releaseEvidence, undefined);
 });
 
 void test("readback receipt binds exact immutable candidate identity, lineage, and canaries", () => {
@@ -162,14 +167,19 @@ void test("readback receipt binds exact immutable candidate identity, lineage, a
     SECOND_CANARY_RECEIPT_DIGEST,
   );
   assert.equal(receipt.canaryReceipts.repoFactory.candidateDigestMatches, true);
+  assert.equal(receipt.canaryReceipts.modelGateway.receiptUrl, FIRST_CANARY_RECEIPT_URL);
+  assert.equal(receipt.canaryReceipts.repoFactory.receiptUrl, SECOND_CANARY_RECEIPT_URL);
 
   assert.equal(receipt.readback.candidateCommitMatches, true);
   assert.equal(receipt.readback.candidateTreeMatches, true);
   assert.equal(receipt.readback.allCanonicalDigestsMatch, true);
   assert.equal(receipt.readback.firstCanaryAgrees, true);
   assert.equal(receipt.readback.secondCanaryAgrees, true);
-  assert.equal(receipt.readback.resolvedCommit, FROZEN_CANDIDATE_COMMIT);
-  assert.equal(receipt.readback.resolvedTree, FROZEN_CANDIDATE_TREE);
+  assert.equal(receipt.readback.tagName, PUBLICATION_TAG);
+  assert.equal(receipt.readback.releaseId, `spencer-shadley/repo-template@${PUBLICATION_SEMVER}`);
+  assert.equal(receipt.readback.resolvedCommit, receipt.publishedReleaseReceipt.producer.commit);
+  assert.equal(receipt.readback.resolvedTree, receipt.publishedReleaseReceipt.producer.tree);
+  assert.notEqual(receipt.readback.resolvedCommit, FROZEN_CANDIDATE_COMMIT);
 });
 
 void test("readback receipt deterministically matches recomputed bytes and digest", () => {
@@ -192,7 +202,7 @@ void test("all canonical V3 artifacts on disk match their recorded digests in re
   const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
 
   for (const [filePath, expectedDigest] of Object.entries(receipt.canonicalDigests)) {
-    const actualDigest = sha256File(filePath);
+    const actualDigest = digests[filePath] ?? sha256File(filePath);
     assert.equal(
       actualDigest,
       expectedDigest,
@@ -203,14 +213,14 @@ void test("all canonical V3 artifacts on disk match their recorded digests in re
 });
 
 void test("schema rejects non-published publicationState in readback receipt", () => {
-  const receipt = buildPostPublicationReadbackReceipt();
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
   const premature = { ...receipt, publicationState: "candidate" };
   const isValid = validateReceiptSchema(premature);
   assert.equal(isValid, false, "Schema must reject publicationState other than 'published'");
 });
 
 void test("schema rejects invalid git commit sha in readback receipt", () => {
-  const receipt = buildPostPublicationReadbackReceipt();
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
   const invalid = {
     ...receipt,
     candidate: { ...receipt.candidate, commit: "invalid-sha" },
@@ -220,8 +230,8 @@ void test("schema rejects invalid git commit sha in readback receipt", () => {
 });
 
 void test("schema rejects missing canary receipt in readback receipt", () => {
-  const receipt = buildPostPublicationReadbackReceipt();
-  const { modelGateway: _mg, ...canaryReceipts } = receipt.canaryReceipts as Record<string, unknown>;
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const { modelGateway: _mg, ...canaryReceipts } = receipt.canaryReceipts as unknown as Record<string, unknown>;
   const invalid = {
     ...receipt,
     canaryReceipts,
@@ -229,3 +239,351 @@ void test("schema rejects missing canary receipt in readback receipt", () => {
   const isValid = validateReceiptSchema(invalid);
   assert.equal(isValid, false, "Schema must reject missing modelGateway canary receipt");
 });
+
+void test("schema rejects missing publishedReleaseReceipt in readback receipt", () => {
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const invalid = { ...(receipt as unknown as Record<string, unknown>) };
+  delete invalid["publishedReleaseReceipt"];
+  const isValid = validateReceiptSchema(invalid);
+  assert.equal(isValid, false, "Schema must reject missing publishedReleaseReceipt");
+});
+
+void test("schema rejects invalid publishedReleaseReceipt publicationState", () => {
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const invalid = {
+    ...receipt,
+    publishedReleaseReceipt: {
+      ...receipt.publishedReleaseReceipt,
+      publicationState: "candidate",
+    },
+  };
+  const isValid = validateReceiptSchema(invalid);
+  assert.equal(isValid, false, "Schema must reject non-published publishedReleaseReceipt");
+});
+
+void test("schema rejects invalid git commit sha in publishedReleaseReceipt", () => {
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const invalid = {
+    ...receipt,
+    publishedReleaseReceipt: {
+      ...receipt.publishedReleaseReceipt,
+      producer: {
+        ...receipt.publishedReleaseReceipt.producer,
+        commit: "invalid-sha",
+      },
+    },
+  };
+  const isValid = validateReceiptSchema(invalid);
+  assert.equal(isValid, false, "Schema must reject invalid git commit sha in publishedReleaseReceipt");
+});
+
+void test("validateCanaryReceipts passes cleanly on registered durable receipts", () => {
+  assert.doesNotThrow(() => {
+    validateCanaryReceipts();
+  });
+});
+
+void test("missing remote tag fails closed and does not copy match flags", () => {
+  assert.throws(
+    () =>
+      resolveRemotePeeledCommit("origin", PUBLICATION_TAG, () => {
+        return "";
+      }),
+    /Remote tag refs\/tags\/v3\.3\.0 not found/,
+  );
+  assert.throws(
+    () =>
+      resolveRemotePeeledCommit("origin", PUBLICATION_TAG, () => {
+        throw new Error("network down");
+      }),
+    /could not be queried/,
+  );
+  assert.throws(
+    () =>
+      resolveRemotePeeledCommit("origin", PUBLICATION_TAG, () => {
+        return "6ded3cbea5b79b86dbf6cb02f83e137ef05ff4c6\trefs/tags/v3.3.0";
+      }),
+    /is not an annotated tag with a peeled commit/,
+  );
+});
+
+void test("VERSION/tag disagreement on the frozen 3.1.0 tree fails closed", () => {
+  const show = (commitSha: string, pathName: string) =>
+    execFileSync("git", ["show", `${commitSha}:${pathName}`], {
+      cwd: root,
+      encoding: "utf8",
+    });
+  assert.throws(() => {
+    assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, PUBLICATION_SEMVER, show);
+  }, /disagrees with commit/);
+  assert.throws(() => {
+    assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, FROZEN_SEMVER, show);
+  }, /disagrees with commit/);
+});
+
+void test("non-receipt canary URL fails closed", () => {
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813",
+      SECOND_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016",
+      FIRST_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/model-gateway/blob/master/docs/receipts/receipt-issue-991-mu14rxy2.json",
+      FIRST_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/repo-factory/blob/master/docs/receipts/receipt-issue-187-mu14zjfz.json",
+      SECOND_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
+  assert.doesNotThrow(() => {
+    assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
+    assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);
+  });
+});
+
+void test("canary loader rejects a tampered candidate.commit even when the digest is recomputed", () => {
+  const genuine = loadDurableCanaryReceipt(
+    VENDOR_MG_RECEIPT_PATH,
+    FIRST_CANARY_RECEIPT_DIGEST,
+    "Model Gateway",
+  );
+  const { receiptDigest: _ignored, ...body } = genuine;
+  const tamperedBody = {
+    ...body,
+    candidate: {
+      ...genuine.candidate,
+      commit: "0000000000000000000000000000000000000000",
+    },
+  };
+  const tampered = {
+    ...tamperedBody,
+    receiptDigest: sha256CanonicalJson(tamperedBody),
+  };
+  assert.throws(() => {
+    assertLoadedCanaryReceipt(tampered, tampered.receiptDigest, "Model Gateway");
+  }, /candidate commit mismatch/);
+});
+
+void test("performRemoteReadback throws when a canary agreement flag is false instead of copying true", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  assert.throws(
+    () =>
+      performRemoteReadback(
+        identity,
+        {
+          allCanonicalDigestsMatch: true,
+          firstCanaryAgrees: false,
+          secondCanaryAgrees: true,
+        },
+        {
+          remote: "origin",
+          tagName: PUBLICATION_TAG,
+          runGit: (args) => {
+            if (args[0] === "ls-remote") {
+              return `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`;
+            }
+            throw new Error(`unexpected git ${args.join(" ")}`);
+          },
+        },
+      ),
+    /Model Gateway canary does not agree/,
+  );
+});
+
+void test("performRemoteReadback throws when allCanonicalDigestsMatch is false", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  assert.throws(() => {
+    performRemoteReadback(
+      identity,
+      {
+        allCanonicalDigestsMatch: false,
+        firstCanaryAgrees: true,
+        secondCanaryAgrees: true,
+      },
+      {
+        remote: "origin",
+        tagName: PUBLICATION_TAG,
+        runGit: (args) => {
+          if (args[0] === "ls-remote") {
+            return `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`;
+          }
+          throw new Error(`unexpected git ${args.join(" ")}`);
+        },
+      },
+    );
+  }, /Canonical LocalCi V3 digests do not match the frozen candidate/);
+});
+
+void test("performRemoteReadback fails when remote and local tag objects differ despite same peel", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  const remoteTagObject = "cccccccccccccccccccccccccccccccccccccccc";
+  const localTagObject = "dddddddddddddddddddddddddddddddddddddddd";
+  assert.throws(
+    () =>
+      performRemoteReadback(
+        identity,
+        {
+          allCanonicalDigestsMatch: true,
+          firstCanaryAgrees: true,
+          secondCanaryAgrees: true,
+        },
+        {
+          remote: "origin",
+          tagName: PUBLICATION_TAG,
+          runGit: (args) => {
+            if (args[0] === "ls-remote") {
+              return [
+                `${remoteTagObject}\trefs/tags/${PUBLICATION_TAG}`,
+                `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`,
+              ].join("\n");
+            }
+            if (args[0] === "rev-parse" && args[1] === `${identity.commit}^{tree}`) {
+              return identity.tree;
+            }
+            if (args[0] === "rev-parse" && args[1] === `refs/tags/${PUBLICATION_TAG}`) {
+              return localTagObject;
+            }
+            throw new Error(`unexpected git ${args.join(" ")}`);
+          },
+        },
+      ),
+    /does not match remote annotated tag object/,
+  );
+});
+
+void test("performRemoteReadback fails when tag receipt digest disagrees with expected published receipt", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  const tagObjectSha = "cccccccccccccccccccccccccccccccccccccccc";
+  const expectedDigest = "1111111111111111111111111111111111111111111111111111111111111111";
+  const publishedPath = path.join(
+    root,
+    "contracts",
+    "local-ci",
+    "v3",
+    "published-release-receipt.json",
+  );
+  const published = JSON.parse(fs.readFileSync(publishedPath, "utf8")) as {
+    receiptDigest: string;
+    producer: { commit: string; semver: string; [key: string]: unknown };
+    [key: string]: unknown;
+  };
+  assert.notEqual(
+    published.receiptDigest,
+    expectedDigest,
+    "fixture receipt digest must differ from injected expected digest",
+  );
+  const annotatedTagBytes = [
+    `object ${identity.commit}`,
+    "type commit",
+    `tag ${PUBLICATION_TAG}`,
+    "tagger Test <test@example.com> 0 +0000",
+    "",
+    JSON.stringify(published),
+  ].join("\n");
+
+  assert.throws(
+    () =>
+      performRemoteReadback(
+        identity,
+        {
+          allCanonicalDigestsMatch: true,
+          firstCanaryAgrees: true,
+          secondCanaryAgrees: true,
+        },
+        {
+          remote: "origin",
+          tagName: PUBLICATION_TAG,
+          runGit: (args) => {
+            if (args[0] === "ls-remote") {
+              return [
+                `${tagObjectSha}\trefs/tags/${PUBLICATION_TAG}`,
+                `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`,
+              ].join("\n");
+            }
+            if (args[0] === "rev-parse" && args[1] === `${identity.commit}^{tree}`) {
+              return identity.tree;
+            }
+            if (args[0] === "rev-parse" && args[1] === `refs/tags/${PUBLICATION_TAG}`) {
+              return tagObjectSha;
+            }
+            if (args[0] === "cat-file" && args[1] === "-p" && args[2] === tagObjectSha) {
+              return annotatedTagBytes;
+            }
+            throw new Error(`unexpected git ${args.join(" ")}`);
+          },
+          expectedPublishedReceipt: {
+            ...published,
+            receiptDigest: expectedDigest,
+            producer: {
+              ...published.producer,
+              commit: identity.commit,
+              semver: PUBLICATION_SEMVER,
+            },
+          } as import("../../../artifacts/adoption-shell-v2/index.js").TemplateReleaseReceipt,
+        },
+      ),
+    /receiptDigest .* does not match expected published receipt digest/,
+  );
+});
+
+void test("compareCanonicalDigests enforces exact agreement and fails on drift", () => {
+  const base = {
+    "a.json": "1111111111111111111111111111111111111111111111111111111111111111",
+    "b.json": "2222222222222222222222222222222222222222222222222222222222222222",
+  };
+  assert.equal(compareCanonicalDigests(base, { ...base }), true);
+  assert.equal(
+    compareCanonicalDigests(base, {
+      ...base,
+      "a.json": "0000000000000000000000000000000000000000000000000000000000000000",
+    }),
+    false,
+  );
+  assert.equal(
+    compareCanonicalDigests(base, {
+      "a.json": "1111111111111111111111111111111111111111111111111111111111111111",
+    }),
+    false,
+  );
+  assert.equal(
+    compareCanonicalDigests(base, {
+      ...base,
+      "c.json": "3333333333333333333333333333333333333333333333333333333333333333",
+    }),
+    false,
+  );
+  assert.equal(compareCanonicalDigests(base, undefined), false);
+  assert.equal(compareCanonicalDigests({}, {}), false);
+});
+

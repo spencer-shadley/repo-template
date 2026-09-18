@@ -5,19 +5,19 @@
   "contractId": "repo-template/adoption-shell-v2",
   "receiptKind": "repo-template/release-receipt/v1",
   "publicationState": "published",
-  "releaseId": "spencer-shadley/repo-template@3.2.0",
+  "releaseId": "spencer-shadley/repo-template@3.3.0",
   "receiptDigestAlgorithm": "sha256-rfc8785-v1",
   "producer": {
     "repository": "spencer-shadley/repo-template",
     "origin": "https://github.com/spencer-shadley/repo-template.git",
-    "semver": "3.2.0",
-    "tag": "v3.2.0",
-    "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
-    "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
+    "semver": "3.3.0",
+    "tag": "v3.3.0",
+    "commit": "32377fe16d952876428e2495d2fe3176a507eb4d",
+    "tree": "0b7e2e7e020f381b11618b8a04ce50c61ba075ba"
   },
   "receiptTransport": {
     "kind": "annotated-git-tag-message/v1",
-    "tagName": "v3.2.0",
+    "tagName": "v3.3.0",
     "targetObjectType": "commit",
     "bodyEncoding": "utf-8",
     "bodyCanonicalization": "rfc8785"
@@ -73,56 +73,6 @@
     "runtimeCompatibility": ">=24.16.0 <25",
     "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
   },
-  "releaseEvidence": {
-    "review": {
-      "subject": "producer-commit",
-      "url": "https://github.com/spencer-shadley/repo-template/pull/360#pullrequestreview-5662961928",
-      "result": "approved"
-    },
-    "canaryReceipts": {
-      "model-gateway": {
-        "url": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654",
-        "receiptSha256": "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b"
-      },
-      "repo-factory": {
-        "url": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327",
-        "receiptSha256": "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749"
-      }
-    },
-    "checks": {
-      "repo-template-verify": {
-        "command": "corepack pnpm verify",
-        "result": "passed"
-      },
-      "proof-of-detection-self-test": {
-        "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
-        "result": "passed"
-      },
-      "local-ci-v3-contract-unit": {
-        "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
-        "result": "passed"
-      },
-      "local-ci-outcome-v1-unit": {
-        "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
-        "result": "passed"
-      },
-      "release-payload-check": {
-        "command": "node tools/release-payload.ts check",
-        "result": "passed"
-      },
-      "artifact-build-verify": {
-        "command": "node tools/artifact-build.ts verify",
-        "result": "passed"
-      }
-    },
-    "publicationReadback": {
-      "kind": "producer-tag-ref/v1"
-    },
-    "rollback": {
-      "disposition": "immutable-correct-forward",
-      "supersession": "new-semver-only"
-    }
-  },
   "migrationRefs": [],
-  "receiptDigest": "bb6c08e4eaa11a89ac8f079f261411f529c4fa431e0602594b2060a4a116c684"
+  "receiptDigest": "337c4768869b0f2888eca1a3b01d27e2ba96aa32558cca7662344824010ac9b4"
 }
