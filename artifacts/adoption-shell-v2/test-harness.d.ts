@@ -42,12 +42,21 @@ export interface TestHarnessConfig {
     readonly vitestVersion?: string;
     readonly declaredScripts?: readonly string[];
 }
+export interface EffectiveTestHarnessSettings {
+    readonly configPath: string;
+    readonly smokeTestPath: string;
+    readonly vitestVersion: string;
+    readonly language?: string | undefined;
+    readonly testRunner?: string | undefined;
+    readonly passWithNoTests: boolean;
+}
+export declare function resolveEffectiveTestHarnessSettings(profile?: RepositoryProfile | TestHarnessProfile, options?: TestHarnessOptions): EffectiveTestHarnessSettings;
 export declare function isTestHarnessApplicable(profile: RepositoryProfile | TestHarnessProfile, options?: TestHarnessOptions): boolean;
 export declare function createVitestConfigContent(options?: TestHarnessOptions): string;
 export declare function createSmokeTestContent(_options?: TestHarnessOptions): string;
-export declare function mergePackageJsonWithTestHarness(packageJson: string | Record<string, unknown>, options?: TestHarnessOptions): string;
-export declare function createVitestConfigPayloadEntry(bundleId?: string | null, options?: TestHarnessOptions): PayloadEntry;
-export declare function createSmokeTestPayloadEntry(bundleId?: string | null, options?: TestHarnessOptions): PayloadEntry;
+export declare function mergePackageJsonWithTestHarness(packageJson: string | Record<string, unknown>, options?: TestHarnessOptions, profile?: RepositoryProfile | TestHarnessProfile): string;
+export declare function createVitestConfigPayloadEntry(bundleId?: string | null, options?: TestHarnessOptions, profile?: RepositoryProfile | TestHarnessProfile): PayloadEntry;
+export declare function createSmokeTestPayloadEntry(bundleId?: string | null, options?: TestHarnessOptions, profile?: RepositoryProfile | TestHarnessProfile): PayloadEntry;
 export declare function materializeTestHarnessEntries(profile: RepositoryProfile | TestHarnessProfile, options?: TestHarnessOptions, bundleId?: string | null): readonly PayloadEntry[];
 export declare function createTestHarnessBundle(profile: RepositoryProfile | TestHarnessProfile, options?: TestHarnessOptions & {
     id?: string;

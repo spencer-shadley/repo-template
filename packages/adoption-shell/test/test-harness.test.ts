@@ -30,6 +30,7 @@ import {
   isTestHarnessApplicable,
   materializeTestHarnessEntries,
   mergePackageJsonWithTestHarness,
+  resolveEffectiveTestHarnessSettings,
   validateTestHarnessConfig,
   type TestHarnessProfile,
 } from "../src/test-harness.ts";
@@ -209,13 +210,18 @@ void test("bundle definition contains expected artifacts and test mode", () => {
   assert.equal(bundle.id, TEST_HARNESS_BUNDLE_ID);
   assert.equal(bundle.version, "1.0.0");
   assert.equal(bundle.digestAlgorithm, "sha256-rfc8785-v1");
-  assert.deepEqual(bundle.artifacts, ["test/smoke.test.ts", "vitest.config.ts"]);
+  assert.deepEqual(bundle.artifacts, [
+    "package.json",
+    "test/smoke.test.ts",
+    "vitest.config.ts",
+  ]);
   assert.equal(bundle.modes.length, 1);
   const [firstMode] = bundle.modes;
   assert.ok(firstMode);
   assert.equal(firstMode.id, "test");
   assert.equal(firstMode.entrypoint, "vitest.config.ts");
   assert.deepEqual(firstMode.requiredPaths, [
+    "package.json",
     "test/smoke.test.ts",
     "vitest.config.ts",
   ]);
@@ -270,7 +276,7 @@ void test("composeTestHarnessReleaseEntries combines base entries and updates pa
 
   const updatedPkgEntry = composed.find((e) => e.path === "package.json");
   assert.ok(updatedPkgEntry);
-  assert.equal(updatedPkgEntry.bundleId, null);
+  assert.equal(updatedPkgEntry.bundleId, TEST_HARNESS_BUNDLE_ID);
   const updatedPkg = JSON.parse(
     Buffer.from(updatedPkgEntry.contentBase64, "base64").toString("utf8"),
   ) as Record<string, unknown>;
@@ -387,4 +393,180 @@ void test("validateTestHarnessConfig validates valid and rejects malformed confi
 
   // Alias export check
   assert.equal(VITEST_HARNESS_BUNDLE_ID, TEST_HARNESS_BUNDLE_ID);
+});
+
+void test("unknown, custom, and non-JS/TS languages emit no harness bytes", () => {
+  for (const lang of ["zig", "custom", "python", "rust", "go", "c", "ruby", "java"]) {
+    const profile: TestHarnessProfile = {
+      profileId: "custom-repo",
+      language: lang,
+      declaredScripts: ["test"],
+    };
+    assert.equal(isTestHarnessApplicable(profile), false);
+    assert.deepEqual(materializeTestHarnessEntries(profile), []);
+    assert.deepEqual(createTestHarnessBundle(profile).artifacts, []);
+  }
+
+  // Explicit typescript and javascript are accepted
+  for (const lang of ["typescript", "javascript", "TypeScript", "JAVASCRIPT"]) {
+    const profile: TestHarnessProfile = {
+      profileId: "custom-repo",
+      language: lang,
+      declaredScripts: ["test"],
+    };
+    assert.equal(isTestHarnessApplicable(profile), true);
+    assert.equal(materializeTestHarnessEntries(profile).length, 2);
+  }
+});
+
+void test("validateTestHarnessConfig validates $schema, bounds, and declaredScripts uniqueness and patterns", () => {
+  const baseValid: Record<string, unknown> = {
+    $schema: "https://schemas.repo-template.dev/test-harness/v1/test-harness.schema.json",
+    schemaId: TEST_HARNESS_SCHEMA_ID,
+    schemaVersion: TEST_HARNESS_SCHEMA_VERSION,
+    contractId: TEST_HARNESS_CONTRACT_ID,
+    profileId: "full-stack",
+    framework: "vitest",
+    configPath: DEFAULT_VITEST_CONFIG_PATH,
+    smokeTestPath: DEFAULT_SMOKE_TEST_PATH,
+  };
+
+  // Canonical $schema is accepted
+  const withSchema = validateTestHarnessConfig(baseValid);
+  assert.equal(withSchema.ok, true);
+
+  // declaredScripts with valid unique strings passes
+  const withValidScripts = validateTestHarnessConfig({
+    ...baseValid,
+    declaredScripts: ["build", "lint", "test", "verify"],
+  });
+  assert.equal(withValidScripts.ok, true);
+
+  // declaredScripts with duplicate fails with E_UNIQUE
+  const withDuplicateScripts = validateTestHarnessConfig({
+    ...baseValid,
+    declaredScripts: ["test", "lint", "test"],
+  });
+  assert.equal(withDuplicateScripts.ok, false);
+  assert.ok(withDuplicateScripts.diagnostics.some((d) => d.code === "E_UNIQUE"));
+
+  // declaredScripts with invalid pattern fails with E_PATTERN
+  const withPatternFail = validateTestHarnessConfig({
+    ...baseValid,
+    declaredScripts: ["test with spaces!"],
+  });
+  assert.equal(withPatternFail.ok, false);
+  assert.ok(withPatternFail.diagnostics.some((d) => d.code === "E_PATTERN"));
+
+  // declaredScripts with non-string item fails with E_TYPE
+  const withTypeFail = validateTestHarnessConfig({
+    ...baseValid,
+    declaredScripts: [123],
+  });
+  assert.equal(withTypeFail.ok, false);
+  assert.ok(withTypeFail.diagnostics.some((d) => d.code === "E_TYPE"));
+});
+
+void test("profile-declared settings and options override precedence", () => {
+  const customProfile: TestHarnessProfile = {
+    profileId: "custom-profile",
+    language: "typescript",
+    declaredScripts: ["test"],
+    configPath: "custom/vitest.config.ts",
+    smokeTestPath: "test/unit/smoke.spec.ts",
+    vitestVersion: "3.2.1",
+  };
+
+  // Effective settings resolved from profile
+  const resolved = resolveEffectiveTestHarnessSettings(customProfile);
+  assert.equal(resolved.configPath, "custom/vitest.config.ts");
+  assert.equal(resolved.smokeTestPath, "test/unit/smoke.spec.ts");
+  assert.equal(resolved.vitestVersion, "3.2.1");
+
+  // Materialize entries honor profile settings
+  const entries = materializeTestHarnessEntries(customProfile);
+  assert.deepEqual(
+    entries.map((e) => e.path),
+    ["custom/vitest.config.ts", "test/unit/smoke.spec.ts"],
+  );
+
+  // Bundle honors profile settings
+  const bundle = createTestHarnessBundle(customProfile);
+  assert.deepEqual(bundle.artifacts, [
+    "custom/vitest.config.ts",
+    "package.json",
+    "test/unit/smoke.spec.ts",
+  ]);
+
+  // Options override profile settings
+  const overrideOptions = {
+    configPath: "override/vitest.config.ts",
+    smokeTestPath: "override/smoke.test.ts",
+    vitestVersion: "3.9.9",
+  };
+  const overridden = resolveEffectiveTestHarnessSettings(customProfile, overrideOptions);
+  assert.equal(overridden.configPath, "override/vitest.config.ts");
+  assert.equal(overridden.smokeTestPath, "override/smoke.test.ts");
+  assert.equal(overridden.vitestVersion, "3.9.9");
+
+  const overrideEntries = materializeTestHarnessEntries(customProfile, overrideOptions);
+  assert.deepEqual(
+    overrideEntries.map((e) => e.path),
+    ["override/smoke.test.ts", "override/vitest.config.ts"],
+  );
+});
+
+void test("composeTestHarnessReleaseEntries preserves existing target paths without duplicates", () => {
+  const existingConfig: PayloadEntry = Object.freeze({
+    path: "vitest.config.ts",
+    kind: "file",
+    mode: "100644",
+    contentSha256: "2".repeat(64),
+    role: "capability-config",
+    encoding: "utf-8",
+    bundleId: TEST_HARNESS_BUNDLE_ID,
+    contentBase64: Buffer.from("// custom existing config\n").toString("base64"),
+  });
+
+  const existingSmoke: PayloadEntry = Object.freeze({
+    path: "test/smoke.test.ts",
+    kind: "file",
+    mode: "100644",
+    contentSha256: "3".repeat(64),
+    role: "capability-executable",
+    encoding: "utf-8",
+    bundleId: TEST_HARNESS_BUNDLE_ID,
+    contentBase64: Buffer.from("// custom existing smoke test\n").toString("base64"),
+  });
+
+  const baseWithExisting: readonly PayloadEntry[] = [
+    existingConfig,
+    existingSmoke,
+  ];
+
+  const composed = composeTestHarnessReleaseEntries(FULL_STACK_PROFILE, baseWithExisting);
+  // Preserved exactly, no duplicate entries appended
+  assert.equal(composed.length, 3); // vitest.config.ts, test/smoke.test.ts, package.json
+  const configEntry = composed.find((e) => e.path === "vitest.config.ts");
+  assert.ok(configEntry);
+  assert.equal(configEntry.contentSha256, "2".repeat(64));
+  const smokeEntry = composed.find((e) => e.path === "test/smoke.test.ts");
+  assert.ok(smokeEntry);
+  assert.equal(smokeEntry.contentSha256, "3".repeat(64));
+});
+
+void test("empty-bundle materialization leaves no Vitest machinery or package residue", () => {
+  const fixture = readJson("contracts/adoption-shell-v2/fixtures/test-harness-input.json") as Record<string, unknown>;
+  // Request empty bundle list (test-harness not requested)
+  const unrequestedInput = {
+    ...fixture,
+    requestedBundles: [],
+  };
+
+  const materialized = materializeAdoptionShellV2(unrequestedInput);
+  // No vitest files, and package.json has not survived as unbundled orphan
+  assert.equal(materialized.entries.some((e) => e.path === "vitest.config.ts"), false);
+  assert.equal(materialized.entries.some((e) => e.path === "test/smoke.test.ts"), false);
+  assert.equal(materialized.entries.some((e) => e.path === "package.json"), false);
+  assert.equal(materialized.manifest.selectedBundles.length, 0);
 });

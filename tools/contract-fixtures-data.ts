@@ -426,8 +426,8 @@ export const testHarnessPackageJsonEntry = textEntry(
       },
     }),
   ),
-  "generic-base-text",
-  null,
+  "capability-config",
+  testHarnessId,
 );
 export const testHarnessInput = input(
   release([

@@ -1,10 +1,10 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 1,
-  "sourceCommit": "01b0b59c2247fad24323a3a7d63de906f81b5ca7",
+  "sourceCommit": "59486d557596eff0b8660326540875370aac6f5f",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 11,
-  "currentTriageLabel": "triaged:v11",
+  "governedIntakeRevision": 12,
+  "currentTriageLabel": "triaged:v12",
   "bannedLabels": [
     "work:triaged",
     "tier:human",
@@ -348,6 +348,11 @@
       "color": "0E8A16"
     },
     {
+      "name": "triaged:v12",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 12; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
       "name": "triaged:v3",
       "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 3; strip on re-triage.",
       "color": "0E8A16"
@@ -413,5 +418,5 @@
       "color": "BFDADC"
     }
   ],
-  "contentDigest": "sha256:1cdf277d78a1973430180cd39a87cc84fe2ba0fa1a6aa2f11064c8c2438019c2"
+  "contentDigest": "sha256:fb832e52a61774e48e523da6959166cf7be5dfa1309818339147d584b464dfcf"
 }

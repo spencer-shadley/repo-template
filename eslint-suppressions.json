@@ -77,6 +77,14 @@
       "count": 1
     }
   },
+  "packages/adoption-shell/test/product-overlay.test.ts": {
+    "sonarjs/no-clear-text-protocols": {
+      "count": 1
+    },
+    "unicorn/prefer-string-repeat": {
+      "count": 2
+    }
+  },
   "packages/adoption-shell/test/product-sli-probe-v1.test.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 10
@@ -101,7 +109,7 @@
   },
   "packages/adoption-shell/test/semver-changelog.test.ts": {
     "@typescript-eslint/no-floating-promises": {
-      "count": 17
+      "count": 20
     },
     "@typescript-eslint/no-non-null-assertion": {
       "count": 2
@@ -130,6 +138,17 @@
       "count": 1
     }
   },
+  "scripts/check-fleet-law-sync.ts": {
+    "@typescript-eslint/no-unsafe-type-assertion": {
+      "count": 2
+    },
+    "@typescript-eslint/restrict-template-expressions": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
   "scripts/check-local-sli-authority.ts": {
     "@typescript-eslint/no-unnecessary-condition": {
       "count": 1
@@ -153,6 +172,12 @@
     }
   },
   "scripts/check-semver-changelog.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unsafe-type-assertion": {
+      "count": 3
+    },
     "@typescript-eslint/restrict-template-expressions": {
       "count": 1
     },
@@ -160,18 +185,30 @@
       "count": 1
     },
     "max-depth": {
-      "count": 4
+      "count": 11
     },
     "max-lines-per-function": {
       "count": 2
     },
     "sonarjs/cognitive-complexity": {
+      "count": 3
+    },
+    "sonarjs/no-alphabetical-sort": {
       "count": 1
     },
     "sonarjs/reduce-initial-value": {
       "count": 1
     },
     "sonarjs/super-linear-regex": {
+      "count": 1
+    },
+    "unicorn/no-lonely-if": {
+      "count": 1
+    },
+    "unicorn/no-negated-array-predicate": {
+      "count": 1
+    },
+    "unicorn/no-useless-fallback-in-spread": {
       "count": 1
     },
     "unicorn/prefer-array-find": {
@@ -187,7 +224,10 @@
       "count": 2
     },
     "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 4
+      "count": 5
+    },
+    "unicorn/require-array-sort-compare": {
+      "count": 1
     }
   },
   "scripts/check-supply-chain-controls.ts": {
@@ -195,6 +235,40 @@
       "count": 2
     },
     "sonarjs/super-linear-regex": {
+      "count": 1
+    }
+  },
+  "scripts/freeze-local-ci-v3-candidate.ts": {
+    "unicorn/no-declarations-before-early-exit": {
+      "count": 1
+    }
+  },
+  "scripts/generated/fleet-law.ts": {
+    "@typescript-eslint/no-unnecessary-condition": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unnecessary-type-assertion": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unsafe-type-assertion": {
+      "count": 3
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-classes-per-file": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    },
+    "sonarjs/no-alphabetical-sort": {
+      "count": 1
+    },
+    "unicorn/no-array-sort": {
+      "count": 1
+    },
+    "unicorn/require-array-sort-compare": {
       "count": 1
     }
   },
@@ -238,7 +312,7 @@
       "count": 2
     },
     "unicorn/prefer-unicode-code-point-escapes": {
-      "count": 1
+      "count": 2
     }
   }
 }

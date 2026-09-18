@@ -10,8 +10,8 @@ description: >-
 Use this skill for the merge-path validation contract of the repository that contains it.
 
 Fresh-read the repository's `AGENTS.md`, package/build metadata, `local-ci.json` when present, and any
-repo-owned impact/test-selection configuration before running checks. Validate the exact PR/candidate
-SHA in an isolated checkout/worktree and report the SHA actually tested.
+repo-owned impact/test-selection configuration before running checks. Validate the exact PR/candidate SHA
+in an isolated checkout/worktree and report the SHA actually tested.
 
 ## Required-before-merge checklist
 

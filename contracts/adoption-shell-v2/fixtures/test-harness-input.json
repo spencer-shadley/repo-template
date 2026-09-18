@@ -29,9 +29,9 @@
         "kind": "file",
         "mode": "100644",
         "contentSha256": "03cf0bc3210f0132d089d874caccd9bd5a9fd8e7ed49648f9d226269bdb67966",
-        "role": "generic-base-text",
+        "role": "capability-config",
         "encoding": "utf-8",
-        "bundleId": null,
+        "bundleId": "repo-template/test-harness",
         "contentBase64": "ewogICJuYW1lIjogImdlbmVyYXRlZC1jb25zdW1lciIsCiAgInZlcnNpb24iOiAiMC4wLjAiLAogICJwcml2YXRlIjogdHJ1ZSwKICAidHlwZSI6ICJtb2R1bGUiLAogICJzY3JpcHRzIjogewogICAgImJ1aWxkIjogInRzYyIsCiAgICAidGVzdCI6ICJ2aXRlc3QgcnVuIiwKICAgICJ2ZXJpZnkiOiAicG5wbSB0ZXN0IgogIH0sCiAgImRldkRlcGVuZGVuY2llcyI6IHsKICAgICJ2aXRlc3QiOiAiMy4wLjciCiAgfQp9Cg=="
       },
       {
@@ -55,7 +55,7 @@
         "contentBase64": "aW1wb3J0IHsgZGVmaW5lQ29uZmlnIH0gZnJvbSAidml0ZXN0L2NvbmZpZyI7CgpleHBvcnQgZGVmYXVsdCBkZWZpbmVDb25maWcoewogIHRlc3Q6IHsKICAgIGVudmlyb25tZW50OiAibm9kZSIsCiAgICBpbmNsdWRlOiBbIioqLyoudGVzdC50cyIsICIqKi8qLnRlc3QuanMiLCAiKiovKi5zcGVjLnRzIiwgIioqLyouc3BlYy5qcyJdLAogICAgcGFzc1dpdGhOb1Rlc3RzOiB0cnVlLAogIH0sCn0pOwo="
       }
     ],
-    "releaseDigest": "8e4b972ae68ce9c12bb218a329f48dea8282b9dab802bcf33371b1ddd0020cc0"
+    "releaseDigest": "26bd8fe16530e32cd9f0c19525f9a7b46a4cc3eb8fb3b7893ea83a636836f5c6"
   },
   "capabilities": {
     "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/capability-bundle.schema.json",
@@ -70,6 +70,7 @@
         "digestAlgorithm": "sha256-rfc8785-v1",
         "dependencies": [],
         "artifacts": [
+          "package.json",
           "test/smoke.test.ts",
           "vitest.config.ts"
         ],
@@ -80,21 +81,22 @@
             "id": "test",
             "entrypoint": "vitest.config.ts",
             "requiredPaths": [
+              "package.json",
               "test/smoke.test.ts",
               "vitest.config.ts"
             ]
           }
         ],
-        "digest": "76a0ab7f1cf28789ceb2fb84af370c630dd2c5e91d520debd43008a1e7ad356f"
+        "digest": "187211148105f348e925031b01e632b6212062af8e222da811aefc4759182497"
       }
     ],
-    "registryDigest": "a51e430ac88c62fbeb10f51d076d5c249834ffc2f344175fd8afca1265224b38"
+    "registryDigest": "f23c6c0e5555a53156404efc2f99cdb337d5a6870eaf0959c04aaa16c9d1da1f"
   },
   "requestedBundles": [
     {
       "id": "repo-template/test-harness",
       "version": "1.0.0",
-      "digest": "76a0ab7f1cf28789ceb2fb84af370c630dd2c5e91d520debd43008a1e7ad356f"
+      "digest": "187211148105f348e925031b01e632b6212062af8e222da811aefc4759182497"
     }
   ],
   "conformance": {
