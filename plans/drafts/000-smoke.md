@@ -2,7 +2,7 @@
 
 - **Project:** {{PROJECT_NAME}}
 - **Repository:** {{OWNER}}/{{REPOSITORY}}
-- **Status:** planned
+- **Status:** completed - Gate 0 already_satisfied uninstantiated enrollment smoke template
 - **Issue:** plan-host:{{OWNER}}/{{REPOSITORY}}/plans/000
 - **enqueuedAt:** {{ENQUEUED_AT_RFC3339}}
 - **Priority:** P1
