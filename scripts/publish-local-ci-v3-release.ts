@@ -454,6 +454,18 @@ export function validateCanaryReceipts(): void {
   loadDurableCanaryReceipt(VENDOR_RF_RECEIPT_PATH, SECOND_CANARY_RECEIPT_DIGEST, "Repo Factory");
 }
 
+export interface RemoteReadbackOptions {
+  readonly remote?: string;
+  readonly tagName?: string;
+  readonly runGit?: GitRunner;
+  /**
+   * Expected published receipt for `identity`. Production callers omit this and
+   * the function derives it via `buildPublishedReleaseReceipt`. Tests may inject
+   * a receipt so digest comparison stays hermetic.
+   */
+  readonly expectedPublishedReceipt?: TemplateReleaseReceipt;
+}
+
 export function performRemoteReadback(
   identity: PublicationIdentity,
   agreements: {
@@ -461,15 +473,7 @@ export function performRemoteReadback(
     readonly firstCanaryAgrees: boolean;
     readonly secondCanaryAgrees: boolean;
   },
-  remote: string = "origin",
-  tagName: string = PUBLICATION_TAG,
-  runGit: GitRunner = defaultGit,
-  /**
-   * Expected published receipt for `identity`. Production callers omit this and
-   * the function derives it via `buildPublishedReleaseReceipt`. Tests may inject
-   * a receipt so digest comparison stays hermetic.
-   */
-  expectedPublishedReceipt?: TemplateReleaseReceipt,
+  options: RemoteReadbackOptions = {},
 ): PostPublicationReadbackReceipt["readback"] {
   if (!agreements.allCanonicalDigestsMatch) {
     throw new Error("Canonical LocalCi V3 digests do not match the frozen candidate");
@@ -480,6 +484,11 @@ export function performRemoteReadback(
   if (!agreements.secondCanaryAgrees) {
     throw new Error("Repo Factory canary does not agree with the frozen candidate");
   }
+
+  const remote = options.remote ?? "origin";
+  const tagName = options.tagName ?? PUBLICATION_TAG;
+  const runGit = options.runGit ?? defaultGit;
+  const expectedPublishedReceipt = options.expectedPublishedReceipt;
 
   const remoteTag = resolveRemoteAnnotatedTag(remote, tagName, runGit);
   const remotePeeledCommit = remoteTag.peeledCommit;
