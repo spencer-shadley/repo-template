@@ -107,10 +107,12 @@
           "minimum": 1
         },
         "rationale": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         },
         "revisitTrigger": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         },
         "owner": {
           "type": "string"
@@ -138,7 +140,8 @@
             "properties": {
               "revisitTrigger": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "pattern": "\\S"
               }
             }
           }
@@ -158,7 +161,8 @@
             "properties": {
               "rationale": {
                 "type": "string",
-                "minLength": 1
+                "minLength": 1,
+                "pattern": "\\S"
               }
             }
           }
@@ -177,25 +181,31 @@
       "properties": {
         "component": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "current": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "guideDefault": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "guideSection": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         },
         "rationale": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "pattern": "\\S"
         },
         "revisitTrigger": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         }
       }
     }

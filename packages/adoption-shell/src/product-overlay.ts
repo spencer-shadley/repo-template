@@ -27,6 +27,12 @@ import {
 
 import { toDeterministicYaml } from "./product-overlay-yaml.ts";
 
+import {
+  validateComponentRegistryOverlay,
+  validateProductOverlay,
+  validateTechnologyRegistryOverlay,
+} from "./product-overlay-validation.ts";
+
 export * from "./product-overlay-contract.ts";
 export * from "./product-overlay-yaml.ts";
 export * from "./product-overlay-validation.ts";
@@ -57,7 +63,13 @@ export function createProductOverlayContent(
       ? { grandfatheredDivergences: options.grandfatheredDivergences }
       : {}),
   };
-  return toDeterministicYaml(body);
+  const yaml = toDeterministicYaml(body);
+  const validation = validateProductOverlay(yaml);
+  if (!validation.ok) {
+    const msgs = validation.diagnostics.map((d) => `${d.pointer}: ${d.message} (${d.code})`).join("; ");
+    throw new Error(`Failed to generate valid product overlay: ${msgs}`);
+  }
+  return yaml;
 }
 
 export function createTechnologyRegistryOverlayContent(
@@ -85,7 +97,13 @@ export function createTechnologyRegistryOverlayContent(
     },
     technologies,
   };
-  return toDeterministicYaml(body);
+  const yaml = toDeterministicYaml(body);
+  const validation = validateTechnologyRegistryOverlay(yaml);
+  if (!validation.ok) {
+    const msgs = validation.diagnostics.map((d) => `${d.pointer}: ${d.message} (${d.code})`).join("; ");
+    throw new Error(`Failed to generate valid technology registry overlay: ${msgs}`);
+  }
+  return yaml;
 }
 
 export function createComponentRegistryOverlayContent(
@@ -113,7 +131,13 @@ export function createComponentRegistryOverlayContent(
     },
     components,
   };
-  return toDeterministicYaml(body);
+  const yaml = toDeterministicYaml(body);
+  const validation = validateComponentRegistryOverlay(yaml);
+  if (!validation.ok) {
+    const msgs = validation.diagnostics.map((d) => `${d.pointer}: ${d.message} (${d.code})`).join("; ");
+    throw new Error(`Failed to generate valid component registry overlay: ${msgs}`);
+  }
+  return yaml;
 }
 
 function makePayloadEntry(

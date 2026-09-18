@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "929626bbe482e295d3a0bccba8a5589d45aa6b9c6aa8c5aca73996e0b75eb688",
+  "inventoryDigest": "6a38ecebb9f7e55fbe018c06018c7a57dd09e3bd36154ddce86bc080468c7ab4",
   "entryCount": 101,
   "excludedCount": 9,
   "entries": [
@@ -61,8 +61,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "48304983214883e505200b1cea6e07045e8021fdf64cb9ce6ab969bb4f5bb258",
-      "bytes": 5439
+      "contentSha256": "f83f3410fbd60916e681e93b7fb4a8852dc184decf0cd6e051422a3d2a6e942d",
+      "bytes": 5926
     },
     {
       "path": "SECURITY.md",
@@ -523,8 +523,8 @@
       "path": "plans/drafts/000-smoke.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "2cb304998bcb704d0054243f96a83b4128104a6bf6c9f8311782f3049372603f",
-      "bytes": 795
+      "contentSha256": "bda7024800e00d6aaf91eef7021bbec288aeb2d31922ad58d2c8e5c41b67ada5",
+      "bytes": 865
     },
     {
       "path": "scripts/check-runtime-artifact-registry.ts",
@@ -763,5 +763,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "3da0fabc5b701f1dc5f5a57de687726c6574e1277c0bbc5b93502fa9ba4afcc2"
+  "manifestDigest": "edb2de04e1ef098a8ac8ceefa891bcf07852f18f3cce51109927f539bc144019"
 }

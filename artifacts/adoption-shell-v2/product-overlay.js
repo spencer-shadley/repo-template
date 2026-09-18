@@ -3,6 +3,7 @@ import { sha256Bytes, sha256CanonicalJson } from "./digest.js";
 import { compareStrings } from "./validation-helpers.js";
 import { COMPONENT_REGISTRY_OVERLAY_FILE, COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID, PRODUCT_OVERLAY_BUNDLE_ID, PRODUCT_OVERLAY_BUNDLE_VERSION, PRODUCT_OVERLAY_CONTRACT_ID, PRODUCT_OVERLAY_FILE, PRODUCT_OVERLAY_SCHEMA_ID, PRODUCT_OVERLAY_SCHEMA_VERSION, TECHNOLOGY_REGISTRY_OVERLAY_FILE, TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID, defaultComponentsForProfile, defaultPlatformsForProfile, defaultProvenance, defaultTechnologiesForProfile, } from "./product-overlay-contract.js";
 import { toDeterministicYaml } from "./product-overlay-yaml.js";
+import { validateComponentRegistryOverlay, validateProductOverlay, validateTechnologyRegistryOverlay, } from "./product-overlay-validation.js";
 export * from "./product-overlay-contract.js";
 export * from "./product-overlay-yaml.js";
 export * from "./product-overlay-validation.js";
@@ -27,7 +28,13 @@ export function createProductOverlayContent(profile, options) {
             ? { grandfatheredDivergences: options.grandfatheredDivergences }
             : {}),
     };
-    return toDeterministicYaml(body);
+    const yaml = toDeterministicYaml(body);
+    const validation = validateProductOverlay(yaml);
+    if (!validation.ok) {
+        const msgs = validation.diagnostics.map((d) => `${d.pointer}: ${d.message} (${d.code})`).join("; ");
+        throw new Error(`Failed to generate valid product overlay: ${msgs}`);
+    }
+    return yaml;
 }
 export function createTechnologyRegistryOverlayContent(profile, options) {
     const prov = options?.provenance ?? defaultProvenance();
@@ -48,7 +55,13 @@ export function createTechnologyRegistryOverlayContent(profile, options) {
         },
         technologies,
     };
-    return toDeterministicYaml(body);
+    const yaml = toDeterministicYaml(body);
+    const validation = validateTechnologyRegistryOverlay(yaml);
+    if (!validation.ok) {
+        const msgs = validation.diagnostics.map((d) => `${d.pointer}: ${d.message} (${d.code})`).join("; ");
+        throw new Error(`Failed to generate valid technology registry overlay: ${msgs}`);
+    }
+    return yaml;
 }
 export function createComponentRegistryOverlayContent(profile, options) {
     const prov = options?.provenance ?? defaultProvenance();
@@ -69,7 +82,13 @@ export function createComponentRegistryOverlayContent(profile, options) {
         },
         components,
     };
-    return toDeterministicYaml(body);
+    const yaml = toDeterministicYaml(body);
+    const validation = validateComponentRegistryOverlay(yaml);
+    if (!validation.ok) {
+        const msgs = validation.diagnostics.map((d) => `${d.pointer}: ${d.message} (${d.code})`).join("; ");
+        throw new Error(`Failed to generate valid component registry overlay: ${msgs}`);
+    }
+    return yaml;
 }
 function makePayloadEntry(portablePath, content, bundleId) {
     const bytes = Buffer.from(content, "utf8");

@@ -281,6 +281,7 @@ export {
   defaultPlatformsForProfile,
   defaultProvenance,
   defaultTechnologiesForProfile,
+  isImmutableGitHubUrl,
   isImmutableProvenance,
   materializeProductOverlayEntries,
   parseYamlOrJson,

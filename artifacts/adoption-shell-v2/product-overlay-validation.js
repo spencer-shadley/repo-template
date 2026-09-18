@@ -1,14 +1,13 @@
 import { Diagnostics, isRecord } from "./validation-helpers.js";
-import { PRODUCT_PLATFORM_ROLES, REGISTRY_LIFECYCLE_STATES, isImmutableProvenance, } from "./product-overlay-contract.js";
+import { COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID, PRODUCT_OVERLAY_CONTRACT_ID, PRODUCT_OVERLAY_SCHEMA_ID, PRODUCT_OVERLAY_SCHEMA_VERSION, PRODUCT_PLATFORM_ROLES, REGISTRY_LIFECYCLE_STATES, TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID, isImmutableProvenance, } from "./product-overlay-contract.js";
 import { parseYamlOrJson } from "./product-overlay-yaml.js";
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
     return rows.length === 0 && value !== undefined ? { ok: true, value } : { ok: false, diagnostics: rows };
 }
 const ALLOWED_PRODUCT_OVERLAY_FIELDS = new Set([
-    "$schema", "schemaId", "schemaVersion", "contractId",
-    "bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion",
-    "templateRelease", "templateDigest", "templateCommit",
+    "$schema", "schemaId", "schemaVersion", "contractId", "bootstrappedFromGuideVersion",
+    "lastAuditedAgainstGuideVersion", "templateRelease", "templateDigest", "templateCommit",
     "provenance", "platforms", "grandfatheredDivergences",
 ]);
 const ALLOWED_PROVENANCE_FIELDS = new Set([
@@ -18,26 +17,35 @@ const ALLOWED_PROVENANCE_FIELDS = new Set([
 const ALLOWED_PLATFORM_FIELDS = new Set([
     "role", "priority", "rationale", "revisitTrigger", "owner", "acceptanceSuites",
 ]);
-const ALLOWED_REGISTRY_OVERLAY_FIELDS = new Set([
-    "$schema", "schemaId", "schemaVersion", "contractId", "registryKind",
-    "bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion",
-    "templateRelease", "templateDigest", "templateCommit",
-    "provenance", "technologies", "components",
-]);
+const BASE_REGISTRY_FIELDS = [
+    "$schema", "schemaId", "schemaVersion", "contractId", "registryKind", "bootstrappedFromGuideVersion",
+    "lastAuditedAgainstGuideVersion", "templateRelease", "templateDigest", "templateCommit", "provenance",
+];
+const ALLOWED_TECHNOLOGY_REGISTRY_OVERLAY_FIELDS = new Set([...BASE_REGISTRY_FIELDS, "technologies"]);
+const ALLOWED_COMPONENT_REGISTRY_OVERLAY_FIELDS = new Set([...BASE_REGISTRY_FIELDS, "components"]);
 const ALLOWED_REGISTRY_ENTRY_FIELDS = new Set([
-    "id", "state", "category", "contexts", "rationale",
-    "revisitTrigger", "versionPolicy", "selectedVersion",
+    "id", "state", "category", "contexts", "rationale", "revisitTrigger", "versionPolicy", "selectedVersion",
 ]);
-function isPlatformRole(value) {
-    return PRODUCT_PLATFORM_ROLES.includes(value);
-}
-function isRegistryLifecycleState(value) {
-    return REGISTRY_LIFECYCLE_STATES.includes(value);
-}
+const ALLOWED_GRANDFATHERED_DIVERGENCE_FIELDS = new Set([
+    "component", "current", "guideDefault", "guideSection", "rationale", "revisitTrigger",
+]);
+const isPlatformRole = (v) => PRODUCT_PLATFORM_ROLES.includes(v);
+const isRegistryLifecycleState = (v) => REGISTRY_LIFECYCLE_STATES.includes(v);
 function checkUnknownProperties(obj, allowed, pointer, diagnostics) {
     for (const key of Object.keys(obj)) {
-        if (!allowed.has(key)) {
+        if (!allowed.has(key))
             diagnostics.add("E_UNKNOWN_PROPERTY", pointer === "" ? `/${key}` : `${pointer}/${key}`, "unknown property");
+    }
+}
+function checkTopLevelIdentities(obj, expSchemaId, expVersion, expContractId, diagnostics) {
+    const checks = [["schemaId", expSchemaId], ["schemaVersion", expVersion], ["contractId", expContractId]];
+    for (const [key, expected] of checks) {
+        const val = obj[key];
+        if (val !== undefined) {
+            if (typeof val !== "string")
+                diagnostics.add("E_TYPE", `/${key}`, `${key} must be a string`);
+            else if (val !== expected)
+                diagnostics.add("E_INVALID_IDENTITY", `/${key}`, `${key} must be '${expected}'`);
         }
     }
 }
@@ -68,6 +76,18 @@ function checkHexProvenanceField(value, pointer, fieldName, length, diagnostics)
     }
     return true;
 }
+function checkProvenanceFields(source, prefix, diagnostics) {
+    let found = false;
+    for (const f of ["bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion", "templateRelease"]) {
+        if (checkProvenanceField(source[f], `${prefix}/${f}`, diagnostics))
+            found = true;
+    }
+    if (checkHexProvenanceField(source["templateDigest"], `${prefix}/templateDigest`, "templateDigest", 64, diagnostics))
+        found = true;
+    if (checkHexProvenanceField(source["templateCommit"], `${prefix}/templateCommit`, "templateCommit", 40, diagnostics))
+        found = true;
+    return found;
+}
 function checkProvenanceBlock(provenance, diagnostics) {
     if (provenance === undefined)
         return false;
@@ -76,36 +96,35 @@ function checkProvenanceBlock(provenance, diagnostics) {
         return false;
     }
     checkUnknownProperties(provenance, ALLOWED_PROVENANCE_FIELDS, "/provenance", diagnostics);
-    let found = false;
-    if (provenance["contractId"] !== undefined && typeof provenance["contractId"] !== "string") {
-        diagnostics.add("E_TYPE", "/provenance/contractId", "contractId must be a string");
+    if (provenance["contractId"] !== undefined) {
+        if (typeof provenance["contractId"] !== "string")
+            diagnostics.add("E_TYPE", "/provenance/contractId", "contractId must be a string");
+        else if (provenance["contractId"] !== PRODUCT_OVERLAY_CONTRACT_ID) {
+            diagnostics.add("E_INVALID_IDENTITY", "/provenance/contractId", `contractId must be '${PRODUCT_OVERLAY_CONTRACT_ID}'`);
+        }
     }
-    for (const field of ["bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion", "templateRelease"]) {
-        if (checkProvenanceField(provenance[field], `/provenance/${field}`, diagnostics))
-            found = true;
-    }
-    if (checkHexProvenanceField(provenance["templateDigest"], "/provenance/templateDigest", "templateDigest", 64, diagnostics))
-        found = true;
-    if (checkHexProvenanceField(provenance["templateCommit"], "/provenance/templateCommit", "templateCommit", 40, diagnostics))
-        found = true;
-    return found;
+    return checkProvenanceFields(provenance, "/provenance", diagnostics);
 }
 function checkProvenanceEnvelope(obj, overlayKindName, diagnostics) {
-    let hasEvidence = false;
-    for (const field of ["bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion", "templateRelease"]) {
-        if (checkProvenanceField(obj[field], `/${field}`, diagnostics))
-            hasEvidence = true;
-    }
-    if (checkHexProvenanceField(obj["templateDigest"], "/templateDigest", "templateDigest", 64, diagnostics))
-        hasEvidence = true;
-    if (checkHexProvenanceField(obj["templateCommit"], "/templateCommit", "templateCommit", 40, diagnostics))
-        hasEvidence = true;
-    if (checkProvenanceBlock(obj["provenance"], diagnostics))
-        hasEvidence = true;
-    if (!hasEvidence) {
+    const hasDirect = checkProvenanceFields(obj, "", diagnostics);
+    const hasBlock = checkProvenanceBlock(obj["provenance"], diagnostics);
+    if (!hasDirect && !hasBlock) {
         diagnostics.add("E_REQUIRED_PROVENANCE", "", `${overlayKindName} overlay requires immutable release provenance (version, commit, or digest)`);
+        return false;
     }
-    return hasEvidence;
+    return true;
+}
+function checkStringArray(val, pointer, itemName, diagnostics) {
+    if (val === undefined)
+        return;
+    if (!Array.isArray(val)) {
+        diagnostics.add("E_TYPE", pointer, `${itemName} must be an array`);
+        return;
+    }
+    for (const [idx, item] of val.entries()) {
+        if (typeof item !== "string")
+            diagnostics.add("E_TYPE", `${pointer}/${String(idx)}`, `${itemName} item must be a string`);
+    }
 }
 function checkPlatformRole(role, def, pointer, diagnostics) {
     if (role === undefined) {
@@ -123,40 +142,21 @@ function checkPlatformRole(role, def, pointer, diagnostics) {
         diagnostics.add("E_MISSING_NOT_TARGETED_RATIONALE", `${pointer}/rationale`, "not-targeted platform requires a non-empty rationale");
     }
 }
-function checkPlatformAcceptanceSuites(suites, pointer, diagnostics) {
-    if (suites === undefined)
-        return;
-    if (!Array.isArray(suites)) {
-        diagnostics.add("E_TYPE", `${pointer}/acceptanceSuites`, "acceptanceSuites must be an array");
-        return;
-    }
-    for (const [idx, suite] of suites.entries()) {
-        if (typeof suite !== "string") {
-            diagnostics.add("E_TYPE", `${pointer}/acceptanceSuites/${String(idx)}`, "acceptanceSuite item must be a string");
-        }
-    }
-}
 function checkPlatformMetadata(def, pointer, diagnostics) {
     const priority = def["priority"];
-    if (priority !== undefined && (typeof priority !== "number" || priority < 0 || !Number.isInteger(priority))) {
-        diagnostics.add("E_INVALID_PRIORITY", `${pointer}/priority`, "priority must be a non-negative integer");
+    if (priority !== undefined && (typeof priority !== "number" || priority < 1 || !Number.isInteger(priority))) {
+        diagnostics.add("E_INVALID_PRIORITY", `${pointer}/priority`, "priority must be an integer >= 1");
     }
     for (const field of ["rationale", "revisitTrigger", "owner"]) {
-        if (def[field] !== undefined && typeof def[field] !== "string") {
-            diagnostics.add("E_TYPE", `${pointer}/${field}`, `${field} must be a string`);
+        if (def[field] !== undefined) {
+            if (typeof def[field] !== "string")
+                diagnostics.add("E_TYPE", `${pointer}/${field}`, `${field} must be a string`);
+            else if ((field === "rationale" || field === "revisitTrigger") && def[field].trim() === "") {
+                diagnostics.add("E_EMPTY_VALUE", `${pointer}/${field}`, `${field} must not be empty or whitespace-only`);
+            }
         }
     }
-    checkPlatformAcceptanceSuites(def["acceptanceSuites"], pointer, diagnostics);
-}
-function checkPlatformEntry(name, def, diagnostics) {
-    const pointer = `/platforms/${name}`;
-    if (!isRecord(def)) {
-        diagnostics.add("E_TYPE", pointer, "platform definition must be an object");
-        return;
-    }
-    checkUnknownProperties(def, ALLOWED_PLATFORM_FIELDS, pointer, diagnostics);
-    checkPlatformRole(def["role"], def, pointer, diagnostics);
-    checkPlatformMetadata(def, pointer, diagnostics);
+    checkStringArray(def["acceptanceSuites"], `${pointer}/acceptanceSuites`, "acceptanceSuite", diagnostics);
 }
 function checkPlatformsBlock(platforms, diagnostics) {
     if (platforms === undefined) {
@@ -172,8 +172,17 @@ function checkPlatformsBlock(platforms, diagnostics) {
         diagnostics.add("E_EMPTY_PLATFORMS", "/platforms", "at least one platform must be declared");
         return;
     }
-    for (const name of keys)
-        checkPlatformEntry(name, platforms[name], diagnostics);
+    for (const name of keys) {
+        const pointer = `/platforms/${name}`;
+        const def = platforms[name];
+        if (!isRecord(def)) {
+            diagnostics.add("E_TYPE", pointer, "platform definition must be an object");
+            continue;
+        }
+        checkUnknownProperties(def, ALLOWED_PLATFORM_FIELDS, pointer, diagnostics);
+        checkPlatformRole(def["role"], def, pointer, diagnostics);
+        checkPlatformMetadata(def, pointer, diagnostics);
+    }
 }
 function buildProvenance(prov) {
     return Object.freeze({
@@ -186,18 +195,13 @@ function buildProvenance(prov) {
     });
 }
 function buildSinglePlatform(rawDef) {
-    if (!isRecord(rawDef) || typeof rawDef["role"] !== "string" || !isPlatformRole(rawDef["role"])) {
+    if (!isRecord(rawDef) || typeof rawDef["role"] !== "string" || !isPlatformRole(rawDef["role"]))
         return undefined;
-    }
     let suites;
     if (Array.isArray(rawDef["acceptanceSuites"])) {
-        const validSuites = [];
-        for (const s of rawDef["acceptanceSuites"]) {
-            if (typeof s !== "string")
-                return undefined;
-            validSuites.push(s);
-        }
-        suites = Object.freeze(validSuites);
+        if (!rawDef["acceptanceSuites"].every((s) => typeof s === "string"))
+            return undefined;
+        suites = Object.freeze([...rawDef["acceptanceSuites"]]);
     }
     return {
         role: rawDef["role"],
@@ -234,9 +238,8 @@ function buildGrandfatheredDivergences(raw) {
     }
     return Object.freeze(result);
 }
-function buildProductOverlay(obj) {
-    const divergences = buildGrandfatheredDivergences(obj["grandfatheredDivergences"]);
-    return Object.freeze({
+function buildBaseRegistryOverlay(obj) {
+    return {
         ...(typeof obj["$schema"] === "string" ? { $schema: obj["$schema"] } : {}),
         ...(typeof obj["schemaId"] === "string" ? { schemaId: obj["schemaId"] } : {}),
         ...(typeof obj["schemaVersion"] === "string" ? { schemaVersion: obj["schemaVersion"] } : {}),
@@ -247,6 +250,12 @@ function buildProductOverlay(obj) {
         ...(typeof obj["templateDigest"] === "string" ? { templateDigest: obj["templateDigest"] } : {}),
         ...(typeof obj["templateCommit"] === "string" ? { templateCommit: obj["templateCommit"] } : {}),
         ...(isRecord(obj["provenance"]) ? { provenance: buildProvenance(obj["provenance"]) } : {}),
+    };
+}
+function buildProductOverlay(obj) {
+    const divergences = buildGrandfatheredDivergences(obj["grandfatheredDivergences"]);
+    return Object.freeze({
+        ...buildBaseRegistryOverlay(obj),
         platforms: Object.freeze(buildPlatforms(obj["platforms"])),
         ...(divergences !== undefined ? { grandfatheredDivergences: divergences } : {}),
     });
@@ -268,31 +277,54 @@ function parseOverlayInput(value, diagnostics) {
     }
     return parsed;
 }
+function checkSingleDivergence(item, ptr, diagnostics) {
+    checkUnknownProperties(item, ALLOWED_GRANDFATHERED_DIVERGENCE_FIELDS, ptr, diagnostics);
+    for (const req of ["component", "current", "guideDefault", "rationale"]) {
+        const val = item[req];
+        if (val === undefined)
+            diagnostics.add("E_REQUIRED", `${ptr}/${req}`, `${req} is required`);
+        else if (typeof val !== "string")
+            diagnostics.add("E_TYPE", `${ptr}/${req}`, `${req} must be a string`);
+        else if (val.trim() === "")
+            diagnostics.add("E_EMPTY_VALUE", `${ptr}/${req}`, `${req} must not be empty or whitespace-only`);
+    }
+    for (const opt of ["guideSection", "revisitTrigger"]) {
+        const val = item[opt];
+        if (val !== undefined) {
+            if (typeof val !== "string")
+                diagnostics.add("E_TYPE", `${ptr}/${opt}`, `${opt} must be a string`);
+            else if (val.trim() === "")
+                diagnostics.add("E_EMPTY_VALUE", `${ptr}/${opt}`, `${opt} must not be empty or whitespace-only`);
+        }
+    }
+}
+function checkGrandfatheredDivergences(divergences, diagnostics) {
+    if (divergences === undefined)
+        return;
+    if (!Array.isArray(divergences)) {
+        diagnostics.add("E_TYPE", "/grandfatheredDivergences", "grandfatheredDivergences must be an array");
+        return;
+    }
+    for (const [idx, item] of divergences.entries()) {
+        const ptr = `/grandfatheredDivergences/${String(idx)}`;
+        if (!isRecord(item)) {
+            diagnostics.add("E_TYPE", ptr, "divergence item must be an object");
+            continue;
+        }
+        checkSingleDivergence(item, ptr, diagnostics);
+    }
+}
 export function validateProductOverlay(value) {
     const diagnostics = new Diagnostics();
     const obj = parseOverlayInput(value, diagnostics);
     if (obj === undefined)
         return finish(undefined, diagnostics);
     checkUnknownProperties(obj, ALLOWED_PRODUCT_OVERLAY_FIELDS, "", diagnostics);
+    checkTopLevelIdentities(obj, PRODUCT_OVERLAY_SCHEMA_ID, PRODUCT_OVERLAY_SCHEMA_VERSION, PRODUCT_OVERLAY_CONTRACT_ID, diagnostics);
     checkProvenanceEnvelope(obj, "product", diagnostics);
     checkPlatformsBlock(obj["platforms"], diagnostics);
-    if (obj["grandfatheredDivergences"] !== undefined && !Array.isArray(obj["grandfatheredDivergences"])) {
-        diagnostics.add("E_TYPE", "/grandfatheredDivergences", "grandfatheredDivergences must be an array");
-    }
+    checkGrandfatheredDivergences(obj["grandfatheredDivergences"], diagnostics);
     return finish(diagnostics.rows.length === 0 ? buildProductOverlay(obj) : undefined, diagnostics);
-}
-function checkRegistryEntryContexts(contexts, pointer, diagnostics) {
-    if (contexts === undefined)
-        return;
-    if (!Array.isArray(contexts)) {
-        diagnostics.add("E_TYPE", `${pointer}/contexts`, "contexts must be an array");
-        return;
-    }
-    for (const [idx, ctx] of contexts.entries()) {
-        if (typeof ctx !== "string") {
-            diagnostics.add("E_TYPE", `${pointer}/contexts/${String(idx)}`, "context item must be a string");
-        }
-    }
 }
 function checkRegistryEntry(entriesKey, id, def, diagnostics) {
     const pointer = `/${entriesKey}/${id}`;
@@ -302,18 +334,21 @@ function checkRegistryEntry(entriesKey, id, def, diagnostics) {
     }
     checkUnknownProperties(def, ALLOWED_REGISTRY_ENTRY_FIELDS, pointer, diagnostics);
     const state = def["state"];
-    if (state === undefined) {
+    if (state === undefined)
         diagnostics.add("E_REQUIRED", `${pointer}/state`, "state is required");
-    }
     else if (typeof state !== "string" || !isRegistryLifecycleState(state)) {
         diagnostics.add("E_INVALID_LIFECYCLE_STATE", `${pointer}/state`, `invalid lifecycle state: ${typeof state === "string" ? state : JSON.stringify(state)}; must be one of: ${REGISTRY_LIFECYCLE_STATES.join(", ")}`);
     }
-    for (const strField of ["id", "category", "rationale", "revisitTrigger", "versionPolicy", "selectedVersion"]) {
-        if (def[strField] !== undefined && typeof def[strField] !== "string") {
-            diagnostics.add("E_TYPE", `${pointer}/${strField}`, `${strField} must be a string`);
+    for (const f of ["id", "category", "rationale", "revisitTrigger", "versionPolicy", "selectedVersion"]) {
+        if (def[f] !== undefined) {
+            if (typeof def[f] !== "string")
+                diagnostics.add("E_TYPE", `${pointer}/${f}`, `${f} must be a string`);
+            else if ((f === "rationale" || f === "revisitTrigger") && def[f].trim() === "") {
+                diagnostics.add("E_EMPTY_VALUE", `${pointer}/${f}`, `${f} must not be empty or whitespace-only`);
+            }
         }
     }
-    checkRegistryEntryContexts(def["contexts"], pointer, diagnostics);
+    checkStringArray(def["contexts"], `${pointer}/contexts`, "contexts", diagnostics);
 }
 function checkRegistryEntries(entriesVal, entriesKey, diagnostics) {
     if (entriesVal === undefined) {
@@ -328,18 +363,13 @@ function checkRegistryEntries(entriesVal, entriesKey, diagnostics) {
         checkRegistryEntry(entriesKey, id, def, diagnostics);
 }
 function buildSingleRegistryEntry(rawDef) {
-    if (!isRecord(rawDef) || typeof rawDef["state"] !== "string" || !isRegistryLifecycleState(rawDef["state"])) {
+    if (!isRecord(rawDef) || typeof rawDef["state"] !== "string" || !isRegistryLifecycleState(rawDef["state"]))
         return undefined;
-    }
     let contexts;
     if (Array.isArray(rawDef["contexts"])) {
-        const validContexts = [];
-        for (const item of rawDef["contexts"]) {
-            if (typeof item !== "string")
-                return undefined;
-            validContexts.push(item);
-        }
-        contexts = Object.freeze(validContexts);
+        if (!rawDef["contexts"].every((item) => typeof item === "string"))
+            return undefined;
+        contexts = Object.freeze([...rawDef["contexts"]]);
     }
     return {
         state: rawDef["state"],
@@ -363,35 +393,34 @@ function buildRegistryEntries(rawEntries) {
     }
     return result;
 }
-function checkRegistryOverlayEnvelope(obj, expectedKind, entriesKey, diagnostics) {
-    checkUnknownProperties(obj, ALLOWED_REGISTRY_OVERLAY_FIELDS, "", diagnostics);
+const TECHNOLOGY_OVERLAY_DESCRIPTOR = {
+    kind: "technology",
+    entriesKey: "technologies",
+    allowedFields: ALLOWED_TECHNOLOGY_REGISTRY_OVERLAY_FIELDS,
+    schemaId: TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID,
+};
+const COMPONENT_OVERLAY_DESCRIPTOR = {
+    kind: "component",
+    entriesKey: "components",
+    allowedFields: ALLOWED_COMPONENT_REGISTRY_OVERLAY_FIELDS,
+    schemaId: COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID,
+};
+function checkRegistryOverlayEnvelope(obj, descriptor, diagnostics) {
+    checkUnknownProperties(obj, descriptor.allowedFields, "", diagnostics);
+    checkTopLevelIdentities(obj, descriptor.schemaId, PRODUCT_OVERLAY_SCHEMA_VERSION, PRODUCT_OVERLAY_CONTRACT_ID, diagnostics);
     const kind = obj["registryKind"];
-    if (kind !== expectedKind && kind !== `${expectedKind}-overlay`) {
-        diagnostics.add("E_INVALID_KIND", "/registryKind", `registryKind must be '${expectedKind}' or '${expectedKind}-overlay'`);
+    if (kind !== descriptor.kind && kind !== `${descriptor.kind}-overlay`) {
+        diagnostics.add("E_INVALID_KIND", "/registryKind", `registryKind must be '${descriptor.kind}' or '${descriptor.kind}-overlay'`);
     }
-    checkProvenanceEnvelope(obj, `${expectedKind} registry`, diagnostics);
-    checkRegistryEntries(obj[entriesKey], entriesKey, diagnostics);
-}
-function buildBaseRegistryOverlay(obj) {
-    return {
-        ...(typeof obj["$schema"] === "string" ? { $schema: obj["$schema"] } : {}),
-        ...(typeof obj["schemaId"] === "string" ? { schemaId: obj["schemaId"] } : {}),
-        ...(typeof obj["schemaVersion"] === "string" ? { schemaVersion: obj["schemaVersion"] } : {}),
-        ...(typeof obj["contractId"] === "string" ? { contractId: obj["contractId"] } : {}),
-        ...(typeof obj["bootstrappedFromGuideVersion"] === "string" ? { bootstrappedFromGuideVersion: obj["bootstrappedFromGuideVersion"] } : {}),
-        ...(typeof obj["lastAuditedAgainstGuideVersion"] === "string" ? { lastAuditedAgainstGuideVersion: obj["lastAuditedAgainstGuideVersion"] } : {}),
-        ...(typeof obj["templateRelease"] === "string" ? { templateRelease: obj["templateRelease"] } : {}),
-        ...(typeof obj["templateDigest"] === "string" ? { templateDigest: obj["templateDigest"] } : {}),
-        ...(typeof obj["templateCommit"] === "string" ? { templateCommit: obj["templateCommit"] } : {}),
-        ...(isRecord(obj["provenance"]) ? { provenance: buildProvenance(obj["provenance"]) } : {}),
-    };
+    checkProvenanceEnvelope(obj, `${descriptor.kind} registry`, diagnostics);
+    checkRegistryEntries(obj[descriptor.entriesKey], descriptor.entriesKey, diagnostics);
 }
 export function validateTechnologyRegistryOverlay(value) {
     const diagnostics = new Diagnostics();
     const obj = parseOverlayInput(value, diagnostics);
     if (obj === undefined)
         return finish(undefined, diagnostics);
-    checkRegistryOverlayEnvelope(obj, "technology", "technologies", diagnostics);
+    checkRegistryOverlayEnvelope(obj, TECHNOLOGY_OVERLAY_DESCRIPTOR, diagnostics);
     const built = Object.freeze({
         ...buildBaseRegistryOverlay(obj),
         registryKind: "technology",
@@ -404,7 +433,7 @@ export function validateComponentRegistryOverlay(value) {
     const obj = parseOverlayInput(value, diagnostics);
     if (obj === undefined)
         return finish(undefined, diagnostics);
-    checkRegistryOverlayEnvelope(obj, "component", "components", diagnostics);
+    checkRegistryOverlayEnvelope(obj, COMPONENT_OVERLAY_DESCRIPTOR, diagnostics);
     const built = Object.freeze({
         ...buildBaseRegistryOverlay(obj),
         registryKind: "component",
