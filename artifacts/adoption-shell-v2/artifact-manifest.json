@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "80cda69178a73d7efbe736e81b87bbc16582fe68ebc2f7f8f6c9f5b77d451cd4",
+  "artifactDigest": "20b5f3d03022b126064be0fb73784be806e0323d6f6f44627083977238912eab",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -196,8 +196,8 @@
       "path": "packages/adoption-shell/src/test-harness.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "97a6ca7eaccc480e7b3cc1e59f93b31a2b87e10236fe133c335327af228d46bc",
-      "bytes": 12580
+      "sha256": "60a2d2db5a680c7a600b792371406a2b3ee380686fa51f8f9893684d9c736ed8",
+      "bytes": 14902
     },
     {
       "path": "packages/adoption-shell/src/validate-charter.ts",
@@ -680,15 +680,15 @@
       "path": "test-harness.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "230ab949670b724cec3c449ffae0182c39818bdb00649a1272b4f36d90ccad0e",
-      "bytes": 3383
+      "sha256": "f34ca9011c53d73266d6c8aa72eec76bc5fccab19d4d9c3444f735b956dadea2",
+      "bytes": 3988
     },
     {
       "path": "test-harness.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "bac333442c89d30a0e020032c6fedaae121da4df116cf4ff63c75d523e3dc777",
-      "bytes": 10896
+      "sha256": "de6e9db814e567abd9f30cb738d3e5d20520bd7f378c72f7ea2c098cbe624aee",
+      "bytes": 12639
     },
     {
       "path": "validate-charter.d.ts",
@@ -892,8 +892,8 @@
       "path": "contracts/adoption-shell-v2/fixtures/test-harness-input.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e9cae915b5631332ae74a1a43eec2b8e1c7af1ec402f8de3685c4cc3a8b08135",
-      "bytes": 4573
+      "sha256": "74474e32720cd738a5c902b9d5780f100e0a8d0562484c1335a13b89492f066d",
+      "bytes": 4653
     },
     {
       "path": "contracts/adoption-shell-v2/fixtures/user-surface-lint-input.json",
@@ -1531,7 +1531,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "49bcdce26207fc90f6c95bc9525998b87e0a36dcde23f57caaf52b1c0e83df31",
+      "sha256": "82946f5980b649f84b1141c065a606e4a05e3518c68c0e031ef4d9bc172dcc73",
       "bytes": 876
     },
     {
@@ -1563,5 +1563,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "fe3e84d70e8f1d5b75eaab996ccd76fe4f03a9740f27f2a3d15ba2853591a84e"
+  "manifestDigest": "18cccd97ad17865b7a3be72a800ee569df31f4eae520dc1ee443a8164a3978c8"
 }

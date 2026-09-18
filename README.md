@@ -21,6 +21,7 @@ audit, the autonomous loop) rely on these paths.
 | `contracts/local-ci/v2/` | versioned machine-readable LocalCiContractV2 schema and fixtures |
 | `contracts/local-ci/v3/` | LocalCiContractV3 (required `detectionProof` per command) and LocalCiOutcomeV1 (`pass\|fail\|skipped\|could-not-execute`) schemas and fixtures |
 | `contracts/product-overlay/v1/` | versioned machine-readable ProductPlatformOverlayV1 and registry overlay schemas |
+| `contracts/test-harness/v1/` | versioned machine-readable TestHarnessProfileV1 schema and fixtures for portable Vitest generation |
 | `product-overlay.yaml` | portable product/platform overlay declaring supported platforms, roles, and dormant revisit triggers |
 | `technology-registry.overlay.yaml` | portable technology registry overlay declaring lifecycle states and rationales |
 | `component-registry.overlay.yaml` | portable component registry overlay declaring lifecycle states and rationales |

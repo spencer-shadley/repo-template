@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "6a38ecebb9f7e55fbe018c06018c7a57dd09e3bd36154ddce86bc080468c7ab4",
+  "inventoryDigest": "66341002d1bd725326d9b95169bba8c671dab6c3711835688b948a9234edc5c0",
   "entryCount": 101,
   "excludedCount": 9,
   "entries": [
@@ -61,8 +61,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "f83f3410fbd60916e681e93b7fb4a8852dc184decf0cd6e051422a3d2a6e942d",
-      "bytes": 5926
+      "contentSha256": "2a16b917d26c1fc116d10f28b1590e5d6dc2bfcc09fe184b284b6e908690b483",
+      "bytes": 6060
     },
     {
       "path": "SECURITY.md",
@@ -495,8 +495,8 @@
       "path": "eslint-suppressions.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "88465dd5c49c4226cb7a73d1f621246d33128df29d5947da8b56b8afee6bc93b",
-      "bytes": 5212
+      "contentSha256": "f165c88398b19f684d9b5b9c09dc0affa050e426464a1c264fbc2c3566c98a1b",
+      "bytes": 6885
     },
     {
       "path": "eslint.config.ts",
@@ -600,7 +600,7 @@
       "path": "skills/pr-validation/SKILL.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "fd99403987656e9e2afcc6fbec0c935d6f9e83cc379403a8812e2ec6c26c2ab8",
+      "contentSha256": "8ab87707b2da14ba3708f7cb6285e5e87bddc73f436891c11e90048a3ac76a85",
       "bytes": 2772
     },
     {
@@ -763,5 +763,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "edb2de04e1ef098a8ac8ceefa891bcf07852f18f3cce51109927f539bc144019"
+  "manifestDigest": "a4bc38b7dcf221107b6fc0c440255c7768af490fe2c0789d9a46c897aaef2433"
 }

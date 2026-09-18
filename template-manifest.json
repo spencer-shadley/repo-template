@@ -372,5 +372,8 @@
   "contracts/local-ci/v3/published-release-receipt.json": "self",
   "docs/receipts/receipt-issue-341-mu15pl0x.json": "self",
   "packages/adoption-shell/test/local-ci-v3-release.test.ts": "self",
-  "scripts/publish-local-ci-v3-release.ts": "self"
+  "scripts/publish-local-ci-v3-release.ts": "self",
+  "scripts/check-fleet-law-sync.ts": "self",
+  "scripts/generated/fleet-law-projection.v1.json": "self",
+  "scripts/generated/fleet-law.ts": "self"
 }
