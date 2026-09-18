@@ -6,6 +6,10 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+## [3.3.1] - 2026-09-18
+
+- **Publish validation skills in general template release payload:** publish `skills/pr-validation/SKILL.md` and `skills/full-validation/SKILL.md` in the immutable general Template release payload (101 entries, matching content identities). PATCH. Fixes #380.
+
 - **Publish validation skills in immutable general Template release (RT-380):** Ensure `skills/pr-validation/SKILL.md` and `skills/full-validation/SKILL.md` are closed in the general Template inert-seed manifest and release payload set. Extend `scripts/check-validation-contract-skills.ts` and adoption-shell tests to verify presence, byte identity, and SHA-256 closure of both released validation skills against the working tree, failing closed on absence or content drift. PATCH. Fixes #380.
 - **Standardize SemVer authorities and derived repository VERSION (RT-90):** Reframe the canonical SemVer standard from a single repo-wide authority to one authoritative SemVer per released public contract (DOCTRINE §53). In multi-contract repositories like repo-template, preserve `TEMPLATE_VERSION` as the Template release authority and `packages/repo-quality/package.json.version` as the repo-quality package authority, defining root `VERSION` as derived non-authoritative metadata that must track `TEMPLATE_VERSION` rather than acting as a competing third release contract. Update `docs/SEMVER-CHANGELOG-STANDARD.md`, `scripts/check-semver-changelog.ts` (SVC1 derived-authority validation and `discoverPublicContracts`), and adoption-shell tests. PATCH. Fixes #90.
 - **Narrow frozen-candidate evidenceDigest test seam and cover committed exitCode refusal (RT-370):** `buildVerificationFromEvidence` no longer accepts a production caller-supplied digest; overrides are test-only via `VerificationDigestTestOverride`. Adds a committed-bytes regression that flips `proof-of-detection-self-test` exitCode 0→1 and asserts freeze gates refuse. MINOR. Fixes #370.
