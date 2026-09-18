@@ -31,6 +31,7 @@ import {
   assertCommitVersionMatchesDeclaredSemver,
   buildPostPublicationReadbackReceipt,
   assertLoadedCanaryReceipt,
+  compareCanonicalDigests,
   loadDurableCanaryReceipt,
   performRemoteReadback,
   resolveRemotePeeledCommit,
@@ -333,6 +334,18 @@ void test("non-receipt canary URL fails closed", () => {
       FIRST_CANARY_RECEIPT_ID,
     );
   }, /not a durable receipt artifact/);
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/model-gateway/blob/master/docs/receipts/receipt-issue-991-mu14rxy2.json",
+      FIRST_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/repo-factory/blob/master/docs/receipts/receipt-issue-187-mu14zjfz.json",
+      SECOND_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
   assert.doesNotThrow(() => {
     assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
     assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);
@@ -357,10 +370,9 @@ void test("canary loader rejects a tampered candidate.commit even when the diges
     ...tamperedBody,
     receiptDigest: sha256CanonicalJson(tamperedBody),
   };
-  assert.throws(
-    () => assertLoadedCanaryReceipt(tampered, tampered.receiptDigest, "Model Gateway"),
-    /candidate commit mismatch/,
-  );
+  assert.throws(() => {
+    assertLoadedCanaryReceipt(tampered, tampered.receiptDigest, "Model Gateway");
+  }, /candidate commit mismatch/);
 });
 
 void test("performRemoteReadback throws when a canary agreement flag is false instead of copying true", () => {
@@ -390,5 +402,62 @@ void test("performRemoteReadback throws when a canary agreement flag is false in
       ),
     /Model Gateway canary does not agree/,
   );
+});
+
+void test("performRemoteReadback throws when allCanonicalDigestsMatch is false", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  assert.throws(() => {
+    performRemoteReadback(
+      identity,
+      {
+        allCanonicalDigestsMatch: false,
+        firstCanaryAgrees: true,
+        secondCanaryAgrees: true,
+      },
+      "origin",
+      PUBLICATION_TAG,
+      (args) => {
+        if (args[0] === "ls-remote") {
+          return `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`;
+        }
+        throw new Error(`unexpected git ${args.join(" ")}`);
+      },
+    );
+  }, /Canonical LocalCi V3 digests do not match the frozen candidate/);
+});
+
+void test("compareCanonicalDigests enforces exact agreement and fails on drift", () => {
+  const base = {
+    "a.json": "1111111111111111111111111111111111111111111111111111111111111111",
+    "b.json": "2222222222222222222222222222222222222222222222222222222222222222",
+  };
+  assert.equal(compareCanonicalDigests(base, { ...base }), true);
+  assert.equal(
+    compareCanonicalDigests(base, {
+      ...base,
+      "a.json": "0000000000000000000000000000000000000000000000000000000000000000",
+    }),
+    false,
+  );
+  assert.equal(
+    compareCanonicalDigests(base, {
+      "a.json": "1111111111111111111111111111111111111111111111111111111111111111",
+    }),
+    false,
+  );
+  assert.equal(
+    compareCanonicalDigests(base, {
+      ...base,
+      "c.json": "3333333333333333333333333333333333333333333333333333333333333333",
+    }),
+    false,
+  );
+  assert.equal(compareCanonicalDigests(base, undefined), false);
+  assert.equal(compareCanonicalDigests({}, {}), false);
 });
 

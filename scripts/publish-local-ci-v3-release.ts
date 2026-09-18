@@ -44,7 +44,7 @@ export const FIRST_CANARY_RECEIPT_KIND = "model-gateway/local-ci-v3-canary-recei
 export const FIRST_CANARY_RECEIPT_DIGEST =
   "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b";
 export const FIRST_CANARY_RECEIPT_URL =
-  "https://github.com/spencer-shadley/model-gateway/blob/master/docs/receipts/receipt-issue-991-mu14rxy2.json";
+  "https://github.com/spencer-shadley/model-gateway/blob/964f3befa7c10e00fd5ed363bc06d143a22a01f8/docs/receipts/receipt-issue-991-mu14rxy2.json";
 
 export const SECOND_CANARY_ISSUE = "https://github.com/spencer-shadley/repo-factory/issues/187";
 export const SECOND_CANARY_RECEIPT_ID = "receipt-issue-187-mu14zjfz";
@@ -52,7 +52,7 @@ export const SECOND_CANARY_RECEIPT_KIND = "repo-factory/local-ci-v3-canary-recei
 export const SECOND_CANARY_RECEIPT_DIGEST =
   "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72";
 export const SECOND_CANARY_RECEIPT_URL =
-  "https://github.com/spencer-shadley/repo-factory/blob/master/docs/receipts/receipt-issue-187-mu14zjfz.json";
+  "https://github.com/spencer-shadley/repo-factory/blob/b3ebef5a334bfe8467383986b5b5dfe6bb798cf3/docs/receipts/receipt-issue-187-mu14zjfz.json";
 
 export const PUBLICATION_TIME = "2026-09-18T07:30:00Z";
 
@@ -89,7 +89,7 @@ export function assertCommitVersionMatchesDeclaredSemver(
 export function assertCanaryReceiptUrl(url: string, receiptId: string): void {
   const escapedId = receiptId.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`);
   const blobPattern = new RegExp(
-    String.raw`^https://github\.com/spencer-shadley/[A-Za-z0-9_.-]+/blob/[A-Za-z0-9._/-]+/(?:docs/receipts|contracts/local-ci/v3)/` +
+    String.raw`^https://github\.com/spencer-shadley/[A-Za-z0-9_.-]+/blob/[0-9a-f]{40}/(?:docs/receipts|contracts/local-ci/v3)/` +
       escapedId +
       String.raw`\.json$`,
   );
@@ -479,6 +479,23 @@ export function performRemoteReadback(
   };
 }
 
+export function compareCanonicalDigests(
+  computed: Record<string, string>,
+  expected: Record<string, string> | undefined,
+): boolean {
+  if (!expected) {
+    return false;
+  }
+  const computedKeys = Object.keys(computed);
+  const expectedKeys = Object.keys(expected);
+  if (computedKeys.length === 0 || computedKeys.length !== expectedKeys.length) {
+    return false;
+  }
+  return computedKeys.every(
+    (key) => Object.hasOwn(expected, key) && computed[key] === expected[key],
+  );
+}
+
 export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackReceipt {
   const payloadSet = loadFrozenPayloadSet();
   const capabilityRegistry = loadFrozenCapabilityRegistry();
@@ -493,6 +510,7 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
   const prePub = JSON.parse(fs.readFileSync(prePubPath, "utf8")) as {
     candidate: { commit: string; tree: string };
     receiptDigest: string;
+    canonicalDigests?: Record<string, string>;
   };
   if (prePub.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
     throw new Error("Candidate commit mismatch in pre-publication receipt");
@@ -540,7 +558,10 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
   const secondCanaryAgrees =
     rf.candidate.commit === FROZEN_CANDIDATE_COMMIT &&
     rf.candidate.tree === FROZEN_CANDIDATE_TREE;
-  const allCanonicalDigestsMatch = Object.keys(canonicalDigests).length > 0;
+  const allCanonicalDigestsMatch = compareCanonicalDigests(
+    canonicalDigests,
+    prePub.canonicalDigests,
+  );
   const readback = performRemoteReadback(identity, {
     allCanonicalDigestsMatch,
     firstCanaryAgrees,

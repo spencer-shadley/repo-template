@@ -34,7 +34,7 @@
       "receiptId": "receipt-issue-991-mu14rxy2",
       "receiptKind": "model-gateway/local-ci-v3-canary-receipt/v1",
       "receiptDigest": "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b",
-      "receiptUrl": "https://github.com/spencer-shadley/model-gateway/blob/master/docs/receipts/receipt-issue-991-mu14rxy2.json",
+      "receiptUrl": "https://github.com/spencer-shadley/model-gateway/blob/964f3befa7c10e00fd5ed363bc06d143a22a01f8/docs/receipts/receipt-issue-991-mu14rxy2.json",
       "consumerRepository": "spencer-shadley/model-gateway",
       "consumerRole": "first dissimilar canary",
       "targetLineage": "runtime/checks/effects",
@@ -52,7 +52,7 @@
       "receiptId": "receipt-issue-187-mu14zjfz",
       "receiptKind": "repo-factory/local-ci-v3-canary-receipt/v1",
       "receiptDigest": "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72",
-      "receiptUrl": "https://github.com/spencer-shadley/repo-factory/blob/master/docs/receipts/receipt-issue-187-mu14zjfz.json",
+      "receiptUrl": "https://github.com/spencer-shadley/repo-factory/blob/b3ebef5a334bfe8467383986b5b5dfe6bb798cf3/docs/receipts/receipt-issue-187-mu14zjfz.json",
       "consumerRepository": "spencer-shadley/repo-factory",
       "consumerRole": "second dissimilar canary",
       "targetLineage": "entrypoint/gates/flags",
@@ -277,5 +277,5 @@
   },
   "publicationTime": "2026-09-18T07:30:00Z",
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "de6e7faf7d3e2a4c1bc287f83b2040cfd6023d5a79e9dfca57ec0c6f98327c8d"
+  "receiptDigest": "370cbbeb5e55bb8270fc571cedbda57fe755d73b0e5d2970de5fae4777fd5b8c"
 }
