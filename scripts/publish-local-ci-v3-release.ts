@@ -107,11 +107,21 @@ export interface PublicationIdentity {
   readonly tag: string;
 }
 
-export function resolveRemotePeeledCommit(
+export interface RemoteAnnotatedTag {
+  readonly tagObjectSha: string;
+  readonly peeledCommit: string;
+}
+
+/**
+ * Resolve the remote annotated tag object and its peeled commit from
+ * `git ls-remote --tags`. Both `refs/tags/<name>` and `refs/tags/<name>^{}`
+ * must be present; a missing peel is fail-closed (lightweight / unpeelable).
+ */
+export function resolveRemoteAnnotatedTag(
   remote: string,
   tagName: string,
   runGit: GitRunner = defaultGit,
-): string {
+): RemoteAnnotatedTag {
   let lsRemote: string;
   try {
     lsRemote = runGit(["ls-remote", "--tags", remote, `refs/tags/${tagName}*`]);
@@ -123,15 +133,36 @@ export function resolveRemotePeeledCommit(
   if (!lsRemote) {
     throw new Error(`Remote tag refs/tags/${tagName} not found on remote ${remote}`);
   }
+  let tagObjectSha: string | undefined;
+  let peeledCommit: string | undefined;
   for (const line of lsRemote.split("\n")) {
     const [sha, ref] = line.trim().split(/\s+/, 2);
-    if (ref === `refs/tags/${tagName}^{}` && sha) {
-      return sha;
+    if (!sha || !ref) {
+      continue;
+    }
+    if (ref === `refs/tags/${tagName}`) {
+      tagObjectSha = sha;
+    } else if (ref === `refs/tags/${tagName}^{}`) {
+      peeledCommit = sha;
     }
   }
-  throw new Error(
-    `Remote tag refs/tags/${tagName} is not an annotated tag with a peeled commit on ${remote}`,
-  );
+  if (!tagObjectSha) {
+    throw new Error(`Remote tag refs/tags/${tagName} object SHA not advertised on ${remote}`);
+  }
+  if (!peeledCommit) {
+    throw new Error(
+      `Remote tag refs/tags/${tagName} is not an annotated tag with a peeled commit on ${remote}`,
+    );
+  }
+  return { tagObjectSha, peeledCommit };
+}
+
+export function resolveRemotePeeledCommit(
+  remote: string,
+  tagName: string,
+  runGit: GitRunner = defaultGit,
+): string {
+  return resolveRemoteAnnotatedTag(remote, tagName, runGit).peeledCommit;
 }
 
 export function resolvePublishedIdentity(
@@ -328,14 +359,22 @@ export function buildPublishedReleaseReceipt(
 export const VENDOR_MG_RECEIPT_PATH = "vendor/model-gateway/canary-receipt.json";
 export const VENDOR_RF_RECEIPT_PATH = "vendor/repo-factory/canary-receipt.json";
 
+/**
+ * Parse and validate the published release receipt from an exact annotated tag
+ * object SHA (never from a mutable ref name alone). Callers must first prove
+ * this object SHA is the one advertised by the remote.
+ */
 export function readValidatedTagReceipt(
-  tagName: string,
+  tagObjectSha: string,
   runGit: GitRunner = defaultGit,
 ): TemplateReleaseReceipt {
-  const rawTag = runGit(["cat-file", "-p", `refs/tags/${tagName}`]);
+  if (!/^[0-9a-f]{40}$/u.test(tagObjectSha)) {
+    throw new Error(`tagObjectSha must be a 40-hex git object id, got ${tagObjectSha}`);
+  }
+  const rawTag = runGit(["cat-file", "-p", tagObjectSha]);
   const headerEnd = rawTag.indexOf("\n\n");
   if (headerEnd === -1) {
-    throw new Error(`Invalid annotated tag format for refs/tags/${tagName}`);
+    throw new Error(`Invalid annotated tag format for object ${tagObjectSha}`);
   }
   const tagMessage = rawTag.slice(headerEnd + 2).trim();
   const parsedReceipt: unknown = JSON.parse(tagMessage);
@@ -425,6 +464,12 @@ export function performRemoteReadback(
   remote: string = "origin",
   tagName: string = PUBLICATION_TAG,
   runGit: GitRunner = defaultGit,
+  /**
+   * Expected published receipt for `identity`. Production callers omit this and
+   * the function derives it via `buildPublishedReleaseReceipt`. Tests may inject
+   * a receipt so digest comparison stays hermetic.
+   */
+  expectedPublishedReceipt?: TemplateReleaseReceipt,
 ): PostPublicationReadbackReceipt["readback"] {
   if (!agreements.allCanonicalDigestsMatch) {
     throw new Error("Canonical LocalCi V3 digests do not match the frozen candidate");
@@ -436,7 +481,8 @@ export function performRemoteReadback(
     throw new Error("Repo Factory canary does not agree with the frozen candidate");
   }
 
-  const remotePeeledCommit = resolveRemotePeeledCommit(remote, tagName, runGit);
+  const remoteTag = resolveRemoteAnnotatedTag(remote, tagName, runGit);
+  const remotePeeledCommit = remoteTag.peeledCommit;
   const candidateCommitMatches = remotePeeledCommit === identity.commit;
   if (!candidateCommitMatches) {
     throw new Error(
@@ -452,7 +498,25 @@ export function performRemoteReadback(
     );
   }
 
-  const tagReceipt = readValidatedTagReceipt(tagName, runGit);
+  // Bind the message we parse to the exact remote annotated-tag object.
+  // A different local tag can peel to the same commit with another receipt;
+  // comparing only the peel would attest a remote tag while validating a
+  // non-remote message (repo-template#341 / PR #400 CHANGE).
+  const localTagObjectSha = runGit(["rev-parse", `refs/tags/${tagName}`]);
+  if (localTagObjectSha !== remoteTag.tagObjectSha) {
+    throw new Error(
+      `Local tag object refs/tags/${tagName}=${localTagObjectSha} does not match remote annotated tag object ${remoteTag.tagObjectSha} on ${remote}`,
+    );
+  }
+
+  const tagReceipt = readValidatedTagReceipt(remoteTag.tagObjectSha, runGit);
+  const expectedReceipt =
+    expectedPublishedReceipt ?? buildPublishedReleaseReceipt(identity);
+  if (tagReceipt.receiptDigest !== expectedReceipt.receiptDigest) {
+    throw new Error(
+      `Annotated tag ${tagName} receiptDigest ${tagReceipt.receiptDigest} does not match expected published receipt digest ${expectedReceipt.receiptDigest}`,
+    );
+  }
   if (tagReceipt.producer.commit !== identity.commit) {
     throw new Error(
       `Annotated tag ${tagName} producer.commit ${tagReceipt.producer.commit} does not match publication commit ${identity.commit}`,

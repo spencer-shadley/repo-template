@@ -431,6 +431,124 @@ void test("performRemoteReadback throws when allCanonicalDigestsMatch is false",
   }, /Canonical LocalCi V3 digests do not match the frozen candidate/);
 });
 
+void test("performRemoteReadback fails when remote and local tag objects differ despite same peel", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  const remoteTagObject = "cccccccccccccccccccccccccccccccccccccccc";
+  const localTagObject = "dddddddddddddddddddddddddddddddddddddddd";
+  assert.throws(
+    () =>
+      performRemoteReadback(
+        identity,
+        {
+          allCanonicalDigestsMatch: true,
+          firstCanaryAgrees: true,
+          secondCanaryAgrees: true,
+        },
+        "origin",
+        PUBLICATION_TAG,
+        (args) => {
+          if (args[0] === "ls-remote") {
+            return [
+              `${remoteTagObject}\trefs/tags/${PUBLICATION_TAG}`,
+              `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`,
+            ].join("\n");
+          }
+          if (args[0] === "rev-parse" && args[1] === `${identity.commit}^{tree}`) {
+            return identity.tree;
+          }
+          if (args[0] === "rev-parse" && args[1] === `refs/tags/${PUBLICATION_TAG}`) {
+            return localTagObject;
+          }
+          throw new Error(`unexpected git ${args.join(" ")}`);
+        },
+      ),
+    /does not match remote annotated tag object/,
+  );
+});
+
+void test("performRemoteReadback fails when tag receipt digest disagrees with expected published receipt", () => {
+  const identity = {
+    commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    tree: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    semver: PUBLICATION_SEMVER,
+    tag: PUBLICATION_TAG,
+  };
+  const tagObjectSha = "cccccccccccccccccccccccccccccccccccccccc";
+  const expectedDigest = "1111111111111111111111111111111111111111111111111111111111111111";
+  const publishedPath = path.join(
+    root,
+    "contracts",
+    "local-ci",
+    "v3",
+    "published-release-receipt.json",
+  );
+  const published = JSON.parse(fs.readFileSync(publishedPath, "utf8")) as {
+    receiptDigest: string;
+    producer: { commit: string; semver: string; [key: string]: unknown };
+    [key: string]: unknown;
+  };
+  assert.notEqual(
+    published.receiptDigest,
+    expectedDigest,
+    "fixture receipt digest must differ from injected expected digest",
+  );
+  const annotatedTagBytes = [
+    `object ${identity.commit}`,
+    "type commit",
+    `tag ${PUBLICATION_TAG}`,
+    "tagger Test <test@example.com> 0 +0000",
+    "",
+    JSON.stringify(published),
+  ].join("\n");
+
+  assert.throws(
+    () =>
+      performRemoteReadback(
+        identity,
+        {
+          allCanonicalDigestsMatch: true,
+          firstCanaryAgrees: true,
+          secondCanaryAgrees: true,
+        },
+        "origin",
+        PUBLICATION_TAG,
+        (args) => {
+          if (args[0] === "ls-remote") {
+            return [
+              `${tagObjectSha}\trefs/tags/${PUBLICATION_TAG}`,
+              `${identity.commit}\trefs/tags/${PUBLICATION_TAG}^{}`,
+            ].join("\n");
+          }
+          if (args[0] === "rev-parse" && args[1] === `${identity.commit}^{tree}`) {
+            return identity.tree;
+          }
+          if (args[0] === "rev-parse" && args[1] === `refs/tags/${PUBLICATION_TAG}`) {
+            return tagObjectSha;
+          }
+          if (args[0] === "cat-file" && args[1] === "-p" && args[2] === tagObjectSha) {
+            return annotatedTagBytes;
+          }
+          throw new Error(`unexpected git ${args.join(" ")}`);
+        },
+        {
+          ...published,
+          receiptDigest: expectedDigest,
+          producer: {
+            ...published.producer,
+            commit: identity.commit,
+            semver: PUBLICATION_SEMVER,
+          },
+        } as import("../../../artifacts/adoption-shell-v2/index.js").TemplateReleaseReceipt,
+      ),
+    /receiptDigest .* does not match expected published receipt digest/,
+  );
+});
+
 void test("compareCanonicalDigests enforces exact agreement and fails on drift", () => {
   const base = {
     "a.json": "1111111111111111111111111111111111111111111111111111111111111111",
