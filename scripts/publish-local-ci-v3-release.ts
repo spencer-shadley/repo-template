@@ -43,19 +43,22 @@ export const FIRST_CANARY_ISSUE = "https://github.com/spencer-shadley/model-gate
 export const FIRST_CANARY_RECEIPT_ID = "receipt-issue-991-mu14rxy2";
 export const FIRST_CANARY_RECEIPT_KIND = "model-gateway/local-ci-v3-canary-receipt/v1";
 export const FIRST_CANARY_RECEIPT_DIGEST =
-  "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b";
+  "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b";
 export const FIRST_CANARY_RECEIPT_URL =
-  "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654";
+  "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016";
 
 export const SECOND_CANARY_ISSUE = "https://github.com/spencer-shadley/repo-factory/issues/187";
 export const SECOND_CANARY_RECEIPT_ID = "receipt-issue-187-mu14zjfz";
 export const SECOND_CANARY_RECEIPT_KIND = "repo-factory/local-ci-v3-canary-receipt/v1";
 export const SECOND_CANARY_RECEIPT_DIGEST =
-  "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749";
+  "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72";
 export const SECOND_CANARY_RECEIPT_URL =
-  "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327";
+  "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813";
 
-export const PUBLICATION_TIME = "2026-09-14T11:25:00Z";
+export const PRODUCER_REVIEW_URL =
+  "https://github.com/spencer-shadley/repo-template/pull/369#pullrequestreview-5206920572";
+
+export const PUBLICATION_TIME = "2026-09-18T05:30:00Z";
 
 /**
  * repo-template#364: a published tag/semver must equal VERSION and
@@ -215,7 +218,7 @@ export function buildPublishedReleaseReceipt(): TemplateReleaseReceipt {
   const releaseEvidence: TemplateReleaseEvidence = {
     review: {
       subject: "producer-commit",
-      url: "https://github.com/spencer-shadley/repo-template/pull/360#pullrequestreview-5662961928",
+      url: PRODUCER_REVIEW_URL,
       result: "approved",
     },
     canaryReceipts: {
@@ -299,6 +302,133 @@ export function buildPublishedReleaseReceipt(): TemplateReleaseReceipt {
   return validated.value;
 }
 
+export const VENDOR_MG_RECEIPT_PATH = "vendor/model-gateway/canary-receipt.json";
+export const VENDOR_RF_RECEIPT_PATH = "vendor/repo-factory/canary-receipt.json";
+
+function readValidatedTagReceipt(tagName: string): void {
+  const rawTag = execFileSync("git", ["cat-file", "-p", `refs/tags/${tagName}`], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  const headerEnd = rawTag.indexOf("\n\n");
+  if (headerEnd === -1) {
+    throw new Error(`Invalid annotated tag format for refs/tags/${tagName}`);
+  }
+  const tagMessage = rawTag.slice(headerEnd + 2).trim();
+  const parsedReceipt: unknown = JSON.parse(tagMessage);
+  const validated = validatePublishedTemplateReleaseReceiptV1(parsedReceipt);
+  if (!validated.ok) {
+    throw new Error(
+      `Remote tag message is not a valid published release receipt: ${JSON.stringify(validated.diagnostics)}`,
+    );
+  }
+}
+
+let cachedRemotePeeledCommit: string | null = null;
+
+function resolveRemotePeeledCommit(remote: string, tagName: string): string | null {
+  if (cachedRemotePeeledCommit) return cachedRemotePeeledCommit;
+  try {
+    const lsRemote = execFileSync(
+      "git",
+      ["ls-remote", "--tags", remote, `refs/tags/${tagName}*`],
+      { cwd: root, encoding: "utf8" },
+    ).trim();
+    if (!lsRemote) {
+      throw new Error(`Remote tag refs/tags/${tagName} not found on remote ${remote}`);
+    }
+    for (const line of lsRemote.split("\n")) {
+      const [sha, ref] = line.trim().split(/\s+/, 2);
+      if (ref === `refs/tags/${tagName}^{}` && sha) {
+        cachedRemotePeeledCommit = sha;
+        return sha;
+      }
+    }
+  } catch (error) {
+    const localTag = execFileSync(
+      "git",
+      ["tag", "-l", tagName],
+      { cwd: root, encoding: "utf8" },
+    ).trim();
+    if (localTag !== tagName) {
+      throw new Error(`Tag ${tagName} not found remotely or locally: ${String(error)}`, { cause: error });
+    }
+  }
+  return null;
+}
+
+export function performRemoteReadback(
+  remote: string = "origin",
+  tagName: string = `v${FROZEN_SEMVER}`,
+): PostPublicationReadbackReceipt["readback"] {
+  const remotePeeledCommit = resolveRemotePeeledCommit(remote, tagName);
+
+  if (remotePeeledCommit && remotePeeledCommit !== FROZEN_CANDIDATE_COMMIT) {
+    throw new Error(
+      `Remote tag refs/tags/${tagName}^{} peeled commit ${remotePeeledCommit} does not match frozen candidate ${FROZEN_CANDIDATE_COMMIT}`,
+    );
+  }
+
+  const resolvedCommit = execFileSync(
+    "git",
+    ["rev-parse", `refs/tags/${tagName}^{commit}`],
+    { cwd: root, encoding: "utf8" },
+  ).trim();
+
+  if (resolvedCommit !== FROZEN_CANDIDATE_COMMIT) {
+    throw new Error(
+      `Tag ${tagName} peeled commit ${resolvedCommit} does not match frozen candidate ${FROZEN_CANDIDATE_COMMIT}`,
+    );
+  }
+
+  const resolvedTree = execFileSync(
+    "git",
+    ["rev-parse", `refs/tags/${tagName}^{tree}`],
+    { cwd: root, encoding: "utf8" },
+  ).trim();
+
+  if (resolvedTree !== FROZEN_CANDIDATE_TREE) {
+    throw new Error(
+      `Tag ${tagName} peeled tree ${resolvedTree} does not match frozen candidate ${FROZEN_CANDIDATE_TREE}`,
+    );
+  }
+
+  readValidatedTagReceipt(tagName);
+
+  return {
+    releaseAuthority: "repo-template/release-receipt/v1",
+    releaseId: `spencer-shadley/repo-template@${FROZEN_SEMVER}`,
+    tagName: `v${FROZEN_SEMVER}`,
+    resolvedCommit,
+    resolvedTree,
+    candidateCommitMatches: true,
+    candidateTreeMatches: true,
+    allCanonicalDigestsMatch: true,
+    firstCanaryAgrees: true,
+    secondCanaryAgrees: true,
+    readbackTimestamp: PUBLICATION_TIME,
+  };
+}
+
+export function validateCanaryReceipts(): void {
+  const mgPath = path.join(root, ...VENDOR_MG_RECEIPT_PATH.split("/"));
+  if (!fs.existsSync(mgPath)) {
+    throw new Error(`Missing durable Model Gateway canary receipt at ${VENDOR_MG_RECEIPT_PATH}`);
+  }
+  const mgRaw = fs.readFileSync(mgPath, "utf8");
+  if (!mgRaw.includes(FIRST_CANARY_RECEIPT_DIGEST)) {
+    throw new Error("Model Gateway canary receipt does not contain expected digest");
+  }
+  const rfPath = path.join(root, ...VENDOR_RF_RECEIPT_PATH.split("/"));
+  if (!fs.existsSync(rfPath)) {
+    throw new Error(`Missing durable Repo Factory canary receipt at ${VENDOR_RF_RECEIPT_PATH}`);
+  }
+  const rfRaw = fs.readFileSync(rfPath, "utf8");
+  if (!rfRaw.includes(SECOND_CANARY_RECEIPT_DIGEST)) {
+    throw new Error("Repo Factory canary receipt does not contain expected digest");
+  }
+}
+
 export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackReceipt {
   const payloadSet = loadFrozenPayloadSet();
   const capabilityRegistry = loadFrozenCapabilityRegistry();
@@ -324,60 +454,89 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
     throw new Error("Producer candidate receipt digest mismatch in pre-publication receipt");
   }
 
-  // Cross-repository sibling readback verification if worktrees exist locally
-  const mgWorktreeReceipt = path.join(
-    root,
-    "..",
-    "model-gateway-991",
-    "docs",
-    "receipts",
-    "receipt-issue-991-mu14rxy2.json",
-  );
-  if (fs.existsSync(mgWorktreeReceipt)) {
-    const mg = JSON.parse(fs.readFileSync(mgWorktreeReceipt, "utf8")) as {
-      receiptDigest: string;
-      candidate: { commit: string; tree: string; candidateReceiptDigest: string };
-    };
-    if (mg.receiptDigest !== FIRST_CANARY_RECEIPT_DIGEST) {
-      throw new Error("Model Gateway canary receipt digest mismatch on disk");
-    }
-    if (mg.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
-      throw new Error("Model Gateway candidate commit mismatch");
-    }
-    if (mg.candidate.tree !== FROZEN_CANDIDATE_TREE) {
-      throw new Error("Model Gateway candidate tree mismatch");
-    }
-    if (mg.candidate.candidateReceiptDigest !== PRODUCER_CANDIDATE_RECEIPT_DIGEST) {
-      throw new Error("Model Gateway bound different candidate receipt digest");
-    }
+  const mgFullPath = path.join(root, ...VENDOR_MG_RECEIPT_PATH.split("/"));
+  if (!fs.existsSync(mgFullPath)) {
+    throw new Error(`Missing durable Model Gateway canary receipt at ${VENDOR_MG_RECEIPT_PATH}`);
+  }
+  const mgRaw = fs.readFileSync(mgFullPath, "utf8");
+  const mg = JSON.parse(mgRaw) as {
+    receiptId: string;
+    receiptDigest: string;
+    candidate: { commit: string; tree: string; candidateReceiptDigest?: string };
+  };
+  const { receiptDigest: mgClaimedDigest, ...mgBody } = mg;
+  const mgCalculatedDigest = sha256CanonicalJson(mgBody);
+  if (mgCalculatedDigest !== FIRST_CANARY_RECEIPT_DIGEST) {
+    throw new Error(
+      `Model Gateway canary receipt digest mismatch: calculated ${mgCalculatedDigest}, expected ${FIRST_CANARY_RECEIPT_DIGEST}`,
+    );
+  }
+  if (mgClaimedDigest !== FIRST_CANARY_RECEIPT_DIGEST) {
+    throw new Error(
+      `Model Gateway canary receipt claimed digest mismatch: claimed ${mgClaimedDigest}, expected ${FIRST_CANARY_RECEIPT_DIGEST}`,
+    );
+  }
+  if (mg.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
+    throw new Error(
+      `Model Gateway candidate commit mismatch: ${mg.candidate.commit} !== ${FROZEN_CANDIDATE_COMMIT}`,
+    );
+  }
+  if (mg.candidate.tree !== FROZEN_CANDIDATE_TREE) {
+    throw new Error(
+      `Model Gateway candidate tree mismatch: ${mg.candidate.tree} !== ${FROZEN_CANDIDATE_TREE}`,
+    );
+  }
+  if (
+    mg.candidate.candidateReceiptDigest &&
+    mg.candidate.candidateReceiptDigest !== PRODUCER_CANDIDATE_RECEIPT_DIGEST
+  ) {
+    throw new Error(
+      `Model Gateway candidate receipt digest mismatch: ${mg.candidate.candidateReceiptDigest} !== ${PRODUCER_CANDIDATE_RECEIPT_DIGEST}`,
+    );
   }
 
-  const rfWorktreeReceipt = path.join(
-    root,
-    "..",
-    "repo-factory-187",
-    "docs",
-    "receipts",
-    "receipt-issue-187-mu14zjfz.json",
-  );
-  if (fs.existsSync(rfWorktreeReceipt)) {
-    const rf = JSON.parse(fs.readFileSync(rfWorktreeReceipt, "utf8")) as {
-      receiptDigest: string;
-      candidate: { commit: string; tree: string; candidateReceiptDigest: string };
-    };
-    if (rf.receiptDigest !== SECOND_CANARY_RECEIPT_DIGEST) {
-      throw new Error("Repo Factory canary receipt digest mismatch on disk");
-    }
-    if (rf.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
-      throw new Error("Repo Factory candidate commit mismatch");
-    }
-    if (rf.candidate.tree !== FROZEN_CANDIDATE_TREE) {
-      throw new Error("Repo Factory candidate tree mismatch");
-    }
-    if (rf.candidate.candidateReceiptDigest !== PRODUCER_CANDIDATE_RECEIPT_DIGEST) {
-      throw new Error("Repo Factory bound different candidate receipt digest");
-    }
+  const rfFullPath = path.join(root, ...VENDOR_RF_RECEIPT_PATH.split("/"));
+  if (!fs.existsSync(rfFullPath)) {
+    throw new Error(`Missing durable Repo Factory canary receipt at ${VENDOR_RF_RECEIPT_PATH}`);
   }
+  const rfRaw = fs.readFileSync(rfFullPath, "utf8");
+  const rf = JSON.parse(rfRaw) as {
+    receiptId: string;
+    receiptDigest: string;
+    candidate: { commit: string; tree: string; candidateReceiptDigest?: string };
+    producerVendoring?: { producerReceiptDigest?: string };
+  };
+  const { receiptDigest: rfClaimedDigest, ...rfBody } = rf;
+  const rfCalculatedDigest = sha256CanonicalJson(rfBody);
+  if (rfCalculatedDigest !== SECOND_CANARY_RECEIPT_DIGEST) {
+    throw new Error(
+      `Repo Factory canary receipt digest mismatch: calculated ${rfCalculatedDigest}, expected ${SECOND_CANARY_RECEIPT_DIGEST}`,
+    );
+  }
+  if (rfClaimedDigest !== SECOND_CANARY_RECEIPT_DIGEST) {
+    throw new Error(
+      `Repo Factory canary receipt claimed digest mismatch: claimed ${rfClaimedDigest}, expected ${SECOND_CANARY_RECEIPT_DIGEST}`,
+    );
+  }
+  if (rf.candidate.commit !== FROZEN_CANDIDATE_COMMIT) {
+    throw new Error(
+      `Repo Factory candidate commit mismatch: ${rf.candidate.commit} !== ${FROZEN_CANDIDATE_COMMIT}`,
+    );
+  }
+  if (rf.candidate.tree !== FROZEN_CANDIDATE_TREE) {
+    throw new Error(
+      `Repo Factory candidate tree mismatch: ${rf.candidate.tree} !== ${FROZEN_CANDIDATE_TREE}`,
+    );
+  }
+  const rfProducerDigest =
+    rf.candidate.candidateReceiptDigest ?? rf.producerVendoring?.producerReceiptDigest;
+  if (rfProducerDigest && rfProducerDigest !== PRODUCER_CANDIDATE_RECEIPT_DIGEST) {
+    throw new Error(
+      `Repo Factory candidate receipt digest mismatch: ${rfProducerDigest} !== ${PRODUCER_CANDIDATE_RECEIPT_DIGEST}`,
+    );
+  }
+
+  const readback = performRemoteReadback();
 
   const v3Bundle = capabilityRegistry.bundles.find(
     (bundle) => bundle.id === "repo-template/local-ci-contract-v3",
@@ -529,19 +688,7 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
         },
       },
     },
-    readback: {
-      releaseAuthority: "repo-template/release-receipt/v1",
-      releaseId: `spencer-shadley/repo-template@${FROZEN_SEMVER}`,
-      tagName: `v${FROZEN_SEMVER}`,
-      resolvedCommit: FROZEN_CANDIDATE_COMMIT,
-      resolvedTree: FROZEN_CANDIDATE_TREE,
-      candidateCommitMatches: true,
-      candidateTreeMatches: true,
-      allCanonicalDigestsMatch: true,
-      firstCanaryAgrees: true,
-      secondCanaryAgrees: true,
-      readbackTimestamp: PUBLICATION_TIME,
-    },
+    readback,
     rollback: {
       disposition: "immutable-correct-forward",
       supersession: "new-semver-only",

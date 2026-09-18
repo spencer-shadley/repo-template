@@ -1,0 +1,245 @@
+{
+  "schemaId": "https://schemas.repo-factory.dev/local-ci-v3/canary-receipt.schema.json",
+  "schemaVersion": "3.0.0",
+  "contractId": "repo-factory/local-ci-v3-canary",
+  "receiptKind": "repo-factory/local-ci-v3-canary-receipt/v1",
+  "receiptId": "receipt-issue-187-mu14zjfz",
+  "programmeEpic": "https://github.com/spencer-shadley/repo-template/issues/102",
+  "issue": "https://github.com/spencer-shadley/repo-factory/issues/187",
+  "producerFreezeIssue": "https://github.com/spencer-shadley/repo-template/issues/340",
+  "producerCandidateReceiptId": "receipt-issue-340-rt340repair1",
+  "firstCanaryIssue": "https://github.com/spencer-shadley/model-gateway/issues/991",
+  "firstCanaryReceiptId": "receipt-issue-991-mu14rxy2",
+  "candidate": {
+    "repository": "spencer-shadley/repo-template",
+    "origin": "https://github.com/spencer-shadley/repo-template.git",
+    "semver": "3.2.0",
+    "tag": "v3.2.0",
+    "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb",
+    "candidateReceiptDigest": "e7021ea10b694f37b03275a7cbd9c9ea6ca0d3b72f1806c2e3ed50814897bb5d"
+  },
+  "consumer": {
+    "repository": "spencer-shadley/repo-factory",
+    "role": "second dissimilar canary",
+    "targetLineage": "entrypoint/gates/flags",
+    "canonicalBranch": "master",
+    "headBranch": "feat/187-fail-open-canary",
+    "reachedCommit": "1e110a2c895dc794670f24bb581b0b72819b81c6",
+    "reachedCommitBinding": "reachedCommit is the tested adoption revision whose local-ci.json reproduces postMigrationDeclaration.blobSha256.",
+    "rollbackRef": "83e1d70bc337968e30be4e47901f0cc3e80555a3",
+    "rollbackRefRole": "pre-adoption parent commit retained only as rollbackRef; local-ci.json at rollbackRef reproduces sourceDeclaration.blobSha256."
+  },
+  "declarationReconciliation": {
+    "sourceDeclaration": {
+      "path": "local-ci.json",
+      "legacyLineage": "repo-factory-v1",
+      "blobSha256": "a88bdc768ecb863615b41ac2e1979bb26ceaf8239b1dfbfe16380032fc17d719",
+      "migrationDisposition": "rejected",
+      "reasonCode": "INCOMPLETE_LEGACY_EVIDENCE",
+      "archivedAt": "test/fixtures/local-ci/pre-migration-repo-factory-v1.json"
+    },
+    "postMigrationDeclaration": {
+      "path": "local-ci.json",
+      "schemaId": "https://schemas.repo-template.dev/local-ci-v3/local-ci-contract-v3.schema.json",
+      "schemaVersion": "3.0.0",
+      "contractId": "repo-template/local-ci-v3",
+      "blobSha256": "8649811b2072343f8827351f07c5bd56cd5ba25599ee308d63ac1d91c0e9162e",
+      "validatorResult": "valid-v3",
+      "commandCount": 7,
+      "authoritativeGateId": "authoritative-gate"
+    }
+  },
+  "proofOfDetection": {
+    "required": true,
+    "semantics": "Every command must declare detectionProof: either a known-bad fixture with expectation 'non-zero-exit' or a recorded non-empty exempt reason.",
+    "fourResultStatesExercised": {
+      "pass": {
+        "exercised": true,
+        "description": "Executed command completes with expected integer exit code and null reason",
+        "sample": {
+          "outcome": "pass",
+          "exitCode": 0,
+          "reason": null
+        }
+      },
+      "fail": {
+        "exercised": true,
+        "description": "Executed command fails with non-zero integer exit code and null reason",
+        "sample": {
+          "outcome": "fail",
+          "exitCode": 1,
+          "reason": null
+        }
+      },
+      "skipped": {
+        "exercised": true,
+        "description": "Unexecuted or exempt check carries null exitCode and non-empty reason string",
+        "sample": {
+          "outcome": "skipped",
+          "exitCode": null,
+          "reason": "authoritative verify gate chains repository knip, duplicate check, secret scan, lint, dir-breadth, typecheck, test, build, and demo gates; component gates prove detection"
+        }
+      },
+      "could-not-execute": {
+        "exercised": true,
+        "description": "Tooling or environment inability carries null exitCode and non-empty reason string; produced by spawning an absent executable",
+        "sample": {
+          "outcome": "could-not-execute",
+          "exitCode": null,
+          "reason": "spawn ENOENT: spawnSync repo-factory-local-ci-absent-executable ENOENT"
+        }
+      }
+    },
+    "inabilityNeverBecomesPass": true,
+    "inabilityConversionExercised": {
+      "mechanism": "scripts/build-local-ci-canary-receipt.ts executeInabilityConversion",
+      "spawnedExecutable": "repo-factory-local-ci-absent-executable",
+      "classifiedOutcome": "could-not-execute",
+      "classifiedOutcomeValidatesAsOutcomeV1": true,
+      "coercedPassRejectedByValidator": true,
+      "assertedOnly": false
+    },
+    "executionEvidence": {
+      "runner": "scripts/build-local-ci-canary-receipt.ts executeCanaryOutcomes",
+      "passCommand": "node --experimental-strip-types --test test/assert-defined.ts",
+      "failCommand": "node -e 'process.exit(1)'",
+      "couldNotExecuteCommand": "repo-factory-local-ci-absent-executable --version",
+      "passExitCode": 0,
+      "failExitCode": 1
+    }
+  },
+  "noUnclaimedEffects": {
+    "credentialsAccess": false,
+    "networkProviderAccess": false,
+    "providerSpend": false,
+    "externalMutation": false,
+    "registrationMutation": false,
+    "schedulesMutation": false,
+    "deploymentMutation": false,
+    "consumerBindingMutation": false,
+    "servingAuthorityMutation": false,
+    "verifiedHermetic": true,
+    "noProviderOrNetworkEffect": true
+  },
+  "verification": {
+    "authoritativeRepositoryVerifyGate": "preserved",
+    "actionsOrCheckRunsAuthoritative": false,
+    "exactCommand": "pnpm verify",
+    "result": "passed",
+    "authoritativeGateCommand": "pnpm verify",
+    "gateEvidence": {
+      "command": "pnpm verify",
+      "result": "passed",
+      "exitCode": 0,
+      "executedBy": "scripts/build-local-ci-canary-receipt.ts writeCanaryReceipts",
+      "verifiedAt": "2026-09-14T11:00:00Z"
+    }
+  },
+  "canonicalDigests": {
+    "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
+    "contracts/local-ci/v3/local-ci-outcome-v1.schema.json": "0ae86bc068fbd4e1cc2ff58409d3909204573f0ac0b09cdbc7dab974bb4ea429",
+    "packages/adoption-shell/src/local-ci-contract-v3.ts": "7cd5722303bcf01fae618bcd76225a9f39289cd74901ebddc04a60d303378575",
+    "packages/adoption-shell/src/local-ci-outcome-v1.ts": "07f87d011d3b44f6243dd7a535b1ee99386c0741f4bfcfb79395f1573b69b760",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.js": "21ed068020eaa31e5b8a82d57caedb998661452ead347f8afa2fcb120f302d51",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts": "ac16dfa06dbfc2a1b06c752c6b362249411efb8bad4e69af251c4925796fb171",
+    "artifacts/adoption-shell-v2/local-ci-outcome-v1.js": "43d85d2ef36292f7527680f25ad7e66aed7c22d55b9afd42d6355bdf4a9deca8",
+    "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts": "1fdfa9789cea1f8f705b7460324fe225f5ff16b6dc4594b5fcc052ea4793c52b",
+    "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json": "f6da61353b1613aae16c214f87997a671ee52b39d237226605ce1afb03f9415e",
+    "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json": "8b0bdb400687bc192ac20186884121ef9fcb0e5a1ae1029455c4e207487ed6f7",
+    "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json": "aba2600943b98809cbaad9b4431c8849753c606ad90b75d3992378af6a61aaf6",
+    "contracts/local-ci/v3/fixtures/invalid-extra-effect.json": "f7909a06e632e4d8b1c5db2f58bd89f9f84ac29f0d642c67e0ecd2d095ad309e",
+    "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json": "44f9cc91fee8cb5a651a9a4afaf4aa68c99fa6d0e6fba3e456b05460ffee397e",
+    "contracts/local-ci/v3/fixtures/invalid-malformed.json": "2b640a12492673dc427b6b92b427114e4c6e636f54a9ce81d3e996e7da990c67",
+    "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json": "735223f876f7b9bd7ee800fddd668c28b165750fb4eb8d4e114cfc5fe97434b7",
+    "contracts/local-ci/v3/fixtures/invalid-missing-field.json": "57728ca639a2c9569793bff4aa55e727a066cad64901a7555d806315b65616f6",
+    "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json": "325e5900f30494554ca790e693929d6fd8829e82356e151698f24edc08977dd1",
+    "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json": "3c2bacc36fbe522bb38a24206f684ea5c738bc81f29c32587ac76a6ff446daf2",
+    "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json": "5c5bbe5c6746170c3e162a618fd0a8171d24f2bfc8300e715d079c92c31d6392",
+    "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json": "a3dca3e063e0e2c6622982fa2006ec4aa38c0f53eb4e3f8206fc84fb707f96b2"
+  },
+  "transitiveDigests": {
+    "artifacts/adoption-shell-v2/artifact-manifest.json": "8e40dc378f41014b2b021f199ee6a63565d2582db247fff8846c416406eb3544",
+    "artifacts/adoption-shell-v2/canonical-json.d.ts": "d7eb17f7db96c51d2ba2e8d6c9c63bb1f383996745145ea3d34e6dac383f1076",
+    "artifacts/adoption-shell-v2/canonical-json.js": "c9d37e4189eac697a25633936ebcab48560f4442ff55865fe3454542f2f5ec90",
+    "artifacts/adoption-shell-v2/contract.d.ts": "c8ad35e8f7b5472946eca3fea72a294f889fe3dd08ab8f4feb0143c9576e7dfb",
+    "artifacts/adoption-shell-v2/contract.js": "84ff9455ded6fae2d85be0687b7bd9d1c680d79a0fd3e60e677bc53f0f18c068",
+    "artifacts/adoption-shell-v2/digest.d.ts": "a1c785131ab7c63410adbba2049959254f6aede275186150e5a0a523ba107a2c",
+    "artifacts/adoption-shell-v2/digest.js": "0245a5a906ebc01d3cbebe1efe2956ffd8643d84eaa60db4e1cc49990e6cde70",
+    "artifacts/adoption-shell-v2/local-ci-contract-v2.d.ts": "a917af409ad48dd66d7debd572609e2ebbb59b043fd37d6c03977d4321e99d5f",
+    "artifacts/adoption-shell-v2/local-ci-contract-v2.js": "3c8a90b657206f43326bf2cf70e43f81760690859481b04918febf7c719adcfb",
+    "artifacts/adoption-shell-v2/validation-helpers.d.ts": "8b054c55b7f70f210115ee426bc0e01b287e45763c7ba871d6ca1c5c68d2b308",
+    "artifacts/adoption-shell-v2/validation-helpers.js": "ba2a8803f2eb59267e95f63a4b91b6019f5b89db060c954bf2325df73483e4da"
+  },
+  "digestRecomputation": {
+    "performedBy": "consumer",
+    "algorithm": "sha256-file-bytes",
+    "vendoredPathCount": 20,
+    "transitivePathCount": 11,
+    "producerStatedDigestsMatched": true,
+    "transitiveClosureVerified": true,
+    "producerPathsNotVendored": [
+      ".runtime-artifact-registry.json",
+      ".runtime-artifact-registry.schema.json",
+      "docs/MIGRATION.md",
+      "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md",
+      "local-ci.json",
+      "scripts/check-runtime-artifact-registry.ts",
+      "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+      "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+      "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+      "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts",
+      "scripts/proof-of-detection/run-meta-gate.ts"
+    ],
+    "producerStatedDigestsTrusted": false,
+    "note": "All candidate and transitive validator digests are recomputed consumer-side from vendored disk bytes and verified against producer receipts and manifests."
+  },
+  "producerVendoring": {
+    "sourceRepository": "spencer-shadley/repo-template",
+    "sourceRef": "origin/master",
+    "sourceCommit": "15481f5553fe91ee8ab82f31545e656eec19e274",
+    "landedPullRequest": "https://github.com/spencer-shadley/repo-template/pull/369",
+    "closedProducerIssue": "https://github.com/spencer-shadley/repo-template/issues/368",
+    "producerReceiptPath": "vendor/repo-template/canary-candidate-receipt.json",
+    "producerReceiptDigest": "e7021ea10b694f37b03275a7cbd9c9ea6ca0d3b72f1806c2e3ed50814897bb5d",
+    "producerReceiptDigestRecomputed": true,
+    "releaseReceiptDigest": "3dc9b0c1d04277e78ea35a695e899fd569de2fce7d90ea7095275e17811d0ced",
+    "releaseReceiptDigestRecomputed": true,
+    "evidencePath": "vendor/repo-template/verification-evidence.json",
+    "evidenceDigest": "4909577d95def2b0b5c8094f0eead2f16d70c4a069ddd389b6322270dc5fa378",
+    "evidenceDigestRecomputed": true,
+    "evidenceBoundCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "evidenceBoundCommitIsCandidate": true,
+    "evidenceCheckCount": 5,
+    "evidenceChecksAgreeWithReceipt": true,
+    "artifactManifestPath": "vendor/repo-template/artifacts/adoption-shell-v2/artifact-manifest.json",
+    "artifactManifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+    "artifactManifestDigestRecomputed": true,
+    "producerTagBinding": {
+      "candidateTag": "v3.2.0",
+      "candidateSemver": "3.2.0",
+      "frozenVersion": "3.1.0",
+      "frozenTemplateVersion": "3.1.0",
+      "relation": "candidate-ahead-of-frozen-tree",
+      "producerTrackingIssue": "https://github.com/spencer-shadley/repo-template/issues/364",
+      "consumerImpact": "none on this side: every vendored byte is bound by a digest recomputed here, and no consumer resolution goes through the tag. Minting the tag against the frozen tree is the producer's own step (repo-template#341) and is deliberately not repaired from here."
+    },
+    "note": "The producer receipt and verification evidence are loaded and cryptographically verified from repo-template origin/master."
+  },
+  "firstCanaryBinding": {
+    "repository": "spencer-shadley/model-gateway",
+    "role": "first dissimilar canary",
+    "issue": "https://github.com/spencer-shadley/model-gateway/issues/991",
+    "receiptId": "receipt-issue-991-mu14rxy2",
+    "receiptPath": "vendor/model-gateway/canary-receipt.json",
+    "receiptDigest": "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b",
+    "receiptDigestRecomputed": true,
+    "candidateCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "candidateTree": "995ea497114b2eba0b86cc3adb3666306829e0fb",
+    "candidateMatches": true,
+    "verificationResult": "passed",
+    "note": "Model Gateway #991 terminal receipt was loaded, validated, and confirmed to match exact #340 candidate commit/tree."
+  },
+  "digestAlgorithm": "sha256-rfc8785-v1",
+  "receiptDigest": "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72"
+}

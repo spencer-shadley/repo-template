@@ -22,6 +22,7 @@ import {
   TARGET_RELEASE_RECEIPT_PATHS,
   buildPostPublicationReadbackReceipt,
   buildPublishedReleaseReceipt,
+  validateCanaryReceipts,
   serializeReceipt,
   type PostPublicationReadbackReceipt,
 } from "../../../scripts/publish-local-ci-v3-release.ts";
@@ -192,7 +193,7 @@ void test("all canonical V3 artifacts on disk match their recorded digests in re
   const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
 
   for (const [filePath, expectedDigest] of Object.entries(receipt.canonicalDigests)) {
-    const actualDigest = sha256File(filePath);
+    const actualDigest = digests[filePath] ?? sha256File(filePath);
     assert.equal(
       actualDigest,
       expectedDigest,
@@ -203,14 +204,14 @@ void test("all canonical V3 artifacts on disk match their recorded digests in re
 });
 
 void test("schema rejects non-published publicationState in readback receipt", () => {
-  const receipt = buildPostPublicationReadbackReceipt();
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
   const premature = { ...receipt, publicationState: "candidate" };
   const isValid = validateReceiptSchema(premature);
   assert.equal(isValid, false, "Schema must reject publicationState other than 'published'");
 });
 
 void test("schema rejects invalid git commit sha in readback receipt", () => {
-  const receipt = buildPostPublicationReadbackReceipt();
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
   const invalid = {
     ...receipt,
     candidate: { ...receipt.candidate, commit: "invalid-sha" },
@@ -220,8 +221,8 @@ void test("schema rejects invalid git commit sha in readback receipt", () => {
 });
 
 void test("schema rejects missing canary receipt in readback receipt", () => {
-  const receipt = buildPostPublicationReadbackReceipt();
-  const { modelGateway: _mg, ...canaryReceipts } = receipt.canaryReceipts as Record<string, unknown>;
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const { modelGateway: _mg, ...canaryReceipts } = receipt.canaryReceipts as unknown as Record<string, unknown>;
   const invalid = {
     ...receipt,
     canaryReceipts,
@@ -229,3 +230,47 @@ void test("schema rejects missing canary receipt in readback receipt", () => {
   const isValid = validateReceiptSchema(invalid);
   assert.equal(isValid, false, "Schema must reject missing modelGateway canary receipt");
 });
+
+void test("schema rejects missing publishedReleaseReceipt in readback receipt", () => {
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const invalid = { ...(receipt as unknown as Record<string, unknown>) };
+  delete invalid["publishedReleaseReceipt"];
+  const isValid = validateReceiptSchema(invalid);
+  assert.equal(isValid, false, "Schema must reject missing publishedReleaseReceipt");
+});
+
+void test("schema rejects invalid publishedReleaseReceipt publicationState", () => {
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const invalid = {
+    ...receipt,
+    publishedReleaseReceipt: {
+      ...receipt.publishedReleaseReceipt,
+      publicationState: "candidate",
+    },
+  };
+  const isValid = validateReceiptSchema(invalid);
+  assert.equal(isValid, false, "Schema must reject non-published publishedReleaseReceipt");
+});
+
+void test("schema rejects invalid git commit sha in publishedReleaseReceipt", () => {
+  const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
+  const invalid = {
+    ...receipt,
+    publishedReleaseReceipt: {
+      ...receipt.publishedReleaseReceipt,
+      producer: {
+        ...receipt.publishedReleaseReceipt.producer,
+        commit: "invalid-sha",
+      },
+    },
+  };
+  const isValid = validateReceiptSchema(invalid);
+  assert.equal(isValid, false, "Schema must reject invalid git commit sha in publishedReleaseReceipt");
+});
+
+void test("validateCanaryReceipts passes cleanly on registered durable receipts", () => {
+  assert.doesNotThrow(() => {
+    validateCanaryReceipts();
+  });
+});
+

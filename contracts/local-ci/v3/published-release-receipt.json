@@ -76,17 +76,17 @@
   "releaseEvidence": {
     "review": {
       "subject": "producer-commit",
-      "url": "https://github.com/spencer-shadley/repo-template/pull/360#pullrequestreview-5662961928",
+      "url": "https://github.com/spencer-shadley/repo-template/pull/369#pullrequestreview-5206920572",
       "result": "approved"
     },
     "canaryReceipts": {
       "model-gateway": {
-        "url": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654",
-        "receiptSha256": "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b"
+        "url": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016",
+        "receiptSha256": "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b"
       },
       "repo-factory": {
-        "url": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327",
-        "receiptSha256": "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749"
+        "url": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813",
+        "receiptSha256": "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72"
       }
     },
     "checks": {
@@ -124,5 +124,5 @@
     }
   },
   "migrationRefs": [],
-  "receiptDigest": "bb6c08e4eaa11a89ac8f079f261411f529c4fa431e0602594b2060a4a116c684"
+  "receiptDigest": "2b7a030320e24445cec7c05b8af32bfb109d0efb1cf7fee1b5c49d2ea83f7105"
 }

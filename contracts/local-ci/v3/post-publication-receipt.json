@@ -33,8 +33,8 @@
       "issue": "https://github.com/spencer-shadley/model-gateway/issues/991",
       "receiptId": "receipt-issue-991-mu14rxy2",
       "receiptKind": "model-gateway/local-ci-v3-canary-receipt/v1",
-      "receiptDigest": "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b",
-      "receiptUrl": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654",
+      "receiptDigest": "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b",
+      "receiptUrl": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016",
       "consumerRepository": "spencer-shadley/model-gateway",
       "consumerRole": "first dissimilar canary",
       "targetLineage": "runtime/checks/effects",
@@ -51,8 +51,8 @@
       "issue": "https://github.com/spencer-shadley/repo-factory/issues/187",
       "receiptId": "receipt-issue-187-mu14zjfz",
       "receiptKind": "repo-factory/local-ci-v3-canary-receipt/v1",
-      "receiptDigest": "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749",
-      "receiptUrl": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327",
+      "receiptDigest": "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72",
+      "receiptUrl": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813",
       "consumerRepository": "spencer-shadley/repo-factory",
       "consumerRole": "second dissimilar canary",
       "targetLineage": "entrypoint/gates/flags",
@@ -144,17 +144,17 @@
     "releaseEvidence": {
       "review": {
         "subject": "producer-commit",
-        "url": "https://github.com/spencer-shadley/repo-template/pull/360#pullrequestreview-5662961928",
+        "url": "https://github.com/spencer-shadley/repo-template/pull/369#pullrequestreview-5206920572",
         "result": "approved"
       },
       "canaryReceipts": {
         "model-gateway": {
-          "url": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5663045654",
-          "receiptSha256": "70d0d96291a2a39ed1bc86d89d4124db9176b8efdb1b15f5dd8c36fd6460e48b"
+          "url": "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016",
+          "receiptSha256": "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b"
         },
         "repo-factory": {
-          "url": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5663046327",
-          "receiptSha256": "676b4158d11cc1b549303475c3531bed433c10e175ab4e245456b7b5387ef749"
+          "url": "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813",
+          "receiptSha256": "0aa881725aea8258cb1879b4af83fb8655df364e4efc3ca7f0c8dc21ef0dab72"
         }
       },
       "checks": {
@@ -192,7 +192,7 @@
       }
     },
     "migrationRefs": [],
-    "receiptDigest": "bb6c08e4eaa11a89ac8f079f261411f529c4fa431e0602594b2060a4a116c684"
+    "receiptDigest": "2b7a030320e24445cec7c05b8af32bfb109d0efb1cf7fee1b5c49d2ea83f7105"
   },
   "canonicalDigests": {
     "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
@@ -318,14 +318,14 @@
     "allCanonicalDigestsMatch": true,
     "firstCanaryAgrees": true,
     "secondCanaryAgrees": true,
-    "readbackTimestamp": "2026-09-14T11:25:00Z"
+    "readbackTimestamp": "2026-09-18T05:30:00Z"
   },
   "rollback": {
     "disposition": "immutable-correct-forward",
     "supersession": "new-semver-only",
     "rollbackRef": "88591ee869bb109ef481171aa817d1ed204a970e"
   },
-  "publicationTime": "2026-09-14T11:25:00Z",
+  "publicationTime": "2026-09-18T05:30:00Z",
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "af24d9dadb9c979bafa6340ff5436fd2af8abc0163c3be7ab42794a63ee30894"
+  "receiptDigest": "eb8466827e30b1f7e8f78e3f43268b27c1d72a42ecfe025810615b07ab1861fe"
 }

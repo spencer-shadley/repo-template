@@ -1,0 +1,369 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/local-ci-v3/canary-receipt.schema.json",
+  "schemaVersion": "3.0.0",
+  "contractId": "repo-template/local-ci-v3-canary",
+  "receiptKind": "model-gateway/local-ci-v3-canary-receipt/v1",
+  "receiptId": "receipt-issue-991-mu14rxy2",
+  "programmeEpic": "https://github.com/spencer-shadley/repo-template/issues/102",
+  "issue": "https://github.com/spencer-shadley/model-gateway/issues/991",
+  "producerFreezeIssue": "https://github.com/spencer-shadley/repo-template/issues/340",
+  "producerCandidateReceiptId": "receipt-issue-340-rt340repair1",
+  "candidate": {
+    "repository": "spencer-shadley/repo-template",
+    "origin": "https://github.com/spencer-shadley/repo-template.git",
+    "semver": "3.2.0",
+    "tag": "v3.2.0",
+    "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb",
+    "candidateReceiptDigest": "e7021ea10b694f37b03275a7cbd9c9ea6ca0d3b72f1806c2e3ed50814897bb5d"
+  },
+  "consumer": {
+    "repository": "spencer-shadley/model-gateway",
+    "role": "first dissimilar canary",
+    "targetLineage": "runtime/checks/effects",
+    "canonicalBranch": "master",
+    "headBranch": "feat/mg991-reopened-repairs",
+    "reachedCommit": "915b3f39299765477a25ba8005143ee992aa2a17",
+    "reachedCommitBinding": "reachedCommit is the tested repair revision whose tree carries the repaired V3 adoption. The binding is executable: reading local-ci.json out of that commit must reproduce declarationReconciliation.postMigrationDeclaration.blobSha256. The two receipt copies are materialized by the immediately following commit on the same branch, which changes only those copies and the REACHED_COMMIT constant naming this revision.",
+    "rollbackRef": "da225967cd1a5e65e2b53faf2cf95348458ab98e",
+    "rollbackRefRole": "pre-adoption parent (the first parent of adoption merge f8518844eb1519fd52917930f43c2a2ecfd4f849) retained only as a rollback target; its tree carries none of the V3 adoption. The claim is executable, not asserted: the object must resolve, and local-ci.json read out of it must reproduce declarationReconciliation.sourceDeclaration.blobSha256 and therefore differ from declarationReconciliation.postMigrationDeclaration.blobSha256. A rollbackRef that names no object fails that check instead of passing vacuously."
+  },
+  "declarationReconciliation": {
+    "sourceDeclaration": {
+      "path": "local-ci.json",
+      "legacyLineage": "model-gateway-v1",
+      "blobSha256": "2ab66173badfd348f89981abd17d550c22be761455569de8d16ea295a87bb1af",
+      "migrationDisposition": "rejected",
+      "reasonCode": "INCOMPLETE_LEGACY_EVIDENCE",
+      "archivedAt": "tests/fixtures/local-ci/pre-migration-model-gateway-v1.json"
+    },
+    "postMigrationDeclaration": {
+      "path": "local-ci.json",
+      "schemaId": "https://schemas.repo-template.dev/local-ci-v3/local-ci-contract-v3.schema.json",
+      "schemaVersion": "3.0.0",
+      "contractId": "repo-template/local-ci-v3",
+      "blobSha256": "76cad14f8668a6766091e374a7594517e0560c0734123b43c920e3f63fad0ecd",
+      "v3DeclarationSha256": "1ce8e71decb6bb5787f501c5a80efa2431ad78627cee91e29ae5c9b7fc0f2966",
+      "validatorResult": "valid-v3",
+      "commandCount": 9,
+      "authoritativeGateId": "authoritative-gate",
+      "commandExecutionOrder": [
+        "01-materialize-contracts",
+        "02-build",
+        "03-typecheck",
+        "04-quality-lint",
+        "05-dir-breadth",
+        "06-adoption-shell",
+        "07-contract-and-fake-tests",
+        "08-runnable-fake-proof",
+        "authoritative-gate"
+      ],
+      "commandOrderRationale": "orderedLocalCiCommandsV3 sorts preflight ids lexically and pins authoritative-gate last, so the ids are numbered in dependency order: materialization (01) precedes every command that consumes its clean-bootstrap output.",
+      "routingSidecarKeys": [
+        "simpleDiff"
+      ],
+      "routingSidecarRationale": "LocalCiContractV3 is a closed object with no routing field, so the fleet gate's simpleDiff block is carried beside the declaration in the same file (as repo-template's own local-ci.json does) and projected out before validation. The upstream schema is consumed unchanged and not forked."
+    }
+  },
+  "focusedDiffRouting": {
+    "declaredIn": "local-ci.json",
+    "sidecarKey": "simpleDiff",
+    "consumedBy": "@spencer-shadley/cli-wrappers resolveSimpleDiffClass (src/lib/gate/simple-diff-class.ts), which reads the top-level simpleDiff block of the resolved local-ci.json contract",
+    "live": true,
+    "archivedFixtureIsNotTheLiveContract": true,
+    "classes": [
+      {
+        "name": "codex-agent-session",
+        "pathCount": 4,
+        "paths": [
+          "packages/gateway-core/src/usage/codex-app-server.ts",
+          "packages/gateway-core/src/index.ts",
+          "tests/source/codex-agent-session.test.ts",
+          "docs/CODEX-AGENT-SESSION.md"
+        ],
+        "focusedCommandIds": [
+          "01-build",
+          "02-typecheck",
+          "03-quality-lint",
+          "04-codex-agent-session-test"
+        ]
+      },
+      {
+        "name": "quality-lint",
+        "pathCount": 7,
+        "paths": [
+          "eslint.config.*",
+          "eslint-suppressions.json",
+          "package.json",
+          "pnpm-lock.yaml",
+          "docs/QUALITY-LINT.md",
+          "scripts/lint/run-eslint.ts",
+          "scripts/lint/force-typescript6-for-eslint.ts"
+        ],
+        "focusedCommandIds": [
+          "lint"
+        ]
+      }
+    ]
+  },
+  "proofOfDetection": {
+    "required": true,
+    "semantics": "Every command must declare detectionProof: either a known-bad fixture with expectation 'non-zero-exit' or a recorded non-empty exempt reason naming a gate that exists in this repository. A named gate is a package.json script cited as `pnpm <script>` or a repository-relative path; prose that names no gate does not satisfy the requirement.",
+    "gateBindingRule": "findDetectionProofCitationViolations resolves every citation in every detectionProof against package.json and the working tree: each proof must cite at least one gate, and every gate it cites must exist. The receipt cannot be built while any citation dangles, and tests/source/local-ci-contract.test.ts drives the same function over both failure modes.",
+    "gateBindings": [
+      {
+        "commandId": "01-materialize-contracts",
+        "kind": "exempt",
+        "pnpmScripts": [
+          "bootstrap:self-test"
+        ],
+        "paths": [
+          "scripts/materialize-model-router-contracts.ts"
+        ]
+      },
+      {
+        "commandId": "02-build",
+        "kind": "exempt",
+        "pnpmScripts": [
+          "build"
+        ],
+        "paths": []
+      },
+      {
+        "commandId": "03-typecheck",
+        "kind": "exempt",
+        "pnpmScripts": [
+          "build",
+          "typecheck"
+        ],
+        "paths": [
+          "tsconfig.tooling.json"
+        ]
+      },
+      {
+        "commandId": "04-quality-lint",
+        "kind": "fixture",
+        "pnpmScripts": [
+          "lint"
+        ],
+        "paths": [
+          "scripts/lint/run-eslint.ts",
+          "tests/fixtures/local-ci/detection/quality-lint-known-bad.ts",
+          "tests/source/local-ci-contract.test.ts"
+        ]
+      },
+      {
+        "commandId": "05-dir-breadth",
+        "kind": "exempt",
+        "pnpmScripts": [
+          "lint:dir-breadth"
+        ],
+        "paths": [
+          "scripts/dir-breadth.json",
+          "scripts/lint/check-dir-breadth.ts"
+        ]
+      },
+      {
+        "commandId": "06-adoption-shell",
+        "kind": "exempt",
+        "pnpmScripts": [],
+        "paths": [
+          "scripts/run-verify-adoption-shell.ts",
+          "scripts/verify-adoption-shell.ts"
+        ]
+      },
+      {
+        "commandId": "07-contract-and-fake-tests",
+        "kind": "exempt",
+        "pnpmScripts": [
+          "suite:check-tip",
+          "suite:check-tip:selfcheck",
+          "test",
+          "test:parallel-hermetic",
+          "test:serial-contract-artifact"
+        ],
+        "paths": [
+          "scripts/suite/check-default-branch-suite-green.ts"
+        ]
+      },
+      {
+        "commandId": "08-runnable-fake-proof",
+        "kind": "exempt",
+        "pnpmScripts": [
+          "demo",
+          "test"
+        ],
+        "paths": [
+          "packages/testing/src/cli.ts",
+          "tests/source/cli.test.ts"
+        ]
+      },
+      {
+        "commandId": "authoritative-gate",
+        "kind": "exempt",
+        "pnpmScripts": [
+          "demo",
+          "dup",
+          "knip",
+          "lint",
+          "lint:dir-breadth",
+          "lint:identity",
+          "lint:user-surface",
+          "secret:dir",
+          "store:check",
+          "test",
+          "typecheck",
+          "verify",
+          "verify:adoption-shell"
+        ],
+        "paths": []
+      }
+    ],
+    "detectionProofFixtures": [
+      {
+        "commandId": "04-quality-lint",
+        "path": "tests/fixtures/local-ci/detection/quality-lint-known-bad.ts",
+        "expectation": "non-zero-exit"
+      }
+    ],
+    "fourResultStatesExercised": {
+      "pass": {
+        "exercised": true,
+        "description": "Executed command completes with the expected integer exit code and a null reason",
+        "sample": {
+          "outcome": "pass",
+          "exitCode": 0,
+          "reason": null
+        }
+      },
+      "fail": {
+        "exercised": true,
+        "description": "Executed command reports a non-expected integer exit code and a null reason; proven by running the repository lint gate against tests/fixtures/local-ci/detection/quality-lint-known-bad.ts",
+        "sample": {
+          "outcome": "fail",
+          "exitCode": 1,
+          "reason": null
+        }
+      },
+      "skipped": {
+        "exercised": true,
+        "description": "Unexecuted or exempt check carries a null exitCode and a non-empty reason string",
+        "sample": {
+          "outcome": "skipped",
+          "exitCode": null,
+          "reason": "`pnpm verify` is the gate and chains this contract's own component commands -- `pnpm lint`, `pnpm typecheck`, `pnpm lint:dir-breadth`, `pnpm verify:adoption-shell`, `pnpm test`, `pnpm demo` -- together with the integrity checks `pnpm store:check`, `pnpm knip`, `pnpm dup`, `pnpm secret:dir`, `pnpm lint:identity` and `pnpm lint:user-surface`. Shell `&&` chaining makes it exit non-zero on the first component that does, so its detection is exactly the union of the component detection proofs recorded here and needs no fixture of its own."
+        }
+      },
+      "could-not-execute": {
+        "exercised": true,
+        "description": "Tooling or environment inability carries a null exitCode and a non-empty reason string; produced by really spawning an absent executable and classifying the ENOENT through classifySpawnOutcomeV1",
+        "sample": {
+          "outcome": "could-not-execute",
+          "exitCode": null,
+          "reason": "spawn ENOENT: spawnSync model-gateway-local-ci-absent-executable ENOENT"
+        }
+      }
+    },
+    "inabilityNeverBecomesPass": true,
+    "inabilityConversionExercised": {
+      "mechanism": "scripts/build-local-ci-canary-receipt.ts executeInabilityConversion",
+      "spawnedExecutable": "model-gateway-local-ci-absent-executable",
+      "classifiedOutcome": "could-not-execute",
+      "classifiedOutcomeValidatesAsOutcomeV1": true,
+      "coercedPassRejectedByValidator": true,
+      "assertedOnly": false
+    }
+  },
+  "noUnclaimedEffects": {
+    "credentialsAccess": false,
+    "networkProviderAccess": false,
+    "providerSpend": false,
+    "externalMutation": false,
+    "registrationMutation": false,
+    "schedulesMutation": false,
+    "deploymentMutation": false,
+    "consumerBindingMutation": false,
+    "servingAuthorityMutation": false,
+    "verifiedHermetic": true,
+    "noProviderOrNetworkEffect": true
+  },
+  "verification": {
+    "authoritativeRepositoryVerifyGate": "preserved",
+    "actionsOrCheckRunsAuthoritative": false,
+    "exactCommand": "corepack pnpm test:local-ci-contract",
+    "result": "passed",
+    "authoritativeGateCommand": "pnpm verify"
+  },
+  "canonicalDigests": {
+    "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
+    "contracts/local-ci/v3/local-ci-outcome-v1.schema.json": "0ae86bc068fbd4e1cc2ff58409d3909204573f0ac0b09cdbc7dab974bb4ea429",
+    "packages/adoption-shell/src/local-ci-contract-v3.ts": "7cd5722303bcf01fae618bcd76225a9f39289cd74901ebddc04a60d303378575",
+    "packages/adoption-shell/src/local-ci-outcome-v1.ts": "07f87d011d3b44f6243dd7a535b1ee99386c0741f4bfcfb79395f1573b69b760",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.js": "21ed068020eaa31e5b8a82d57caedb998661452ead347f8afa2fcb120f302d51",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts": "ac16dfa06dbfc2a1b06c752c6b362249411efb8bad4e69af251c4925796fb171",
+    "artifacts/adoption-shell-v2/local-ci-outcome-v1.js": "43d85d2ef36292f7527680f25ad7e66aed7c22d55b9afd42d6355bdf4a9deca8",
+    "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts": "1fdfa9789cea1f8f705b7460324fe225f5ff16b6dc4594b5fcc052ea4793c52b",
+    "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json": "f6da61353b1613aae16c214f87997a671ee52b39d237226605ce1afb03f9415e",
+    "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json": "8b0bdb400687bc192ac20186884121ef9fcb0e5a1ae1029455c4e207487ed6f7",
+    "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json": "aba2600943b98809cbaad9b4431c8849753c606ad90b75d3992378af6a61aaf6",
+    "contracts/local-ci/v3/fixtures/invalid-extra-effect.json": "f7909a06e632e4d8b1c5db2f58bd89f9f84ac29f0d642c67e0ecd2d095ad309e",
+    "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json": "44f9cc91fee8cb5a651a9a4afaf4aa68c99fa6d0e6fba3e456b05460ffee397e",
+    "contracts/local-ci/v3/fixtures/invalid-malformed.json": "2b640a12492673dc427b6b92b427114e4c6e636f54a9ce81d3e996e7da990c67",
+    "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json": "735223f876f7b9bd7ee800fddd668c28b165750fb4eb8d4e114cfc5fe97434b7",
+    "contracts/local-ci/v3/fixtures/invalid-missing-field.json": "57728ca639a2c9569793bff4aa55e727a066cad64901a7555d806315b65616f6",
+    "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json": "325e5900f30494554ca790e693929d6fd8829e82356e151698f24edc08977dd1",
+    "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json": "3c2bacc36fbe522bb38a24206f684ea5c738bc81f29c32587ac76a6ff446daf2",
+    "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json": "5c5bbe5c6746170c3e162a618fd0a8171d24f2bfc8300e715d079c92c31d6392",
+    "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json": "a3dca3e063e0e2c6622982fa2006ec4aa38c0f53eb4e3f8206fc84fb707f96b2"
+  },
+  "digestRecomputation": {
+    "performedBy": "consumer",
+    "algorithm": "sha256-file-bytes",
+    "vendoredPathCount": 20,
+    "producerStatedDigestsMatched": true,
+    "producerPathsNotVendored": [
+      ".runtime-artifact-registry.json",
+      ".runtime-artifact-registry.schema.json",
+      "docs/MIGRATION.md",
+      "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md",
+      "local-ci.json",
+      "scripts/check-runtime-artifact-registry.ts",
+      "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+      "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+      "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+      "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts",
+      "scripts/proof-of-detection/run-meta-gate.ts"
+    ],
+    "producerStatedDigestsTrusted": false,
+    "note": "canonicalDigests are recomputed here from the vendored bytes on disk; the producer's stated values are only cross-checked and the build fails on any disagreement."
+  },
+  "producerVendoring": {
+    "sourceRepository": "spencer-shadley/repo-template",
+    "sourceRef": "origin/master",
+    "sourceCommit": "15481f5553fe91ee8ab82f31545e656eec19e274",
+    "landedPullRequest": "https://github.com/spencer-shadley/repo-template/pull/369",
+    "closedProducerIssue": "https://github.com/spencer-shadley/repo-template/issues/368",
+    "producerReceiptPath": "vendor/repo-template/canary-candidate-receipt.json",
+    "producerReceiptDigestRecomputed": true,
+    "releaseReceiptDigestRecomputed": true,
+    "evidencePath": "vendor/repo-template/verification-evidence.json",
+    "evidenceDigest": "4909577d95def2b0b5c8094f0eead2f16d70c4a069ddd389b6322270dc5fa378",
+    "evidenceDigestRecomputed": true,
+    "evidenceBoundCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "evidenceBoundCommitIsCandidate": true,
+    "evidenceCheckCount": 5,
+    "evidenceChecksAgreeWithReceipt": true,
+    "producerTagBinding": {
+      "candidateTag": "v3.2.0",
+      "candidateSemver": "3.2.0",
+      "frozenVersion": "3.1.0",
+      "frozenTemplateVersion": "3.1.0",
+      "relation": "candidate-ahead-of-frozen-tree",
+      "producerTrackingIssue": "https://github.com/spencer-shadley/repo-template/issues/364",
+      "consumerImpact": "none on this side: every vendored byte is bound by a digest recomputed here, and no consumer resolution goes through the tag. Minting the tag against the frozen tree is the producer's own step (repo-template#341) and is deliberately not repaired from here."
+    },
+    "note": "Deliverable 6 of model-gateway#991: the producer receipt consumed here is the one on repo-template origin/master after repo-template#369 merged, not the pre-repair copy. sourceCommit and the issue and pull-request links are recorded provenance; what is checked is that the vendored bytes reproduce the producer's own receipt digest, nested release-receipt digest, committed evidence digest, and every mapped candidate file digest."
+  },
+  "digestAlgorithm": "sha256-rfc8785-v1",
+  "receiptDigest": "65d52a0185353f8646943aa2e8cca6e7b2c04dc14a3bc7e3ec00be6788445f7b"
+}
