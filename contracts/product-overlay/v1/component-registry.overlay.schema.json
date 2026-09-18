@@ -117,10 +117,12 @@
           }
         },
         "rationale": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         },
         "revisitTrigger": {
-          "type": "string"
+          "type": "string",
+          "pattern": "\\S"
         },
         "versionPolicy": {
           "type": "string"

@@ -107,6 +107,7 @@ export interface ProductOverlayOptions {
     readonly technologies?: Readonly<Record<string, TechnologyOverlayEntry>>;
     readonly components?: Readonly<Record<string, ComponentOverlayEntry>>;
 }
+export declare function isImmutableGitHubUrl(value: string): boolean;
 export declare function isImmutableProvenance(value: unknown): boolean;
 export declare function defaultPlatformsForProfile(profileId: string): Record<string, ProductPlatformDefinition>;
 export declare function defaultTechnologiesForProfile(profileId: string): Record<string, TechnologyOverlayEntry>;

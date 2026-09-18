@@ -1,8 +1,13 @@
 import type { ValidationResult } from "./contract.ts";
 import { Diagnostics, isRecord } from "./validation-helpers.ts";
 import {
+  COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID,
+  PRODUCT_OVERLAY_CONTRACT_ID,
+  PRODUCT_OVERLAY_SCHEMA_ID,
+  PRODUCT_OVERLAY_SCHEMA_VERSION,
   PRODUCT_PLATFORM_ROLES,
   REGISTRY_LIFECYCLE_STATES,
+  TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID,
   isImmutableProvenance,
   type ComponentRegistryOverlay,
   type GrandfatheredDivergence,
@@ -22,53 +27,50 @@ function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationRe
 }
 
 const ALLOWED_PRODUCT_OVERLAY_FIELDS = new Set([
-  "$schema", "schemaId", "schemaVersion", "contractId",
-  "bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion",
-  "templateRelease", "templateDigest", "templateCommit",
+  "$schema", "schemaId", "schemaVersion", "contractId", "bootstrappedFromGuideVersion",
+  "lastAuditedAgainstGuideVersion", "templateRelease", "templateDigest", "templateCommit",
   "provenance", "platforms", "grandfatheredDivergences",
 ]);
-
 const ALLOWED_PROVENANCE_FIELDS = new Set([
   "contractId", "templateRelease", "templateDigest", "templateCommit",
   "bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion",
 ]);
-
 const ALLOWED_PLATFORM_FIELDS = new Set([
   "role", "priority", "rationale", "revisitTrigger", "owner", "acceptanceSuites",
 ]);
-
-const ALLOWED_REGISTRY_OVERLAY_FIELDS = new Set([
-  "$schema", "schemaId", "schemaVersion", "contractId", "registryKind",
-  "bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion",
-  "templateRelease", "templateDigest", "templateCommit",
-  "provenance", "technologies", "components",
-]);
-
+const BASE_REGISTRY_FIELDS = [
+  "$schema", "schemaId", "schemaVersion", "contractId", "registryKind", "bootstrappedFromGuideVersion",
+  "lastAuditedAgainstGuideVersion", "templateRelease", "templateDigest", "templateCommit", "provenance",
+] as const;
+const ALLOWED_TECHNOLOGY_REGISTRY_OVERLAY_FIELDS = new Set([...BASE_REGISTRY_FIELDS, "technologies"]);
+const ALLOWED_COMPONENT_REGISTRY_OVERLAY_FIELDS = new Set([...BASE_REGISTRY_FIELDS, "components"]);
 const ALLOWED_REGISTRY_ENTRY_FIELDS = new Set([
-  "id", "state", "category", "contexts", "rationale",
-  "revisitTrigger", "versionPolicy", "selectedVersion",
+  "id", "state", "category", "contexts", "rationale", "revisitTrigger", "versionPolicy", "selectedVersion",
+]);
+const ALLOWED_GRANDFATHERED_DIVERGENCE_FIELDS = new Set([
+  "component", "current", "guideDefault", "guideSection", "rationale", "revisitTrigger",
 ]);
 
-function isPlatformRole(value: string): value is ProductPlatformRole {
-  return (PRODUCT_PLATFORM_ROLES as readonly string[]).includes(value);
-}
+const isPlatformRole = (v: string): v is ProductPlatformRole => (PRODUCT_PLATFORM_ROLES as readonly string[]).includes(v);
+const isRegistryLifecycleState = (v: string): v is RegistryLifecycleState => (REGISTRY_LIFECYCLE_STATES as readonly string[]).includes(v);
 
-function isRegistryLifecycleState(value: string): value is RegistryLifecycleState {
-  return (REGISTRY_LIFECYCLE_STATES as readonly string[]).includes(value);
-}
-
-function checkUnknownProperties(
-  obj: Record<string, unknown>,
-  allowed: Set<string>,
-  pointer: string,
-  diagnostics: Diagnostics,
-): void {
+function checkUnknownProperties(obj: Record<string, unknown>, allowed: Set<string>, pointer: string, diagnostics: Diagnostics): void {
   for (const key of Object.keys(obj)) {
-    if (!allowed.has(key)) {
-      diagnostics.add("E_UNKNOWN_PROPERTY", pointer === "" ? `/${key}` : `${pointer}/${key}`, "unknown property");
+    if (!allowed.has(key)) diagnostics.add("E_UNKNOWN_PROPERTY", pointer === "" ? `/${key}` : `${pointer}/${key}`, "unknown property");
+  }
+}
+
+function checkTopLevelIdentities(obj: Record<string, unknown>, expSchemaId: string, expVersion: string, expContractId: string, diagnostics: Diagnostics): void {
+  const checks = [["schemaId", expSchemaId], ["schemaVersion", expVersion], ["contractId", expContractId]] as const;
+  for (const [key, expected] of checks) {
+    const val = obj[key];
+    if (val !== undefined) {
+      if (typeof val !== "string") diagnostics.add("E_TYPE", `/${key}`, `${key} must be a string`);
+      else if (val !== expected) diagnostics.add("E_INVALID_IDENTITY", `/${key}`, `${key} must be '${expected}'`);
     }
   }
 }
+
 
 function checkProvenanceField(value: unknown, pointer: string, diagnostics: Diagnostics): boolean {
   if (value === undefined) return false;
@@ -107,6 +109,16 @@ function checkHexProvenanceField(
   return true;
 }
 
+function checkProvenanceFields(source: Record<string, unknown>, prefix: string, diagnostics: Diagnostics): boolean {
+  let found = false;
+  for (const f of ["bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion", "templateRelease"] as const) {
+    if (checkProvenanceField(source[f], `${prefix}/${f}`, diagnostics)) found = true;
+  }
+  if (checkHexProvenanceField(source["templateDigest"], `${prefix}/templateDigest`, "templateDigest", 64, diagnostics)) found = true;
+  if (checkHexProvenanceField(source["templateCommit"], `${prefix}/templateCommit`, "templateCommit", 40, diagnostics)) found = true;
+  return found;
+}
+
 function checkProvenanceBlock(provenance: unknown, diagnostics: Diagnostics): boolean {
   if (provenance === undefined) return false;
   if (!isRecord(provenance)) {
@@ -114,48 +126,44 @@ function checkProvenanceBlock(provenance: unknown, diagnostics: Diagnostics): bo
     return false;
   }
   checkUnknownProperties(provenance, ALLOWED_PROVENANCE_FIELDS, "/provenance", diagnostics);
-  let found = false;
-  if (provenance["contractId"] !== undefined && typeof provenance["contractId"] !== "string") {
-    diagnostics.add("E_TYPE", "/provenance/contractId", "contractId must be a string");
+  if (provenance["contractId"] !== undefined) {
+    if (typeof provenance["contractId"] !== "string") diagnostics.add("E_TYPE", "/provenance/contractId", "contractId must be a string");
+    else if (provenance["contractId"] !== PRODUCT_OVERLAY_CONTRACT_ID) {
+      diagnostics.add("E_INVALID_IDENTITY", "/provenance/contractId", `contractId must be '${PRODUCT_OVERLAY_CONTRACT_ID}'`);
+    }
   }
-  for (const field of ["bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion", "templateRelease"] as const) {
-    if (checkProvenanceField(provenance[field], `/provenance/${field}`, diagnostics)) found = true;
-  }
-  if (checkHexProvenanceField(provenance["templateDigest"], "/provenance/templateDigest", "templateDigest", 64, diagnostics)) found = true;
-  if (checkHexProvenanceField(provenance["templateCommit"], "/provenance/templateCommit", "templateCommit", 40, diagnostics)) found = true;
-  return found;
+  return checkProvenanceFields(provenance, "/provenance", diagnostics);
 }
 
 function checkProvenanceEnvelope(obj: Record<string, unknown>, overlayKindName: string, diagnostics: Diagnostics): boolean {
-  let hasEvidence = false;
-  for (const field of ["bootstrappedFromGuideVersion", "lastAuditedAgainstGuideVersion", "templateRelease"] as const) {
-    if (checkProvenanceField(obj[field], `/${field}`, diagnostics)) hasEvidence = true;
-  }
-  if (checkHexProvenanceField(obj["templateDigest"], "/templateDigest", "templateDigest", 64, diagnostics)) hasEvidence = true;
-  if (checkHexProvenanceField(obj["templateCommit"], "/templateCommit", "templateCommit", 40, diagnostics)) hasEvidence = true;
-  if (checkProvenanceBlock(obj["provenance"], diagnostics)) hasEvidence = true;
-  if (!hasEvidence) {
+  const hasDirect = checkProvenanceFields(obj, "", diagnostics);
+  const hasBlock = checkProvenanceBlock(obj["provenance"], diagnostics);
+  if (!hasDirect && !hasBlock) {
     diagnostics.add("E_REQUIRED_PROVENANCE", "", `${overlayKindName} overlay requires immutable release provenance (version, commit, or digest)`);
+    return false;
   }
-  return hasEvidence;
+  return true;
 }
 
-function checkPlatformRole(
-  role: unknown,
-  def: Record<string, unknown>,
-  pointer: string,
-  diagnostics: Diagnostics,
-): void {
+
+function checkStringArray(val: unknown, pointer: string, itemName: string, diagnostics: Diagnostics): void {
+  if (val === undefined) return;
+  if (!Array.isArray(val)) {
+    diagnostics.add("E_TYPE", pointer, `${itemName} must be an array`);
+    return;
+  }
+  for (const [idx, item] of val.entries()) {
+    if (typeof item !== "string") diagnostics.add("E_TYPE", `${pointer}/${String(idx)}`, `${itemName} item must be a string`);
+  }
+}
+
+function checkPlatformRole(role: unknown, def: Record<string, unknown>, pointer: string, diagnostics: Diagnostics): void {
   if (role === undefined) {
     diagnostics.add("E_REQUIRED_ROLE", `${pointer}/role`, "role is required");
     return;
   }
   if (typeof role !== "string" || !isPlatformRole(role)) {
-    diagnostics.add(
-      "E_INVALID_ROLE",
-      `${pointer}/role`,
-      `invalid platform role: ${typeof role === "string" ? role : JSON.stringify(role)}; must be one of: ${PRODUCT_PLATFORM_ROLES.join(", ")}`,
-    );
+    diagnostics.add("E_INVALID_ROLE", `${pointer}/role`, `invalid platform role: ${typeof role === "string" ? role : JSON.stringify(role)}; must be one of: ${PRODUCT_PLATFORM_ROLES.join(", ")}`);
     return;
   }
   if (role === "dormant" && (typeof def["revisitTrigger"] !== "string" || def["revisitTrigger"].trim() === "")) {
@@ -166,49 +174,20 @@ function checkPlatformRole(
   }
 }
 
-function checkPlatformAcceptanceSuites(
-  suites: unknown,
-  pointer: string,
-  diagnostics: Diagnostics,
-): void {
-  if (suites === undefined) return;
-  if (!Array.isArray(suites)) {
-    diagnostics.add("E_TYPE", `${pointer}/acceptanceSuites`, "acceptanceSuites must be an array");
-    return;
-  }
-  for (const [idx, suite] of suites.entries()) {
-    if (typeof suite !== "string") {
-      diagnostics.add("E_TYPE", `${pointer}/acceptanceSuites/${String(idx)}`, "acceptanceSuite item must be a string");
-    }
-  }
-}
-
-function checkPlatformMetadata(
-  def: Record<string, unknown>,
-  pointer: string,
-  diagnostics: Diagnostics,
-): void {
+function checkPlatformMetadata(def: Record<string, unknown>, pointer: string, diagnostics: Diagnostics): void {
   const priority = def["priority"];
-  if (priority !== undefined && (typeof priority !== "number" || priority < 0 || !Number.isInteger(priority))) {
-    diagnostics.add("E_INVALID_PRIORITY", `${pointer}/priority`, "priority must be a non-negative integer");
+  if (priority !== undefined && (typeof priority !== "number" || priority < 1 || !Number.isInteger(priority))) {
+    diagnostics.add("E_INVALID_PRIORITY", `${pointer}/priority`, "priority must be an integer >= 1");
   }
   for (const field of ["rationale", "revisitTrigger", "owner"] as const) {
-    if (def[field] !== undefined && typeof def[field] !== "string") {
-      diagnostics.add("E_TYPE", `${pointer}/${field}`, `${field} must be a string`);
+    if (def[field] !== undefined) {
+      if (typeof def[field] !== "string") diagnostics.add("E_TYPE", `${pointer}/${field}`, `${field} must be a string`);
+      else if ((field === "rationale" || field === "revisitTrigger") && def[field].trim() === "") {
+        diagnostics.add("E_EMPTY_VALUE", `${pointer}/${field}`, `${field} must not be empty or whitespace-only`);
+      }
     }
   }
-  checkPlatformAcceptanceSuites(def["acceptanceSuites"], pointer, diagnostics);
-}
-
-function checkPlatformEntry(name: string, def: unknown, diagnostics: Diagnostics): void {
-  const pointer = `/platforms/${name}`;
-  if (!isRecord(def)) {
-    diagnostics.add("E_TYPE", pointer, "platform definition must be an object");
-    return;
-  }
-  checkUnknownProperties(def, ALLOWED_PLATFORM_FIELDS, pointer, diagnostics);
-  checkPlatformRole(def["role"], def, pointer, diagnostics);
-  checkPlatformMetadata(def, pointer, diagnostics);
+  checkStringArray(def["acceptanceSuites"], `${pointer}/acceptanceSuites`, "acceptanceSuite", diagnostics);
 }
 
 function checkPlatformsBlock(platforms: unknown, diagnostics: Diagnostics): void {
@@ -225,7 +204,17 @@ function checkPlatformsBlock(platforms: unknown, diagnostics: Diagnostics): void
     diagnostics.add("E_EMPTY_PLATFORMS", "/platforms", "at least one platform must be declared");
     return;
   }
-  for (const name of keys) checkPlatformEntry(name, platforms[name], diagnostics);
+  for (const name of keys) {
+    const pointer = `/platforms/${name}`;
+    const def = platforms[name];
+    if (!isRecord(def)) {
+      diagnostics.add("E_TYPE", pointer, "platform definition must be an object");
+      continue;
+    }
+    checkUnknownProperties(def, ALLOWED_PLATFORM_FIELDS, pointer, diagnostics);
+    checkPlatformRole(def["role"], def, pointer, diagnostics);
+    checkPlatformMetadata(def, pointer, diagnostics);
+  }
 }
 
 function buildProvenance(prov: Record<string, unknown>): ProductOverlayProvenance {
@@ -240,17 +229,11 @@ function buildProvenance(prov: Record<string, unknown>): ProductOverlayProvenanc
 }
 
 function buildSinglePlatform(rawDef: unknown): ProductPlatformDefinition | undefined {
-  if (!isRecord(rawDef) || typeof rawDef["role"] !== "string" || !isPlatformRole(rawDef["role"])) {
-    return undefined;
-  }
+  if (!isRecord(rawDef) || typeof rawDef["role"] !== "string" || !isPlatformRole(rawDef["role"])) return undefined;
   let suites: readonly string[] | undefined;
   if (Array.isArray(rawDef["acceptanceSuites"])) {
-    const validSuites: string[] = [];
-    for (const s of rawDef["acceptanceSuites"]) {
-      if (typeof s !== "string") return undefined;
-      validSuites.push(s);
-    }
-    suites = Object.freeze(validSuites);
+    if (!rawDef["acceptanceSuites"].every((s): s is string => typeof s === "string")) return undefined;
+    suites = Object.freeze([...rawDef["acceptanceSuites"]]);
   }
   return {
     role: rawDef["role"],
@@ -287,9 +270,8 @@ function buildGrandfatheredDivergences(raw: unknown): readonly GrandfatheredDive
   return Object.freeze(result);
 }
 
-function buildProductOverlay(obj: Record<string, unknown>): ProductOverlay {
-  const divergences = buildGrandfatheredDivergences(obj["grandfatheredDivergences"]);
-  return Object.freeze({
+function buildBaseRegistryOverlay(obj: Record<string, unknown>) {
+  return {
     ...(typeof obj["$schema"] === "string" ? { $schema: obj["$schema"] } : {}),
     ...(typeof obj["schemaId"] === "string" ? { schemaId: obj["schemaId"] } : {}),
     ...(typeof obj["schemaVersion"] === "string" ? { schemaVersion: obj["schemaVersion"] } : {}),
@@ -300,6 +282,13 @@ function buildProductOverlay(obj: Record<string, unknown>): ProductOverlay {
     ...(typeof obj["templateDigest"] === "string" ? { templateDigest: obj["templateDigest"] } : {}),
     ...(typeof obj["templateCommit"] === "string" ? { templateCommit: obj["templateCommit"] } : {}),
     ...(isRecord(obj["provenance"]) ? { provenance: buildProvenance(obj["provenance"]) } : {}),
+  };
+}
+
+function buildProductOverlay(obj: Record<string, unknown>): ProductOverlay {
+  const divergences = buildGrandfatheredDivergences(obj["grandfatheredDivergences"]);
+  return Object.freeze({
+    ...buildBaseRegistryOverlay(obj),
     platforms: Object.freeze(buildPlatforms(obj["platforms"])),
     ...(divergences !== undefined ? { grandfatheredDivergences: divergences } : {}),
   });
@@ -322,37 +311,51 @@ function parseOverlayInput(value: unknown, diagnostics: Diagnostics): Record<str
   return parsed;
 }
 
+function checkSingleDivergence(item: Record<string, unknown>, ptr: string, diagnostics: Diagnostics): void {
+  checkUnknownProperties(item, ALLOWED_GRANDFATHERED_DIVERGENCE_FIELDS, ptr, diagnostics);
+  for (const req of ["component", "current", "guideDefault", "rationale"] as const) {
+    const val = item[req];
+    if (val === undefined) diagnostics.add("E_REQUIRED", `${ptr}/${req}`, `${req} is required`);
+    else if (typeof val !== "string") diagnostics.add("E_TYPE", `${ptr}/${req}`, `${req} must be a string`);
+    else if (val.trim() === "") diagnostics.add("E_EMPTY_VALUE", `${ptr}/${req}`, `${req} must not be empty or whitespace-only`);
+  }
+  for (const opt of ["guideSection", "revisitTrigger"] as const) {
+    const val = item[opt];
+    if (val !== undefined) {
+      if (typeof val !== "string") diagnostics.add("E_TYPE", `${ptr}/${opt}`, `${opt} must be a string`);
+      else if (val.trim() === "") diagnostics.add("E_EMPTY_VALUE", `${ptr}/${opt}`, `${opt} must not be empty or whitespace-only`);
+    }
+  }
+}
+
+function checkGrandfatheredDivergences(divergences: unknown, diagnostics: Diagnostics): void {
+  if (divergences === undefined) return;
+  if (!Array.isArray(divergences)) {
+    diagnostics.add("E_TYPE", "/grandfatheredDivergences", "grandfatheredDivergences must be an array");
+    return;
+  }
+  for (const [idx, item] of divergences.entries()) {
+    const ptr = `/grandfatheredDivergences/${String(idx)}`;
+    if (!isRecord(item)) {
+      diagnostics.add("E_TYPE", ptr, "divergence item must be an object");
+      continue;
+    }
+    checkSingleDivergence(item, ptr, diagnostics);
+  }
+}
+
 export function validateProductOverlay(value: unknown): ValidationResult<ProductOverlay> {
   const diagnostics = new Diagnostics();
   const obj = parseOverlayInput(value, diagnostics);
   if (obj === undefined) return finish<ProductOverlay>(undefined, diagnostics);
 
   checkUnknownProperties(obj, ALLOWED_PRODUCT_OVERLAY_FIELDS, "", diagnostics);
+  checkTopLevelIdentities(obj, PRODUCT_OVERLAY_SCHEMA_ID, PRODUCT_OVERLAY_SCHEMA_VERSION, PRODUCT_OVERLAY_CONTRACT_ID, diagnostics);
   checkProvenanceEnvelope(obj, "product", diagnostics);
   checkPlatformsBlock(obj["platforms"], diagnostics);
-
-  if (obj["grandfatheredDivergences"] !== undefined && !Array.isArray(obj["grandfatheredDivergences"])) {
-    diagnostics.add("E_TYPE", "/grandfatheredDivergences", "grandfatheredDivergences must be an array");
-  }
+  checkGrandfatheredDivergences(obj["grandfatheredDivergences"], diagnostics);
 
   return finish<ProductOverlay>(diagnostics.rows.length === 0 ? buildProductOverlay(obj) : undefined, diagnostics);
-}
-
-function checkRegistryEntryContexts(
-  contexts: unknown,
-  pointer: string,
-  diagnostics: Diagnostics,
-): void {
-  if (contexts === undefined) return;
-  if (!Array.isArray(contexts)) {
-    diagnostics.add("E_TYPE", `${pointer}/contexts`, "contexts must be an array");
-    return;
-  }
-  for (const [idx, ctx] of contexts.entries()) {
-    if (typeof ctx !== "string") {
-      diagnostics.add("E_TYPE", `${pointer}/contexts/${String(idx)}`, "context item must be a string");
-    }
-  }
 }
 
 function checkRegistryEntry(entriesKey: string, id: string, def: unknown, diagnostics: Diagnostics): void {
@@ -363,19 +366,20 @@ function checkRegistryEntry(entriesKey: string, id: string, def: unknown, diagno
   }
   checkUnknownProperties(def, ALLOWED_REGISTRY_ENTRY_FIELDS, pointer, diagnostics);
   const state = def["state"];
-  if (state === undefined) {
-    diagnostics.add("E_REQUIRED", `${pointer}/state`, "state is required");
-  } else if (typeof state !== "string" || !isRegistryLifecycleState(state)) {
+  if (state === undefined) diagnostics.add("E_REQUIRED", `${pointer}/state`, "state is required");
+  else if (typeof state !== "string" || !isRegistryLifecycleState(state)) {
     diagnostics.add("E_INVALID_LIFECYCLE_STATE", `${pointer}/state`, `invalid lifecycle state: ${typeof state === "string" ? state : JSON.stringify(state)}; must be one of: ${REGISTRY_LIFECYCLE_STATES.join(", ")}`);
   }
 
-  for (const strField of ["id", "category", "rationale", "revisitTrigger", "versionPolicy", "selectedVersion"] as const) {
-    if (def[strField] !== undefined && typeof def[strField] !== "string") {
-      diagnostics.add("E_TYPE", `${pointer}/${strField}`, `${strField} must be a string`);
+  for (const f of ["id", "category", "rationale", "revisitTrigger", "versionPolicy", "selectedVersion"] as const) {
+    if (def[f] !== undefined) {
+      if (typeof def[f] !== "string") diagnostics.add("E_TYPE", `${pointer}/${f}`, `${f} must be a string`);
+      else if ((f === "rationale" || f === "revisitTrigger") && def[f].trim() === "") {
+        diagnostics.add("E_EMPTY_VALUE", `${pointer}/${f}`, `${f} must not be empty or whitespace-only`);
+      }
     }
   }
-
-  checkRegistryEntryContexts(def["contexts"], pointer, diagnostics);
+  checkStringArray(def["contexts"], `${pointer}/contexts`, "contexts", diagnostics);
 }
 
 function checkRegistryEntries(entriesVal: unknown, entriesKey: string, diagnostics: Diagnostics): void {
@@ -391,17 +395,11 @@ function checkRegistryEntries(entriesVal: unknown, entriesKey: string, diagnosti
 }
 
 function buildSingleRegistryEntry(rawDef: unknown): RegistryEntryOverlay | undefined {
-  if (!isRecord(rawDef) || typeof rawDef["state"] !== "string" || !isRegistryLifecycleState(rawDef["state"])) {
-    return undefined;
-  }
+  if (!isRecord(rawDef) || typeof rawDef["state"] !== "string" || !isRegistryLifecycleState(rawDef["state"])) return undefined;
   let contexts: readonly string[] | undefined;
   if (Array.isArray(rawDef["contexts"])) {
-    const validContexts: string[] = [];
-    for (const item of rawDef["contexts"]) {
-      if (typeof item !== "string") return undefined;
-      validContexts.push(item);
-    }
-    contexts = Object.freeze(validContexts);
+    if (!rawDef["contexts"].every((item): item is string => typeof item === "string")) return undefined;
+    contexts = Object.freeze([...rawDef["contexts"]]);
   }
   return {
     state: rawDef["state"],
@@ -425,47 +423,40 @@ function buildRegistryEntries(rawEntries: unknown): Record<string, RegistryEntry
   return result;
 }
 
-function checkRegistryOverlayEnvelope(
-  obj: Record<string, unknown>,
-  expectedKind: "technology" | "component",
-  entriesKey: "technologies" | "components",
-  diagnostics: Diagnostics,
-): void {
-  checkUnknownProperties(obj, ALLOWED_REGISTRY_OVERLAY_FIELDS, "", diagnostics);
-  const kind = obj["registryKind"];
-  if (kind !== expectedKind && kind !== `${expectedKind}-overlay`) {
-    diagnostics.add("E_INVALID_KIND", "/registryKind", `registryKind must be '${expectedKind}' or '${expectedKind}-overlay'`);
-  }
-  checkProvenanceEnvelope(obj, `${expectedKind} registry`, diagnostics);
-  checkRegistryEntries(obj[entriesKey], entriesKey, diagnostics);
+interface RegistryOverlayDescriptor {
+  readonly kind: "technology" | "component";
+  readonly entriesKey: "technologies" | "components";
+  readonly allowedFields: Set<string>;
+  readonly schemaId: string;
 }
 
-function buildBaseRegistryOverlay(
+const TECHNOLOGY_OVERLAY_DESCRIPTOR: RegistryOverlayDescriptor = {
+  kind: "technology",
+  entriesKey: "technologies",
+  allowedFields: ALLOWED_TECHNOLOGY_REGISTRY_OVERLAY_FIELDS,
+  schemaId: TECHNOLOGY_REGISTRY_OVERLAY_SCHEMA_ID,
+};
+
+const COMPONENT_OVERLAY_DESCRIPTOR: RegistryOverlayDescriptor = {
+  kind: "component",
+  entriesKey: "components",
+  allowedFields: ALLOWED_COMPONENT_REGISTRY_OVERLAY_FIELDS,
+  schemaId: COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID,
+};
+
+function checkRegistryOverlayEnvelope(
   obj: Record<string, unknown>,
-): {
-  readonly $schema?: string;
-  readonly schemaId?: string;
-  readonly schemaVersion?: string;
-  readonly contractId?: string;
-  readonly bootstrappedFromGuideVersion?: string;
-  readonly lastAuditedAgainstGuideVersion?: string;
-  readonly templateRelease?: string;
-  readonly templateDigest?: string;
-  readonly templateCommit?: string;
-  readonly provenance?: ProductOverlayProvenance;
-} {
-  return {
-    ...(typeof obj["$schema"] === "string" ? { $schema: obj["$schema"] } : {}),
-    ...(typeof obj["schemaId"] === "string" ? { schemaId: obj["schemaId"] } : {}),
-    ...(typeof obj["schemaVersion"] === "string" ? { schemaVersion: obj["schemaVersion"] } : {}),
-    ...(typeof obj["contractId"] === "string" ? { contractId: obj["contractId"] } : {}),
-    ...(typeof obj["bootstrappedFromGuideVersion"] === "string" ? { bootstrappedFromGuideVersion: obj["bootstrappedFromGuideVersion"] } : {}),
-    ...(typeof obj["lastAuditedAgainstGuideVersion"] === "string" ? { lastAuditedAgainstGuideVersion: obj["lastAuditedAgainstGuideVersion"] } : {}),
-    ...(typeof obj["templateRelease"] === "string" ? { templateRelease: obj["templateRelease"] } : {}),
-    ...(typeof obj["templateDigest"] === "string" ? { templateDigest: obj["templateDigest"] } : {}),
-    ...(typeof obj["templateCommit"] === "string" ? { templateCommit: obj["templateCommit"] } : {}),
-    ...(isRecord(obj["provenance"]) ? { provenance: buildProvenance(obj["provenance"]) } : {}),
-  };
+  descriptor: RegistryOverlayDescriptor,
+  diagnostics: Diagnostics,
+): void {
+  checkUnknownProperties(obj, descriptor.allowedFields, "", diagnostics);
+  checkTopLevelIdentities(obj, descriptor.schemaId, PRODUCT_OVERLAY_SCHEMA_VERSION, PRODUCT_OVERLAY_CONTRACT_ID, diagnostics);
+  const kind = obj["registryKind"];
+  if (kind !== descriptor.kind && kind !== `${descriptor.kind}-overlay`) {
+    diagnostics.add("E_INVALID_KIND", "/registryKind", `registryKind must be '${descriptor.kind}' or '${descriptor.kind}-overlay'`);
+  }
+  checkProvenanceEnvelope(obj, `${descriptor.kind} registry`, diagnostics);
+  checkRegistryEntries(obj[descriptor.entriesKey], descriptor.entriesKey, diagnostics);
 }
 
 export function validateTechnologyRegistryOverlay(value: unknown): ValidationResult<TechnologyRegistryOverlay> {
@@ -473,7 +464,7 @@ export function validateTechnologyRegistryOverlay(value: unknown): ValidationRes
   const obj = parseOverlayInput(value, diagnostics);
   if (obj === undefined) return finish<TechnologyRegistryOverlay>(undefined, diagnostics);
 
-  checkRegistryOverlayEnvelope(obj, "technology", "technologies", diagnostics);
+  checkRegistryOverlayEnvelope(obj, TECHNOLOGY_OVERLAY_DESCRIPTOR, diagnostics);
   const built: TechnologyRegistryOverlay = Object.freeze({
     ...buildBaseRegistryOverlay(obj),
     registryKind: "technology",
@@ -487,7 +478,7 @@ export function validateComponentRegistryOverlay(value: unknown): ValidationResu
   const obj = parseOverlayInput(value, diagnostics);
   if (obj === undefined) return finish<ComponentRegistryOverlay>(undefined, diagnostics);
 
-  checkRegistryOverlayEnvelope(obj, "component", "components", diagnostics);
+  checkRegistryOverlayEnvelope(obj, COMPONENT_OVERLAY_DESCRIPTOR, diagnostics);
   const built: ComponentRegistryOverlay = Object.freeze({
     ...buildBaseRegistryOverlay(obj),
     registryKind: "component",
@@ -495,3 +486,4 @@ export function validateComponentRegistryOverlay(value: unknown): ValidationResu
   });
   return finish<ComponentRegistryOverlay>(diagnostics.rows.length === 0 ? built : undefined, diagnostics);
 }
+

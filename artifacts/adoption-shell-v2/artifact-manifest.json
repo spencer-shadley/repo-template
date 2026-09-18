@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "4c51afa10d979dbbbd974caa8257e7a4c5ed474c0d7a87f43c6d624adca06420",
+  "artifactDigest": "80cda69178a73d7efbe736e81b87bbc16582fe68ebc2f7f8f6c9f5b77d451cd4",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "133fd892d108089f65276c5f73b8b056d20f1be581a476c3f94e8052ad88a1a8",
-      "bytes": 8856
+      "sha256": "6117abc90718f1be2bf4dedc38481e2eab51380df0699650fadc883f9527bebd",
+      "bytes": 8880
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -126,15 +126,15 @@
       "path": "packages/adoption-shell/src/product-overlay-contract.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "b1516a28ba424032a7684f3befae1d16aa4200f6ff17eca774bc1af521e04f82",
-      "bytes": 12037
+      "sha256": "5ffb6cee4d7522bef35b37f8725c71fc77f35f67fac130ad0c815ed99e9ee6bf",
+      "bytes": 13635
     },
     {
       "path": "packages/adoption-shell/src/product-overlay-validation.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a41db5a76b87234fe5a7ff64ba98f94fcfa265bd4e7983ed299f0e9f8015feab",
-      "bytes": 22108
+      "sha256": "fbc7e83748b54fd368e292301e314265967100495faf49dc4a9537b186531978",
+      "bytes": 23655
     },
     {
       "path": "packages/adoption-shell/src/product-overlay-yaml.ts",
@@ -147,8 +147,8 @@
       "path": "packages/adoption-shell/src/product-overlay.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a38216770728014f485de8cf449952df9d228fc72d04101780bbe78417cbc0b4",
-      "bytes": 6484
+      "sha256": "a0f6bfc8b745c21427a3173c6e3e503170c75757df0b717562828d7b5e581343",
+      "bytes": 7516
     },
     {
       "path": "packages/adoption-shell/src/product-sli-probe-v1.ts",
@@ -428,15 +428,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "8d0369e2d439b124fe68ff1c77ac90f7e8841da25a982a9d67b1b59238424464",
-      "bytes": 8332
+      "sha256": "f83a89328ab4c0a474ad5ea320cf64e1e3f5d892f8b903b8670812cdcbbbe602",
+      "bytes": 8354
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "dba9351501a07a4333a5b4d23768755dde09e3362a8bdb51aa8006b7aae476b7",
-      "bytes": 5475
+      "sha256": "5fbc757376db75bb709b22a59337e9ee025d36d6061e16d4d421f817f35ed6a5",
+      "bytes": 5497
     },
     {
       "path": "local-ci-contract-v2.d.ts",
@@ -540,15 +540,15 @@
       "path": "product-overlay-contract.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "49cf4525905fee3e3ba84afa10463b6a9d443f528728354651f12351a4014c74",
-      "bytes": 5844
+      "sha256": "83dad146f0e6e4a21783e07437381d96805293bf77d0bc3dd446296bfc3f90f0",
+      "bytes": 5914
     },
     {
       "path": "product-overlay-contract.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "60a76c5d6feaa640945292039a7dc5a6677ead99b3f5643093442c3d63752e07",
-      "bytes": 8558
+      "sha256": "93edf5d47f816dbe8fa5396c6bd167876c3568bb7f2e2e5321a98f344c7260fe",
+      "bytes": 10213
     },
     {
       "path": "product-overlay-validation.d.ts",
@@ -561,8 +561,8 @@
       "path": "product-overlay-validation.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "dff895820dca300d7e1c6b5e44a7b19856842228d48faefee1313258abeb617c",
-      "bytes": 20544
+      "sha256": "d3fc34908b61e68961a88cad4162b0385f27f394bae146beb9305f4e88f10c8c",
+      "bytes": 22349
     },
     {
       "path": "product-overlay-yaml.d.ts",
@@ -589,8 +589,8 @@
       "path": "product-overlay.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "7cafd5a47bd4c56d775bbf2c10751160945f94cf8bb3a076352a2d90815a9e58",
-      "bytes": 6060
+      "sha256": "9748bb1b0f5a5a218aef9ebe0a5f58298bca13ef9fa3eb21a54b5cce025a6058",
+      "bytes": 7133
     },
     {
       "path": "product-sli-probe-v1.d.ts",
@@ -1123,8 +1123,8 @@
       "path": "contracts/product-overlay/v1/component-registry.overlay.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "0ef00553ba2637a9ca773e95e752a821147cc82855c83fa5ec17ce72640b315d",
-      "bytes": 3042
+      "sha256": "ee189b6bf3c009f00727c00332e2e33042c7fb987c67d84193dc1dec62033b33",
+      "bytes": 3098
     },
     {
       "path": "contracts/product-overlay/v1/fixtures/invalid-dormant-no-revisit.json",
@@ -1179,15 +1179,15 @@
       "path": "contracts/product-overlay/v1/product-overlay.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "4ee301faf1db6b9624925b2ffee0cc70d2eceb3e88b522b6d7ddbbdec12454cf",
-      "bytes": 4467
+      "sha256": "16344b26f56804263f077f5d8bddfe250be793957ee56455659b2acdedd8a0ca",
+      "bytes": 4759
     },
     {
       "path": "contracts/product-overlay/v1/technology-registry.overlay.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2368edb3de9853a902afe66746db62b805d4b687f512fdfaa369249b2768f9b5",
-      "bytes": 3053
+      "sha256": "3ce33790de1cbb0447b819fea1756dfec9ca0d715532a76e5d7ffc97fdacdd1a",
+      "bytes": 3109
     },
     {
       "path": "contracts/product-sli-probe/v1/fixtures/invalid-destructive-effect.json",
@@ -1354,8 +1354,8 @@
       "path": "plans/drafts/000-smoke.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "2cb304998bcb704d0054243f96a83b4128104a6bf6c9f8311782f3049372603f",
-      "bytes": 795
+      "sha256": "bda7024800e00d6aaf91eef7021bbec288aeb2d31922ad58d2c8e5c41b67ada5",
+      "bytes": 865
     },
     {
       "path": "scripts/check-runtime-artifact-registry.ts",
@@ -1531,7 +1531,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "c025011d92e45134a5b0fbffadc68ab5b97b4496c630bff07eae14b70ff099c1",
+      "sha256": "49bcdce26207fc90f6c95bc9525998b87e0a36dcde23f57caaf52b1c0e83df31",
       "bytes": 876
     },
     {
@@ -1563,5 +1563,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "ff588559495b1650e8d96616d002d386dbadb9704170d503e202a3a49cfb62c8"
+  "manifestDigest": "fe3e84d70e8f1d5b75eaab996ccd76fe4f03a9740f27f2a3d15ba2853591a84e"
 }

@@ -40,6 +40,55 @@ export const CANONICAL_PLATFORM_NAMES = [
     "scheduled-job",
 ];
 const MUTABLE_PROVENANCE_PATTERN = /(?:^|[/:])(?:master|main|HEAD|origin\/master|trunk|dev|develop|staging|latest)(?:[/:].*)?$/i;
+function hasValidGitHubUrlStructure(url) {
+    return (url.protocol === "https:" &&
+        url.hostname.toLowerCase() === "github.com" &&
+        url.search === "" &&
+        url.hash === "" &&
+        url.username === "" &&
+        url.password === "" &&
+        url.port === "" &&
+        !url.pathname.endsWith("/"));
+}
+const GITHUB_REPO_SEGMENT = /^[a-zA-Z0-9_.-]+$/;
+function isValidGitHubCommitPath(segments) {
+    if (segments.length !== 4 || segments[2] !== "commit")
+        return false;
+    const owner = segments[0];
+    const repo = segments[1];
+    const commit = segments[3];
+    if (!owner || !repo || !commit)
+        return false;
+    return GITHUB_REPO_SEGMENT.test(owner) && GITHUB_REPO_SEGMENT.test(repo) && /^[0-9a-f]{40}$/i.test(commit);
+}
+function isValidGitHubReleaseTagPath(segments) {
+    if (segments.length !== 5 || segments[2] !== "releases" || segments[3] !== "tag")
+        return false;
+    const owner = segments[0];
+    const repo = segments[1];
+    const tag = segments[4];
+    if (!owner || !repo || !tag)
+        return false;
+    if (!GITHUB_REPO_SEGMENT.test(owner) || !GITHUB_REPO_SEGMENT.test(repo))
+        return false;
+    const tagToTest = tag.startsWith("v") ? tag.slice(1) : tag;
+    return SEMVER_PATTERN.test(tagToTest);
+}
+export function isImmutableGitHubUrl(value) {
+    if (value.includes("..") || /%2e/i.test(value))
+        return false;
+    let url;
+    try {
+        url = new URL(value);
+    }
+    catch {
+        return false;
+    }
+    if (!hasValidGitHubUrlStructure(url))
+        return false;
+    const segments = url.pathname.split("/").filter(Boolean);
+    return isValidGitHubCommitPath(segments) || isValidGitHubReleaseTagPath(segments);
+}
 export function isImmutableProvenance(value) {
     if (typeof value !== "string")
         return false;
@@ -62,8 +111,8 @@ export function isImmutableProvenance(value) {
     if (trimmed === "legacy") {
         return true;
     }
-    if (/^https:\/\/github\.com\/[^/]+\/[^/]+\/(?:commit\/[0-9a-f]{40}|releases\/tag\/v[0-9])/i.test(trimmed)) {
-        return true;
+    if (trimmed.includes("://")) {
+        return isImmutableGitHubUrl(trimmed);
     }
     return false;
 }

@@ -20,6 +20,10 @@ audit, the autonomous loop) rely on these paths.
 | `.ops/incidents.jsonl` | machine incident stream (appears lazily; append-only; weekly-rotated) |
 | `contracts/local-ci/v2/` | versioned machine-readable LocalCiContractV2 schema and fixtures |
 | `contracts/local-ci/v3/` | LocalCiContractV3 (required `detectionProof` per command) and LocalCiOutcomeV1 (`pass\|fail\|skipped\|could-not-execute`) schemas and fixtures |
+| `contracts/product-overlay/v1/` | versioned machine-readable ProductPlatformOverlayV1 and registry overlay schemas |
+| `product-overlay.yaml` | portable product/platform overlay declaring supported platforms, roles, and dormant revisit triggers |
+| `technology-registry.overlay.yaml` | portable technology registry overlay declaring lifecycle states and rationales |
+| `component-registry.overlay.yaml` | portable component registry overlay declaring lifecycle states and rationales |
 | `scripts/proof-of-detection/` | meta-gate that plants each command's detection-proof fixture and asserts non-zero exit; reference `theme-dual-mode-lint` detector proves it |
 | `.runtime-artifact-registry.json` | machine-readable registry of file-precise runtime artifacts, cross-checked against tagged `.gitignore` lines |
 | `model-boundary.json` | machine-readable model boundary: gateway, provider-specific exceptions, owner |

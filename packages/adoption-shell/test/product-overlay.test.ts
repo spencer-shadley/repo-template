@@ -17,6 +17,7 @@ import {
   STANDALONE_PROFILE,
   TECHNOLOGY_REGISTRY_OVERLAY_FILE,
   createProductOverlayBundle,
+  isImmutableGitHubUrl,
   isImmutableProvenance,
   materializeAdoptionShellV2,
   materializeProductOverlayEntries,
@@ -699,5 +700,207 @@ void test("materializeAdoptionShellV2 produces deterministic receipt and valid o
   const compContent = Buffer.from(compEntry.contentBase64, "base64").toString("utf8");
   const compVal = validateComponentRegistryOverlay(compContent);
   assert.equal(compVal.ok, true, JSON.stringify(compVal));
+});
+
+void test("product and registry overlay validation rejects wrong schemaId, schemaVersion, or contractId", () => {
+  const wrongProductSchemaId = validateProductOverlay({
+    schemaId: "https://schemas.repo-template.dev/wrong.json",
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: { web: { role: "primary" } },
+  });
+  assert.equal(wrongProductSchemaId.ok, false);
+  assert.ok(wrongProductSchemaId.diagnostics.some((d) => d.code === "E_INVALID_IDENTITY" && d.pointer === "/schemaId"));
+
+  const wrongProductSchemaVer = validateProductOverlay({
+    schemaVersion: "9.9.9",
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: { web: { role: "primary" } },
+  });
+  assert.equal(wrongProductSchemaVer.ok, false);
+  assert.ok(wrongProductSchemaVer.diagnostics.some((d) => d.code === "E_INVALID_IDENTITY" && d.pointer === "/schemaVersion"));
+
+  const wrongProductContractId = validateProductOverlay({
+    contractId: "wrong/contract/id",
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: { web: { role: "primary" } },
+  });
+  assert.equal(wrongProductContractId.ok, false);
+  assert.ok(wrongProductContractId.diagnostics.some((d) => d.code === "E_INVALID_IDENTITY" && d.pointer === "/contractId"));
+
+  const wrongProvContractId = validateProductOverlay({
+    provenance: {
+      contractId: "wrong/contract/id",
+      templateRelease: "2.0.0",
+    },
+    platforms: { web: { role: "primary" } },
+  });
+  assert.equal(wrongProvContractId.ok, false);
+  assert.ok(wrongProvContractId.diagnostics.some((d) => d.code === "E_INVALID_IDENTITY" && d.pointer === "/provenance/contractId"));
+
+  const wrongTechSchemaId = validateTechnologyRegistryOverlay({
+    schemaId: "https://schemas.repo-template.dev/wrong.json",
+    registryKind: "technology",
+    bootstrappedFromGuideVersion: "2.0.0",
+    technologies: {},
+  });
+  assert.equal(wrongTechSchemaId.ok, false);
+  assert.ok(wrongTechSchemaId.diagnostics.some((d) => d.code === "E_INVALID_IDENTITY" && d.pointer === "/schemaId"));
+
+  const wrongCompSchemaId = validateComponentRegistryOverlay({
+    schemaId: "https://schemas.repo-template.dev/wrong.json",
+    registryKind: "component",
+    bootstrappedFromGuideVersion: "2.0.0",
+    components: {},
+  });
+  assert.equal(wrongCompSchemaId.ok, false);
+  assert.ok(wrongCompSchemaId.diagnostics.some((d) => d.code === "E_INVALID_IDENTITY" && d.pointer === "/schemaId"));
+});
+
+void test("technology and component registry overlays reject the opposite collection", () => {
+  const techWithComponents = validateTechnologyRegistryOverlay({
+    registryKind: "technology",
+    bootstrappedFromGuideVersion: "2.0.0",
+    technologies: {},
+    components: {
+      "component.dbmate": { state: "preferred-default" },
+    },
+  });
+  assert.equal(techWithComponents.ok, false);
+  assert.ok(techWithComponents.diagnostics.some((d) => d.code === "E_UNKNOWN_PROPERTY" && d.pointer === "/components"));
+
+  const compWithTechnologies = validateComponentRegistryOverlay({
+    registryKind: "component",
+    bootstrappedFromGuideVersion: "2.0.0",
+    components: {},
+    technologies: {
+      "technology.typescript": { state: "preferred-default" },
+    },
+  });
+  assert.equal(compWithTechnologies.ok, false);
+  assert.ok(compWithTechnologies.diagnostics.some((d) => d.code === "E_UNKNOWN_PROPERTY" && d.pointer === "/technologies"));
+});
+
+void test("product overlay rejects platform priority 0 or negative", () => {
+  const zeroPriority = validateProductOverlay({
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: {
+      web: { role: "primary", priority: 0 },
+    },
+  });
+  assert.equal(zeroPriority.ok, false);
+  assert.ok(zeroPriority.diagnostics.some((d) => d.code === "E_INVALID_PRIORITY" && d.pointer === "/platforms/web/priority"));
+
+  const negPriority = validateProductOverlay({
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: {
+      web: { role: "primary", priority: -1 },
+    },
+  });
+  assert.equal(negPriority.ok, false);
+  assert.ok(negPriority.diagnostics.some((d) => d.code === "E_INVALID_PRIORITY" && d.pointer === "/platforms/web/priority"));
+});
+
+void test("overlay validation rejects whitespace-only triggers, rationales, and divergence fields", () => {
+  const wsPlatformRationale = validateProductOverlay({
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: {
+      web: { role: "primary", rationale: "   " },
+    },
+  });
+  assert.equal(wsPlatformRationale.ok, false);
+  assert.ok(wsPlatformRationale.diagnostics.some((d) => d.code === "E_EMPTY_VALUE" && d.pointer === "/platforms/web/rationale"));
+
+  const wsPlatformTrigger = validateProductOverlay({
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: {
+      windows: { role: "dormant", revisitTrigger: "\t\n " },
+    },
+  });
+  assert.equal(wsPlatformTrigger.ok, false);
+
+  const wsTechRationale = validateTechnologyRegistryOverlay({
+    registryKind: "technology",
+    bootstrappedFromGuideVersion: "2.0.0",
+    technologies: {
+      "technology.ts": { state: "preferred-default", rationale: "  " },
+    },
+  });
+  assert.equal(wsTechRationale.ok, false);
+  assert.ok(wsTechRationale.diagnostics.some((d) => d.code === "E_EMPTY_VALUE" && d.pointer === "/technologies/technology.ts/rationale"));
+
+  const wsDivergence = validateProductOverlay({
+    bootstrappedFromGuideVersion: "2.0.0",
+    platforms: { web: { role: "primary" } },
+    grandfatheredDivergences: [
+      {
+        component: "comp",
+        current: "curr",
+        guideDefault: "def",
+        rationale: "   ",
+      },
+    ],
+  });
+  assert.equal(wsDivergence.ok, false);
+  assert.ok(wsDivergence.diagnostics.some((d) => d.code === "E_EMPTY_VALUE" && d.pointer === "/grandfatheredDivergences/0/rationale"));
+});
+
+void test("GitHub provenance URL validation rejects query, fragment, traversal, and suffix ambiguity", () => {
+  const invalidUrls = [
+    "https://github.com/spencer-shadley/repo-template/commit/7264863f88e452c7bedf439b91bf47dbbebc3e49?ref=master",
+    "https://github.com/spencer-shadley/repo-template/commit/7264863f88e452c7bedf439b91bf47dbbebc3e49#heading",
+    "https://github.com/spencer-shadley/repo-template/commit/7264863f88e452c7bedf439b91bf47dbbebc3e49/extra",
+    "https://github.com/spencer-shadley/repo-template/commit/7264863f88e452c7bedf439b91bf47dbbebc3e49/../../tree/master",
+    "https://github.com/spencer-shadley/repo-template/releases/tag/v2.2.0?raw=true",
+    "https://github.com/spencer-shadley/repo-template/releases/tag/v2.2.0#section",
+    "https://github.com/spencer-shadley/repo-template/releases/tag/v2.2.0/more",
+    "http://github.com/spencer-shadley/repo-template/commit/7264863f88e452c7bedf439b91bf47dbbebc3e49",
+    "https://gitlab.com/spencer-shadley/repo-template/commit/7264863f88e452c7bedf439b91bf47dbbebc3e49",
+  ];
+
+  for (const url of invalidUrls) {
+    assert.equal(isImmutableGitHubUrl(url), false, `expected isImmutableGitHubUrl('${url}') to be false`);
+    assert.equal(isImmutableProvenance(url), false, `expected isImmutableProvenance('${url}') to be false`);
+
+    const res = validateProductOverlay({
+      bootstrappedFromGuideVersion: url,
+      platforms: { web: { role: "primary" } },
+    });
+    assert.equal(res.ok, false, `expected validateProductOverlay with '${url}' to fail`);
+  }
+});
+
+void test("materializeProductOverlayEntries throws on invalid options before payload generation", () => {
+  assert.throws(
+    () => {
+      materializeProductOverlayEntries(FULL_STACK_PROFILE, {
+        platforms: {
+          web: { role: "non-existent" as any },
+        },
+      });
+    },
+    /Failed to generate valid product overlay/,
+  );
+
+  assert.throws(
+    () => {
+      materializeProductOverlayEntries(FULL_STACK_PROFILE, {
+        platforms: {
+          windows: { role: "dormant" },
+        },
+      });
+    },
+    /Failed to generate valid product overlay/,
+  );
+
+  assert.throws(
+    () => {
+      materializeProductOverlayEntries(FULL_STACK_PROFILE, {
+        provenance: {
+          templateRelease: "https://github.com/spencer-shadley/repo-template/tree/main",
+        },
+      });
+    },
+    /Failed to generate valid product overlay/,
+  );
 });
 
