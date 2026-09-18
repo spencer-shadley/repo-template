@@ -1,0 +1,26 @@
+{
+  "schema": "WorkSpineLabelLagReceiptV1",
+  "updatedAt": "2026-09-11T13:43:10.278Z",
+  "project": "repo-template",
+  "plan": "041",
+  "attempts": 1,
+  "findings": [
+    {
+      "kind": "stale_wip_no_pr",
+      "severity": "repair",
+      "expectedTip": "work:planned",
+      "observedTip": "work:in-progress",
+      "missing": [],
+      "present": [
+        "work:planned",
+        "work:in-progress"
+      ],
+      "staleLabels": [
+        "work:in-progress"
+      ],
+      "detail": "stale work:in-progress on parked/stalled plan (status: blocked - stalled (needs triage)) without open PR",
+      "disposition": "repair"
+    }
+  ],
+  "disposition": "repair"
+}
