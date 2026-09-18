@@ -312,33 +312,27 @@ void test("VERSION/tag disagreement on the frozen 3.1.0 tree fails closed", () =
       cwd: root,
       encoding: "utf8",
     });
-  assert.throws(
-    () => assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, PUBLICATION_SEMVER, show),
-    /disagrees with commit/,
-  );
-  assert.throws(
-    () => assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, FROZEN_SEMVER, show),
-    /disagrees with commit/,
-  );
+  assert.throws(() => {
+    assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, PUBLICATION_SEMVER, show);
+  }, /disagrees with commit/);
+  assert.throws(() => {
+    assertCommitVersionMatchesDeclaredSemver(FROZEN_CANDIDATE_COMMIT, FROZEN_SEMVER, show);
+  }, /disagrees with commit/);
 });
 
 void test("non-receipt canary URL fails closed", () => {
-  assert.throws(
-    () =>
-      assertCanaryReceiptUrl(
-        "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813",
-        SECOND_CANARY_RECEIPT_ID,
-      ),
-    /not a durable receipt artifact/,
-  );
-  assert.throws(
-    () =>
-      assertCanaryReceiptUrl(
-        "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016",
-        FIRST_CANARY_RECEIPT_ID,
-      ),
-    /not a durable receipt artifact/,
-  );
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/repo-factory/issues/187#issuecomment-5722794813",
+      SECOND_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
+  assert.throws(() => {
+    assertCanaryReceiptUrl(
+      "https://github.com/spencer-shadley/model-gateway/issues/991#issuecomment-5677659016",
+      FIRST_CANARY_RECEIPT_ID,
+    );
+  }, /not a durable receipt artifact/);
   assert.doesNotThrow(() => {
     assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
     assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);

@@ -87,9 +87,11 @@ export function assertCommitVersionMatchesDeclaredSemver(
 }
 
 export function assertCanaryReceiptUrl(url: string, receiptId: string): void {
-  const escapedId = receiptId.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+  const escapedId = receiptId.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`);
   const blobPattern = new RegExp(
-    `^https://github\\.com/spencer-shadley/[A-Za-z0-9_.-]+/blob/[A-Za-z0-9._/-]+/(?:docs/receipts|contracts/local-ci/v3)/${escapedId}\\.json$`,
+    String.raw`^https://github\.com/spencer-shadley/[A-Za-z0-9_.-]+/blob/[A-Za-z0-9._/-]+/(?:docs/receipts|contracts/local-ci/v3)/` +
+      escapedId +
+      String.raw`\.json$`,
   );
   if (!blobPattern.test(url)) {
     throw new Error(
