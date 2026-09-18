@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
@@ -114,3 +115,94 @@ void test("released inert seed passes the exact materializer and emits once in m
   assert.equal(result.manifest.releaseDigest, payload.releaseDigest);
   assert.equal(result.manifest.releasePayloadDigest, payload.payloadDigest);
 });
+
+void test("released inert seed includes validation skills with exact content closure", () => {
+  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  if (!payloadResult.ok) throw new Error("released payload must be valid");
+  const payload = payloadResult.value;
+  const selection = readJson("release/inert-seed-manifest.json");
+  if (!isSeedSelection(selection)) throw new Error("released inert seed selection must be valid");
+
+  const validationSkillPaths = [
+    "skills/pr-validation/SKILL.md",
+    "skills/full-validation/SKILL.md",
+  ] as const;
+
+  for (const skillPath of validationSkillPaths) {
+    const selectionEntry: SeedSelection["entries"][number] | undefined =
+      selection.entries.find((entry) => entry.path === skillPath);
+    assert.ok(selectionEntry, `inert-seed manifest must include ${skillPath}`);
+    assert.equal(selectionEntry.gitMode, "100644");
+
+    const payloadEntry = payload.entries.find((e) => e.path === skillPath);
+    assert.ok(payloadEntry, `release-payload-set must include ${skillPath}`);
+    assert.equal(payloadEntry.kind, "file");
+    assert.equal(payloadEntry.mode, "100644");
+
+    const diskContent = fs.readFileSync(path.join(root, ...skillPath.split("/")));
+    const diskSha256 = crypto.createHash("sha256").update(diskContent).digest("hex");
+
+    assert.equal(selectionEntry.contentSha256, diskSha256);
+    assert.equal(selectionEntry.bytes, diskContent.byteLength);
+    assert.equal(payloadEntry.contentSha256, diskSha256);
+    assert.deepEqual(Buffer.from(payloadEntry.contentBase64, "base64"), diskContent);
+  }
+});
+
+void test("materialized inert seed delivers both validation skills into adopted repo", () => {
+  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  if (!payloadResult.ok) throw new Error("released payload must be valid");
+  const payload = payloadResult.value;
+  const capabilitiesResult = validateCapabilityBundleRegistryV2(readJson(
+    "contracts/adoption-shell-v2/capability-bundle-registry.json",
+  ));
+  if (!capabilitiesResult.ok) throw new Error("capability registry must be valid");
+  const capabilities = capabilitiesResult.value;
+  const fixture = readMaterializerInput(
+    "contracts/adoption-shell-v2/fixtures/minimal-input.json",
+  );
+  const input: MaterializerInput = {
+    ...fixture,
+    release: payload,
+    capabilities,
+    requestedBundles: [],
+  };
+  const result = materializeAdoptionShellV2(input);
+
+  for (const skillPath of ["skills/pr-validation/SKILL.md", "skills/full-validation/SKILL.md"]) {
+    const materialized = result.entries.find((e) => e.path === skillPath);
+    assert.ok(materialized, `materialized output must include ${skillPath}`);
+    const diskContent = fs.readFileSync(path.join(root, ...skillPath.split("/")));
+    const diskSha256 = crypto.createHash("sha256").update(diskContent).digest("hex");
+    assert.equal(materialized.contentSha256, diskSha256);
+    assert.deepEqual(Buffer.from(materialized.contentBase64, "base64"), diskContent);
+  }
+});
+
+void test("inert seed release payload fails closed if validation skill is omitted or tampered", () => {
+  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  if (!payloadResult.ok) throw new Error("released payload must be valid");
+  const payload = payloadResult.value;
+
+  // Negative 1: omitting validation skill entry
+  const omitted = {
+    ...payload,
+    entryCount: payload.entryCount - 1,
+    entries: payload.entries.filter((e) => e.path !== "skills/pr-validation/SKILL.md"),
+  };
+  const omittedResult = validateReleasePayloadSetV2(omitted);
+  assert.equal(omittedResult.ok, false);
+
+  // Negative 2: tampered bytes
+  const tampered = {
+    ...payload,
+    entries: payload.entries.map((e) =>
+      e.path === "skills/pr-validation/SKILL.md"
+        ? { ...e, contentSha256: "0".repeat(64) }
+        : e,
+    ),
+  };
+  const tamperedResult = validateReleasePayloadSetV2(tampered);
+  assert.equal(tamperedResult.ok, false);
+});
+
