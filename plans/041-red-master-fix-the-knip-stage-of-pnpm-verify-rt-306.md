@@ -17,7 +17,7 @@
 
 - **Project:** repo-template
 - **Branch:** feat/041-red-master-fix-the-knip-stage-of-pnpm-verify-rt-306
-- **Status:** blocked - stalled (needs triage)
+- **Status:** completed - Gate 0 already_satisfied d90d2fc issue#306
 - **Conservation-outcome:** blocked-visible: no-successor-reference
 - **Escalated:** 2026-08-30
 - **Stall-retries:** 1
