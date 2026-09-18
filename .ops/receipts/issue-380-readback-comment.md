@@ -2,7 +2,7 @@
 
 The new immutable general Template release tag `v3.3.1` has been minted and published to GitHub `origin`. This receipt proves the exact `v3.3.1` release identity and records the current historical tag refs as post-mint context. It does **not** claim independently archived pre-mint/post-mint equality for the earlier tags because this receipt does not contain a pre-mint snapshot of those refs.
 
-Live pre-mint inspection confirmed `v3.3.0` was already allocated by PR #341 / #400 (`32377fe16d952876428e2495d2fe3176a507eb4d`), so the next unused SemVer `3.3.1` (tag `v3.3.1`) was allocated. The tagged commit `06d055c0cbc2b085a68a4308d54162e27fb69deb` carries the #398 skill-bearing payload with 101 entries and exact validation-skill digests while its committed `VERSION` and `TEMPLATE_VERSION` bytes both equal the tag semver (`3.3.1`).
+Current post-mint remote inspection records `v3.3.0` at PR #341 / #400 (`32377fe16d952876428e2495d2fe3176a507eb4d`) and records the published `v3.3.1` identity below. This receipt does **not** claim archived proof that `v3.3.1` was unused before allocation. The tagged commit `06d055c0cbc2b085a68a4308d54162e27fb69deb` carries the #398 skill-bearing payload with 101 entries and exact validation-skill digests while its committed `VERSION` and `TEMPLATE_VERSION` bytes both equal the tag semver (`3.3.1`).
 
 Independent remote GitHub readback against `origin` proves the published tag object, peeled commit, tree, 101 payload entries, exact content identities for both validation semantic skills, and `VERSION`/`TEMPLATE_VERSION` byte equality.
 
@@ -75,11 +75,20 @@ $ gh api repos/spencer-shadley/repo-template/git/blobs/bea438e9ade7708f8a0fc26bd
 # base64(My4zLjEK) = "3.3.1\n"
 
 $ gh api 'repos/spencer-shadley/repo-template/git/trees/1e8b655df2f668480335e3b40d4685f3ebbeba57?recursive=1' \
+    | jq -e '([.tree[] | select(.path == "VERSION" or .path == "TEMPLATE_VERSION" or .path == "skills/pr-validation/SKILL.md" or .path == "skills/full-validation/SKILL.md")]) as $m | (($m | length) == 4) and any($m[]; .path == "VERSION" and .sha == "bea438e9ade7708f8a0fc26bdacda06231f4a434" and .size == 6) and any($m[]; .path == "TEMPLATE_VERSION" and .sha == "bea438e9ade7708f8a0fc26bdacda06231f4a434" and .size == 6) and any($m[]; .path == "skills/pr-validation/SKILL.md" and .sha == "4dddeed4b3c372dc5716108d279e80fd0ea56d8b" and .size == 2772) and any($m[]; .path == "skills/full-validation/SKILL.md" and .sha == "ad35fbaf1bc5c58a97f266abef7864705cff2740" and .size == 2902)'
+true
+
+$ gh api 'repos/spencer-shadley/repo-template/git/trees/1e8b655df2f668480335e3b40d4685f3ebbeba57?recursive=1' \
     --jq '.tree[] | select(.path == "VERSION" or .path == "TEMPLATE_VERSION" or .path == "skills/pr-validation/SKILL.md" or .path == "skills/full-validation/SKILL.md") | [.path,.sha,.size] | @tsv'
 TEMPLATE_VERSION	bea438e9ade7708f8a0fc26bdacda06231f4a434	6
 VERSION	bea438e9ade7708f8a0fc26bdacda06231f4a434	6
 skills/full-validation/SKILL.md	ad35fbaf1bc5c58a97f266abef7864705cff2740	2902
 skills/pr-validation/SKILL.md	4dddeed4b3c372dc5716108d279e80fd0ea56d8b	2772
+
+$ gh api 'repos/spencer-shadley/repo-template/contents/release/inert-seed-manifest.json?ref=06d055c0cbc2b085a68a4308d54162e27fb69deb' --jq .content \
+    | base64 --decode \
+    | jq -e '.entryCount == 101 and ([.entries[] | select(.path == "skills/pr-validation/SKILL.md" and .contentSha256 == "fd99403987656e9e2afcc6fbec0c935d6f9e83cc379403a8812e2ec6c26c2ab8" and .bytes == 2772)] | length == 1) and ([.entries[] | select(.path == "skills/full-validation/SKILL.md" and .contentSha256 == "d2dbc241de1ca225e2de93f2e73b1259c9f81928cb2fde48f5f8db8d996b72b6" and .bytes == 2902)] | length == 1)'
+true
 
 $ gh api 'repos/spencer-shadley/repo-template/contents/release/inert-seed-manifest.json?ref=06d055c0cbc2b085a68a4308d54162e27fb69deb' --jq .content \
     | base64 --decode \
@@ -94,6 +103,11 @@ $ gh api 'repos/spencer-shadley/repo-template/contents/release/inert-seed-manife
 
 $ gh api 'repos/spencer-shadley/repo-template/contents/release/release-payload-set.json?ref=06d055c0cbc2b085a68a4308d54162e27fb69deb' --jq .content \
     | base64 --decode \
+    | jq -e '.entryCount == 101 and .payloadDigest == "9451d0be7295877f6a47e7d3489b9d49bdb8b0e6c78f9b58d81b1c4a9258e2b3" and ([.entries[] | select(.path == "skills/pr-validation/SKILL.md" and .contentSha256 == "fd99403987656e9e2afcc6fbec0c935d6f9e83cc379403a8812e2ec6c26c2ab8")] | length == 1) and ([.entries[] | select(.path == "skills/full-validation/SKILL.md" and .contentSha256 == "d2dbc241de1ca225e2de93f2e73b1259c9f81928cb2fde48f5f8db8d996b72b6")] | length == 1)'
+true
+
+$ gh api 'repos/spencer-shadley/repo-template/contents/release/release-payload-set.json?ref=06d055c0cbc2b085a68a4308d54162e27fb69deb' --jq .content \
+    | base64 --decode \
     | jq '{entryCount, payloadDigest, skills: [.entries[] | select(.path == "skills/pr-validation/SKILL.md" or .path == "skills/full-validation/SKILL.md") | {path, contentSha256}]}'
 {
   "entryCount": 101,
@@ -104,12 +118,17 @@ $ gh api 'repos/spencer-shadley/repo-template/contents/release/release-payload-s
   ]
 }
 
-$ for p in skills/pr-validation/SKILL.md skills/full-validation/SKILL.md; do \
-    gh api "repos/spencer-shadley/repo-template/contents/$p?ref=06d055c0cbc2b085a68a4308d54162e27fb69deb" --jq .content \
-      | base64 --decode | sha256sum; \
+$ set -euo pipefail
+$ for spec in \
+    'skills/pr-validation/SKILL.md fd99403987656e9e2afcc6fbec0c935d6f9e83cc379403a8812e2ec6c26c2ab8' \
+    'skills/full-validation/SKILL.md d2dbc241de1ca225e2de93f2e73b1259c9f81928cb2fde48f5f8db8d996b72b6'; do \
+    p="${spec%% *}"; expected="${spec##* }"; \
+    actual="$(gh api "repos/spencer-shadley/repo-template/contents/$p?ref=06d055c0cbc2b085a68a4308d54162e27fb69deb" --jq .content | base64 --decode | sha256sum | awk '{print $1}')"; \
+    test "$actual" = "$expected"; \
+    printf '%s\t%s\n' "$p" "$actual"; \
   done
-fd99403987656e9e2afcc6fbec0c935d6f9e83cc379403a8812e2ec6c26c2ab8  -
-d2dbc241de1ca225e2de93f2e73b1259c9f81928cb2fde48f5f8db8d996b72b6  -
+skills/pr-validation/SKILL.md	fd99403987656e9e2afcc6fbec0c935d6f9e83cc379403a8812e2ec6c26c2ab8
+skills/full-validation/SKILL.md	d2dbc241de1ca225e2de93f2e73b1259c9f81928cb2fde48f5f8db8d996b72b6
 ```
 
 Downstream consumers (Repo Factory #200 / PR 214 and Fleet Registry / Code #5453) can bind directly to immutable Template release `v3.3.1`.
