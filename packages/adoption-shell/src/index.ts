@@ -152,6 +152,7 @@ export {
   classifyAndMigrateLocalCiV2ToV3,
   orderedLocalCiCommandsV3,
   validateLocalCiContractV3,
+  evaluateRequiredPlatformLegsV3,
 } from "./local-ci-contract-v3.ts";
 export type {
   DetectionProofExpectationV3,
@@ -161,6 +162,10 @@ export type {
   LegacyLocalCiDispositionV3,
   LocalCiCommandV3,
   LocalCiContractV3,
+  LocalCiRequiredPlatformLegV3,
+  LocalCiPlatformLegReceiptV3,
+  LocalCiPlatformLegVerdictV3,
+  LocalCiPlatformLegPlatformV3,
   LocalCiEffectsV3,
   LocalCiEnvironmentV3,
   LocalCiFailureDispositionV3,

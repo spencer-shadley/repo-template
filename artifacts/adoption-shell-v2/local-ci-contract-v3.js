@@ -9,6 +9,8 @@ export const LOCAL_CI_CONTRACT_V3_SCHEMA_ID = "https://schemas.repo-template.dev
 const SHELLS = new Set(["pwsh", "cmd", "bash", "sh", "none"]);
 const FAILURE_DISPOSITIONS = new Set(["fail-gate", "warning", "non-routable"]);
 const NETWORK_EXPECTATIONS = new Set(["offline-only", "local-loopback", "outbound-allowed"]);
+const PLATFORM_LEG_PLATFORMS = new Set(["linux", "win32", "darwin"]);
+const LEG_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 const COMMAND_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 function stringArray(value, pointer, min, max, diagnostics) {
     if (!diagnostics.array(value, pointer, min, max))
@@ -183,10 +185,84 @@ function validateEffectsV3(effRaw, diagnostics) {
             diagnostics.add("E_TYPE", `/effects/${field}`, "expected boolean");
     }
 }
+function validateRequiredPlatformLegsV3(legsRaw, commandsRaw, diagnostics) {
+    if (legsRaw === undefined)
+        return;
+    if (!diagnostics.array(legsRaw, "/requiredPlatformLegs", 1, 64))
+        return;
+    const commandIds = isRecord(commandsRaw) ? new Set(Object.keys(commandsRaw)) : new Set();
+    const seenLegIds = new Set();
+    for (const [index, leg] of legsRaw.entries()) {
+        const ptr = `/requiredPlatformLegs/${String(index)}`;
+        const fields = ["legId", "platform", "commandId"];
+        if (!diagnostics.object(leg, ptr, fields, fields))
+            continue;
+        const legRec = leg;
+        const legId = legRec["legId"];
+        if (diagnostics.string(legId, `${ptr}/legId`, { min: 1 })) {
+            if (!LEG_ID_PATTERN.test(legId)) {
+                diagnostics.add("E_FORMAT", `${ptr}/legId`, "invalid leg id");
+            }
+            else if (seenLegIds.has(legId)) {
+                diagnostics.add("E_DUPLICATE", `${ptr}/legId`, `duplicate legId: ${legId}`);
+            }
+            else {
+                seenLegIds.add(legId);
+            }
+        }
+        const platform = legRec["platform"];
+        if (diagnostics.string(platform, `${ptr}/platform`) && !PLATFORM_LEG_PLATFORMS.has(platform)) {
+            diagnostics.add("E_ENUM", `${ptr}/platform`, "unsupported platform; expected linux|win32|darwin");
+        }
+        const commandId = legRec["commandId"];
+        if (diagnostics.string(commandId, `${ptr}/commandId`, { min: 1 })) {
+            if (!commandIds.has(commandId)) {
+                diagnostics.add("E_UNKNOWN_COMMAND", `${ptr}/commandId`, `commandId must reference an existing commands entry: ${commandId}`);
+            }
+        }
+    }
+}
+/**
+ * Full-required verdict for platform-bound legs (repo-template#417).
+ * Missing or mismatched receipts fail closed — never pass without proof.
+ */
+export function evaluateRequiredPlatformLegsV3(contract, receipts = []) {
+    const required = contract.requiredPlatformLegs ?? [];
+    if (required.length === 0) {
+        return {
+            ok: true,
+            requiredCount: 0,
+            satisfiedCount: 0,
+            missingLegs: [],
+            detail: "no requiredPlatformLegs declared",
+        };
+    }
+    const satisfied = new Set();
+    for (const receipt of receipts) {
+        if (receipt.schema !== "LocalCiPlatformLegReceiptV3")
+            continue;
+        const match = required.find((leg) => leg.legId === receipt.legId &&
+            leg.platform === receipt.platform &&
+            leg.commandId === receipt.commandId);
+        if (match)
+            satisfied.add(match.legId);
+    }
+    const missingLegs = required.filter((leg) => !satisfied.has(leg.legId));
+    return {
+        ok: missingLegs.length === 0,
+        requiredCount: required.length,
+        satisfiedCount: satisfied.size,
+        missingLegs,
+        detail: missingLegs.length === 0
+            ? `all ${String(required.length)} requiredPlatformLegs satisfied`
+            : `missing platform-leg receipts for: ${missingLegs.map((l) => `${l.legId}@${l.platform}`).join(", ")}`,
+    };
+}
 export function validateLocalCiContractV3(value) {
     const diagnostics = new Diagnostics();
-    const fields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
-    if (!diagnostics.object(value, "", fields, fields))
+    const requiredFields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
+    const allowedFields = [...requiredFields, "requiredPlatformLegs"];
+    if (!diagnostics.object(value, "", allowedFields, requiredFields))
         return finish(undefined, diagnostics);
     diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_ID });
     diagnostics.string(value["schemaVersion"], "/schemaVersion", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION });
@@ -196,6 +272,7 @@ export function validateLocalCiContractV3(value) {
     validateCommandsV3(value["commands"], diagnostics);
     validateEnvironmentV3(value["environment"], diagnostics);
     validateEffectsV3(value["effects"], diagnostics);
+    validateRequiredPlatformLegsV3(value["requiredPlatformLegs"], value["commands"], diagnostics);
     return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }
 export function classifyAndMigrateLocalCiV2ToV3(rawInput, sourceBlob) {
