@@ -97,8 +97,9 @@ export function extractIssueDetails(issueUrl: string): { repo: string; issue: nu
     return { repo: DIR_BREADTH_DEFAULT_REPO, issue: Number(issuePathMatch[1]) };
   }
   const shorthand = /^(?:(?<repo>[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)?)?)#(?<issue>\d+)$/.exec(value);
-  if (shorthand?.groups?.issue) {
-    const repoToken = shorthand.groups.repo;
+  const groups = shorthand?.groups;
+  if (groups && groups["issue"]) {
+    const repoToken = groups["repo"];
     let repo = DIR_BREADTH_DEFAULT_REPO;
     if (repoToken) {
       if (repoToken.includes("/")) {
@@ -108,7 +109,7 @@ export function extractIssueDetails(issueUrl: string): { repo: string; issue: nu
         repo = `${defaultOwner}/${repoToken}`;
       }
     }
-    return { repo: normalizeRepoIdentity(repo), issue: Number(shorthand.groups.issue) };
+    return { repo: normalizeRepoIdentity(repo), issue: Number(groups["issue"]) };
   }
   return null;
 }
