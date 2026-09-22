@@ -317,6 +317,7 @@
   "scripts/build-repo-quality-npm.ts": "self",
   "scripts/check-changelog-structure.ts": "self",
   "scripts/check-dir-breadth.ts": "self",
+  "scripts/check-dir-breadth.selfcheck.ts": "self",
   "scripts/check-fleet-law-sync.ts": "self",
   "scripts/check-issue-template-intake.ts": "self",
   "scripts/check-local-sli-authority.ts": "self",
