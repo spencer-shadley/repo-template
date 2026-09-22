@@ -378,8 +378,8 @@ function compareEmitted(
   expected: readonly FileClosureRow[],
 ): void {
   const mapped = mapEmittedPaths(emittedRoot);
-  const actualPaths = mapped.map((row) => row.artifactRelative).slice().sort();
-  const expectedPaths = expected.map((entry) => entry.path).slice().sort();
+  const actualPaths = mapped.map((row) => row.artifactRelative).slice().sort(compare);
+  const expectedPaths = expected.map((entry) => entry.path).slice().sort(compare);
   if (JSON.stringify(actualPaths) !== JSON.stringify(expectedPaths)) {
     throw new Error(
       `emitted path set mismatch\nexpected ${JSON.stringify(expectedPaths)}\nactual ${JSON.stringify(actualPaths)}`,
@@ -714,16 +714,16 @@ async function verifyArtifact(): Promise<void> {
  */
 function flattenArtifactRelativePath(relativePath: string): string {
   const parts = relativePath.split("/").filter(Boolean);
-  const base = parts[parts.length - 1];
+  const base = parts.at(-1);
   if (!base) throw new Error(`empty emitted path: ${relativePath}`);
   return base;
 }
 
 function rewriteFlattenedModuleSources(source: string): string {
   // Nested emit uses `../parent`; after flatten those become `./parent`.
-  let next = source.replace(/from (["'])\.\.\//g, (_match, quote: string) => `from ${quote}./`);
+  let next = source.replaceAll(/from (["'])\.\.\//g, (_match, quote: string) => `from ${quote}./`);
   // index and sibling barrels import `./local-ci/foo` / `./product-overlay/foo`; flatten to `./foo`.
-  next = next.replace(
+  next = next.replaceAll(
     /from (["'])\.\/(?:local-ci|product-overlay|release)\//g,
     (_match, quote: string) => `from ${quote}./`,
   );
