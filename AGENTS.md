@@ -8,6 +8,10 @@ create and adopt fleet repositories.
 ## Responsibilities
 
 - Own generic template files, portable repository semantics, manifests, and setup placeholders.
+- Own the portable fleet **label vocabulary** composition and provisioner: consume the pinned Code
+  fleet-law projection, add template-portable labels, ban retired names, and publish the
+  deterministic provision/check surfaces agents use at bootstrap and adoption
+  ([docs/FLEET-LABEL-VOCABULARY.md](./docs/FLEET-LABEL-VOCABULARY.md)).
 - Own versioned adoption-shell contracts, deterministic materialization, release artifacts, and migration guidance.
 - Own template self-verification, conformance fixtures, and structural semver policy.
 - Turn proven fleet-wide repository lessons into portable defaults without rewriting consumers directly.
@@ -18,6 +22,8 @@ create and adopt fleet repositories.
 - Does not create, relocate, register, schedule, activate, or deploy repositories.
 - Does not own Fleet Registry identity facts or Repo Factory lifecycle/effect transactions.
 - Does not mutate existing consumers merely because the template evolves.
+- Does not author Code fleet-law projection bytes (priority/work-spine/intake law stays Code-owned);
+  this repo pins and consumes that projection, then composes template-portable labels only.
 
 ## Current status / readiness
 

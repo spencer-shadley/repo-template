@@ -9,7 +9,7 @@ import {
   normalizeCommentLogicalLine,
   parseTodoDirective,
 } from "./classify.ts";
-import { extractCFamilyComments, extractHashLineComments } from "./extractors.ts";
+import { extractComments } from "./extractors.ts";
 import { scanTodoIssueLinks } from "./scan.ts";
 
 test("directive grammar accepts TODO: / TODO(...) / TODO - forms case-insensitively", () => {
@@ -58,7 +58,7 @@ test("C-family extractor ignores TODO inside strings and captures block * decora
     " */",
     "// TODO(https://github.com/o/r/issues/3): ok",
   ].join("\n");
-  const spans = extractCFamilyComments(source);
+  const spans = extractComments("c-family-comments-v1", source);
   assert.equal(spans.some((s) => s.text.includes("not a comment")), false);
   const result = scanTodoIssueLinks({
     rootDir: "/tmp",
@@ -74,7 +74,7 @@ test("hash-line extractor ignores quoted # and TODO in strings", () => {
     'msg = "TODO: still a string # not comment"',
     "# TODO: needs url",
   ].join("\n");
-  const spans = extractHashLineComments(source);
+  const spans = extractComments("hash-line-comments-v1", source);
   assert.equal(spans.length, 1);
   assert.match(spans[0]!.text, /TODO: needs url/);
 });
