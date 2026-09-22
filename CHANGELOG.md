@@ -1,18 +1,13 @@
 # Changelog
 
-## 1.9.1
-
-### Added
-- **RT#422**: portable `docs-only` LocalCi `simpleDiff` gate in `@spencer-shadley/repo-quality`
-  (`docs-only-gate`, `docs-only-simple-diff.json`) so leaf repos stop maintaining five copies.
-
-
 Format: [Keep a Changelog](https://keepachangelog.com). Maintained at merge time (post-merge
 obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-design-philosophies.md)) —
 one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+- **Portable docs-only LocalCi simpleDiff gate (RT#422):** Publish `@spencer-shadley/repo-quality` `docs-only-gate` + `docs-only-simple-diff.json` so leaf repos stop maintaining five local script copies. PATCH. Fixes #422.
+- **Tip-green after RT#422/#345 (RT#411 land-gate obligation):** Ignore `packages/repo-quality/docs-only-gate/**` and `todo-issue-link/**` in eslint until those trees are enrolled in `packages/repo-quality/tsconfig.json` and lint-clean; add `@stack-waiver` on `todo-issue-link.mjs` and drop unused imports (match `docs-only-gate.mjs`); retarget `build-repo-quality-npm`/`verify-repo-quality-npm` identity pin `1.8.0`→`1.9.1` and require the new launcher exports; enroll unmanifested RT#345/#418/#422 paths in `template-manifest.json`; regenerate inert-seed + artifact digests. Restores declared `pnpm lint`/`pnpm verify` green without `--skip-gate`. PATCH. Fixes #411.
 - **Tip-green knip after RT#422/#345:** Import `docs-only-gate/cli.ts` from the `.mjs` launcher (same pattern as todo-issue-link); keep language extractors package-private behind `extractComments`. PATCH.
 - **Charter + SSOT for portable fleet label vocabulary (RT#418):** TEMPLATE-SELF Responsibilities now claim composition/provision of the portable fleet label vocabulary (Code fleet-law pin + template-portable labels). Add `docs/FLEET-LABEL-VOCABULARY.md` as the discoverable SSOT for responsibility routing. Selfcheck asserts the charter bullet and SSOT doc. PATCH. Fixes #418.
 

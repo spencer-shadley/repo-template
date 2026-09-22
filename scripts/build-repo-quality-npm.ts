@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const packageName = "@spencer-shadley/repo-quality";
-const packageVersion = "1.8.0";
+const packageVersion = "1.9.1";
 const deterministicIdentity = {
   GIT_AUTHOR_NAME: "repo-template package materializer",
   GIT_AUTHOR_EMAIL: "repo-template-package@invalid.example",
@@ -43,7 +43,7 @@ export function materializeRepoQualityCommit(sourceCommit = "HEAD"): string {
 }
 
 if (import.meta.main) {
-  const [mode, sourceCommit = "HEAD", targetRef = "refs/tags/repo-quality-v1.8.0"] = process.argv.slice(2);
+  const [mode, sourceCommit = "HEAD", targetRef = "refs/tags/repo-quality-v1.9.1"] = process.argv.slice(2);
   if (mode !== "print" && mode !== "publish") {
     throw new TypeError("usage: build-repo-quality-npm.ts <print|publish> [source-commit] [target-ref]");
   }

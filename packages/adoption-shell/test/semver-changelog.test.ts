@@ -440,7 +440,7 @@ test("SVC1: enforces one authoritative SemVer per released public contract and v
     packageManifests: {
       "packages/repo-quality/package.json": JSON.stringify({
         name: "@spencer-shadley/repo-quality",
-        version: "1.8.0",
+        version: "1.9.1",
       }),
     },
   });
@@ -458,7 +458,7 @@ test("SVC1: enforces one authoritative SemVer per released public contract and v
     ),
   );
 
-  // Independent public package contract (repo-quality@1.8.0) is not forced to match root VERSION (3.2.0)
+  // Independent public package contract (repo-quality@1.9.1) is not forced to match root VERSION (3.2.0)
   const independentPackage = checkSemverChangelog({
     versionContent: "3.2.0\n",
     templateVersionContent: "3.2.0\n",
@@ -466,7 +466,7 @@ test("SVC1: enforces one authoritative SemVer per released public contract and v
     packageManifests: {
       "packages/repo-quality/package.json": JSON.stringify({
         name: "@spencer-shadley/repo-quality",
-        version: "1.8.0",
+        version: "1.9.1",
       }),
     },
   });
@@ -480,7 +480,7 @@ test("SVC1: enforces one authoritative SemVer per released public contract and v
     packageManifests: {
       "packages/repo-quality/package.json": JSON.stringify({
         name: "@spencer-shadley/repo-quality",
-        version: "v1.8.0",
+        version: "v1.9.1",
       }),
     },
   });
@@ -509,7 +509,7 @@ test("discoverPublicContracts discovers independent public contracts and tags de
 
   const repoQuality = contracts.find((c) => c.name === "@spencer-shadley/repo-quality");
   assert.ok(repoQuality);
-  assert.equal(repoQuality.version, "1.8.0");
+  assert.equal(repoQuality.version, "1.9.1");
   assert.equal(repoQuality.isDerived, undefined);
 });
 
