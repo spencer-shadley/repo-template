@@ -77,10 +77,7 @@
         "pnpm-lock.yaml",
         "package-lock.json",
         "docs/QUALITY-LINT.md",
-        "scripts/verify-quality-lint*",
-        "local-ci.json",
-        "contracts/local-ci/v3/local-ci-contract-v3.json",
-        "skills/**"
+        "scripts/verify-quality-lint*"
       ],
       "commands": {
         "lint": {
