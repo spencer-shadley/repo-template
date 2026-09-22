@@ -148,6 +148,22 @@ function validateTaxonomySection(text: string, missing: string[]): void {
   }
 }
 
+function validateWorkTypeSplit(text: string, missing: string[]): void {
+  // AO2104 T1 / RT#342: refuse the pre-split "Discovery / experiment" affordance and
+  // require the Code-owned distinct exploration vs experiment work-type choices.
+  if (/Discovery\s*\/?\s*experiment/i.test(text)) {
+    missing.push(
+      "work type still conflates Discovery / experiment; require distinct exploration and experiment",
+    );
+  }
+  if (!/Exploration\s*\/\s*design research/i.test(text)) {
+    missing.push("work type missing Exploration / design research");
+  }
+  if (!/Experiment\s*\/\s*evidence test/i.test(text)) {
+    missing.push("work type missing Experiment / evidence test");
+  }
+}
+
 function validate(templateMarkdown: string): ValidateResult {
   const text = stripFrontmatter(templateMarkdown);
   const missing: string[] = [];
@@ -156,6 +172,7 @@ function validate(templateMarkdown: string): ValidateResult {
       missing.push(`## ${h}`);
     }
   }
+  validateWorkTypeSplit(text, missing);
   validateProvenance(text, missing);
   validateTaxonomySection(text, missing);
   for (const token of STATUS_TOKENS) {
