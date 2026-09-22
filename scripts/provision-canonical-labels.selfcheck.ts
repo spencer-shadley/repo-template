@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, mkdtempSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -200,5 +200,26 @@ try {
 // Sync tool self-check
 const checkResult = runCheckFleetLawSync({ check: true });
 assert.equal(checkResult.code, 0);
+
+
+// RT#418: TEMPLATE-SELF charter must claim portable label vocabulary ownership
+{
+  const agentsMd = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "AGENTS.md"), "utf8");
+  const selfBlockMatch = agentsMd.match(/<!-- TEMPLATE-SELF[\s\S]*?<!-- \/TEMPLATE-SELF -->/);
+  assert.ok(selfBlockMatch, "TEMPLATE-SELF block missing from AGENTS.md");
+  const selfBlock = selfBlockMatch[0];
+  assert.match(
+    selfBlock,
+    /label vocabulary/i,
+    "TEMPLATE-SELF Responsibilities must claim portable fleet label vocabulary (repo-template#418)",
+  );
+  assert.match(
+    selfBlock,
+    /Does not author Code fleet-law projection/i,
+    "TEMPLATE-SELF Non-responsibilities must refuse authoring Code fleet-law bytes (repo-template#418)",
+  );
+  const vocabDoc = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "docs", "FLEET-LABEL-VOCABULARY.md");
+  assert.ok(existsSync(vocabDoc), "docs/FLEET-LABEL-VOCABULARY.md must exist (repo-template#418 SSOT)");
+}
 
 console.log("provision-canonical-labels.selfcheck: PASS");

@@ -13,6 +13,8 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+- **Charter + SSOT for portable fleet label vocabulary (RT#418):** TEMPLATE-SELF Responsibilities now claim composition/provision of the portable fleet label vocabulary (Code fleet-law pin + template-portable labels). Add `docs/FLEET-LABEL-VOCABULARY.md` as the discoverable SSOT for responsibility routing. Selfcheck asserts the charter bullet and SSOT doc. PATCH. Fixes #418.
+
 - **Portable TODO→GitHub-issue link checker (RT#345):** Add `packages/repo-quality/todo-issue-link` with a language registry, comment extractors (not whole-file grep), directive classifier requiring a full `https://github.com/<owner>/<repo>/issues/<n>` URL, and machine-readable `TodoIssueLinkScanResultV1` findings for full-tree/changed-file modes. Unknown authored extensions report `unsupported` (never silent pass). Harden `hasIssueTrackingReference` to the same full-URL bar (closes historical shorthand fail-open). Wire `pnpm todo-issue-link` / `todo-issue-link:selfcheck` into verify. PATCH. Fixes #345.
 - **Enroll dir-breadth selfcheck + retarget issue-template blob pin (RT tip-green):** Add `scripts/check-dir-breadth.selfcheck.ts` to `template-manifest.json` (unmanifested after #377) and update `tools/verify-template-self.ts` predecessor task.md blob pin after RT#342 portable Exploration/Experiment template bytes. PATCH.
 - **Tip-red: linearize Discovery/experiment conflation regex (RT tip-green):** Replace `/Discovery\s*\/?\s*experiment/i` in `scripts/check-issue-template-intake.ts` with an alternation that cannot super-linear-backtrack (`sonarjs/super-linear-regex`), restoring green `pnpm lint` on master after RT#377 land exposed the gate. PATCH. Fixes #414.
