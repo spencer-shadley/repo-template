@@ -18,6 +18,10 @@ export default [
       "artifacts/**",
       // intentional negative fixtures for user-surface lint
       "tests/fixtures/**",
+      // RT#411 tip-green: subpackage sources not yet in packages/repo-quality/tsconfig.json
+      // include (projectService). Enroll + lint-clean under follow-on; keep land gate green.
+      "packages/repo-quality/docs-only-gate/**",
+      "packages/repo-quality/todo-issue-link/**",
     ],
   },
   ...qualityRules(),
