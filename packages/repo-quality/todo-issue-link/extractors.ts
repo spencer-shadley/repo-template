@@ -21,7 +21,7 @@ function lineColAt(source: string, index: number): { line: number; column: numbe
 }
 
 /** C-family line and block comments outside strings. */
-export function extractCFamilyComments(source: string): CommentSpanV1[] {
+function extractCFamilyComments(source: string): CommentSpanV1[] {
   const out: CommentSpanV1[] = [];
   let i = 0;
   while (i < source.length) {
@@ -67,7 +67,7 @@ export function extractCFamilyComments(source: string): CommentSpanV1[] {
 }
 
 /** Hash line comments outside single/double/backtick strings. */
-export function extractHashLineComments(source: string): CommentSpanV1[] {
+function extractHashLineComments(source: string): CommentSpanV1[] {
   const out: CommentSpanV1[] = [];
   const lines = source.split(/\r?\n/);
   let offset = 0;
@@ -103,7 +103,7 @@ export function extractHashLineComments(source: string): CommentSpanV1[] {
   return out;
 }
 
-export function extractPowershellComments(source: string): CommentSpanV1[] {
+function extractPowershellComments(source: string): CommentSpanV1[] {
   const out = extractHashLineComments(source);
   let i = 0;
   while (i < source.length) {
@@ -122,7 +122,7 @@ export function extractPowershellComments(source: string): CommentSpanV1[] {
   return out;
 }
 
-export function extractSqlComments(source: string): CommentSpanV1[] {
+function extractSqlComments(source: string): CommentSpanV1[] {
   const out: CommentSpanV1[] = [];
   let i = 0;
   while (i < source.length) {
@@ -166,7 +166,7 @@ export function extractSqlComments(source: string): CommentSpanV1[] {
   return out;
 }
 
-export function extractHtmlComments(source: string): CommentSpanV1[] {
+function extractHtmlComments(source: string): CommentSpanV1[] {
   const out: CommentSpanV1[] = [];
   let i = 0;
   while (i < source.length) {
@@ -185,7 +185,7 @@ export function extractHtmlComments(source: string): CommentSpanV1[] {
   return out;
 }
 
-export function extractCssBlockComments(source: string): CommentSpanV1[] {
+function extractCssBlockComments(source: string): CommentSpanV1[] {
   return extractCFamilyComments(source).filter((span) => true);
 }
 
