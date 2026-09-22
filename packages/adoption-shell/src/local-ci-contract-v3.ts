@@ -332,6 +332,45 @@ function validateEffectsV3(effRaw: unknown, diagnostics: Diagnostics): void {
   }
 }
 
+function validatePlatformLegId(
+  legId: unknown,
+  ptr: string,
+  seenLegIds: Set<string>,
+  diagnostics: Diagnostics,
+): void {
+  if (!diagnostics.string(legId, `${ptr}/legId`, { min: 1 })) return;
+  if (!LEG_ID_PATTERN.test(legId)) {
+    diagnostics.add("E_FORMAT", `${ptr}/legId`, "invalid leg id");
+    return;
+  }
+  if (seenLegIds.has(legId)) {
+    diagnostics.add("E_DUPLICATE", `${ptr}/legId`, `duplicate legId: ${legId}`);
+    return;
+  }
+  seenLegIds.add(legId);
+}
+
+function validatePlatformLegPlatform(platform: unknown, ptr: string, diagnostics: Diagnostics): void {
+  if (!diagnostics.string(platform, `${ptr}/platform`)) return;
+  if (PLATFORM_LEG_PLATFORMS.has(platform)) return;
+  diagnostics.add("E_ENUM", `${ptr}/platform`, "unsupported platform; expected linux|win32|darwin");
+}
+
+function validatePlatformLegCommandId(
+  commandId: unknown,
+  ptr: string,
+  commandIds: ReadonlySet<string>,
+  diagnostics: Diagnostics,
+): void {
+  if (!diagnostics.string(commandId, `${ptr}/commandId`, { min: 1 })) return;
+  if (commandIds.has(commandId)) return;
+  diagnostics.add(
+    "E_UNKNOWN_COMMAND",
+    `${ptr}/commandId`,
+    `commandId must reference an existing commands entry: ${commandId}`,
+  );
+}
+
 function validateRequiredPlatformLegsV3(
   legsRaw: unknown,
   commandsRaw: unknown,
@@ -345,32 +384,21 @@ function validateRequiredPlatformLegsV3(
     const ptr = `/requiredPlatformLegs/${String(index)}`;
     const fields = ["legId", "platform", "commandId"];
     if (!diagnostics.object(leg, ptr, fields, fields)) continue;
-    const legRec = leg;
-    const legId = legRec["legId"];
-    if (diagnostics.string(legId, `${ptr}/legId`, { min: 1 })) {
-      if (!LEG_ID_PATTERN.test(legId)) {
-        diagnostics.add("E_FORMAT", `${ptr}/legId`, "invalid leg id");
-      } else if (seenLegIds.has(legId)) {
-        diagnostics.add("E_DUPLICATE", `${ptr}/legId`, `duplicate legId: ${legId}`);
-      } else {
-        seenLegIds.add(legId);
-      }
-    }
-    const platform = legRec["platform"];
-    if (diagnostics.string(platform, `${ptr}/platform`) && !PLATFORM_LEG_PLATFORMS.has(platform)) {
-      diagnostics.add("E_ENUM", `${ptr}/platform`, "unsupported platform; expected linux|win32|darwin");
-    }
-    const commandId = legRec["commandId"];
-    if (diagnostics.string(commandId, `${ptr}/commandId`, { min: 1 })) {
-      if (!commandIds.has(commandId)) {
-        diagnostics.add(
-          "E_UNKNOWN_COMMAND",
-          `${ptr}/commandId`,
-          `commandId must reference an existing commands entry: ${commandId}`,
-        );
-      }
-    }
+    validatePlatformLegId(leg["legId"], ptr, seenLegIds, diagnostics);
+    validatePlatformLegPlatform(leg["platform"], ptr, diagnostics);
+    validatePlatformLegCommandId(leg["commandId"], ptr, commandIds, diagnostics);
   }
+}
+
+function receiptMatchesRequiredLeg(
+  receipt: LocalCiPlatformLegReceiptV3,
+  leg: LocalCiRequiredPlatformLegV3,
+): boolean {
+  return (
+    leg.legId === receipt.legId &&
+    leg.platform === receipt.platform &&
+    leg.commandId === receipt.commandId
+  );
 }
 
 /**
@@ -393,13 +421,7 @@ export function evaluateRequiredPlatformLegsV3(
   }
   const satisfied = new Set<string>();
   for (const receipt of receipts) {
-    if (receipt.schema !== "LocalCiPlatformLegReceiptV3") continue;
-    const match = required.find(
-      (leg) =>
-        leg.legId === receipt.legId &&
-        leg.platform === receipt.platform &&
-        leg.commandId === receipt.commandId,
-    );
+    const match = required.find((leg) => receiptMatchesRequiredLeg(receipt, leg));
     if (match) satisfied.add(match.legId);
   }
   const missingLegs = required.filter((leg) => !satisfied.has(leg.legId));

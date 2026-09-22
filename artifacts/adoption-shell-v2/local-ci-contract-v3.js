@@ -185,6 +185,33 @@ function validateEffectsV3(effRaw, diagnostics) {
             diagnostics.add("E_TYPE", `/effects/${field}`, "expected boolean");
     }
 }
+function validatePlatformLegId(legId, ptr, seenLegIds, diagnostics) {
+    if (!diagnostics.string(legId, `${ptr}/legId`, { min: 1 }))
+        return;
+    if (!LEG_ID_PATTERN.test(legId)) {
+        diagnostics.add("E_FORMAT", `${ptr}/legId`, "invalid leg id");
+        return;
+    }
+    if (seenLegIds.has(legId)) {
+        diagnostics.add("E_DUPLICATE", `${ptr}/legId`, `duplicate legId: ${legId}`);
+        return;
+    }
+    seenLegIds.add(legId);
+}
+function validatePlatformLegPlatform(platform, ptr, diagnostics) {
+    if (!diagnostics.string(platform, `${ptr}/platform`))
+        return;
+    if (PLATFORM_LEG_PLATFORMS.has(platform))
+        return;
+    diagnostics.add("E_ENUM", `${ptr}/platform`, "unsupported platform; expected linux|win32|darwin");
+}
+function validatePlatformLegCommandId(commandId, ptr, commandIds, diagnostics) {
+    if (!diagnostics.string(commandId, `${ptr}/commandId`, { min: 1 }))
+        return;
+    if (commandIds.has(commandId))
+        return;
+    diagnostics.add("E_UNKNOWN_COMMAND", `${ptr}/commandId`, `commandId must reference an existing commands entry: ${commandId}`);
+}
 function validateRequiredPlatformLegsV3(legsRaw, commandsRaw, diagnostics) {
     if (legsRaw === undefined)
         return;
@@ -197,30 +224,15 @@ function validateRequiredPlatformLegsV3(legsRaw, commandsRaw, diagnostics) {
         const fields = ["legId", "platform", "commandId"];
         if (!diagnostics.object(leg, ptr, fields, fields))
             continue;
-        const legRec = leg;
-        const legId = legRec["legId"];
-        if (diagnostics.string(legId, `${ptr}/legId`, { min: 1 })) {
-            if (!LEG_ID_PATTERN.test(legId)) {
-                diagnostics.add("E_FORMAT", `${ptr}/legId`, "invalid leg id");
-            }
-            else if (seenLegIds.has(legId)) {
-                diagnostics.add("E_DUPLICATE", `${ptr}/legId`, `duplicate legId: ${legId}`);
-            }
-            else {
-                seenLegIds.add(legId);
-            }
-        }
-        const platform = legRec["platform"];
-        if (diagnostics.string(platform, `${ptr}/platform`) && !PLATFORM_LEG_PLATFORMS.has(platform)) {
-            diagnostics.add("E_ENUM", `${ptr}/platform`, "unsupported platform; expected linux|win32|darwin");
-        }
-        const commandId = legRec["commandId"];
-        if (diagnostics.string(commandId, `${ptr}/commandId`, { min: 1 })) {
-            if (!commandIds.has(commandId)) {
-                diagnostics.add("E_UNKNOWN_COMMAND", `${ptr}/commandId`, `commandId must reference an existing commands entry: ${commandId}`);
-            }
-        }
+        validatePlatformLegId(leg["legId"], ptr, seenLegIds, diagnostics);
+        validatePlatformLegPlatform(leg["platform"], ptr, diagnostics);
+        validatePlatformLegCommandId(leg["commandId"], ptr, commandIds, diagnostics);
     }
+}
+function receiptMatchesRequiredLeg(receipt, leg) {
+    return (leg.legId === receipt.legId &&
+        leg.platform === receipt.platform &&
+        leg.commandId === receipt.commandId);
 }
 /**
  * Full-required verdict for platform-bound legs (repo-template#417).
@@ -239,11 +251,7 @@ export function evaluateRequiredPlatformLegsV3(contract, receipts = []) {
     }
     const satisfied = new Set();
     for (const receipt of receipts) {
-        if (receipt.schema !== "LocalCiPlatformLegReceiptV3")
-            continue;
-        const match = required.find((leg) => leg.legId === receipt.legId &&
-            leg.platform === receipt.platform &&
-            leg.commandId === receipt.commandId);
+        const match = required.find((leg) => receiptMatchesRequiredLeg(receipt, leg));
         if (match)
             satisfied.add(match.legId);
     }
