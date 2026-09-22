@@ -25,8 +25,8 @@
     {
       "path": "packages/adoption-shell/src",
       "maxFiles": 32,
-      "issue": "https://github.com/spencer-shadley/repo-template/issues/376",
-      "reason": "Tip-red on da16ba3886a3: packages/adoption-shell/src peer count is 32 > default max 25 (longstanding over-cap since RT85 M1). Freeze at measured count with live owner repo-template#376. Split-by-responsibility follow-up remains on #376; no silent wholesale default-cap raise."
+      "issue": "https://github.com/spencer-shadley/repo-template/issues/412",
+      "reason": "Freeze peer-file count at measured origin/master count (32 files); live owner repo-template#412 (retargeted from closed #376). Split-by-responsibility follow-up remains on #412; no silent wholesale default-cap raise. Gate wiring + closed-owner refuse: #377."
     }
   ]
 }
