@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "437eb624e7a3074fb0b545e0b2295347024f3b23c652804980f00730c54fefb9",
+  "inventoryDigest": "35a6b41b5629da074f7b0a6af322b86fade6197d873c53333a182cc55e786a4d",
   "entryCount": 102,
   "excludedCount": 9,
   "entries": [
@@ -96,15 +96,15 @@
       "path": "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "ac16dfa06dbfc2a1b06c752c6b362249411efb8bad4e69af251c4925796fb171",
-      "bytes": 3810
+      "contentSha256": "8ec23c1247492af5aba6709ed058d185feeb47c0a90b26ea3e22c67a9abd60c2",
+      "bytes": 5681
     },
     {
       "path": "artifacts/adoption-shell-v2/local-ci-contract-v3.js",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "21ed068020eaa31e5b8a82d57caedb998661452ead347f8afa2fcb120f302d51",
-      "bytes": 11538
+      "contentSha256": "840e2d435c5014dcddfa4bef3a66d73372dac3f3a6c8212bbea6769857f2f731",
+      "bytes": 15193
     },
     {
       "path": "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts",
@@ -313,8 +313,8 @@
       "path": "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
-      "bytes": 6795
+      "contentSha256": "942db214785f4df7e584b454400879c59fe42a1fbe5f98a3c0c6fed5321c8180",
+      "bytes": 7897
     },
     {
       "path": "contracts/local-ci/v3/local-ci-outcome-v1.schema.json",
@@ -770,5 +770,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "c6be85ace90730a9f3260002bf0cec4d1a05033839ffd40a7f1e50897fe4ed47"
+  "manifestDigest": "6a7b536bff39b49dceb12cd4aa465f04fd46f6cda4b897196a31a7fd98275e0c"
 }
