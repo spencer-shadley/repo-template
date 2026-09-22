@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @stack-waiver id=repo-quality-docs-only-gate-mjs reason="Published npm ESM launcher must stay JavaScript so Node can import the TypeScript cli without a separate compile step (same pattern as todo-issue-link.mjs / knip.mjs)."
 /**
  * Thin ESM launcher for the portable docs-only simpleDiff gate (RT#422).
  * Prefer: node --experimental-strip-types packages/repo-quality/docs-only-gate/cli.ts

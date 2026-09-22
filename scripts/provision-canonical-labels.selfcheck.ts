@@ -205,7 +205,7 @@ assert.equal(checkResult.code, 0);
 // RT#418: TEMPLATE-SELF charter must claim portable label vocabulary ownership
 {
   const agentsMd = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "AGENTS.md"), "utf8");
-  const selfBlockMatch = agentsMd.match(/<!-- TEMPLATE-SELF[\s\S]*?<!-- \/TEMPLATE-SELF -->/);
+  const selfBlockMatch = /<!-- TEMPLATE-SELF[\s\S]*?<!-- \/TEMPLATE-SELF -->/.exec(agentsMd);
   assert.ok(selfBlockMatch, "TEMPLATE-SELF block missing from AGENTS.md");
   const selfBlock = selfBlockMatch[0];
   assert.match(
