@@ -1,0 +1,10 @@
+{
+  "profileId": "full-stack",
+  "monorepo": true,
+  "rootFamilies": [
+    "apps"
+  ],
+  "declaredScripts": [
+    "lint"
+  ]
+}

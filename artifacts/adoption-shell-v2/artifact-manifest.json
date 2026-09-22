@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "ddab7ca433617582fe41ae86ea20588ddd89eb5f6dab4d9112065849f03e1e33",
+  "artifactDigest": "b76cb5456ea06358a77eda7adec6a492544f3b9aced5b96cdcb1b12da7f43eb9",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "21e0da837daaf21232c480fe951de30f948d26cb6750914b44af1aa47f96b3ce",
-      "bytes": 9096
+      "sha256": "936b982d6f90fac3c2758f039d8ec7a609be210ad9c60ee870d3e1ac5fa5857b",
+      "bytes": 9319
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -189,8 +189,15 @@
       "path": "packages/adoption-shell/src/repository-shape.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "22c0ca1eda2d6d0b5ab9ac8370d6ead6f30572b11bb02714ff01a9e2fcef3bd7",
-      "bytes": 13526
+      "sha256": "6dca3e04bd65781135283c79b92d12dfff52cbe8d8a55a2fb4f1faa4dc3d5d67",
+      "bytes": 11113
+    },
+    {
+      "path": "packages/adoption-shell/src/repository-shape/validators.generated.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "29702fe868614950d48752a129d931980251acb5213b7e4d8f38c8c9791ef256",
+      "bytes": 9212
     },
     {
       "path": "packages/adoption-shell/src/test-harness.ts",
@@ -428,15 +435,15 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "b7fc0d58b143c03abb573bc565a3a41231a613517d847012300a86555e469e29",
-      "bytes": 8504
+      "sha256": "fde12b1e81eb2e018fd9fe18799f6dd077b8b838c03068a37e02d69808ae50ee",
+      "bytes": 8700
     },
     {
       "path": "index.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "76db4b961d857a19d7af4a8a92473f33d822aade494aa370dbeaa4f623973176",
-      "bytes": 5529
+      "sha256": "0d3ecddfbcf76f8573de30abaab514ee1e5e62b58d691622999ec54c2a504869",
+      "bytes": 5675
     },
     {
       "path": "local-ci-contract-v2.d.ts",
@@ -666,15 +673,15 @@
       "path": "repository-shape.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "bd96f8724ec4278fde750d4e54281f317355ea400dbc9cdf46f7b68a22c9da5c",
-      "bytes": 3212
+      "sha256": "5e2b182f4039a7883126eda040980cc8a8c1b3be26df5049fcff2ed23b1e5bc0",
+      "bytes": 3728
     },
     {
       "path": "repository-shape.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "07860ef5d0da3c399b7bd8b54e90491931a7df86f726eb2d2ff5292ea2d8b6b9",
-      "bytes": 12146
+      "sha256": "a7096dcec7e2d70e96fcec9a26d4ec645c4aec604819e300de23ce3f1e323f62",
+      "bytes": 9213
     },
     {
       "path": "test-harness.d.ts",
@@ -759,6 +766,20 @@
       "mode": "100644",
       "sha256": "ba2a8803f2eb59267e95f63a4b91b6019f5b89db060c954bf2325df73483e4da",
       "bytes": 4182
+    },
+    {
+      "path": "validators.generated.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "342961272cd9827d9501fa76518947c8f90912eccd5a484670be09ba9c61b338",
+      "bytes": 911
+    },
+    {
+      "path": "validators.generated.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "250133ba3a05c322298d2424a171e7e236329e0e4c4fb1bf4a0840716fbe9ab3",
+      "bytes": 9340
     },
     {
       "path": "work-migration-manifest-v1.d.ts",
@@ -1281,6 +1302,48 @@
       "bytes": 5125
     },
     {
+      "path": "contracts/repository-shape/v1/fixtures/invalid-profile-declared-scripts-map.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "ee12056277009b7cdba0c6bb0b053ff831afdac023b9eaf0001c5115be1ae0f4",
+      "bytes": 320
+    },
+    {
+      "path": "contracts/repository-shape/v1/fixtures/invalid-profile-missing-identity.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "eb636df5eda051337422c07da0ae556341b2f36256dea9486f93cd24b75e3527",
+      "bytes": 127
+    },
+    {
+      "path": "contracts/repository-shape/v1/fixtures/invalid-profile-wrong-contract-id.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "da15e8d6eda2d70271d5b5bc8f3b7930f9aadbaf81b5dfdac45ce8cbff221300",
+      "bytes": 289
+    },
+    {
+      "path": "contracts/repository-shape/v1/fixtures/invalid-turbo-cache-type.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "4ca5dfe23ca143b32d2cd0f5807ff52574a9ea64e75c4f9871757db3cae34cde",
+      "bytes": 134
+    },
+    {
+      "path": "contracts/repository-shape/v1/fixtures/invalid-turbo-inputs-type.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "32b1f0d7b86ec86767d1fb2a8832d0708407473feaf01c55f3e11faeeb73cafb",
+      "bytes": 138
+    },
+    {
+      "path": "contracts/repository-shape/v1/fixtures/invalid-turbo-persistent-type.json",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "2c0bbe3f937800ffa27487d243a5672909b0c516dcc38a9da0904463b420bc75",
+      "bytes": 133
+    },
+    {
       "path": "contracts/repository-shape/v1/fixtures/valid-monorepo-profile.json",
       "kind": "file",
       "mode": "100644",
@@ -1340,8 +1403,8 @@
       "path": "eslint.config.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "e2bb9747b48c129990b00d933c54b6caf6d47d8e88b49aa096781b5dcc129aff",
-      "bytes": 1944
+      "sha256": "83b951bebd7866515681ce4ae505d51bdb0c003269fc425e110921f76bc352a3",
+      "bytes": 2794
     },
     {
       "path": "local-ci.json",
@@ -1531,7 +1594,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "f166ef2f10c9cdcddd535c47f90b3e4031002c8d617ca2ca316fd8356a8e7d38",
+      "sha256": "05b7751a2bc658acd7fbed2f250463f5f11eb310ae816f810fb04912024daf76",
       "bytes": 876
     },
     {
@@ -1563,5 +1626,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "a489b5e40b2daf6fa06be03dbc36abc0ab2cfd94f0569be6343509e01510fe22"
+  "manifestDigest": "9f1815cd73371892f5690b39fe5c6064b2f2810629c5fcf98d61db8f98e24c28"
 }

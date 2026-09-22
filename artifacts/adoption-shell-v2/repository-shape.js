@@ -1,6 +1,7 @@
 import { ENVELOPE_DIGEST_ALGORITHM, } from "./contract.js";
 import { sha256Bytes, sha256CanonicalJson } from "./digest.js";
-import { BUNDLE_ID_PATTERN, Diagnostics, SEMVER_PATTERN, compareStrings, isRecord, } from "./validation-helpers.js";
+import { Diagnostics, compareStrings, isRecord, } from "./validation-helpers.js";
+import { validateRepositoryShapeProfileWire, validateTurboTaskGraphWire, } from "./validators.generated.js";
 export const REPOSITORY_SHAPE_CONTRACT_ID = "repo-template/repository-shape/v1";
 export const REPOSITORY_SHAPE_SCHEMA_VERSION = "1.0.0";
 export const REPOSITORY_SHAPE_SCHEMA_ID = "https://schemas.repo-template.dev/repository-shape/v1/repository-shape.schema.json";
@@ -218,6 +219,17 @@ export function createRepositoryShapeBundle(profile, options) {
         digest: sha256CanonicalJson(bundleBody),
     });
 }
+export function withRepositoryShapeIdentity(profile) {
+    return Object.freeze({
+        schemaId: REPOSITORY_SHAPE_SCHEMA_ID,
+        schemaVersion: REPOSITORY_SHAPE_SCHEMA_VERSION,
+        contractId: REPOSITORY_SHAPE_CONTRACT_ID,
+        profileId: profile.profileId,
+        monorepo: profile.monorepo,
+        rootFamilies: profile.rootFamilies,
+        declaredScripts: profile.declaredScripts,
+    });
+}
 function finish(value, diagnostics) {
     const rows = diagnostics.sorted();
     return rows.length === 0 && value !== undefined
@@ -226,118 +238,43 @@ function finish(value, diagnostics) {
 }
 export function validateTurboTaskGraph(value) {
     const diagnostics = new Diagnostics();
-    if (!diagnostics.object(value, "", ["$schema", "tasks"], ["tasks"])) {
-        return finish(undefined, diagnostics);
-    }
-    const rec = value;
-    if (rec["$schema"] !== undefined) {
-        diagnostics.string(rec["$schema"], "/$schema", { min: 1, max: 200 });
-    }
-    const tasksVal = rec["tasks"];
-    if (!isRecord(tasksVal)) {
-        diagnostics.add("E_TYPE", "/tasks", "tasks must be an object");
-        return finish(undefined, diagnostics);
-    }
-    for (const [taskName, taskDef] of Object.entries(tasksVal)) {
-        const taskPointer = `/tasks/${taskName}`;
-        if (!diagnostics.object(taskDef, taskPointer, ["dependsOn", "outputs", "cache", "inputs", "persistent"], [])) {
-            continue;
-        }
-        const defRec = taskDef;
-        if (defRec["dependsOn"] !== undefined) {
-            if (!Array.isArray(defRec["dependsOn"])) {
-                diagnostics.add("E_TYPE", `${taskPointer}/dependsOn`, "expected array");
-            }
-            else {
-                for (const [idx, dep] of defRec["dependsOn"].entries()) {
-                    if (typeof dep !== "string") {
-                        diagnostics.add("E_TYPE", `${taskPointer}/dependsOn/${String(idx)}`, "expected string");
-                    }
-                }
-            }
-        }
-        if (defRec["outputs"] !== undefined) {
-            if (!Array.isArray(defRec["outputs"])) {
-                diagnostics.add("E_TYPE", `${taskPointer}/outputs`, "expected array");
-            }
-            else {
-                for (const [idx, out] of defRec["outputs"].entries()) {
-                    if (typeof out !== "string") {
-                        diagnostics.add("E_TYPE", `${taskPointer}/outputs/${String(idx)}`, "expected string");
-                    }
-                }
-            }
-        }
-    }
+    validateTurboTaskGraphWire(value, diagnostics);
     return finish(diagnostics.rows.length === 0 ? value : undefined, diagnostics);
+}
+function readValidatedRepositoryProfile(value) {
+    if (!isRecord(value))
+        return undefined;
+    const profileId = value["profileId"];
+    const monorepo = value["monorepo"];
+    const rootFamilies = value["rootFamilies"];
+    const declaredScripts = value["declaredScripts"];
+    if (typeof profileId !== "string")
+        return undefined;
+    if (typeof monorepo !== "boolean")
+        return undefined;
+    if (!Array.isArray(rootFamilies))
+        return undefined;
+    if (!Array.isArray(declaredScripts))
+        return undefined;
+    if (!rootFamilies.every((root) => typeof root === "string" &&
+        PORTABLE_ROOT_FAMILIES.includes(root))) {
+        return undefined;
+    }
+    if (!declaredScripts.every((script) => typeof script === "string")) {
+        return undefined;
+    }
+    return {
+        profileId,
+        monorepo,
+        rootFamilies,
+        declaredScripts,
+    };
 }
 export function validateRepositoryProfile(value) {
     const diagnostics = new Diagnostics();
-    const fields = [
-        "schemaId",
-        "schemaVersion",
-        "contractId",
-        "profileId",
-        "monorepo",
-        "rootFamilies",
-        "declaredScripts",
-    ];
-    if (!isRecord(value)) {
-        diagnostics.add("E_TYPE", "", "expected object");
+    validateRepositoryShapeProfileWire(value, diagnostics);
+    if (diagnostics.rows.length !== 0) {
         return finish(undefined, diagnostics);
     }
-    const allowedFields = ["$schema", ...fields];
-    for (const key of Object.keys(value)) {
-        if (!allowedFields.includes(key)) {
-            diagnostics.add("E_UNKNOWN_PROPERTY", `/${key}`, "unknown property");
-        }
-    }
-    const profileId = value["profileId"];
-    if (typeof profileId !== "string" || profileId.trim() === "") {
-        diagnostics.add("E_REQUIRED", "/profileId", "profileId is required");
-    }
-    else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(profileId)) {
-        diagnostics.add("E_INVALID_FORMAT", "/profileId", "invalid profileId format");
-    }
-    const monorepo = value["monorepo"];
-    if (typeof monorepo !== "boolean") {
-        diagnostics.add("E_TYPE", "/monorepo", "monorepo must be a boolean");
-    }
-    const rootsVal = value["rootFamilies"];
-    if (!Array.isArray(rootsVal)) {
-        diagnostics.add("E_TYPE", "/rootFamilies", "rootFamilies must be an array");
-    }
-    else {
-        const seenRoots = new Set();
-        for (const [idx, root] of rootsVal.entries()) {
-            if (typeof root !== "string" || !PORTABLE_ROOT_FAMILIES.includes(root)) {
-                diagnostics.add("E_INVALID_ROOT", `/rootFamilies/${String(idx)}`, `invalid root family: ${String(root)}`);
-            }
-            else if (seenRoots.has(root)) {
-                diagnostics.add("E_DUPLICATE_ROOT", `/rootFamilies/${String(idx)}`, `duplicate root family: ${root}`);
-            }
-            else {
-                seenRoots.add(root);
-            }
-        }
-    }
-    const scriptsVal = value["declaredScripts"];
-    if (!Array.isArray(scriptsVal) && !isRecord(scriptsVal)) {
-        diagnostics.add("E_TYPE", "/declaredScripts", "declaredScripts must be an array or object");
-    }
-    else if (Array.isArray(scriptsVal)) {
-        const seenScripts = new Set();
-        for (const [idx, script] of scriptsVal.entries()) {
-            if (typeof script !== "string" || !/^[a-zA-Z0-9_:-]+$/.test(script)) {
-                diagnostics.add("E_INVALID_SCRIPT", `/declaredScripts/${String(idx)}`, `invalid script: ${String(script)}`);
-            }
-            else if (seenScripts.has(script)) {
-                diagnostics.add("E_DUPLICATE_SCRIPT", `/declaredScripts/${String(idx)}`, `duplicate declared script: ${script}`);
-            }
-            else {
-                seenScripts.add(script);
-            }
-        }
-    }
-    return finish(diagnostics.rows.length === 0 ? value : undefined, diagnostics);
+    return finish(readValidatedRepositoryProfile(value), diagnostics);
 }

@@ -49,6 +49,30 @@ export default [
       "unicorn/no-array-sort": "off",
     },
   },
+  // Schema-derived generated validators (repo-template#355): structural dumps, not hand logic
+  {
+    files: ["**/*.generated.ts"],
+    rules: {
+      "max-lines-per-function": "off",
+      "complexity": "off",
+      "sonarjs/cognitive-complexity": "off",
+      "max-depth": "off",
+      "unicorn/no-useless-concat": "off",
+    },
+  },
+  // Generator that emits those validators is intentionally one render pass
+  {
+    files: ["tools/generate-repository-shape-validators.ts"],
+    rules: {
+      "max-lines-per-function": "off",
+      "complexity": "off",
+      "sonarjs/cognitive-complexity": "off",
+      "@typescript-eslint/no-unsafe-type-assertion": "off",
+      "@typescript-eslint/no-unnecessary-type-conversion": "off",
+      "unicorn/no-useless-coercion": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+    },
+  },
   {
     files: ["packages/adoption-shell/test/**/*.ts", "tests/**/*.ts"],
     rules: {
