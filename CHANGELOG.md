@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.9.1
+
+### Added
+- **RT#422**: portable `docs-only` LocalCi `simpleDiff` gate in `@spencer-shadley/repo-quality`
+  (`docs-only-gate`, `docs-only-simple-diff.json`) so leaf repos stop maintaining five copies.
+
+
 Format: [Keep a Changelog](https://keepachangelog.com). Maintained at merge time (post-merge
 obligations in [ADR-0001: Design philosophies for this repo](docs/adr/0001-design-philosophies.md)) —
 one entry per user-visible or structural change.

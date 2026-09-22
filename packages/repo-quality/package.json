@@ -1,6 +1,6 @@
 {
   "name": "@spencer-shadley/repo-quality",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "type": "module",
   "private": false,
   "exports": {
@@ -15,7 +15,9 @@
     "./secret-scan.mjs": "./secret-scan.mjs",
     "./quality-lint-simple-diff.json": "./quality-lint-simple-diff.json",
     "./todo-issue-link.mjs": "./todo-issue-link.mjs",
-    "./todo-issue-link": "./todo-issue-link/index.ts"
+    "./todo-issue-link": "./todo-issue-link/index.ts",
+    "./docs-only-gate.mjs": "./docs-only-gate.mjs",
+    "./docs-only-gate": "./docs-only-gate/index.ts"
   },
   "dependencies": {
     "@eslint/js": "10.0.1",
