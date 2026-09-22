@@ -58,14 +58,14 @@ export {
   createTemplateReleaseCandidateV1,
   isReleasePayloadEntryDraftV2,
   isTemplateReleaseCandidateInput,
-} from "./release-candidate.ts";
+} from "./release/release-candidate.ts";
 export {
   validateTemplateReleaseClosureV1,
-} from "./release-closure.ts";
+} from "./release/release-closure.ts";
 export {
   validatePublishedTemplateReleaseReceiptV1,
   validateTemplateReleaseReceiptV1,
-} from "./release-receipt.ts";
+} from "./release/release-receipt.ts";
 export {
   validateArtifactManifestV2,
   validateMaterializerOutputManifestV2,
@@ -289,7 +289,7 @@ export {
   validateComponentRegistryOverlay,
   validateProductOverlay,
   validateTechnologyRegistryOverlay,
-} from "./product-overlay.ts";
+} from "./product-overlay/product-overlay.ts";
 export type {
   ComponentOverlayEntry,
   ComponentRegistryOverlay,
@@ -303,7 +303,7 @@ export type {
   RegistryLifecycleState,
   TechnologyOverlayEntry,
   TechnologyRegistryOverlay,
-} from "./product-overlay.ts";
+} from "./product-overlay/product-overlay.ts";
 export {
   DEFAULT_SMOKE_TEST_PATH,
   DEFAULT_VITEST_CONFIG_PATH,

@@ -1,8 +1,8 @@
 import {
   CONTRACT_VERSION,
   SCHEMA_DIGESTS,
-} from "./contract.ts";
-import { SEMVER_PATTERN } from "./validation-helpers.ts";
+} from "../contract.ts";
+import { SEMVER_PATTERN } from "../validation-helpers.ts";
 
 export const PRODUCT_OVERLAY_CONTRACT_ID =
   "repo-template/product-overlay/v1" as const;

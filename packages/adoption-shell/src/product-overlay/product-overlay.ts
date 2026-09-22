@@ -2,10 +2,10 @@ import {
   ENVELOPE_DIGEST_ALGORITHM,
   type CapabilityBundle,
   type PayloadEntry,
-} from "./contract.ts";
-import { sha256Bytes, sha256CanonicalJson } from "./digest.ts";
-import type { RepositoryProfile } from "./repository-shape.ts";
-import { compareStrings } from "./validation-helpers.ts";
+} from "../contract.ts";
+import { sha256Bytes, sha256CanonicalJson } from "../digest.ts";
+import type { RepositoryProfile } from "../repository-shape.ts";
+import { compareStrings } from "../validation-helpers.ts";
 
 import {
   COMPONENT_REGISTRY_OVERLAY_FILE,

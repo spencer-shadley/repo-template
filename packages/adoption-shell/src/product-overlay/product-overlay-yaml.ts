@@ -1,4 +1,4 @@
-import { compareStrings, isRecord } from "./validation-helpers.ts";
+import { compareStrings, isRecord } from "../validation-helpers.ts";
 
 export const MAX_YAML_DEPTH = 32 as const;
 

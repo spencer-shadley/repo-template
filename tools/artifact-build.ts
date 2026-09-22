@@ -256,9 +256,13 @@ function prepareBuild(): void {
 }
 
 function emittedRows(emittedRoot: string): readonly FileClosureRow[] {
-  return listFiles(emittedRoot).map((relativePath) =>
-    closureRow(emittedRoot, relativePath),
-  );
+  return mapEmittedPaths(emittedRoot).map((row) => ({
+    path: row.artifactRelative,
+    kind: "file" as const,
+    mode: "100644" as const,
+    sha256: sha256Bytes(row.bytes),
+    bytes: row.bytes.byteLength,
+  }));
 }
 
 function sourceRows(): readonly FileClosureRow[] {
@@ -373,22 +377,25 @@ function compareEmitted(
   emittedRoot: string,
   expected: readonly FileClosureRow[],
 ): void {
-  const actualPaths = listFiles(emittedRoot);
-  const expectedPaths = expected.map((entry) => entry.path);
+  const mapped = mapEmittedPaths(emittedRoot);
+  const actualPaths = mapped.map((row) => row.artifactRelative).slice().sort(compare);
+  const expectedPaths = expected.map((entry) => entry.path).slice().sort(compare);
   if (JSON.stringify(actualPaths) !== JSON.stringify(expectedPaths)) {
     throw new Error(
       `emitted path set mismatch\nexpected ${JSON.stringify(expectedPaths)}\nactual ${JSON.stringify(actualPaths)}`,
     );
   }
+  const byPath = new Map(mapped.map((row) => [row.artifactRelative, row]));
   for (const expectedRow of expected) {
-    const actual = bytes(path.join(emittedRoot, ...expectedRow.path.split("/")));
-    const committed = bytes(path.join(artifactRoot, ...expectedRow.path.split("/")));
-    if (!Buffer.from(actual).equals(committed)) {
+    const row = byPath.get(expectedRow.path);
+    if (!row) throw new Error(`missing emitted row for ${expectedRow.path}`);
+    const committed = bytes(path.join(artifactRoot, expectedRow.path));
+    if (!Buffer.from(row.bytes).equals(committed)) {
       throw new Error(`emitted bytes differ for ${expectedRow.path}`);
     }
     if (
-      sha256Bytes(actual) !== expectedRow.sha256 ||
-      actual.byteLength !== expectedRow.bytes
+      sha256Bytes(row.bytes) !== expectedRow.sha256 ||
+      row.bytes.byteLength !== expectedRow.bytes
     ) {
       throw new Error(`emitted manifest row differs for ${expectedRow.path}`);
     }
@@ -699,15 +706,69 @@ async function verifyArtifact(): Promise<void> {
   await smokeDeclaredClosure(manifest);
 }
 
-function writeCommitted(emittedRoot: string, emitted: readonly string[]): void {
+
+/**
+ * Nested `packages/adoption-shell/src/<group>/*.ts` still emit flat basenames into
+ * `artifacts/adoption-shell-v2/` so LocalCiContractV3 / capability-bundle path pins
+ * stay stable (repo-template#412). Basename collisions fail closed.
+ */
+function flattenArtifactRelativePath(relativePath: string): string {
+  const parts = relativePath.split("/").filter(Boolean);
+  const base = parts.at(-1);
+  if (!base) throw new Error(`empty emitted path: ${relativePath}`);
+  return base;
+}
+
+function rewriteFlattenedModuleSources(source: string): string {
+  // Nested emit uses `../parent`; after flatten those become `./parent`.
+  let next = source.replaceAll(/from (["'])\.\.\//g, (_match, quote: string) => `from ${quote}./`);
+  // index and sibling barrels import `./local-ci/foo` / `./product-overlay/foo`; flatten to `./foo`.
+  next = next.replaceAll(
+    /from (["'])\.\/(?:local-ci|product-overlay|release)\//g,
+    (_match, quote: string) => `from ${quote}./`,
+  );
+  return next;
+}
+
+function mapEmittedPaths(emittedRoot: string): ReadonlyArray<{ diskRelative: string; artifactRelative: string; bytes: Uint8Array }> {
+  const rows = listFiles(emittedRoot).map((diskRelative) => {
+    const artifactRelative = flattenArtifactRelativePath(diskRelative);
+    const raw = fs.readFileSync(path.join(emittedRoot, ...diskRelative.split("/")));
+    // Rewrite every emitted module: index.js at the emit root still imports
+    // `./local-ci/foo` after a nested src split, and nested files use `../parent`.
+    const text = raw.toString("utf8");
+    const rewrittenText = rewriteFlattenedModuleSources(text);
+    const rewritten =
+      rewrittenText === text ? raw : Buffer.from(rewrittenText, "utf8");
+    return {
+      diskRelative,
+      artifactRelative,
+      bytes: new Uint8Array(rewritten),
+    };
+  });
+  const seen = new Map<string, string>();
+  for (const row of rows) {
+    const prior = seen.get(row.artifactRelative);
+    if (prior) {
+      throw new Error(
+        `flattened artifact basename collision: ${row.artifactRelative} from ${prior} and ${row.diskRelative}`,
+      );
+    }
+    seen.set(row.artifactRelative, row.diskRelative);
+  }
+  return rows;
+}
+
+function writeCommitted(emittedRoot: string): void {
+  const rows = mapEmittedPaths(emittedRoot);
   fs.rmSync(artifactRoot, { recursive: true, force: true });
   fs.mkdirSync(artifactRoot, { recursive: true });
-  for (const relativePath of emitted) {
-    const destination = path.join(artifactRoot, ...relativePath.split("/"));
-    fs.mkdirSync(path.dirname(destination), { recursive: true });
-    fs.copyFileSync(path.join(emittedRoot, ...relativePath.split("/")), destination);
+  for (const row of rows) {
+    const destination = path.join(artifactRoot, row.artifactRelative);
+    fs.writeFileSync(destination, row.bytes);
   }
 }
+
 
 async function main(): Promise<void> {
   const action = process.argv[2];
@@ -737,7 +798,7 @@ async function main(): Promise<void> {
     const emitted = listFiles(emittedRoot);
     if (emitted.length === 0) throw new Error("TypeScript emitted no artifact files");
     const digest = sha256CanonicalJson({ files: emittedRows(emittedRoot) });
-    if (mode === "write") writeCommitted(emittedRoot, emitted);
+    if (mode === "write") writeCommitted(emittedRoot);
     generateContractFixtures(generatedContractRoot, digest);
     const expectedManifest = constructManifest(emittedRoot, generatedContractRoot);
 

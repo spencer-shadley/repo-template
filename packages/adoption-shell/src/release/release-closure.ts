@@ -11,13 +11,13 @@ import {
   type TemplateReleaseClosure,
   type TemplateReleaseReceipt,
   type ValidationResult,
-} from "./contract.ts";
-import { canonicalizeJson } from "./canonical-json.ts";
-import { validateCapabilityBundleRegistryV2 } from "./capability-bundles.ts";
+} from "../contract.ts";
+import { canonicalizeJson } from "../canonical-json.ts";
+import { validateCapabilityBundleRegistryV2 } from "../capability-bundles.ts";
 import { validateTemplateReleaseReceiptV1 } from "./release-receipt.ts";
-import { validateMaterializerInputV2, validateReleasePayloadSetV2 } from "./validate.ts";
-import { validateArtifactManifestV2 } from "./validate-manifests.ts";
-import { Diagnostics } from "./validation-helpers.ts";
+import { validateMaterializerInputV2, validateReleasePayloadSetV2 } from "../validate.ts";
+import { validateArtifactManifestV2 } from "../validate-manifests.ts";
+import { Diagnostics } from "../validation-helpers.ts";
 
 function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const rows = diagnostics.sorted();

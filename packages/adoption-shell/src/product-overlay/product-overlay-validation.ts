@@ -1,5 +1,5 @@
-import type { ValidationResult } from "./contract.ts";
-import { Diagnostics, isRecord } from "./validation-helpers.ts";
+import type { ValidationResult } from "../contract.ts";
+import { Diagnostics, isRecord } from "../validation-helpers.ts";
 import {
   COMPONENT_REGISTRY_OVERLAY_SCHEMA_ID,
   PRODUCT_OVERLAY_CONTRACT_ID,
