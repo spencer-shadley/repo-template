@@ -6,6 +6,7 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+- **Tip-red: linearize Discovery/experiment conflation regex (RT tip-green):** Replace `/Discovery\s*\/?\s*experiment/i` in `scripts/check-issue-template-intake.ts` with an alternation that cannot super-linear-backtrack (`sonarjs/super-linear-regex`), restoring green `pnpm lint` on master after RT#377 land exposed the gate. PATCH. Fixes #414.
 - **Wire dir-breadth into verify and refuse closed waiver owners (RT#377):** `pnpm verify` / `verify:self` now run `lint:dir-breadth` plus a focused selfcheck. `scripts/check-dir-breadth.ts` fails closed when an allowlist cites a known-closed or dynamically verified closed issue (historical #376). Retarget the `packages/adoption-shell/src` measured freeze to live split owner #412. No global `maxFilesPerDir` raise. PATCH. Fixes #377.
 - **Project distinct exploration vs experiment into portable issue template (RT#342):** Replace the combined `Discovery / experiment` work-type affordance in `.github/ISSUE_TEMPLATE/task.md` with Code's landed GovernedIntakeBodyV1 v16 portable release bytes (`contracts/generated/governed-intake/task.md` after code#4897 / AO#8579). `scripts/check-issue-template-intake.ts` now refuses re-conflation and requires the distinct Exploration / Experiment choices. Does not mutate existing consumer repositories (#133 remains the stale-copy refresh path). PATCH. Fixes #342.
 
