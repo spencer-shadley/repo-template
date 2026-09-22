@@ -1,6 +1,6 @@
 {
   "name": "@spencer-shadley/repo-quality",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "type": "module",
   "private": false,
   "exports": {
@@ -13,7 +13,9 @@
     "./jscpd.mjs": "./jscpd.mjs",
     "./jscpd.json": "./jscpd.json",
     "./secret-scan.mjs": "./secret-scan.mjs",
-    "./quality-lint-simple-diff.json": "./quality-lint-simple-diff.json"
+    "./quality-lint-simple-diff.json": "./quality-lint-simple-diff.json",
+    "./todo-issue-link.mjs": "./todo-issue-link.mjs",
+    "./todo-issue-link": "./todo-issue-link/index.ts"
   },
   "dependencies": {
     "@eslint/js": "10.0.1",

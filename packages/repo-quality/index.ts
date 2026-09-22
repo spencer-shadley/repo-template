@@ -49,14 +49,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function hasIssueTrackingReference(text: string): boolean {
   if (!ISSUE_TRACKING_PATTERN.test(text)) return false;
-  const detail = text.slice(text.search(ISSUE_TRACKING_PATTERN) + 4).toLowerCase();
-  return (
-    detail.includes("github.com/") ||
-    detail.includes("gh#") ||
-    detail.includes("gh issue") ||
-    detail.includes("issue #") ||
-    detail.includes("(#")
-  );
+  // repo-template#345 / Code#4962: require a full GitHub issues URL (no shorthand fail-open).
+  return /https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/issues\/[1-9][0-9]*/i.test(text);
 }
 
 export const JS_FILE_PATTERN = /\.([mc]?js|jsx)$/i;
