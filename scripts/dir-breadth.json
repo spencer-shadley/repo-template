@@ -1,32 +1,25 @@
 {
-  "$schema": "./dir-breadth.schema.json",
-  "maxFilesPerDir": 25,
-  "roots": [
-    "src",
-    "lib",
-    "packages",
-    "apps",
-    "tools",
-    "scripts"
-  ],
-  "ignoreDirNames": [
-    "node_modules",
-    "dist",
-    "build",
-    "coverage",
-    "vendor",
-    ".git",
-    "fixtures",
-    "testdata",
-    "__snapshots__",
-    "archive"
-  ],
-  "allowlist": [
-    {
-      "path": "packages/adoption-shell/src",
-      "maxFiles": 32,
-      "issue": "https://github.com/spencer-shadley/repo-template/issues/412",
-      "reason": "Freeze peer-file count at measured origin/master count (32 files); live owner repo-template#412 (retargeted from closed #376). Split-by-responsibility follow-up remains on #412; no silent wholesale default-cap raise. Gate wiring + closed-owner refuse: #377."
-    }
-  ]
+    "$schema": "./dir-breadth.schema.json",
+    "maxFilesPerDir": 25,
+    "roots": [
+        "src",
+        "lib",
+        "packages",
+        "apps",
+        "tools",
+        "scripts"
+    ],
+    "ignoreDirNames": [
+        "node_modules",
+        "dist",
+        "build",
+        "coverage",
+        "vendor",
+        ".git",
+        "fixtures",
+        "testdata",
+        "__snapshots__",
+        "archive"
+    ],
+    "allowlist": []
 }

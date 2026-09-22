@@ -1,12 +1,12 @@
 import {
   type TemplateReleaseEvidence,
   type ValidationResult,
-} from "./contract.ts";
+} from "../contract.ts";
 import {
   Diagnostics,
   escapePointer,
   isRecord,
-} from "./validation-helpers.ts";
+} from "../validation-helpers.ts";
 
 const EVIDENCE_NAME_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
 const REVIEW_URL_PATTERN =

@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "6117abc90718f1be2bf4dedc38481e2eab51380df0699650fadc883f9527bebd",
-      "bytes": 8880
+      "sha256": "27389a7c71455e89789fc29932562d4f06c22c9ccebfc559b6ac9048b3b15e7f",
+      "bytes": 8936
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -123,32 +123,32 @@
       "bytes": 16407
     },
     {
-      "path": "packages/adoption-shell/src/product-overlay-contract.ts",
+      "path": "packages/adoption-shell/src/product-overlay/product-overlay-contract.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "5ffb6cee4d7522bef35b37f8725c71fc77f35f67fac130ad0c815ed99e9ee6bf",
-      "bytes": 13635
+      "sha256": "e291def9308cc304fe7359c7ca53c0492ba2c7608766f6b1e1b9465cc2d3ad8a",
+      "bytes": 13637
     },
     {
-      "path": "packages/adoption-shell/src/product-overlay-validation.ts",
+      "path": "packages/adoption-shell/src/product-overlay/product-overlay-validation.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "fbc7e83748b54fd368e292301e314265967100495faf49dc4a9537b186531978",
-      "bytes": 23655
+      "sha256": "5fb679bea54200170299b59b09de9563f777cc080c43483b2782edc7e0678ab5",
+      "bytes": 23657
     },
     {
-      "path": "packages/adoption-shell/src/product-overlay-yaml.ts",
+      "path": "packages/adoption-shell/src/product-overlay/product-overlay-yaml.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "c2facfab50f6870a7f2beefec659b68ac61ffbbe35d00832246a6ed3e7331b46",
-      "bytes": 6904
+      "sha256": "329a353fdf22ab8f3cf8a35506c6190f38c8774e6d109a7664ee12a495135324",
+      "bytes": 6905
     },
     {
-      "path": "packages/adoption-shell/src/product-overlay.ts",
+      "path": "packages/adoption-shell/src/product-overlay/product-overlay.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "a0f6bfc8b745c21427a3173c6e3e503170c75757df0b717562828d7b5e581343",
-      "bytes": 7516
+      "sha256": "f4afd5c59021afdcf2872de8ac61e096d19e18cfb992aa9ca7447c915988f4dd",
+      "bytes": 7520
     },
     {
       "path": "packages/adoption-shell/src/product-sli-probe-v1.ts",
@@ -158,32 +158,32 @@
       "bytes": 25564
     },
     {
-      "path": "packages/adoption-shell/src/release-candidate.ts",
+      "path": "packages/adoption-shell/src/release/release-candidate.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "183cbb00cd50a1b960c7c219d7c58d36192d7c1d7ceae5878351ecc6cc7b43ff",
-      "bytes": 11232
+      "sha256": "48d937b182f899e26613dba754791f650433ff6cbdad653129cdcb1c9e27772a",
+      "bytes": 11238
     },
     {
-      "path": "packages/adoption-shell/src/release-closure.ts",
+      "path": "packages/adoption-shell/src/release/release-closure.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "0736b702c6bc627e4007f2a54450b025b90426138dab777bf2b5133255d56721",
-      "bytes": 6334
+      "sha256": "d7c1a6a689179dd11fc7a798f981218a225a6283bd748c79f82c1e5fc4cafee8",
+      "bytes": 6340
     },
     {
-      "path": "packages/adoption-shell/src/release-evidence.ts",
+      "path": "packages/adoption-shell/src/release/release-evidence.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "8b3b5794af330747c57e19d3f00ca73d2ea55118a48f6675b4bd36886bc8024a",
-      "bytes": 4622
+      "sha256": "abfee74f996ce2b96e4b30090e18a134771d6a4e8286d9d901d6bf7170b65ef5",
+      "bytes": 4624
     },
     {
-      "path": "packages/adoption-shell/src/release-receipt.ts",
+      "path": "packages/adoption-shell/src/release/release-receipt.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "86040900001643ee1a30da020d4e0e068103e817b02057b20d04ee289b5c54a8",
-      "bytes": 13272
+      "sha256": "59ee499c0f6f844354795e8046a0cd2fee42288e64f9399b4857c14b95e9021a",
+      "bytes": 13275
     },
     {
       "path": "packages/adoption-shell/src/repository-shape.ts",
@@ -1563,5 +1563,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "f62b73bc99864f5fcfc1b017d4f4583152db32a68d64b2c98c3a60af839f4c37"
+  "manifestDigest": "c18b684201c32476bbe51d3f63f04ef9d9c2c5828eb88641da60fb27c045e98e"
 }

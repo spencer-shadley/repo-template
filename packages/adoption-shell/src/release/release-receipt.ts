@@ -13,14 +13,14 @@ import {
   type BundleReference,
   type TemplateReleaseReceipt,
   type ValidationResult,
-} from "./contract.ts";
-import { sha256CanonicalJson } from "./digest.ts";
+} from "../contract.ts";
+import { sha256CanonicalJson } from "../digest.ts";
 import {
   assertSortedUnique,
   BUNDLE_ID_PATTERN,
   Diagnostics,
   SEMVER_PATTERN,
-} from "./validation-helpers.ts";
+} from "../validation-helpers.ts";
 import { validateTemplateReleaseEvidenceV1 } from "./release-evidence.ts";
 
 const GIT_SHA1_PATTERN = /^[0-9a-f]{40}$/;

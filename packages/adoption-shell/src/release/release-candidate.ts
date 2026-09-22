@@ -20,23 +20,23 @@ import {
   type TemplateReleaseCandidateInput,
   type TemplateReleaseClosure,
   type ValidationResult,
-} from "./contract.ts";
-import { validateCapabilityBundleRegistryV2 } from "./capability-bundles.ts";
+} from "../contract.ts";
+import { validateCapabilityBundleRegistryV2 } from "../capability-bundles.ts";
 import {
   decodeCanonicalBase64,
   sha256Bytes,
   sha256CanonicalJson,
   sha256PayloadEntries,
-} from "./digest.ts";
+} from "../digest.ts";
 import { validateTemplateReleaseClosureV1 } from "./release-closure.ts";
 import { validateTemplateReleaseEvidenceV1 } from "./release-evidence.ts";
-import { validateReleasePayloadSetV2 } from "./validate.ts";
-import { validateArtifactManifestV2 } from "./validate-manifests.ts";
+import { validateReleasePayloadSetV2 } from "../validate.ts";
+import { validateArtifactManifestV2 } from "../validate-manifests.ts";
 import {
   Diagnostics,
   isRecord,
   SEMVER_PATTERN,
-} from "./validation-helpers.ts";
+} from "../validation-helpers.ts";
 
 const GIT_SHA1_PATTERN = /^[0-9a-f]{40}$/;
 
