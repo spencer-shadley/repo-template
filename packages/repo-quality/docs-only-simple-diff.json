@@ -1,0 +1,7 @@
+{
+  "docs-only": {
+    "command": "node --experimental-strip-types node_modules/@spencer-shadley/repo-quality/docs-only-gate/cli.ts {{changedPaths}}",
+    "requiresDependencies": false,
+    "blocking": true
+  }
+}

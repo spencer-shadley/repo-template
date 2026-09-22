@@ -240,3 +240,15 @@ Both are required for a complete bootstrap. Neither substitutes for the other.
 
 - Intended fleet-wide via AO `initiatives/workspace-lint-default.md` and the repo-quality kit.
 - Proven in **task-dag**; the factory now has one Git-consumable source of truth instead of copies.
+
+## Docs-only simpleDiff gate (RT#422)
+
+`@spencer-shadley/repo-quality/docs-only-gate` is the canonical dependency-free
+Markdown-only LocalCi `simpleDiff` gate. Leaf repositories should invoke the published
+package (or template-projected `docs-only-simple-diff.json`) instead of maintaining a
+local `scripts/docs-only-gate.ts` copy.
+
+Policy: non-empty changed paths, Markdown-only, readable/non-empty files, and the three
+`AGENTS.md` charter headings (Mission / Responsibilities / Non-responsibilities) when
+that file is in the changed set.
+

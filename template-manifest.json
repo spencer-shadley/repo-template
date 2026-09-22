@@ -386,5 +386,9 @@
   "tsconfig.build.json": "self",
   "tsconfig.json": "self",
   "vendor/model-gateway/canary-receipt.json": "self",
-  "vendor/repo-factory/canary-receipt.json": "self"
+  "vendor/repo-factory/canary-receipt.json": "self",
+  "packages/repo-quality/docs-only-simple-diff.json": "self",
+  "packages/repo-quality/docs-only-gate.mjs": "self",
+  "packages/repo-quality/docs-only-gate/index.ts": "self",
+  "packages/repo-quality/docs-only-gate/cli.ts": "self"
 }
