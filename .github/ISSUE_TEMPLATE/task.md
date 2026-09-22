@@ -1,13 +1,13 @@
 ---
 name: Task / bug / feature
 about: Triage-ready issue — the autonomous pipeline authors a plan from this
-labels: agent-review, priority:triage-tbd
+labels: agent-review, priority:triage-tbd, work:untriaged
 ---
 
-<!-- Generated from contracts/governed-intake-body.v1.json. Do not hand-edit; run: node --experimental-strip-types contracts/governed-intake-body.generate.ts -->
+<!-- Generated from contracts/governed-intake-body.v1.json (GovernedIntakeBodyV1 version 16). Do not hand-edit; run: node --experimental-strip-types contracts/governed-intake-body.generate.ts -->
 
 ## Work type
-<!-- Defect | Task | Risk reduction | Discovery / experiment | Feature | Mixed -->
+<!-- Defect | Task | Risk reduction | Exploration / design research | Experiment / evidence test | Feature | Mixed -->
 
 ## Governed work-unit key
 <!-- Derive SHA-256 from the normalized tuple `fixOwnerGitHubSlug + workType + canonicalWorkUnitIdentity`. Apply ECMAScript String.prototype.trim(), then String.prototype.normalize('NFC'), then the field-specific case rule. Apply locale-independent String.prototype.toLowerCase() to the normalized owner/repository GitHub slug. Apply locale-independent String.prototype.toLowerCase() to the normalized work type. Preserve the normalized UTF-8 bytes exactly after trim and NFC; do not lowercase, collapse internal whitespace, or rewrite punctuation. In identityTuple order, frame each normalized value as its UTF-8 byte length in unpadded ASCII decimal, then ASCII ':' (0x3a), then its exact UTF-8 bytes. Join the three framed values with ASCII LF (0x0a), with no trailing LF. SHA-256 hashes these serialized bytes; render the digest as 64 lowercase hexadecimal characters. Choose the smallest durable mechanism or outcome seam that names the work unit. Keep it unchanged when evidence, priority, wording, or comments change. The same key means the same work unit. If distinct semantics would map to one key, resolve the canonical identities before create; never add randomness, a UUID, or mutable evidence to escape the collision. Before governed create, replace the placeholder digest below and leave exactly one marker in the body. -->
@@ -25,29 +25,34 @@ labels: agent-review, priority:triage-tbd
 ## Why this initial priority?
 <!-- One short reason: current harm, urgency, expected value, or time saved (cite docs/guides/issue-priority.md defect scale: frequency x severity x urgency). -->
 
-## Triage checklist (TODO for triage agent)
-<!-- The triage worker/agent must complete and check off these items during asynchronous triage: -->
-- [ ] **Fix-owner repository verified**: Confirmed via `fleet-repo-responsibility-routing` that this issue is filed in the true fix-owner repository (not a symptom/catchall repo). If filed in `agent-orchestrator`, confirmed substantive Exclusion Proof answering why this cannot live as a standalone CLI tool or external package.
-- [ ] **Deduplication checked**: Searched open and closed issues in this repository for duplicate or same-class occurrences.
-- [ ] **Priority assessed via [`docs/guides/issue-priority.md`](docs/guides/issue-priority.md)**:
-  - [ ] Defect evidence scale assessed (`frequency × severity × urgency`) or economic return modeled.
-  - [ ] Non-crashing defects, performance debt, and resource leaks capped at `≤ P2`.
-  - [ ] `P0 candidate` validated against all six P0 immediate-unblock predicates (or downgraded).
-- [ ] **Authoritative priority triplet applied**:
-  - [ ] `priority:rubric-v1`
-  - [ ] Exactly one `priority:repo:pN`
-  - [ ] Exactly one `priority:fleet:pN`
-- [ ] **Work dimensions applied via [`docs/guides/issue-work-spine.md`](docs/guides/issue-work-spine.md)**:
-  - [ ] Exactly one `effort:low` | `effort:medium` | `effort:high`
-  - [ ] Exactly one `tier:auto` | `human-required`
-  - [ ] If `human-required`: body leads with `## Major tradeoffs to consider between these options` naming ≥2 options and material downsides (code#3317); otherwise refuse HR and keep `tier:auto`
-- [ ] **Pending labels cleared**: Removed `priority:triage-tbd`, `work:untriaged`, and coarse legacy priority labels (`priority:p1`, etc.).
-- [ ] **Root-cause taxonomy validated**: All nine DOCTRINE §14 ranks have findings, dispositions, and dual Defect ladders (Prevention vs Detect/heal/recover) — not a single Fix column.
-
-## Major tradeoffs to consider between these options
-<!-- Required top-level heading whenever human-required / tier:human is applied or kept (code#3317).
-     List ≥2 options and the material major downside of each. If you cannot name those downsides,
-     do not stamp human-required — use tier:auto. Delete this section when tier:auto. -->
+## Triage checklist
+<!-- governed-triage-checklist: revision=16 -->
+<!-- This checkbox block is the current triage-state SSOT. Check an item only after current evidence satisfies it. Do not delete or rename item markers. -->
+<!-- governed-triage-item: canonical-flow -->
+- [ ] **Canonical flow**: Use `skills/gh-issue-triage-sweep/SKILL.md`. Keep discovery/orchestration in that skill and selected-collection adjudication in `gh-issue-audit`; do not recreate either procedure in issue prose.
+<!-- governed-triage-item: value-direction -->
+- [ ] **Value + direction evidence**: Decide current value and direction from live sources. Record `direction-checked-at: <ISO-8601 UTC>` in the idempotent triage receipt, bound to the issue's governed work-unit key and current checklist revision. Direction evidence expires after 3 days. AO #8570 owns runtime stale-evidence re-pend / pickup refusal; Code records the contract and evidence but does not pretend its docs are the actuator.
+<!-- governed-triage-item: fix-owner-responsibility -->
+- [ ] **Fix-owner + responsibility**: Verify with `fleet-repo-responsibility-routing`, the target repo's current `AGENTS.md`, and `repos/infra/fleet-registry/dist/fleet-registry-release.json` (`FleetRegistryReleaseV1`). Never substitute retired registry markdown for that release.
+<!-- governed-triage-item: dedup-queue-synergy -->
+- [ ] **Dedup + queue synergy**: Search related open/closed work and apply `docs/guides/queue-synergy.md`. Reuse or strengthen the canonical owner instead of creating a parallel implementation track.
+<!-- governed-triage-item: priority-work-dimensions -->
+- [ ] **Priority + work dimensions**: Apply the complete priority triplet, exactly one honest effort, and exactly one lawful tier from the live priority/work-spine policies. Missing or unclear effort is not low. Never self-admit P0.
+<!-- governed-triage-item: verify-human-required -->
+- [ ] **Verify + human-required fences**: `tier:auto` with `effort:low|medium` requires the current scoped named-file `## Verify` fence. Repair that narrow fence only when the current actor is allowed to edit it; otherwise hand off the repair. `human-required` is adjudicated through `stamp-human-required` and requires the current tradeoffs contract. A fence-edit allowance is never blanket body-rewrite authority.
+<!-- governed-triage-item: cloud-runnable -->
+- [ ] **Is cloud runnable?**: Assess the implementation stage using the [cloud-readiness criteria](https://github.com/spencer-shadley/code/blob/master/docs/architecture/cloud-local-executor-routing.md#cloud-ready-issue-triage). Record `ready`, `not-ready`, or `unknown`, a short reason, and any separately required local verification/rollout in the existing triage receipt. Apply `cloud-ready` only for a current `ready` assessment; remove it when that assessment no longer holds. This checkbox means the assessment was performed, not that the answer must be yes.
+<!-- governed-triage-item: disposition-effect-authority -->
+- [ ] **Disposition != effect authority**: Adjudicate close / keep / strengthen / residualize / consolidate / move semantics from evidence. Execute close, move, substantive rewrite, or another restricted GitHub effect only when the current role is authorized; otherwise hand the adjudicated effect to the authorized executor with a durable receipt. Do not keep zombie work alive merely because the current seat cannot execute the terminal effect.
+<!-- governed-triage-item: higher-intelligence-handoff -->
+- [ ] **Higher-intelligence handoff**: `effort:high`, unclear effort, `human-required`, material scope change, or programme/epic-shaped work uses the current higher-intelligence triage escalation. Confirmed high-effort work is handed durably to the architect/decomposition owner, which decomposes into executable leaves where appropriate. The triage role does not plan, decompose, mint, or commission implementation writers.
+<!-- governed-triage-item: github-effects-quota -->
+- [ ] **GitHub effects + quota**: Use the governed GitHub mutation/read path and preserve typed rate-limit defer such as `deferred_rate_limited`; rate-limit or transport failure is not an empty candidate set or successful sweep.
+<!-- governed-triage-item: confirm-receipt -->
+- [ ] **Confirm + receipt**: Clear pending/legacy triage labels only after the contract is satisfied, then apply the current `triaged:vN` stamp last when authorized and read it back. In addition, every substantive model-triaged run records additive model provenance using `triaged-by-<model>-<effort>` derived from authoritative execution receipts (never stripped on re-triage or correction). The single idempotent receipt records checklist completion, direction evidence, disposition, priority/effort/tier, actor-permission outcome, and any handoff. Pickup additionally requires fresh direction evidence.
+<!-- governed-triage-item: taxonomy -->
+- [ ] **Taxonomy**: Validate the current DOCTRINE §14 causal taxonomy and, for defects, distinct prevention and detect/self-heal/recover ladders; conserve new actionable findings as durable work.
+<!-- /governed-triage-checklist -->
 
 ## Relevant details
 <!-- Evidence, links, impact. When filing via cli-wrappers, fill provenance exactly: -->
@@ -66,7 +71,7 @@ N/A — <reason>
      Causal climb columns are Rank, Finding, Disposition, Reified as.
      Defects MUST complete ladders A (Prevention / never again) and B (Detect/heal/recover / §18)
      as distinct structures. Do not keep a single Fix or next action column as the only action.
-     Legal status tokens: `landed` | `assigned-issue` | `already-owned` | `inherited` | `N/A` | `evidence-ceiling` | `TBD — triage`. -->
+     Legal status tokens: `landed` | `assigned-issue` | `already-owned` | `inherited` | `N/A` | `evidence-ceiling` | `TBD — triage`. Every rank requires a real disposition; use `evidence-ceiling` only when evidence is genuinely unobtainable, never as a default terminator. -->
 
 | Rank | Finding | Disposition | Reified as |
 |---|---|---|---|
@@ -78,7 +83,7 @@ N/A — <reason>
 | Class | <!-- standard/tool/prompt producing it --> | <!-- disposition --> | issue/plan or TBD — triage |
 | Phylum | <!-- ownership/lifecycle structure --> | <!-- disposition --> | issue/plan or TBD — triage |
 | Kingdom | <!-- incentive / reward shape --> | <!-- disposition --> | issue/plan or TBD — triage |
-| Domain | <!-- optimization model --> | evidence-ceiling | CEO / terminal stop reason |
+| Domain | <!-- optimization model --> | <!-- disposition --> | CEO / terminal stop reason |
 
 ### A. Prevention — never again
 <!-- Required for Defects. Other work types may use N/A per row. Preventive control at each §14 rank. -->
@@ -110,7 +115,7 @@ N/A — <reason>
 | Kingdom | <!-- how the incentive failure is noticed --> | <!-- heal/contain --> | <!-- restore --> | <!-- escalate if no progress --> | TBD — triage |
 | Domain | <!-- how objective-model failure is noticed --> | <!-- heal/contain --> | <!-- restore --> | <!-- escalate if no progress --> | TBD — triage |
 
-At planning/closure, all nine rows require an acted-on artifact or an explicit evidence-backed reason for delegation, non-action, unsupported scope, or evidence ceiling. Defects also require both ladders at each rank.
+At planning/closure, every rank requires a real disposition and an acted-on artifact or an explicit evidence-backed reason for delegation, non-action, unsupported scope, or evidence ceiling. Evidence ceiling is reserved for genuinely unobtainable evidence, not a default terminator. Defects also require both ladders at each rank.
 
 ## Durable fix and acceptance
 <!-- Bullet list the loop's verify gate can check. The better this is, the likelier a clean

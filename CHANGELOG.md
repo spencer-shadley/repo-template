@@ -6,6 +6,8 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+- **Project distinct exploration vs experiment into portable issue template (RT#342):** Replace the combined `Discovery / experiment` work-type affordance in `.github/ISSUE_TEMPLATE/task.md` with Code's landed GovernedIntakeBodyV1 v16 portable release bytes (`contracts/generated/governed-intake/task.md` after code#4897 / AO#8579). `scripts/check-issue-template-intake.ts` now refuses re-conflation and requires the distinct Exploration / Experiment choices. Does not mutate existing consumer repositories (#133 remains the stale-copy refresh path). PATCH. Fixes #342.
+
 ## [3.3.0] - 2026-09-18
 
 - **Publish unused LocalCiContractV3 identity `v3.3.0` with fail-closed remote readback (RT102 C4):** Allocate a new unused SemVer whose tagged commit VERSION/TEMPLATE_VERSION bytes equal the tag. Do not move or reuse `v3.1.0` or `v3.2.0`. `--check`/`--self-test`/`--write` run `assertCommitVersionMatchesDeclaredSemver` against the remote peeled publication commit and refuse the frozen `88591ee` 3.1.0 tree. Remote readback fails closed on missing, unpeelable, or disagreeing tags and derives match flags from that comparison instead of copying `true`. Canary `receiptUrl` values bind durable receipt blobs, not triage/progress comments. Nested release evidence no longer claims a later PR review as a review of the frozen producer. MINOR. Fixes #341.
