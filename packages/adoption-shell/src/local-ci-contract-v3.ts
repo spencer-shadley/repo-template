@@ -68,6 +68,44 @@ export interface LocalCiEffectsV3 {
   readonly servingAuthorityMutation: boolean;
 }
 
+/** Platforms that can bind a required validation leg (repo-template#417). */
+export type LocalCiPlatformLegPlatformV3 = "linux" | "win32" | "darwin";
+
+/**
+ * Declares a merge-blocking validation leg that must be proven on a specific
+ * executor platform. Optional on LocalCiContractV3; absent means no platform-
+ * bound required legs (legacy default-only consumers).
+ */
+export interface LocalCiRequiredPlatformLegV3 {
+  readonly legId: string;
+  readonly platform: LocalCiPlatformLegPlatformV3;
+  /** Command id from `commands` that this leg exercises (must exist). */
+  readonly commandId: string;
+}
+
+/**
+ * Typed receipt proving a required platform leg ran on the declared platform.
+ * Executor placement/dispatch is owned outside this contract (code validation
+ * coverage / FCP / FHR — see linked owner from repo-template#417).
+ */
+export interface LocalCiPlatformLegReceiptV3 {
+  readonly schema: "LocalCiPlatformLegReceiptV3";
+  readonly legId: string;
+  readonly platform: LocalCiPlatformLegPlatformV3;
+  readonly commandId: string;
+  readonly evaluatedAt: string;
+  readonly executorKind?: string;
+  readonly hostId?: string;
+}
+
+export interface LocalCiPlatformLegVerdictV3 {
+  readonly ok: boolean;
+  readonly requiredCount: number;
+  readonly satisfiedCount: number;
+  readonly missingLegs: readonly LocalCiRequiredPlatformLegV3[];
+  readonly detail: string;
+}
+
 export interface LocalCiContractV3 {
   readonly schemaId: typeof LOCAL_CI_CONTRACT_V3_SCHEMA_ID;
   readonly schemaVersion: typeof LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION;
@@ -77,6 +115,8 @@ export interface LocalCiContractV3 {
   readonly commands: Readonly<Record<string, LocalCiCommandV3>>;
   readonly environment: LocalCiEnvironmentV3;
   readonly effects: LocalCiEffectsV3;
+  /** Optional platform-bound required legs (repo-template#417). */
+  readonly requiredPlatformLegs?: readonly LocalCiRequiredPlatformLegV3[];
 }
 
 export type LegacyLineageKindV3 = LegacyLineageKind | "local-ci-v2";
@@ -94,6 +134,8 @@ export interface LegacyLocalCiDispositionV3 {
 const SHELLS = new Set(["pwsh", "cmd", "bash", "sh", "none"]);
 const FAILURE_DISPOSITIONS = new Set(["fail-gate", "warning", "non-routable"]);
 const NETWORK_EXPECTATIONS = new Set(["offline-only", "local-loopback", "outbound-allowed"]);
+const PLATFORM_LEG_PLATFORMS = new Set(["linux", "win32", "darwin"]);
+const LEG_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 const COMMAND_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
 function stringArray(value: unknown, pointer: string, min: number, max: number, diagnostics: Diagnostics): void {
@@ -290,10 +332,116 @@ function validateEffectsV3(effRaw: unknown, diagnostics: Diagnostics): void {
   }
 }
 
+function validatePlatformLegId(
+  legId: unknown,
+  ptr: string,
+  seenLegIds: Set<string>,
+  diagnostics: Diagnostics,
+): void {
+  if (!diagnostics.string(legId, `${ptr}/legId`, { min: 1 })) return;
+  if (!LEG_ID_PATTERN.test(legId)) {
+    diagnostics.add("E_FORMAT", `${ptr}/legId`, "invalid leg id");
+    return;
+  }
+  if (seenLegIds.has(legId)) {
+    diagnostics.add("E_DUPLICATE", `${ptr}/legId`, `duplicate legId: ${legId}`);
+    return;
+  }
+  seenLegIds.add(legId);
+}
+
+function validatePlatformLegPlatform(platform: unknown, ptr: string, diagnostics: Diagnostics): void {
+  if (!diagnostics.string(platform, `${ptr}/platform`)) return;
+  if (PLATFORM_LEG_PLATFORMS.has(platform)) return;
+  diagnostics.add("E_ENUM", `${ptr}/platform`, "unsupported platform; expected linux|win32|darwin");
+}
+
+function validatePlatformLegCommandId(
+  commandId: unknown,
+  ptr: string,
+  commandIds: ReadonlySet<string>,
+  diagnostics: Diagnostics,
+): void {
+  if (!diagnostics.string(commandId, `${ptr}/commandId`, { min: 1 })) return;
+  if (commandIds.has(commandId)) return;
+  diagnostics.add(
+    "E_UNKNOWN_COMMAND",
+    `${ptr}/commandId`,
+    `commandId must reference an existing commands entry: ${commandId}`,
+  );
+}
+
+function validateRequiredPlatformLegsV3(
+  legsRaw: unknown,
+  commandsRaw: unknown,
+  diagnostics: Diagnostics,
+): void {
+  if (legsRaw === undefined) return;
+  if (!diagnostics.array(legsRaw, "/requiredPlatformLegs", 1, 64)) return;
+  const commandIds = isRecord(commandsRaw) ? new Set(Object.keys(commandsRaw)) : new Set<string>();
+  const seenLegIds = new Set<string>();
+  for (const [index, leg] of legsRaw.entries()) {
+    const ptr = `/requiredPlatformLegs/${String(index)}`;
+    const fields = ["legId", "platform", "commandId"];
+    if (!diagnostics.object(leg, ptr, fields, fields)) continue;
+    validatePlatformLegId(leg["legId"], ptr, seenLegIds, diagnostics);
+    validatePlatformLegPlatform(leg["platform"], ptr, diagnostics);
+    validatePlatformLegCommandId(leg["commandId"], ptr, commandIds, diagnostics);
+  }
+}
+
+function receiptMatchesRequiredLeg(
+  receipt: LocalCiPlatformLegReceiptV3,
+  leg: LocalCiRequiredPlatformLegV3,
+): boolean {
+  return (
+    leg.legId === receipt.legId &&
+    leg.platform === receipt.platform &&
+    leg.commandId === receipt.commandId
+  );
+}
+
+/**
+ * Full-required verdict for platform-bound legs (repo-template#417).
+ * Missing or mismatched receipts fail closed — never pass without proof.
+ */
+export function evaluateRequiredPlatformLegsV3(
+  contract: LocalCiContractV3,
+  receipts: readonly LocalCiPlatformLegReceiptV3[] = [],
+): LocalCiPlatformLegVerdictV3 {
+  const required = contract.requiredPlatformLegs ?? [];
+  if (required.length === 0) {
+    return {
+      ok: true,
+      requiredCount: 0,
+      satisfiedCount: 0,
+      missingLegs: [],
+      detail: "no requiredPlatformLegs declared",
+    };
+  }
+  const satisfied = new Set<string>();
+  for (const receipt of receipts) {
+    const match = required.find((leg) => receiptMatchesRequiredLeg(receipt, leg));
+    if (match) satisfied.add(match.legId);
+  }
+  const missingLegs = required.filter((leg) => !satisfied.has(leg.legId));
+  return {
+    ok: missingLegs.length === 0,
+    requiredCount: required.length,
+    satisfiedCount: satisfied.size,
+    missingLegs,
+    detail:
+      missingLegs.length === 0
+        ? `all ${String(required.length)} requiredPlatformLegs satisfied`
+        : `missing platform-leg receipts for: ${missingLegs.map((l) => `${l.legId}@${l.platform}`).join(", ")}`,
+  };
+}
+
 export function validateLocalCiContractV3(value: unknown): ValidationResult<LocalCiContractV3> {
   const diagnostics = new Diagnostics();
-  const fields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
-  if (!diagnostics.object(value, "", fields, fields)) return finish<LocalCiContractV3>(undefined, diagnostics);
+  const requiredFields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
+  const allowedFields = [...requiredFields, "requiredPlatformLegs"];
+  if (!diagnostics.object(value, "", allowedFields, requiredFields)) return finish<LocalCiContractV3>(undefined, diagnostics);
 
   diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_ID });
   diagnostics.string(value["schemaVersion"], "/schemaVersion", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION });
@@ -304,6 +452,7 @@ export function validateLocalCiContractV3(value: unknown): ValidationResult<Loca
   validateCommandsV3(value["commands"], diagnostics);
   validateEnvironmentV3(value["environment"], diagnostics);
   validateEffectsV3(value["effects"], diagnostics);
+  validateRequiredPlatformLegsV3(value["requiredPlatformLegs"], value["commands"], diagnostics);
 
   return finish(
     hasValidatedShape(value, diagnostics) ? value : undefined,

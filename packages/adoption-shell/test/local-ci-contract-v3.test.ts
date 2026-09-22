@@ -14,6 +14,7 @@ import {
   classifyAndMigrateLocalCiV2ToV3,
   orderedLocalCiCommandsV3,
   validateLocalCiContractV3,
+  evaluateRequiredPlatformLegsV3,
 } from "../src/local-ci-contract-v3.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -158,4 +159,70 @@ void test("runtime validation rejects adversarial detectionProof shapes the sche
     assert.equal(schemaAccepted, runtimeAccepted, name);
     assert.equal(runtimeAccepted, false, `${name} must be non-routable`);
   }
+});
+
+
+void test("requiredPlatformLegs: valid linux leg passes schema and runtime validation", () => {
+  const validFixture = readV3Fixture("valid-local-ci-v3.json");
+  const withLeg = {
+    ...(validFixture as Record<string, unknown>),
+    requiredPlatformLegs: [
+      { legId: "linux-default", platform: "linux", commandId: "authoritative-gate" },
+    ],
+  };
+  assert.equal(validateSchema(withLeg), true, JSON.stringify(validateSchema.errors));
+  const result = validateLocalCiContractV3(withLeg);
+  assert.equal(result.ok, true);
+  assert.equal(result.value.requiredPlatformLegs?.[0]?.platform, "linux");
+});
+
+void test("requiredPlatformLegs: unknown commandId fails validation", () => {
+  const validFixture = readV3Fixture("valid-local-ci-v3.json");
+  const bad = {
+    ...(validFixture as Record<string, unknown>),
+    requiredPlatformLegs: [
+      { legId: "linux-default", platform: "linux", commandId: "does-not-exist" },
+    ],
+  };
+  const result = validateLocalCiContractV3(bad);
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((d) => d.code === "E_UNKNOWN_COMMAND"));
+});
+
+void test("evaluateRequiredPlatformLegsV3: missing receipt fails full-required verdict", () => {
+  const validFixture = readV3Fixture("valid-local-ci-v3.json");
+  const withLeg = {
+    ...(validFixture as Record<string, unknown>),
+    requiredPlatformLegs: [
+      { legId: "linux-default", platform: "linux", commandId: "authoritative-gate" },
+    ],
+  };
+  const validated = validateLocalCiContractV3(withLeg);
+  assert.equal(validated.ok, true);
+  const missing = evaluateRequiredPlatformLegsV3(validated.value, []);
+  assert.equal(missing.ok, false);
+  assert.equal(missing.missingLegs.length, 1);
+  assert.equal(missing.missingLegs[0]?.legId, "linux-default");
+
+  const receipt = {
+    schema: "LocalCiPlatformLegReceiptV3" as const,
+    legId: "linux-default",
+    platform: "linux" as const,
+    commandId: "authoritative-gate",
+    evaluatedAt: "2026-09-22T07:00:00.000Z",
+    executorKind: "fleet-linux-host",
+    hostId: "example-host",
+  };
+  const ok = evaluateRequiredPlatformLegsV3(validated.value, [receipt]);
+  assert.equal(ok.ok, true);
+  assert.equal(ok.satisfiedCount, 1);
+});
+
+void test("evaluateRequiredPlatformLegsV3: absent requiredPlatformLegs is vacuously ok", () => {
+  const validFixture = readV3Fixture("valid-local-ci-v3.json");
+  const validated = validateLocalCiContractV3(validFixture);
+  assert.equal(validated.ok, true);
+  const verdict = evaluateRequiredPlatformLegsV3(validated.value, []);
+  assert.equal(verdict.ok, true);
+  assert.equal(verdict.requiredCount, 0);
 });

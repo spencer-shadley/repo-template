@@ -8,7 +8,11 @@
     "detectionProofFixture": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["path", "description", "expectation"],
+      "required": [
+        "path",
+        "description",
+        "expectation"
+      ],
       "properties": {
         "path": {
           "type": "string",
@@ -28,7 +32,9 @@
       "oneOf": [
         {
           "additionalProperties": false,
-          "required": ["fixture"],
+          "required": [
+            "fixture"
+          ],
           "properties": {
             "fixture": {
               "$ref": "#/$defs/detectionProofFixture"
@@ -37,7 +43,9 @@
         },
         {
           "additionalProperties": false,
-          "required": ["exempt"],
+          "required": [
+            "exempt"
+          ],
           "properties": {
             "exempt": {
               "type": "string",
@@ -80,7 +88,13 @@
           }
         },
         "shell": {
-          "enum": ["pwsh", "cmd", "bash", "sh", "none"]
+          "enum": [
+            "pwsh",
+            "cmd",
+            "bash",
+            "sh",
+            "none"
+          ]
         },
         "cwd": {
           "type": "string",
@@ -94,10 +108,42 @@
           "type": "integer"
         },
         "failureDisposition": {
-          "enum": ["fail-gate", "warning", "non-routable"]
+          "enum": [
+            "fail-gate",
+            "warning",
+            "non-routable"
+          ]
         },
         "detectionProof": {
           "$ref": "#/$defs/detectionProof"
+        }
+      }
+    },
+    "requiredPlatformLeg": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "legId",
+        "platform",
+        "commandId"
+      ],
+      "properties": {
+        "legId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$"
+        },
+        "platform": {
+          "enum": [
+            "linux",
+            "win32",
+            "darwin"
+          ]
+        },
+        "commandId": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_-]+$"
         }
       }
     }
@@ -136,7 +182,9 @@
       "minProperties": 1,
       "maxProperties": 256,
       "additionalProperties": false,
-      "required": ["authoritative-gate"],
+      "required": [
+        "authoritative-gate"
+      ],
       "propertyNames": {
         "pattern": "^[a-zA-Z0-9_-]+$"
       },
@@ -167,7 +215,10 @@
         "runtime": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["name", "versionConstraint"],
+          "required": [
+            "name",
+            "versionConstraint"
+          ],
           "properties": {
             "name": {
               "type": "string",
@@ -182,7 +233,10 @@
         "packageManager": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["name", "version"],
+          "required": [
+            "name",
+            "version"
+          ],
           "properties": {
             "name": {
               "type": "string",
@@ -233,7 +287,11 @@
           }
         },
         "networkExpectation": {
-          "enum": ["offline-only", "local-loopback", "outbound-allowed"]
+          "enum": [
+            "offline-only",
+            "local-loopback",
+            "outbound-allowed"
+          ]
         }
       }
     },
@@ -279,6 +337,14 @@
         "servingAuthorityMutation": {
           "type": "boolean"
         }
+      }
+    },
+    "requiredPlatformLegs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/requiredPlatformLeg"
       }
     }
   }
