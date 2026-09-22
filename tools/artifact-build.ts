@@ -148,6 +148,12 @@ const PRODUCT_OVERLAY_ARTIFACT_PATHS = [
   "contracts/product-overlay/v1/technology-registry.overlay.schema.json",
 ] as const;
 const REPOSITORY_SHAPE_ARTIFACT_PATHS = [
+  "contracts/repository-shape/v1/fixtures/invalid-profile-declared-scripts-map.json",
+  "contracts/repository-shape/v1/fixtures/invalid-profile-missing-identity.json",
+  "contracts/repository-shape/v1/fixtures/invalid-profile-wrong-contract-id.json",
+  "contracts/repository-shape/v1/fixtures/invalid-turbo-cache-type.json",
+  "contracts/repository-shape/v1/fixtures/invalid-turbo-inputs-type.json",
+  "contracts/repository-shape/v1/fixtures/invalid-turbo-persistent-type.json",
   "contracts/repository-shape/v1/fixtures/valid-monorepo-profile.json",
   "contracts/repository-shape/v1/fixtures/valid-turbo.json",
   "contracts/repository-shape/v1/repository-shape.schema.json",
@@ -256,13 +262,15 @@ function prepareBuild(): void {
 }
 
 function emittedRows(emittedRoot: string): readonly FileClosureRow[] {
-  return mapEmittedPaths(emittedRoot).map((row) => ({
-    path: row.artifactRelative,
-    kind: "file" as const,
-    mode: "100644" as const,
-    sha256: sha256Bytes(row.bytes),
-    bytes: row.bytes.byteLength,
-  }));
+  return mapEmittedPaths(emittedRoot)
+    .map((row) => ({
+      path: row.artifactRelative,
+      kind: "file" as const,
+      mode: "100644" as const,
+      sha256: sha256Bytes(row.bytes),
+      bytes: row.bytes.byteLength,
+    }))
+    .sort((left, right) => compare(left.path, right.path));
 }
 
 function sourceRows(): readonly FileClosureRow[] {
@@ -709,7 +717,7 @@ async function verifyArtifact(): Promise<void> {
 
 /**
  * Nested `packages/adoption-shell/src/<group>/*.ts` still emit flat basenames into
- * `artifacts/adoption-shell-v2/` so LocalCiContractV3 / capability-bundle path pins
+ * `artifacts/adoption-shell-v2/` so LocalCiContractV3 / repository-shape / capability-bundle path pins
  * stay stable (repo-template#412). Basename collisions fail closed.
  */
 function flattenArtifactRelativePath(relativePath: string): string {
@@ -724,7 +732,7 @@ function rewriteFlattenedModuleSources(source: string): string {
   let next = source.replaceAll(/from (["'])\.\.\//g, (_match, quote: string) => `from ${quote}./`);
   // index and sibling barrels import `./local-ci/foo` / `./product-overlay/foo`; flatten to `./foo`.
   next = next.replaceAll(
-    /from (["'])\.\/(?:local-ci|product-overlay|release)\//g,
+    /from (["'])\.\/(?:local-ci|product-overlay|release|repository-shape)\//g,
     (_match, quote: string) => `from ${quote}./`,
   );
   return next;
@@ -760,7 +768,9 @@ function mapEmittedPaths(emittedRoot: string): ReadonlyArray<{ diskRelative: str
 }
 
 function writeCommitted(emittedRoot: string): void {
-  const rows = mapEmittedPaths(emittedRoot);
+  const rows = [...mapEmittedPaths(emittedRoot)].sort((left, right) =>
+    compare(left.artifactRelative, right.artifactRelative),
+  );
   fs.rmSync(artifactRoot, { recursive: true, force: true });
   fs.mkdirSync(artifactRoot, { recursive: true });
   for (const row of rows) {

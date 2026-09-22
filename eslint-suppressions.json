@@ -42,33 +42,24 @@
       "count": 1
     },
     "@typescript-eslint/no-unsafe-type-assertion": {
-      "count": 4
+      "count": 2
     },
     "complexity": {
-      "count": 2
-    },
-    "max-depth": {
-      "count": 2
-    },
-    "max-lines-per-function": {
       "count": 1
     },
     "sonarjs/cognitive-complexity": {
-      "count": 3
+      "count": 1
     },
     "sonarjs/no-misleading-array-reverse": {
       "count": 1
     },
     "sonarjs/unused-import": {
-      "count": 3
+      "count": 1
     },
     "unicorn/no-declarations-before-early-exit": {
       "count": 1
     },
     "unicorn/prefer-array-from-map": {
-      "count": 1
-    },
-    "unicorn/prefer-set-has": {
       "count": 1
     }
   },

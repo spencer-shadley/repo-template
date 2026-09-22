@@ -256,11 +256,18 @@ export {
   resolveRepositoryShapeRoots,
   validateRepositoryProfile,
   validateTurboTaskGraph,
+  withRepositoryShapeIdentity,
 } from "./repository-shape.ts";
+export {
+  REPOSITORY_SHAPE_PROFILE_SCHEMA_DIGEST,
+  TURBO_TASK_GRAPH_SCHEMA_DIGEST,
+} from "./repository-shape/validators.generated.ts";
 export type {
   CanonicalTurboTask,
   PortableRootFamily,
   RepositoryProfile,
+  RepositoryShapeWireProfile,
+  DeclaredScriptsInput,
   TurboTaskDefinition,
   TurboTaskGraph,
 } from "./repository-shape.ts";

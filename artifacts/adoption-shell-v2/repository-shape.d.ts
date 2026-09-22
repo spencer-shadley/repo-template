@@ -22,25 +22,35 @@ export interface TurboTaskGraph {
     readonly $schema?: string;
     readonly tasks: Readonly<Record<string, TurboTaskDefinition>>;
 }
+/** Wire + composition profile. Wire `declaredScripts` is array-only (schema). */
 export interface RepositoryProfile {
     readonly profileId: string;
     readonly monorepo: boolean;
     readonly rootFamilies: readonly PortableRootFamily[];
-    readonly declaredScripts: readonly string[] | Readonly<Record<string, string>>;
+    readonly declaredScripts: readonly string[];
 }
+/** Convenience input for turbo composition helpers (not a wire form). */
+export type DeclaredScriptsInput = readonly string[] | Readonly<Record<string, string>>;
 export declare const FULL_STACK_PROFILE: RepositoryProfile;
 export declare const SERVICE_PROFILE: RepositoryProfile;
 export declare const LIBRARY_PROFILE: RepositoryProfile;
 export declare const STANDALONE_PROFILE: RepositoryProfile;
-export declare function composeTurboTaskGraph(declaredScripts: readonly string[] | Readonly<Record<string, string>>): TurboTaskGraph;
-export declare function createTurboJsonContent(declaredScripts: readonly string[] | Readonly<Record<string, string>>): string;
+export declare function composeTurboTaskGraph(declaredScripts: DeclaredScriptsInput): TurboTaskGraph;
+export declare function createTurboJsonContent(declaredScripts: DeclaredScriptsInput): string;
 export declare function resolveRepositoryShapeRoots(profile: RepositoryProfile): readonly PortableRootFamily[];
 export declare function createRepositorySkeletonEntries(rootFamilies: readonly PortableRootFamily[], bundleId?: string | null): readonly PayloadEntry[];
-export declare function createTurboJsonPayloadEntry(declaredScripts: readonly string[] | Readonly<Record<string, string>>, bundleId?: string | null): PayloadEntry;
+export declare function createTurboJsonPayloadEntry(declaredScripts: DeclaredScriptsInput, bundleId?: string | null): PayloadEntry;
 export declare function materializeRepositoryShapeEntries(profile: RepositoryProfile, bundleId?: string | null): readonly PayloadEntry[];
 export declare function createRepositoryShapeBundle(profile: RepositoryProfile, options?: Readonly<{
     id?: string;
     version?: string;
 }>): CapabilityBundle;
+export interface RepositoryShapeWireProfile extends RepositoryProfile {
+    readonly schemaId: typeof REPOSITORY_SHAPE_SCHEMA_ID;
+    readonly schemaVersion: typeof REPOSITORY_SHAPE_SCHEMA_VERSION;
+    readonly contractId: typeof REPOSITORY_SHAPE_CONTRACT_ID;
+    readonly $schema?: string;
+}
+export declare function withRepositoryShapeIdentity(profile: RepositoryProfile): RepositoryShapeWireProfile;
 export declare function validateTurboTaskGraph(value: unknown): ValidationResult<TurboTaskGraph>;
 export declare function validateRepositoryProfile(value: unknown): ValidationResult<RepositoryProfile>;

@@ -27,6 +27,7 @@ import {
   resolveRepositoryShapeRoots,
   validateRepositoryProfile,
   validateTurboTaskGraph,
+  withRepositoryShapeIdentity,
   type RepositoryProfile,
 } from "../src/repository-shape.ts";
 
@@ -142,47 +143,57 @@ void test("bundle definition contains expected artifacts and task-graph mode", (
 
 void test("validation fails closed on invalid profiles and malformed turbo graphs", () => {
   // Empty profileId
-  const emptyProfileId = validateRepositoryProfile({
-    ...FULL_STACK_PROFILE,
-    profileId: "",
-  });
+  const emptyProfileId = validateRepositoryProfile(
+    withRepositoryShapeIdentity({
+      ...FULL_STACK_PROFILE,
+      profileId: "",
+    }),
+  );
   assert.equal(emptyProfileId.ok, false);
   if (!emptyProfileId.ok) {
     assert.ok(emptyProfileId.diagnostics.some((d) => d.pointer === "/profileId"));
   }
 
   // Invalid profileId format
-  const invalidProfileId = validateRepositoryProfile({
-    ...FULL_STACK_PROFILE,
-    profileId: "INVALID_PROFILE_NAME",
-  });
+  const invalidProfileId = validateRepositoryProfile(
+    withRepositoryShapeIdentity({
+      ...FULL_STACK_PROFILE,
+      profileId: "INVALID_PROFILE_NAME",
+    }),
+  );
   assert.equal(invalidProfileId.ok, false);
 
   // Duplicate roots
-  const duplicateRoots = validateRepositoryProfile({
-    ...FULL_STACK_PROFILE,
-    rootFamilies: ["apps", "apps", "services"],
-  });
+  const duplicateRoots = validateRepositoryProfile(
+    withRepositoryShapeIdentity({
+      ...FULL_STACK_PROFILE,
+      rootFamilies: ["apps", "apps", "services"],
+    }),
+  );
   assert.equal(duplicateRoots.ok, false);
   if (!duplicateRoots.ok) {
     assert.ok(duplicateRoots.diagnostics.some((d) => d.code === "E_DUPLICATE_ROOT"));
   }
 
   // Path traversal in root family
-  const pathTraversal = validateRepositoryProfile({
-    ...FULL_STACK_PROFILE,
-    rootFamilies: ["apps", "../outside"],
-  });
+  const pathTraversal = validateRepositoryProfile(
+    withRepositoryShapeIdentity({
+      ...FULL_STACK_PROFILE,
+      rootFamilies: ["apps", "../outside" as never],
+    }),
+  );
   assert.equal(pathTraversal.ok, false);
   if (!pathTraversal.ok) {
     assert.ok(pathTraversal.diagnostics.some((d) => d.code === "E_INVALID_ROOT"));
   }
 
   // Duplicate declared scripts
-  const duplicateScripts = validateRepositoryProfile({
-    ...FULL_STACK_PROFILE,
-    declaredScripts: ["build", "build", "lint"],
-  });
+  const duplicateScripts = validateRepositoryProfile(
+    withRepositoryShapeIdentity({
+      ...FULL_STACK_PROFILE,
+      declaredScripts: ["build", "build", "lint"],
+    }),
+  );
   assert.equal(duplicateScripts.ok, false);
   if (!duplicateScripts.ok) {
     assert.ok(duplicateScripts.diagnostics.some((d) => d.code === "E_DUPLICATE_SCRIPT"));
@@ -201,6 +212,43 @@ void test("validation fails closed on invalid profiles and malformed turbo graph
     },
   });
   assert.equal(invalidTurboDependsOn.ok, false);
+});
+
+void test("RT#348/#355 drift regressions: schema and runtime agree on fail-closed cases", () => {
+  const profileSchemaRaw = readJson("contracts/repository-shape/v1/repository-shape.schema.json");
+  if (!isJsonSchema(profileSchemaRaw)) throw new TypeError("profile schema must be an object");
+  const turboSchemaRaw = readJson("contracts/repository-shape/v1/turbo.schema.json");
+  if (!isJsonSchema(turboSchemaRaw)) throw new TypeError("turbo schema must be an object");
+  const ajv = new Ajv2020({ allErrors: true, strictSchema: true, strictTypes: false });
+  const validateProfileSchema = ajv.compile(profileSchemaRaw);
+  const validateTurboSchema = ajv.compile(turboSchemaRaw);
+
+  const cases: Array<{ path: string; kind: "turbo" | "profile" }> = [
+    { path: "contracts/repository-shape/v1/fixtures/invalid-turbo-cache-type.json", kind: "turbo" },
+    { path: "contracts/repository-shape/v1/fixtures/invalid-turbo-inputs-type.json", kind: "turbo" },
+    { path: "contracts/repository-shape/v1/fixtures/invalid-turbo-persistent-type.json", kind: "turbo" },
+    { path: "contracts/repository-shape/v1/fixtures/invalid-profile-missing-identity.json", kind: "profile" },
+    { path: "contracts/repository-shape/v1/fixtures/invalid-profile-wrong-contract-id.json", kind: "profile" },
+    { path: "contracts/repository-shape/v1/fixtures/invalid-profile-declared-scripts-map.json", kind: "profile" },
+  ];
+
+  for (const row of cases) {
+    const fixture = readJson(row.path);
+    if (row.kind === "turbo") {
+      assert.equal(validateTurboSchema(fixture), false, row.path);
+      const runtime = validateTurboTaskGraph(fixture);
+      assert.equal(runtime.ok, false, row.path);
+    } else {
+      assert.equal(validateProfileSchema(fixture), false, row.path);
+      const runtime = validateRepositoryProfile(fixture);
+      assert.equal(runtime.ok, false, row.path);
+    }
+  }
+
+  // Valid fixture still passes both authorities
+  const validProfile = readJson("contracts/repository-shape/v1/fixtures/valid-monorepo-profile.json");
+  assert.equal(validateProfileSchema(validProfile), true);
+  assert.equal(validateRepositoryProfile(validProfile).ok, true);
 });
 
 void test("re-materializing identical exact inputs produces identical manifest and output digests", () => {

@@ -1,0 +1,13 @@
+{
+  "schemaId": "https://schemas.repo-template.dev/repository-shape/v1/repository-shape.schema.json",
+  "schemaVersion": "1.0.0",
+  "contractId": "wrong/contract",
+  "profileId": "full-stack",
+  "monorepo": true,
+  "rootFamilies": [
+    "apps"
+  ],
+  "declaredScripts": [
+    "lint"
+  ]
+}
