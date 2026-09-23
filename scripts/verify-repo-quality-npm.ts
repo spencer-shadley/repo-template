@@ -9,7 +9,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const scratchRoot = mkdtempSync(join(tmpdir(), "repo-quality-npm-conformance-"));
 const consumerRoot = join(scratchRoot, "consumer");
 const packageName = "@spencer-shadley/repo-quality";
-const packageVersion = "1.10.0";
+const packageVersion = "1.10.1";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

@@ -114,6 +114,12 @@ export function buildHermeticTestEnvironment(
   env.GIT_AUTHOR_EMAIL = "hermetic-test@invalid.example";
   env.GIT_COMMITTER_NAME = env.GIT_AUTHOR_NAME;
   env.GIT_COMMITTER_EMAIL = env.GIT_AUTHOR_EMAIL;
+  // Disable signing for disposable fixtures (cli-wrappers test harness class).
+  env.GIT_CONFIG_COUNT = "2";
+  env.GIT_CONFIG_KEY_0 = "commit.gpgsign";
+  env.GIT_CONFIG_VALUE_0 = "false";
+  env.GIT_CONFIG_KEY_1 = "tag.gpgsign";
+  env.GIT_CONFIG_VALUE_1 = "false";
 
   return { root, env };
 }
