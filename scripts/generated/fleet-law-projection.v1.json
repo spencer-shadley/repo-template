@@ -1,7 +1,7 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 1,
-  "sourceCommit": "bd4d22d8d7b1a5385452b1fc5e47cb5f2729aaa4",
+  "sourceCommit": "f65d8f741fdc34de9511ef172884a3d2ba2df138",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
   "governedIntakeRevision": 16,
   "currentTriageLabel": "triaged:v16",
@@ -218,6 +218,11 @@
       "color": "0052CC"
     },
     {
+      "name": "byakugan",
+      "description": "Fleet host id byakugan. Add with local-required when this exact machine must run the work.",
+      "color": "C5DEF5"
+    },
+    {
       "name": "cloud-ready",
       "description": "Implementation stage assessed ready for provider-hosted remote cloud execution.",
       "color": "0E8A16"
@@ -283,6 +288,11 @@
       "color": "FEF2C0"
     },
     {
+      "name": "ems",
+      "description": "Fleet host id ems. Add with local-required when this exact machine must run the work.",
+      "color": "C5DEF5"
+    },
+    {
       "name": "epic",
       "description": "Programme/epic root with a frozen decomposition graph (pair with decomp).",
       "color": "5319E7"
@@ -291,6 +301,16 @@
       "name": "human-required",
       "description": "Human input/merge floor (exact ask in comments); replaces banned tier:human",
       "color": "D93F0B"
+    },
+    {
+      "name": "local-required",
+      "description": "Needs a fleet local machine; Cursor Cloud seats skip. Agent-doable on that host.",
+      "color": "1D76DB"
+    },
+    {
+      "name": "mangekyo",
+      "description": "Fleet host id mangekyo. Add with local-required when this exact machine must run the work.",
+      "color": "C5DEF5"
     },
     {
       "name": "model-agnostic-audit-in-progress",
@@ -376,6 +396,26 @@
       "name": "priority:triage-tbd",
       "description": "Awaiting durable priority confirmation; not an authoritative priority.",
       "color": "FBCA04"
+    },
+    {
+      "name": "rinnegan",
+      "description": "Fleet host id rinnegan. Add with local-required when this exact machine must run the work.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "sharingan-host",
+      "description": "Fleet host id sharingan-host. Add with local-required when this exact machine must run the work.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "sharingan-ts",
+      "description": "Fleet host id sharingan-ts. Add with local-required when this exact machine must run the work.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "thinkugan",
+      "description": "Fleet host id thinkugan. Add with local-required when this exact machine must run the work.",
+      "color": "C5DEF5"
     },
     {
       "name": "tier:auto",
@@ -483,5 +523,5 @@
       "color": "BFDADC"
     }
   ],
-  "contentDigest": "sha256:b134d860713d64ad7fe55fab1e00fcf13e8cc22d30929a54962e06f418a67d42"
+  "contentDigest": "sha256:2892b8239d41adb9c66c09a55ca90460a8a506f93ab11e15fe35255217610711"
 }
