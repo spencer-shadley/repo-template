@@ -1,10 +1,10 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 1,
-  "sourceCommit": "59486d557596eff0b8660326540875370aac6f5f",
+  "sourceCommit": "bd4d22d8d7b1a5385452b1fc5e47cb5f2729aaa4",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 12,
-  "currentTriageLabel": "triaged:v12",
+  "governedIntakeRevision": 16,
+  "currentTriageLabel": "triaged:v16",
   "bannedLabels": [
     "work:triaged",
     "tier:human",
@@ -213,6 +213,41 @@
   },
   "labels": [
     {
+      "name": "agent-review",
+      "description": "Governed intake stamp: automated agent review or processing.",
+      "color": "0052CC"
+    },
+    {
+      "name": "cloud-ready",
+      "description": "Implementation stage assessed ready for provider-hosted remote cloud execution.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "conflicting",
+      "description": "Owner lifecycle labels conflict with the authoritative issue body; repair before freeze.",
+      "color": "D93F0B"
+    },
+    {
+      "name": "decomp",
+      "description": "Epic-decomposition graph complete for this root (pair with epic).",
+      "color": "5319E7"
+    },
+    {
+      "name": "decomp-in-progress",
+      "description": "Ephemeral epic-decomposition run ownership; requires a fleet-wip-run-v1 receipt.",
+      "color": "FBCA04"
+    },
+    {
+      "name": "decomp-needed",
+      "description": "Confirmed high-effort work still requires epic decomposition.",
+      "color": "E99695"
+    },
+    {
+      "name": "decomp-not-needed",
+      "description": "N=1 indivisible residual; epic decomposition is not required.",
+      "color": "C2E0C6"
+    },
+    {
       "name": "disposition:bounded-successor",
       "description": "Terminal disposition: disposition:bounded-successor",
       "color": "FBCA04"
@@ -248,9 +283,19 @@
       "color": "FEF2C0"
     },
     {
+      "name": "epic",
+      "description": "Programme/epic root with a frozen decomposition graph (pair with decomp).",
+      "color": "5319E7"
+    },
+    {
       "name": "human-required",
       "description": "Human input/merge floor (exact ask in comments); replaces banned tier:human",
       "color": "D93F0B"
+    },
+    {
+      "name": "model-agnostic-audit-in-progress",
+      "description": "Durable unfinished model-agnostic architecture audit record (not an active-run TTL lease).",
+      "color": "C5DEF5"
     },
     {
       "name": "obsolete",
@@ -353,6 +398,26 @@
       "color": "0E8A16"
     },
     {
+      "name": "triaged:v13",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 13; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v14",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 14; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v15",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 15; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v16",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 16; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
       "name": "triaged:v3",
       "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 3; strip on re-triage.",
       "color": "0E8A16"
@@ -418,5 +483,5 @@
       "color": "BFDADC"
     }
   ],
-  "contentDigest": "sha256:fb832e52a61774e48e523da6959166cf7be5dfa1309818339147d584b464dfcf"
+  "contentDigest": "sha256:b134d860713d64ad7fe55fab1e00fcf13e8cc22d30929a54962e06f418a67d42"
 }
