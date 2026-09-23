@@ -7,6 +7,7 @@ one entry per user-visible or structural change.
 ## [Unreleased]
 
 ### Fixed
+- **Tip-green: ignore hermetic-test-preload in eslint until tsconfig enrollment:** `packages/repo-quality/hermetic-test-preload/**` fails `projectService` (same class as docs-only-gate / todo-issue-link). Ignore under the RT#411 tip-green pattern so `pnpm verify` / land gate match master intent without `--skip-gate`. PATCH. Obligation from repo-template#432 allow-pre-existing basediff.
 - **`@spencer-shadley/repo-quality` 1.10.1:** hermetic preload re-applies `commit.gpgsign`/`tag.gpgsign=false` after scrubbing inherited `GIT_CONFIG_*` so consumer test scripts need not fight the preload. PATCH. code#6081.
 
 ### Added
