@@ -9,7 +9,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const scratchRoot = mkdtempSync(join(tmpdir(), "repo-quality-npm-conformance-"));
 const consumerRoot = join(scratchRoot, "consumer");
 const packageName = "@spencer-shadley/repo-quality";
-const packageVersion = "1.9.1";
+const packageVersion = "1.10.0";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -80,7 +80,7 @@ function testInstall(url: string, artifactCommit: string, isRemote: boolean) {
     );
   }
   const exports = readRecord(installedPackage["exports"], `${packageName} exports`);
-  for (const requiredExport of [".", "./knip.mjs", "./jscpd.mjs", "./secret-scan.mjs", "./todo-issue-link.mjs", "./docs-only-gate.mjs"]) {
+  for (const requiredExport of [".", "./knip.mjs", "./jscpd.mjs", "./secret-scan.mjs", "./todo-issue-link.mjs", "./docs-only-gate.mjs", "./hermetic-test-preload.mjs"]) {
     if (!(requiredExport in exports)) throw new TypeError(`${packageName} is missing export ${requiredExport}`);
   }
 
