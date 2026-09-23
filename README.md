@@ -83,5 +83,6 @@ globs to the files that contain those strings, then run
 
 ## Quality lint (required)
 
-See [docs/QUALITY-LINT.md](./docs/QUALITY-LINT.md). Bootstrap without `@spencer-shadley/repo-quality` + wired lint
-and Betterleaks verify is incomplete.
+See [docs/QUALITY-LINT.md](./docs/QUALITY-LINT.md). Bootstrap without `@spencer-shadley/repo-quality` + wired lint,
+Betterleaks verify, and the hermetic test preload (`--import @spencer-shadley/repo-quality/preload`) is incomplete.
+

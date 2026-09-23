@@ -22,6 +22,7 @@ export default [
       // include (projectService). Enroll + lint-clean under follow-on; keep land gate green.
       "packages/repo-quality/docs-only-gate/**",
       "packages/repo-quality/todo-issue-link/**",
+      "packages/repo-quality/hermetic-git-check/**",
     ],
   },
   ...qualityRules(),

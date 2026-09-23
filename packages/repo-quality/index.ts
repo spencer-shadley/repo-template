@@ -25,6 +25,20 @@ import sonarjs from "eslint-plugin-sonarjs";
 import eslintPluginUnicorn from "eslint-plugin-unicorn";
 import globals from "globals";
 import type { ESLint, Linter, Rule } from "eslint";
+import { hermeticGitSpawnRule } from "./hermetic-git-spawn-rule.ts";
+
+export {
+  hermeticGitEnv,
+  sanitizedGitEnv,
+  cleanGitEnvironment,
+  getHermeticTempDir,
+  isHermeticActive,
+  HERMETIC_GIT_ROUTING_VARIABLES,
+  HERMETIC_MARKER_ENV,
+  HERMETIC_MARKER_ENV_ALIAS,
+  type HermeticGitEnvOptions,
+} from "./hermetic-preload.ts";
+export { hermeticGitSpawnRule };
 
 // Runtime helpers used by the template's rule self-check. They keep ESLint implementation
 // dependencies behind the kit boundary for consumers as well as the starter config.
@@ -226,6 +240,8 @@ const fleetPlugin: ESLint.Plugin = {
   rules: {
     "prefer-typescript": preferTypeScriptRule,
     "no-eslint-inline-config": noEslintInlineConfigRule,
+    "hermetic-git-spawn": hermeticGitSpawnRule,
+    "no-unscoped-git-spawn": hermeticGitSpawnRule,
   },
   configs: {
     get recommended() {
@@ -504,6 +520,17 @@ export function qualityRules(options: QualityRulesOptions = {}): Linter.Config[]
         "sonarjs/no-duplicate-string": "off",
         "no-await-in-loop": "off",
         "no-console": "off",
+        "fleet/hermetic-git-spawn": "warn",
+      },
+    },
+    // Preload entrypoints: node --import requires top-level side effects
+    {
+      files: [
+        "**/preload.{js,jsx,ts,tsx,mjs,cjs}",
+        "**/hermetic-preload.{js,jsx,ts,tsx,mjs,cjs}",
+      ],
+      rules: {
+        "unicorn/no-top-level-side-effects": "off",
       },
     },
   );

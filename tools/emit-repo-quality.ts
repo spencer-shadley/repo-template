@@ -11,7 +11,14 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = path.join(root, "packages", "repo-quality");
-const sources = ["index.ts", "jscpd.ts", "knip.ts", "secret-scan.ts"] as const;
+const sources = [
+  "index.ts",
+  "jscpd.ts",
+  "knip.ts",
+  "secret-scan.ts",
+  "hermetic-preload.ts",
+  "hermetic-git-spawn-rule.ts",
+] as const;
 
 function portable(filePath: string): string {
   return path.relative(root, filePath).split(path.sep).join("/");
@@ -28,6 +35,7 @@ function generatedPath(sourceName: (typeof sources)[number]): string {
 function withBanner(sourceName: (typeof sources)[number], emittedJs: string): string {
   const banner = `// @generated from ${sourceName}. DO NOT EDIT.\n// @stack-waiver id=repo-quality-generated-js reason="Published npm entrypoint is generated JavaScript consumed directly by Node."\n`;
   let output = emittedJs.replaceAll("\r\n", "\n");
+  output = output.replaceAll(/(from\s+["']\.\/[^"']+)\.js(["'])/g, "$1.mjs$2");
   if (output.startsWith("#!")) {
     const newline = output.indexOf("\n");
     output = `${output.slice(0, newline + 1)}${banner}${output.slice(newline + 1)}`;

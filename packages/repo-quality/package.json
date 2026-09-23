@@ -17,7 +17,19 @@
     "./todo-issue-link.mjs": "./todo-issue-link.mjs",
     "./todo-issue-link": "./todo-issue-link/index.ts",
     "./docs-only-gate.mjs": "./docs-only-gate.mjs",
-    "./docs-only-gate": "./docs-only-gate/index.ts"
+    "./docs-only-gate": "./docs-only-gate/index.ts",
+    "./preload": {
+      "types": "./hermetic-preload.d.ts",
+      "default": "./preload.mjs"
+    },
+    "./preload.mjs": "./preload.mjs",
+    "./hermetic-preload": {
+      "types": "./hermetic-preload.d.ts",
+      "default": "./hermetic-preload.mjs"
+    },
+    "./hermetic-preload.mjs": "./hermetic-preload.mjs",
+    "./hermetic-git-check.mjs": "./hermetic-git-check.mjs",
+    "./hermetic-git-check": "./hermetic-git-check/index.ts"
   },
   "dependencies": {
     "@eslint/js": "10.0.1",

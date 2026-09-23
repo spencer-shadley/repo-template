@@ -80,14 +80,27 @@ function testInstall(url: string, artifactCommit: string, isRemote: boolean) {
     );
   }
   const exports = readRecord(installedPackage["exports"], `${packageName} exports`);
-  for (const requiredExport of [".", "./knip.mjs", "./jscpd.mjs", "./secret-scan.mjs", "./todo-issue-link.mjs", "./docs-only-gate.mjs"]) {
+  for (const requiredExport of [
+    ".",
+    "./knip.mjs",
+    "./jscpd.mjs",
+    "./secret-scan.mjs",
+    "./todo-issue-link.mjs",
+    "./docs-only-gate.mjs",
+    "./preload",
+    "./hermetic-preload.mjs",
+    "./hermetic-git-check.mjs",
+  ]) {
     if (!(requiredExport in exports)) throw new TypeError(`${packageName} is missing export ${requiredExport}`);
   }
 
   writeFileSync(
     join(consumerRoot, "verify-import.mjs"),
     `const kit = await import(${JSON.stringify(packageName)});\n`
-      + `if (!kit.qualityRules) throw new TypeError("qualityRules export missing");\n`,
+      + `if (!kit.qualityRules) throw new TypeError("qualityRules export missing");\n`
+      + `if (!kit.hermeticGitEnv) throw new TypeError("hermeticGitEnv export missing");\n`
+      + `const preload = await import(${JSON.stringify(packageName + "/preload")});\n`
+      + `if (!preload.hermeticGitEnv) throw new TypeError("preload hermeticGitEnv export missing");\n`,
   );
   execFileSync(process.execPath, [join(consumerRoot, "verify-import.mjs")], { cwd: consumerRoot, stdio: "inherit" });
 
