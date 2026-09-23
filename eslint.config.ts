@@ -22,6 +22,9 @@ export default [
       // include (projectService). Enroll + lint-clean under follow-on; keep land gate green.
       "packages/repo-quality/docs-only-gate/**",
       "packages/repo-quality/todo-issue-link/**",
+      // code#6081 tip-green: hermetic-test-preload not in packages/repo-quality/tsconfig.json
+      // include (projectService). Same RT#411 pattern as docs-only-gate / issue-link trees.
+      "packages/repo-quality/hermetic-test-preload/**",
     ],
   },
   ...qualityRules(),
