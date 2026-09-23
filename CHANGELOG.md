@@ -6,6 +6,9 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+### Fixed
+- **`@spencer-shadley/repo-quality` 1.10.1:** hermetic preload re-applies `commit.gpgsign`/`tag.gpgsign=false` after scrubbing inherited `GIT_CONFIG_*` so consumer test scripts need not fight the preload. PATCH. code#6081.
+
 ### Added
 - **`@spencer-shadley/repo-quality` 1.10.0 hermetic-test preload (code#6081):** publish `hermetic-test-preload` (+ `.mjs` launcher) so every consumer can `--import` a scrubbed git/HOME/XDG environment. PATCH. Tracks code#6081.
 
