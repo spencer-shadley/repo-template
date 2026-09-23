@@ -12,7 +12,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p packages/repo-quality/tsconfig.json --noEmit",
     "build": "node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "build:check": "node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",
-    "test": "node --test packages/adoption-shell/test/*.test.ts && pnpm todo-issue-link:selfcheck",
+    "test": "node --test packages/adoption-shell/test/*.test.ts && pnpm todo-issue-link:selfcheck && pnpm hermetic-test-preload:selfcheck",
     "release:payload": "node tools/release-payload.ts write",
     "release:payload:check": "node tools/release-payload.ts check",
     "verify:artifact": "node tools/artifact-build.ts verify",
@@ -48,7 +48,8 @@
     "lint:dir-breadth": "node --experimental-strip-types scripts/check-dir-breadth.ts",
     "lint:dir-breadth:selfcheck": "node --experimental-strip-types scripts/check-dir-breadth.selfcheck.ts",
     "generate:repository-shape-validators": "node --experimental-strip-types tools/generate-repository-shape-validators.ts write",
-    "check:repository-shape-validators": "node --experimental-strip-types tools/generate-repository-shape-validators.ts check"
+    "check:repository-shape-validators": "node --experimental-strip-types tools/generate-repository-shape-validators.ts check",
+    "hermetic-test-preload:selfcheck": "node --experimental-strip-types --test ./packages/repo-quality/hermetic-test-preload/hermetic-test-preload.test.ts"
   },
   "devDependencies": {
     "@spencer-shadley/repo-quality": "file:packages/repo-quality",

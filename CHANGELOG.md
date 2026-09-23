@@ -6,6 +6,9 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+### Added
+- **`@spencer-shadley/repo-quality` 1.10.0 hermetic-test preload (code#6081):** publish `hermetic-test-preload` (+ `.mjs` launcher) so every consumer can `--import` a scrubbed git/HOME/XDG environment. PATCH. Tracks code#6081.
+
 - **Tip-green: sync fleet-law projection to current Code pin:** Refresh `scripts/generated/fleet-law-projection.v1.json` to Code digest `sha256:b134d860…` so `check-fleet-law-sync --check` / `provision-canonical-labels.selfcheck` stay green when the Code workspace overlay is present. PATCH.
 - **Portable docs-only LocalCi simpleDiff gate (RT#422):** Publish `@spencer-shadley/repo-quality` `docs-only-gate` + `docs-only-simple-diff.json` so leaf repos stop maintaining five local script copies. PATCH. Fixes #422.
 - **Tip-green after RT#422/#345 (RT#411 land-gate obligation):** Ignore `packages/repo-quality/docs-only-gate/**` and `todo-issue-link/**` in eslint until those trees are enrolled in `packages/repo-quality/tsconfig.json` and lint-clean; add `@stack-waiver` on `todo-issue-link.mjs` and drop unused imports (match `docs-only-gate.mjs`); retarget `build-repo-quality-npm`/`verify-repo-quality-npm` identity pin `1.8.0`→`1.9.1` and require the new launcher exports; enroll unmanifested RT#345/#418/#422 paths in `template-manifest.json`; regenerate inert-seed + artifact digests. Restores declared `pnpm lint`/`pnpm verify` green without `--skip-gate`. PATCH. Fixes #411.
