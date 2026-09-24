@@ -60,6 +60,13 @@ configured.
 
 Workspace context: use `docs/MIGRATION.md` when applying this living template to an existing repo.
 
+Issue forms are **not** portable template payload. Normal repositories inherit the live account-wide
+forms from [`spencer-shadley/.github`](https://github.com/spencer-shadley/.github/tree/main/.github/ISSUE_TEMPLATE).
+A local `.github/ISSUE_TEMPLATE/**` file or local issue-template `config.yml` suppresses that
+inheritance and is therefore forbidden by default. [repo-template#438](https://github.com/spencer-shadley/repo-template/issues/438)
+removes the remaining legacy local `task.md` compatibility artifact; do not add new dependencies on it.
+
+
 Generic create-only consumers use the content-addressed inert contract at
 `release/inert-seed-manifest.json` and `release/release-payload-set.json`, not every portable row in
 the raw overlay map. This preserves the pre-custody ban on local issue-template and workflow
