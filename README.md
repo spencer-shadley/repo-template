@@ -44,7 +44,7 @@ audit, the autonomous loop) rely on these paths.
 | `.gitignore` | secret/transient ignore baseline, including incident-log tracking exceptions |
 | `.github/workflows/ci.yml` | advisory clean-room CI skeleton |
 | `.github/pull_request_template.md` | review prompts for side effects and obligations |
-| `.github/ISSUE_TEMPLATE/task.md` | triage-ready dual-ladder issue intake |
+| account `.github/ISSUE_TEMPLATE/` | inherited account-wide issue intake from `spencer-shadley/.github`; local overrides are forbidden |
 
 **Start here**
 1. `AGENTS.md`
