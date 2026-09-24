@@ -14,6 +14,7 @@ create and adopt fleet repositories.
   ([docs/FLEET-LABEL-VOCABULARY.md](./docs/FLEET-LABEL-VOCABULARY.md)).
 - Own versioned adoption-shell contracts, deterministic materialization, release artifacts, and migration guidance.
 - Own template self-verification, conformance fixtures, and structural semver policy.
+- Enforce the fleet's no-local-issue-template-override invariant: future/adopted repositories inherit issue forms from `spencer-shadley/.github`; this repo must not materialize or promote a repo-local `.github/ISSUE_TEMPLATE/**` copy.
 - Turn proven fleet-wide repository lessons into portable defaults without rewriting consumers directly.
 
 ## Non-responsibilities
@@ -22,8 +23,12 @@ create and adopt fleet repositories.
 - Does not create, relocate, register, schedule, activate, or deploy repositories.
 - Does not own Fleet Registry identity facts or Repo Factory lifecycle/effect transactions.
 - Does not mutate existing consumers merely because the template evolves.
-- Does not author Code fleet-law projection bytes (priority/work-spine/intake law stays Code-owned);
+- Does not author Code fleet-law projection bytes (priority/work-spine label law remains Code-owned);
   this repo pins and consumes that projection, then composes template-portable labels only.
+- Does not author or copy the account-wide governed issue form. GovernedIntakeBodyV1 semantic/form
+  ownership is migrating to `spencer-shadley/.github` under
+  [spencer-shadley/.github#13](https://github.com/spencer-shadley/.github/issues/13); repo-template#438
+  removes the legacy local `task.md` compatibility artifact and its manifest/check assumptions.
 
 ## Current status / readiness
 
@@ -65,7 +70,9 @@ them when working on this repo.
   TEMPLATE_VERSION + move [Unreleased] under a version heading + git tag vX.Y.Z (same commit).
   MAJOR upgrades follow the canary-first rollout order in `docs/MIGRATION.md`.
 - **Sync duty (living-template doctrine):** when structure changes, verify the adopt-project
-  skill's instructions still match; flag drift in the plan/PR.
+  skill's instructions still match; flag drift in the plan/PR. This duty does **not** apply to
+  account-wide issue-form bytes: GitHub native inheritance is the distribution mechanism, and a
+  repo-local issue-template copy is a defect unless explicitly excepted.
 <!-- /TEMPLATE-SELF -->
 
 # {{NAME}} — Agent Rules
