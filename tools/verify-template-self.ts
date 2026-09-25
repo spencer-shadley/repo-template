@@ -3,6 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isIssueTemplateOverride } from "../packages/adoption-shell/src/path-policy.ts";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const allowedModes = new Set(["copy", "merge", "self", "generated"]);
 const portableModes = new Set(["copy", "merge"]);
@@ -43,14 +45,6 @@ function listTextFiles(): readonly string[] {
       !fs.readFileSync(path.join(root, ...relativePath.split("/"))).includes(0),
     )
     .sort(compare);
-}
-
-function gitBlobId(content: Uint8Array): string {
-  return execFileSync("git", ["hash-object", "-t", "blob", "--stdin"], {
-    cwd: root,
-    encoding: "utf8",
-    input: content,
-  }).trim();
 }
 
 function portableManifestClosureErrors(
@@ -447,11 +441,18 @@ try {
   );
 }
 
-const issueTemplate = fs.readFileSync(
-  path.join(root, ".github", "ISSUE_TEMPLATE", "task.md"),
-);
-if (gitBlobId(issueTemplate) !== "c463c5838b4f955f8e1497de49534f6c542f2d3a") {
-  boundaryErrors.push("predecessor issue template bytes changed");
+for (const key of Object.keys(manifest)) {
+  if (isIssueTemplateOverride(key)) {
+    boundaryErrors.push(`template-manifest.json must not overlay local issue-template path: ${key}`);
+  }
+}
+for (const file of trackedFiles) {
+  if (isIssueTemplateOverride(file)) {
+    boundaryErrors.push(`tracked tree must not contain local issue-template path: ${file}`);
+  }
+}
+if (fs.existsSync(path.join(root, ".github", "ISSUE_TEMPLATE"))) {
+  boundaryErrors.push("working tree must not contain .github/ISSUE_TEMPLATE");
 }
 const workingVersion = fs.readFileSync(path.join(root, "TEMPLATE_VERSION"), "utf8");
 if (workingVersion.trim() !== "3.3.0") {

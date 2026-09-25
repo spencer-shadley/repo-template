@@ -7,10 +7,12 @@
 
 ## Context
 
-`template-manifest.json` is the complete overlay/synchronization map. Its portable `copy` and
-`merge` rows include a local issue template and an advisory CI workflow. The pure v2 materializer
-correctly rejects those paths before a new repository has manager custody, so treating every raw
-overlay row as an inert release payload made the `v3.0.1` producer contract impossible to consume.
+`template-manifest.json` is the complete overlay/synchronization map. It does not overlay a local
+issue template; GitHub inherits account-wide forms from `spencer-shadley/.github`. Portable `copy`
+and `merge` rows can still include an advisory CI workflow. The pure v2 materializer rejects
+`.github/ISSUE_TEMPLATE/**` (`E_PATH_ISSUE_TEMPLATE`) and pre-custody workflow paths before a new
+repository has manager custody, so treating every raw overlay row as an inert release payload
+remains unsafe whenever a forbidden path is present.
 
 ## Decision
 
@@ -20,16 +22,18 @@ Keep `template-manifest.json` complete and unchanged in meaning. Publish a separ
 
 - selected inert bytes, with exact Template mode, Git mode, byte length, content SHA-256, and a
   canonical aggregate inventory digest; or
-- an explicit exclusion for `.github/ISSUE_TEMPLATE/` or `.github/workflows/`, with the applicable
-  conformance reason; or
+- an explicit exclusion for `.github/ISSUE_TEMPLATE/` or `.github/workflows/` when such a path is
+  present in the overlay map, with the applicable conformance reason (`no-local-issue-template-override`
+  or `no-pre-custody-workflow`); or
 - an explicit exclusion for a raw overlay document whose checkout-relative or Template-self
   authority requires a later portable projection.
 
 `release/release-payload-set.json` carries the selected bytes under the existing closed v2 schema.
 `tools/release-payload.ts check` reconstructs both artifacts from tracked source bytes and rejects
 drift. The exact compiled materializer must accept and materialize the complete payload in memory
-before publication. Factory remains the sole owner of destination writes, repository creation,
-custody acquisition, and any later post-custody issue-template or workflow installation.
+before publication. Factory remains the sole owner of destination writes, repository creation, and
+custody acquisition. Local issue-template installation remains forbidden; GitHub inherits the
+account-wide form. Pre-custody workflow installation remains Factory-owned after custody.
 
 ## Consequences
 

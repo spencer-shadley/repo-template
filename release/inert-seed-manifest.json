@@ -4,9 +4,9 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "b8ae876d83e3b80f653c5a69d7236d49a5c3fd52b29d729e8ceb05c6d612feab",
+  "inventoryDigest": "c9331c3775175c097da94849c191cad93b007002fa9d4dedd53d26be45f7d7a3",
   "entryCount": 102,
-  "excludedCount": 9,
+  "excludedCount": 8,
   "entries": [
     {
       "path": ".gitignore",
@@ -61,8 +61,8 @@
       "path": "README.md",
       "templateMode": "merge",
       "gitMode": "100644",
-      "contentSha256": "2a16b917d26c1fc116d10f28b1590e5d6dc2bfcc09fe184b284b6e908690b483",
-      "bytes": 6060
+      "contentSha256": "adedd63cc6d9ffa56993955d4098a2514b37fab0e8ea9129e15b8ed4d25c743a",
+      "bytes": 6560
     },
     {
       "path": "SECURITY.md",
@@ -432,8 +432,8 @@
       "path": "docs/MIGRATION.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "7a312cb0165d63e56866375cfc32a555addccb25e95044b1e90e43e727bb9d07",
-      "bytes": 19458
+      "contentSha256": "a1e21b020c6bd8af55b821a4d6a3572714395e06e831267c9b86bd1a180706ff",
+      "bytes": 19735
     },
     {
       "path": "docs/OBSERVABILITY.md",
@@ -509,8 +509,8 @@
       "path": "eslint.config.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "8e4590dfb66807bfffdbe0d1460411ad562f4e9477f39d2f0689492648f0d7ae",
-      "bytes": 3080
+      "contentSha256": "ced9f873679d4dbbf9ec7d7d61c49797890c00e2b03aa289d112776cd0be21bb",
+      "bytes": 3324
     },
     {
       "path": "local-ci.json",
@@ -725,11 +725,6 @@
   ],
   "excluded": [
     {
-      "path": ".github/ISSUE_TEMPLATE/task.md",
-      "templateMode": "copy",
-      "reason": "no-local-issue-template-override"
-    },
-    {
       "path": ".github/pull_request_template.md",
       "templateMode": "copy",
       "reason": "requires-portable-document-projection"
@@ -770,5 +765,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "24dd3627391ad7151950eb2e4b3d18d0cea73f39ad13fd99b95d619c09e55ded"
+  "manifestDigest": "d2629fa103404a93a0ec7357bf598da2a9625e1b645c3419923555089d193cd2"
 }
