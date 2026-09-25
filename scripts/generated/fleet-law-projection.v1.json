@@ -1,10 +1,10 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 1,
-  "sourceCommit": "f65d8f741fdc34de9511ef172884a3d2ba2df138",
+  "sourceCommit": "07a846a0c7860feafe0df27fa6f503996c5d97dd",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 16,
-  "currentTriageLabel": "triaged:v16",
+  "governedIntakeRevision": 17,
+  "currentTriageLabel": "triaged:v17",
   "bannedLabels": [
     "work:triaged",
     "tier:human",
@@ -324,7 +324,7 @@
     },
     {
       "name": "priority:fleet:p0",
-      "description": "Authoritative fleet priority P0 — eligible start within 1 hour; validated immediate unblock.",
+      "description": "Authoritative fleet P0 — start within 1 hour; incident unblock or approved retirement.",
       "color": "B60205"
     },
     {
@@ -354,12 +354,12 @@
     },
     {
       "name": "priority:p0-candidate",
-      "description": "P0 candidate; requires immediate-unblock validation before authoritative assignment.",
+      "description": "P0 candidate; validate incident-unblock or approved-retirement grounds before assignment.",
       "color": "B60205"
     },
     {
       "name": "priority:repo:p0",
-      "description": "Authoritative repository priority P0 — eligible start within 1 hour; validated immediate unblock.",
+      "description": "Authoritative repository P0 — start within 1 hour; incident unblock or approved retirement.",
       "color": "B60205"
     },
     {
@@ -458,6 +458,11 @@
       "color": "0E8A16"
     },
     {
+      "name": "triaged:v17",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 17; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
       "name": "triaged:v3",
       "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 3; strip on re-triage.",
       "color": "0E8A16"
@@ -523,5 +528,5 @@
       "color": "BFDADC"
     }
   ],
-  "contentDigest": "sha256:2892b8239d41adb9c66c09a55ca90460a8a506f93ab11e15fe35255217610711"
+  "contentDigest": "sha256:e5af1a6d7fb63e47bdaa6dd1f66345a408a29de56c6c9b90e5603390bd101e56"
 }
