@@ -63,8 +63,8 @@ Workspace context: use `docs/MIGRATION.md` when applying this living template to
 Issue forms are **not** portable template payload. Normal repositories inherit the live account-wide
 forms from [`spencer-shadley/.github`](https://github.com/spencer-shadley/.github/tree/main/.github/ISSUE_TEMPLATE).
 A local `.github/ISSUE_TEMPLATE/**` file or local issue-template `config.yml` suppresses that
-inheritance and is therefore forbidden by default. [repo-template#438](https://github.com/spencer-shadley/repo-template/issues/438)
-removes the remaining legacy local `task.md` compatibility artifact; do not add new dependencies on it.
+inheritance and is therefore forbidden by default. Repo Template does not carry, overlay, or
+materialize a local issue form.
 
 
 Generic create-only consumers use the content-addressed inert contract at

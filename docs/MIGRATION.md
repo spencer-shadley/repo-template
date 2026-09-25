@@ -5,12 +5,14 @@ directory copy: existing operational truth wins, template structure fills gaps, 
 divergence is anchored so later drift sweeps do not re-file known skips.
 
 The raw overlay map and the create-only release payload are deliberately different contracts.
-`template-manifest.json` remains the complete post-custody overlay map. Generic new-repository
-materialization uses `release/inert-seed-manifest.json` plus
-`release/release-payload-set.json`; it excludes local issue templates and workflows until the
-Factory-owned transaction has acquired repository custody, and excludes raw Template-self documents
-until they receive a portable projection. Consumers must not derive that payload by filtering the
-raw map themselves.
+`template-manifest.json` remains the complete post-custody overlay map and does not include
+`.github/ISSUE_TEMPLATE/**`. Generic new-repository materialization uses
+`release/inert-seed-manifest.json` plus `release/release-payload-set.json`; path policy still
+refuses local issue-template overrides (`E_PATH_ISSUE_TEMPLATE` /
+`no-local-issue-template-override`) and pre-custody workflows, and excludes raw Template-self
+documents until they receive a portable projection. Consumers must not derive that payload by
+filtering the raw map themselves, and must not add a local issue-template copy during overlay.
+Issue intake is inherited from [`spencer-shadley/.github`](https://github.com/spencer-shadley/.github/tree/main/.github/ISSUE_TEMPLATE).
 
 ## Overlay algorithm
 

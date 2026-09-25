@@ -49,7 +49,8 @@ The 47-path portable surface provides:
 - architecture and operations documentation: architecture, migration, queue enrollment,
   observability, incidents, runbook, security, and ADR seeds;
 - governance and delivery scaffolding: changelog, setup survey, subscription anchor, queue smoke
-  plan, issue form, pull-request template, and advisory CI;
+  plan, pull-request template, and advisory CI; issue forms are inherited from
+  `spencer-shadley/.github` and are not a portable overlay path;
 - operational evidence: the `.ops` incident-stream contract;
 - model governance: `model-boundary.json`; and
 - user-surface protection: lint configuration, schema, checker, and fixture trees.

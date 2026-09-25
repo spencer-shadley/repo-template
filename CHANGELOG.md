@@ -10,6 +10,7 @@ one entry per user-visible or structural change.
 - **Tip-green: bracket-access `CODE_REPO_ROOT` in fleet-law sync (RT#434):** `scripts/check-fleet-law-sync.ts` read `process.env.CODE_REPO_ROOT` with dot access, which fails TS4111 under `noPropertyAccessFromIndexSignature`. Use `process.env["CODE_REPO_ROOT"]`. No behavior change. PATCH. Fixes #434.
 - **Tip-green: ignore hermetic-test-preload in eslint until tsconfig enrollment:** `packages/repo-quality/hermetic-test-preload/**` fails `projectService` (same class as docs-only-gate / todo-issue-link). Ignore under the RT#411 tip-green pattern so `pnpm verify` / land gate match master intent without `--skip-gate`. PATCH. Obligation from repo-template#432 allow-pre-existing basediff.
 - **`@spencer-shadley/repo-quality` 1.10.1:** hermetic preload re-applies `commit.gpgsign`/`tag.gpgsign=false` after scrubbing inherited `GIT_CONFIG_*` so consumer test scripts need not fight the preload. PATCH. code#6081.
+- **Tip-green: retarget live `discoverPublicContracts` pin to repo-quality 1.10.1:** the public-contract discovery test now matches the published kit identity. PATCH.
 
 ### Added
 - **`@spencer-shadley/repo-quality` 1.10.0 hermetic-test preload (code#6081):** publish `hermetic-test-preload` (+ `.mjs` launcher) so every consumer can `--import` a scrubbed git/HOME/XDG environment. PATCH. Tracks code#6081.
@@ -26,6 +27,10 @@ one entry per user-visible or structural change.
 - **Tip-red: linearize Discovery/experiment conflation regex (RT tip-green):** Replace `/Discovery\s*\/?\s*experiment/i` in `scripts/check-issue-template-intake.ts` with an alternation that cannot super-linear-backtrack (`sonarjs/super-linear-regex`), restoring green `pnpm lint` on master after RT#377 land exposed the gate. PATCH. Fixes #414.
 - **Wire dir-breadth into verify and refuse closed waiver owners (RT#377):** `pnpm verify` / `verify:self` now run `lint:dir-breadth` plus a focused selfcheck. `scripts/check-dir-breadth.ts` fails closed when an allowlist cites a known-closed or dynamically verified closed issue (historical #376). Retarget the `packages/adoption-shell/src` measured freeze to live split owner #412. No global `maxFilesPerDir` raise. PATCH. Fixes #377.
 - **Project distinct exploration vs experiment into portable issue template (RT#342):** Replace the combined `Discovery / experiment` work-type affordance in `.github/ISSUE_TEMPLATE/task.md` with Code's landed GovernedIntakeBodyV1 v16 portable release bytes (`contracts/generated/governed-intake/task.md` after code#4897 / AO#8579). `scripts/check-issue-template-intake.ts` now refuses re-conflation and requires the distinct Exploration / Experiment choices. Does not mutate existing consumer repositories (#133 remains the stale-copy refresh path). PATCH. Fixes #342.
+
+### Removed
+
+- **Stop carrying a local issue-template override (RT#438):** Remove `.github/ISSUE_TEMPLATE/task.md` from the overlay map after #437/#439 deleted the checkout copy. Repo Template no longer overlays or pins a fleet issue form; GitHub inherits `spencer-shadley/.github`. Intake and template-self verification refuse local `.github/ISSUE_TEMPLATE` paths and overlay keys. Regenerated inert-seed/release payload metadata and the adoption-shell artifact-manifest closure. Future adoption cannot reintroduce a local issue-template override. MAJOR. Fixes #438.
 
 ## [3.3.0] - 2026-09-18
 

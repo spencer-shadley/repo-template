@@ -12,6 +12,7 @@ import {
   validateReleasePayloadSetV2,
   type MaterializerInput,
 } from "../../../artifacts/adoption-shell-v2/index.js";
+import { isIssueTemplateOverride } from "../../../artifacts/adoption-shell-v2/path-policy.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -72,7 +73,6 @@ void test("released inert seed closes over exactly its selected safe bytes", () 
   assert.deepEqual(
     selection.excluded.map((entry) => entry.path),
     [
-      ".github/ISSUE_TEMPLATE/task.md",
       ".github/pull_request_template.md",
       ".ops/README.md",
       "AGENTS.md",
@@ -83,12 +83,22 @@ void test("released inert seed closes over exactly its selected safe bytes", () 
       "docs/RUNBOOK.md",
     ],
   );
-  assert.equal(selection.excluded[0]?.reason, "no-local-issue-template-override");
   assert.ok(
-    selection.excluded
-      .filter((_, index) => index !== 0)
-      .every((entry) => entry.reason === "requires-portable-document-projection"),
+    selection.excluded.every((entry) => entry.reason === "requires-portable-document-projection"),
   );
+  assert.ok(
+    selection.entries.every((entry) => !isIssueTemplateOverride(entry.path)),
+  );
+  assert.ok(
+    selection.excluded.every((entry) => !isIssueTemplateOverride(entry.path)),
+  );
+});
+
+void test("path policy still classifies local issue-template overrides", () => {
+  assert.equal(isIssueTemplateOverride(".github/ISSUE_TEMPLATE/task.md"), true);
+  assert.equal(isIssueTemplateOverride(".GITHUB/issue_template/task.md"), true);
+  assert.equal(isIssueTemplateOverride(".github/Issue_Template/config.yml"), true);
+  assert.equal(isIssueTemplateOverride(".github/pull_request_template.md"), false);
 });
 
 void test("released inert seed passes the exact materializer and emits once in memory", () => {

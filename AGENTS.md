@@ -26,9 +26,8 @@ create and adopt fleet repositories.
 - Does not author Code fleet-law projection bytes (priority/work-spine label law remains Code-owned);
   this repo pins and consumes that projection, then composes template-portable labels only.
 - Does not author or copy the account-wide governed issue form. GovernedIntakeBodyV1 semantic/form
-  ownership is migrating to `spencer-shadley/.github` under
-  [spencer-shadley/.github#13](https://github.com/spencer-shadley/.github/issues/13); repo-template#438
-  removes the legacy local `task.md` compatibility artifact and its manifest/check assumptions.
+  ownership lives in `spencer-shadley/.github`; this repo forbids local `.github/ISSUE_TEMPLATE/**`
+  files and does not overlay or materialize them.
 
 ## Current status / readiness
 

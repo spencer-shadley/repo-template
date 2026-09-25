@@ -242,8 +242,8 @@ The merge gate must prove:
   `lint-user-surface-leaks` finding from #92;
 - emitted documentation has no bare mutable `ADR-NNNN` authority and no checkout-depth fleet links,
   covering #93;
-- no emitted `.github/ISSUE_TEMPLATE/` path in the v2 synthetic release fixture. Current repository
-  copies remain untouched until the public `.github` native-selection canary authorizes removal;
+- no emitted `.github/ISSUE_TEMPLATE/` path in the v2 synthetic release fixture or the Template
+  checkout; GitHub inherits account-wide forms from `spencer-shadley/.github`;
 - exact compiled artifact rebuild equivalence and consumer import/smoke from only the declared
   closure; and
 - final immutable-candidate review by Gemini 3.6 Flash and Grok 4.5 under the ratified availability
@@ -287,8 +287,8 @@ files, call GitHub, register anything, choose verification commands, or activate
 The minimal release train is:
 
 1. land `adoption-shell-v2`, capability/dependency closure, and the #92/#93 regressions;
-2. wait for the separately owned public `.github` native-selection canary, then remove the entire
-   local `.github/ISSUE_TEMPLATE/` directory and prove no-local-override conformance;
+2. keep no-local-issue-template-override conformance: Repo Template does not carry or overlay a
+   local `.github/ISSUE_TEMPLATE/` copy; account-wide SSOT is `spencer-shadley/.github`;
 3. publish the generic Template release/annotated-tag receipt against exact landed Git objects; and
 4. hand the published release identity to Factory and Registry. They remain the sole owners of
    target intent, lifecycle, output projection, Git/GitHub effects, registration, and activation.
