@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "1443107a0247814fba1bfc3751f40be5facf2afcf83533d3a50d0840730a0edd",
+  "inventoryDigest": "93a7176003d5b4af887261886e641433b8f27eeb8da5800a5c723061120c014f",
   "entryCount": 110,
   "excludedCount": 8,
   "entries": [
@@ -502,8 +502,8 @@
       "path": "docs/QUALITY-LINT.md",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "564720431e27378e98ed373c377e8cc8084e7d4eb4f4ff5c69fa2dbaaf0ca70d",
-      "bytes": 14037
+      "contentSha256": "ccba94bb8bff9273e9029544cf0431f8ba4f251d0f8c7bc727d012b17a9d570f",
+      "bytes": 15290
     },
     {
       "path": "docs/QUEUE-ENROLLMENT.md",
@@ -821,5 +821,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "a9148220515d6d3dee3147a0702242270c1de4474c8204a3ebd53e7d9a653306"
+  "manifestDigest": "2db69943d953e45ebc54577ce08bdd2ca921ed9e4c55f6d7c343e10708fbc4f7"
 }

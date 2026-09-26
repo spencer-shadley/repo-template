@@ -1,6 +1,6 @@
 {
   "name": "@spencer-shadley/repo-quality",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "type": "module",
   "private": false,
   "exports": {
@@ -21,7 +21,9 @@
     "./hermetic-test-preload.mjs": "./hermetic-test-preload.mjs",
     "./hermetic-test-preload": "./hermetic-test-preload/index.ts",
     "./hermetic-test-preload/preload": "./hermetic-test-preload/preload.ts",
-    "./hermetic-test-preload/lint": "./hermetic-test-preload/lint.ts"
+    "./hermetic-test-preload/lint": "./hermetic-test-preload/lint.ts",
+    "./default-branch-guard.mjs": "./default-branch-guard.mjs",
+    "./default-branch-guard": "./default-branch-guard/index.ts"
   },
   "dependencies": {
     "@eslint/js": "10.0.1",
