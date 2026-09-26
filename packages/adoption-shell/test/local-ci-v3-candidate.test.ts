@@ -449,15 +449,16 @@ void test("RT-340b: every manifest digest in the receipt equals the value the fr
     frozenFieldAt("contracts/adoption-shell-v2/capability-bundle-registry.json", "registryDigest"),
   );
 
-  // The exact values the PR #363 review computed at 88591ee. Before RT-340b the
-  // receipt recorded the branch tip's cc700a5e.../bc15d49e... here instead.
+  // The exact values at the frozen candidate d2550c5b (3.3.2 re-cut). The
+  // previous candidate 88591ee pinned bd900c3e.../5e87485f... here; before
+  // RT-340b the receipt recorded a branch tip's cc700a5e.../bc15d49e... instead.
   assert.equal(
     receipt.manifestDigests.releasePayloadSet.manifestDigest,
-    "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+    "fdbb92fa80b7417ea18f12fa75e98d97f02011c3827ecb2a133de5791d3c5e65",
   );
   assert.equal(
     receipt.manifestDigests.artifactManifest.manifestDigest,
-    "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+    "03f5e1221d69b668665e9b3e768118892a967a6eca79ce1ea55bdbb08dd63c06",
   );
 });
 
@@ -517,6 +518,24 @@ void test("RT-340b: a working-tree edit to the payload set, artifact manifest or
   }
 });
 
+/**
+ * A release payload digest from a tree that is provably NOT the frozen one.
+ * These tests used HEAD, which only differs from the frozen tree while HEAD
+ * changes payload bytes; a receipt-only re-cut (HEAD = candidate + receipts)
+ * makes HEAD's payload identical and the mutation a silent no-op. The prior
+ * frozen candidate 88591ee is immutable and asserted to differ.
+ */
+const OTHER_TREE_COMMIT = "88591ee869bb109ef481171aa817d1ed204a970e";
+function otherTreePayloadDigest(): string {
+  const other = constructReleasePayloadAt(OTHER_TREE_COMMIT).payload.releaseDigest;
+  assert.notEqual(
+    other,
+    constructReleasePayloadAt(FROZEN_CANDIDATE_COMMIT).payload.releaseDigest,
+    "the mutation source must describe a different tree than the frozen candidate",
+  );
+  return other;
+}
+
 void test("RT-340b: freeze --check and --self-test reject a receipt whose payload digest describes a tree other than the one it names", () => {
   const relativePath = "contracts/local-ci/v3/pre-publication-receipt.json";
   const fullPath = path.join(root, ...relativePath.split("/"));
@@ -532,7 +551,7 @@ void test("RT-340b: freeze --check and --self-test reject a receipt whose payloa
       ...receipt.manifestDigests,
       releasePayloadSet: {
         ...receipt.manifestDigests.releasePayloadSet,
-        manifestDigest: constructReleasePayloadAt("HEAD").payload.releaseDigest,
+        manifestDigest: otherTreePayloadDigest(),
       },
     },
   };
@@ -581,7 +600,7 @@ void test("RT-340b: the consumer validator rejects an identity-mismatched receip
       ...receipt.manifestDigests,
       releasePayloadSet: {
         ...receipt.manifestDigests.releasePayloadSet,
-        manifestDigest: constructReleasePayloadAt("HEAD").payload.releaseDigest,
+        manifestDigest: otherTreePayloadDigest(),
       },
     },
   };

@@ -3,21 +3,21 @@
   "schemaVersion": "3.0.0",
   "contractId": "repo-template/local-ci-v3-canary-candidate",
   "receiptKind": "repo-template/local-ci-v3-candidate-receipt/v1",
-  "receiptId": "receipt-issue-340-rt340repair1",
+  "receiptId": "receipt-issue-340-recut442",
   "publicationState": "candidate",
   "programmeEpic": "https://github.com/spencer-shadley/repo-template/issues/102",
   "issue": "https://github.com/spencer-shadley/repo-template/issues/340",
   "candidate": {
     "repository": "spencer-shadley/repo-template",
     "origin": "https://github.com/spencer-shadley/repo-template.git",
-    "semver": "3.2.0",
-    "tag": "v3.2.0",
-    "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
-    "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
+    "semver": "3.3.2",
+    "tag": "v3.3.2",
+    "commit": "d2550c5b6de29e8207566e3bd318a4d7628b0917",
+    "tree": "8febccb334704f23936581384efdf33e7b701e02"
   },
   "treeVerification": {
     "method": "git rev-parse <commit>^{tree}",
-    "resolvedTree": "995ea497114b2eba0b86cc3adb3666306829e0fb",
+    "resolvedTree": "8febccb334704f23936581384efdf33e7b701e02",
     "matches": true
   },
   "lineage": {
@@ -37,19 +37,19 @@
     "contractId": "repo-template/adoption-shell-v2",
     "receiptKind": "repo-template/release-receipt/v1",
     "publicationState": "candidate",
-    "releaseId": "spencer-shadley/repo-template@3.2.0",
+    "releaseId": "spencer-shadley/repo-template@3.3.2",
     "receiptDigestAlgorithm": "sha256-rfc8785-v1",
     "producer": {
       "repository": "spencer-shadley/repo-template",
       "origin": "https://github.com/spencer-shadley/repo-template.git",
-      "semver": "3.2.0",
-      "tag": "v3.2.0",
-      "commit": "88591ee869bb109ef481171aa817d1ed204a970e",
-      "tree": "995ea497114b2eba0b86cc3adb3666306829e0fb"
+      "semver": "3.3.2",
+      "tag": "v3.3.2",
+      "commit": "d2550c5b6de29e8207566e3bd318a4d7628b0917",
+      "tree": "8febccb334704f23936581384efdf33e7b701e02"
     },
     "receiptTransport": {
       "kind": "annotated-git-tag-message/v1",
-      "tagName": "v3.2.0",
+      "tagName": "v3.3.2",
       "targetObjectType": "commit",
       "bodyEncoding": "utf-8",
       "bodyCanonicalization": "rfc8785"
@@ -59,10 +59,10 @@
       "schemaId": "https://schemas.repo-template.dev/adoption-shell-v2/release-payload-set.schema.json",
       "schemaVersion": "2.0.0",
       "schemaDigest": "2e45fc30726def40628985347b729586ab8944c2387c1325cd2264740280733f",
-      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "manifestDigest": "fdbb92fa80b7417ea18f12fa75e98d97f02011c3827ecb2a133de5791d3c5e65",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
-      "entryCount": 99
+      "payloadDigest": "af25da8cb006d773da2378f38f7dd19b680ddb6ccfbc97d795579a71cdfc9ead",
+      "entryCount": 110
     },
     "capabilityBundles": [
       {
@@ -98,15 +98,15 @@
       "artifactManifestSchemaId": "https://schemas.repo-template.dev/adoption-shell-v2/artifact-manifest.schema.json",
       "artifactManifestSchemaVersion": "2.0.0",
       "artifactManifestSchemaDigest": "b805467065d2538dc3bf21d6249eda17dd4a342a27252e12a8dea7d458256b95",
-      "artifactManifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
-      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a",
+      "artifactManifestDigest": "03f5e1221d69b668665e9b3e768118892a967a6eca79ce1ea55bdbb08dd63c06",
+      "artifactDigest": "3816f7b8bc7656e053f78ada36c8b247cf6100fc5177f52b80aa041706936aeb",
       "entrypoint": "index.js",
       "validatorExport": "validateMaterializerInputV2",
       "runtimeCompatibility": ">=24.16.0 <25",
       "compatibleReleaseReceiptKind": "repo-template/release-receipt/v1"
     },
     "migrationRefs": [],
-    "receiptDigest": "3dc9b0c1d04277e78ea35a695e899fd569de2fce7d90ea7095275e17811d0ced"
+    "receiptDigest": "5e62a0b5055e44e89561aa549597177ac66dc9431aa4e61fea8687d1b010f8f7"
   },
   "frozenInputs": {
     "blobReadMethod": "git show <commit>:<path>",
@@ -114,28 +114,28 @@
     "enumerationTool": "tools/release-payload.ts",
     "releasePayloadSetReproducedFromFrozenTree": true,
     "blobDigests": {
-      "release/release-payload-set.json": "0bf07126825f43792226656024d2a0e5f43e099eeb253a3adaa3e9e589802ee7",
+      "release/release-payload-set.json": "b35a881c761705630c72749819ff4f64c6875439918208abc47085f69b5fa8e1",
       "contracts/adoption-shell-v2/capability-bundle-registry.json": "38e08045f1cecf7031d75f6d584da31552e5623ac766575f9efd7a0c89f6c032",
-      "artifacts/adoption-shell-v2/artifact-manifest.json": "8e40dc378f41014b2b021f199ee6a63565d2582db247fff8846c416406eb3544",
-      "VERSION": "b2f44d3b6e29f8b1b73ea4735f006affc4d198e1fd9c7d50e736159b1ef636c6",
-      "TEMPLATE_VERSION": "b2f44d3b6e29f8b1b73ea4735f006affc4d198e1fd9c7d50e736159b1ef636c6"
+      "artifacts/adoption-shell-v2/artifact-manifest.json": "99279ac86c5f81435572f739d651814abc7e071ca7de0523c71994005f20b5c5",
+      "VERSION": "5eee6c0c5c6901f5e523f0a434bca4106e1ff7136deb451f982b0bb1a7b13716",
+      "TEMPLATE_VERSION": "5eee6c0c5c6901f5e523f0a434bca4106e1ff7136deb451f982b0bb1a7b13716"
     }
   },
   "versionBinding": {
-    "frozenVersion": "3.1.0",
-    "frozenTemplateVersion": "3.1.0",
-    "candidateSemver": "3.2.0",
+    "frozenVersion": "3.3.0",
+    "frozenTemplateVersion": "3.3.0",
+    "candidateSemver": "3.3.2",
     "relation": "candidate-ahead-of-frozen-tree",
-    "publicationRule": "The frozen tree 995ea497114b2eba0b86cc3adb3666306829e0fb declares VERSION/TEMPLATE_VERSION 3.1.0; publication (repo-template#341) must bump both to 3.2.0 in its own publication commit and tag that commit. Minting v3.2.0 against commit 88591ee869bb109ef481171aa817d1ed204a970e is forbidden: the tagged bytes would contradict the tag. Tracked by https://github.com/spencer-shadley/repo-template/issues/364.",
+    "publicationRule": "The frozen tree 8febccb334704f23936581384efdf33e7b701e02 declares VERSION/TEMPLATE_VERSION 3.3.0; publication (repo-template#341) must bump both to 3.3.2 in its own publication commit and tag that commit. Minting v3.3.2 against commit d2550c5b6de29e8207566e3bd318a4d7628b0917 is forbidden: the tagged bytes would contradict the tag. Tracked by https://github.com/spencer-shadley/repo-template/issues/364.",
     "trackingIssue": "https://github.com/spencer-shadley/repo-template/issues/364"
   },
   "canonicalDigests": {
-    "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
+    "contracts/local-ci/v3/local-ci-contract-v3.schema.json": "b2cadd29b88da6a4629cc24ae992cac0cd94c00c986ff0d607747671bc5b79ab",
     "contracts/local-ci/v3/local-ci-outcome-v1.schema.json": "0ae86bc068fbd4e1cc2ff58409d3909204573f0ac0b09cdbc7dab974bb4ea429",
-    "packages/adoption-shell/src/local-ci-contract-v3.ts": "7cd5722303bcf01fae618bcd76225a9f39289cd74901ebddc04a60d303378575",
+    "packages/adoption-shell/src/local-ci-contract-v3.ts": "a5ac66fb2990b2155663a94246ddabe5717c8edfcb5adc9248321be818b0b9ff",
     "packages/adoption-shell/src/local-ci-outcome-v1.ts": "07f87d011d3b44f6243dd7a535b1ee99386c0741f4bfcfb79395f1573b69b760",
-    "artifacts/adoption-shell-v2/local-ci-contract-v3.js": "21ed068020eaa31e5b8a82d57caedb998661452ead347f8afa2fcb120f302d51",
-    "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts": "ac16dfa06dbfc2a1b06c752c6b362249411efb8bad4e69af251c4925796fb171",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.js": "b65daf9e279afbe22e5965eeafd2327005ae98524a2c1542953dc98956970dd5",
+    "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts": "5b536190ed22e08c5b6ea3b14f0a9e01683930b8eecc4bdab8d08e505e7f3cda",
     "artifacts/adoption-shell-v2/local-ci-outcome-v1.js": "43d85d2ef36292f7527680f25ad7e66aed7c22d55b9afd42d6355bdf4a9deca8",
     "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts": "1fdfa9789cea1f8f705b7460324fe225f5ff16b6dc4594b5fcc052ea4793c52b",
     "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json": "f6da61353b1613aae16c214f87997a671ee52b39d237226605ce1afb03f9415e",
@@ -158,23 +158,23 @@
     ".runtime-artifact-registry.json": "53c927afb340fd1d20f41e7c5163afdd8022f331f3dfeb9f24dc3559719297e0",
     ".runtime-artifact-registry.schema.json": "8c05df3c2abb2e9c0bf2cf9a71853530cba1f27f59bcf9a01bbac747d41f61e5",
     "scripts/check-runtime-artifact-registry.ts": "a34cbafc96ee70abea468cc4acea45622546093ca78ae3d8ecdf8ea3a988bb08",
-    "local-ci.json": "ebf9421a03efe466cf4cc8c1f54bc22dcc511c51b66983d8f084f3cb21581d11",
+    "local-ci.json": "9f8a3a94cc692f68a3b8762b72e357a0c6f94a66c32e25585f5502c75ebf7e0f",
     "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md": "928703288bb60c94baf9a94f74e361ab3f47fcef1b7f280c0d89b42c2df6efe3",
-    "docs/MIGRATION.md": "7a312cb0165d63e56866375cfc32a555addccb25e95044b1e90e43e727bb9d07"
+    "docs/MIGRATION.md": "a1e21b020c6bd8af55b821a4d6a3572714395e06e831267c9b86bd1a180706ff"
   },
   "manifestDigests": {
     "releasePayloadSet": {
       "path": "release/release-payload-set.json",
-      "manifestDigest": "bd900c3edc54790b60b5160681c1fe0c47ef4e82be0ea266b7ae75c9299f8acd",
+      "manifestDigest": "fdbb92fa80b7417ea18f12fa75e98d97f02011c3827ecb2a133de5791d3c5e65",
       "payloadDigestAlgorithm": "sha256-framed-path-kind-mode-content-v1",
-      "payloadDigest": "2c761553dab52c2fc5f2ce8e7d8a16110af041d7747d7b1840e9074bff7a4307",
-      "entryCount": 99
+      "payloadDigest": "af25da8cb006d773da2378f38f7dd19b680ddb6ccfbc97d795579a71cdfc9ead",
+      "entryCount": 110
     },
     "artifactManifest": {
       "path": "artifacts/adoption-shell-v2/artifact-manifest.json",
-      "manifestDigest": "5e87485f663042c9e9943f0a5a41c3d87de1e5c6501bb37eeeec3935f0be3838",
+      "manifestDigest": "03f5e1221d69b668665e9b3e768118892a967a6eca79ce1ea55bdbb08dd63c06",
       "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-      "artifactDigest": "778c415b92d581866ab351c4198a28f7339eb3cfe4ee3f44373de582f2a8611a"
+      "artifactDigest": "3816f7b8bc7656e053f78ada36c8b247cf6100fc5177f52b80aa041706936aeb"
     },
     "capabilityBundleRegistry": {
       "path": "contracts/adoption-shell-v2/capability-bundle-registry.json",
@@ -215,45 +215,45 @@
   },
   "verification": {
     "repositoryVerification": "green",
-    "evidenceBoundCommit": "88591ee869bb109ef481171aa817d1ed204a970e",
+    "evidenceBoundCommit": "d2550c5b6de29e8207566e3bd318a4d7628b0917",
     "evidencePath": "contracts/local-ci/v3/verification-evidence.json",
-    "evidenceDigest": "4909577d95def2b0b5c8094f0eead2f16d70c4a069ddd389b6322270dc5fa378",
+    "evidenceDigest": "b6dd629d0fbe67645dcb393c3a4f3792e63244852f47588a60b428d532ab1ae8",
     "evidenceSource": "committed-bytes",
     "checks": {
       "proof-of-detection-self-test": {
         "command": "node scripts/proof-of-detection/run-meta-gate.ts --self-test",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T03:15:04.728Z",
-        "finishedAt": "2026-09-15T03:15:05.604Z"
+        "startedAt": "2026-09-26T08:00:22.736Z",
+        "finishedAt": "2026-09-26T08:00:23.353Z"
       },
       "local-ci-v3-contract-unit": {
         "command": "node --test packages/adoption-shell/test/local-ci-contract-v3.test.ts",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T03:15:05.605Z",
-        "finishedAt": "2026-09-15T03:15:06.354Z"
+        "startedAt": "2026-09-26T08:00:23.354Z",
+        "finishedAt": "2026-09-26T08:00:24.037Z"
       },
       "local-ci-outcome-v1-unit": {
         "command": "node --test packages/adoption-shell/test/local-ci-outcome-v1.test.ts",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T03:15:06.355Z",
-        "finishedAt": "2026-09-15T03:15:07.093Z"
+        "startedAt": "2026-09-26T08:00:24.037Z",
+        "finishedAt": "2026-09-26T08:00:24.476Z"
       },
       "release-payload-check": {
         "command": "node tools/release-payload.ts check",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T03:15:07.093Z",
-        "finishedAt": "2026-09-15T03:15:07.934Z"
+        "startedAt": "2026-09-26T08:00:24.476Z",
+        "finishedAt": "2026-09-26T08:00:24.938Z"
       },
       "artifact-build-verify": {
         "command": "node tools/artifact-build.ts verify",
         "result": "passed",
         "exitCode": 0,
-        "startedAt": "2026-09-15T03:15:07.935Z",
-        "finishedAt": "2026-09-15T03:15:08.433Z"
+        "startedAt": "2026-09-26T08:00:24.938Z",
+        "finishedAt": "2026-09-26T08:00:25.714Z"
       }
     }
   },
@@ -283,5 +283,5 @@
     }
   },
   "digestAlgorithm": "sha256-rfc8785-v1",
-  "receiptDigest": "e7021ea10b694f37b03275a7cbd9c9ea6ca0d3b72f1806c2e3ed50814897bb5d"
+  "receiptDigest": "21de198563efe233f0599c881bbf5db876176432a7bad66eb3d0bf0a10ba3c44"
 }

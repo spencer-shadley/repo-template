@@ -6,6 +6,9 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+### Changed
+- **Re-cut the LocalCiContractV3 frozen candidate to 3.3.2 at d2550c5b (includes #442 overlay fields):** re-recorded `verification-evidence.json` at the candidate, bumped `FROZEN_CANDIDATE_COMMIT`/`TREE`, `FROZEN_SEMVER` 3.3.2, `RECEIPT_ID` and `FROZEN_VERIFICATION_EVIDENCE_DIGEST`, and regenerated `canary-candidate-receipt.json` / `pre-publication-receipt.json`. Version bump is in files only; tagging v3.3.2 is a separate step. Consumers vendoring the candidate (model-gateway, repo-factory) must re-vendor. PATCH.
+
 ### Fixed
 - **Publication readback reads a v3.3.0 pre-publication receipt snapshot:** `publish-local-ci-v3-release` still read the live `contracts/local-ci/v3/pre-publication-receipt.json`, which `freeze --write` rewrites on every candidate re-cut, so a re-cut still broke the published v3.3.0 `--check` (follow-up to #443). It now reads `contracts/local-ci/v3/published/v3.3.0/pre-publication-receipt.json`, a byte copy of the receipt v3.3.0 was published against. PATCH.
 - **Publication readback pinned to its own published candidate:** `scripts/publish-local-ci-v3-release.ts` read canonical digests and frozen manifests through the freeze script's `FROZEN_CANDIDATE_COMMIT`, so any receipt-only re-cut of `canary-candidate-receipt.json` broke the published v3.3.0 `--check`. The freeze helpers now take an explicit commit (default unchanged), and publication passes its own candidate plus a `PUBLISHED_CANONICAL_V3_PATHS` snapshot. No receipt bytes change. PATCH.
