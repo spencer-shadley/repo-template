@@ -7,6 +7,7 @@
   },
   "include": [
     "./*.ts",
-    "./hermetic-test-preload/*.ts"
+    "./hermetic-test-preload/*.ts",
+    "./default-branch-guard/*.ts"
   ]
 }

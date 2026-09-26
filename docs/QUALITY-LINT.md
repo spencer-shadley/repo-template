@@ -35,6 +35,27 @@ Unknown, mixed, malformed, or ambiguous diffs retain the repository's full decla
 skip-gate a quality-lint consume, and do not copy ESLint, Knip, jscpd, or Betterleaks policy into
 the class: the kit remains the policy source of truth.
 
+## Default-branch commit guard (required at adoption and enrollment)
+
+A canonical checkout is a reference, not a workspace (DOCTRINE §36). The kit ships a versioned Git
+hook that refuses a commit on the default branch of a canonical checkout and prints the exit: commit
+from a linked worktree (`git worktree add -b <topic> ../<repo>-<topic> origin/<default>`, or
+`fleet-cli git session-worktree` on fleet hosts). Linked worktrees, other branches and detached
+HEAD are unaffected. It is a hook only, never an ACL, read-only attribute or OS lock (code#4094).
+
+Run once when a repository is adopted or a checkout is enrolled (hooks are not tracked by Git, so
+every fresh clone needs it):
+
+```bash
+node ./node_modules/@spencer-shadley/repo-quality/default-branch-guard.mjs install
+node ./node_modules/@spencer-shadley/repo-quality/default-branch-guard.mjs check   # exit 1 on drift
+```
+
+`install` writes `pre-commit` and `pre-merge-commit` into the path from `git rev-parse --git-path
+hooks` (so `core.hooksPath` is honored), upgrades an older guard version, and never overwrites a
+foreign hook: it reports it and exits 1. `check` reports each hook as `current`, `outdated`,
+`missing` or `foreign`. Pin `@spencer-shadley/repo-quality` at or after 1.12.0.
+
 ## Knip (required for TypeScript/JavaScript repos)
 
 The kit owns `knip.json`, whose policy sets `rules.cycles` to `"error"`. Consumers must invoke the

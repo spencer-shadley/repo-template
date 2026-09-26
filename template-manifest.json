@@ -419,5 +419,9 @@
   "packages/repo-quality/hermetic-test-preload/preload.ts": "self",
   "packages/repo-quality/hermetic-test-preload/enrollment.test.ts": "self",
   "packages/repo-quality/hermetic-test-preload/hermetic-test-preload.test.ts": "self",
-  "packages/repo-quality/hermetic-test-preload/no-unscoped-git-spawn.test.ts": "self"
+  "packages/repo-quality/hermetic-test-preload/no-unscoped-git-spawn.test.ts": "self",
+  "packages/repo-quality/default-branch-guard.mjs": "self",
+  "packages/repo-quality/default-branch-guard/cli.ts": "self",
+  "packages/repo-quality/default-branch-guard/default-branch-guard.test.ts": "self",
+  "packages/repo-quality/default-branch-guard/index.ts": "self"
 }
