@@ -29,6 +29,7 @@
     "packages/adoption-shell/test/**/*.ts",
     "packages/repo-quality/**/*.d.ts",
     "scripts/**/*.ts",
-    "tools/**/*.ts"
+    "tools/**/*.ts",
+    "tests/env-dot-access-lint.test.ts"
   ]
 }
