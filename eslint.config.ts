@@ -37,6 +37,23 @@ export default [
       },
     },
   },
+  // repo-template#435: `process.env.X` dot access is TS4111 under
+  // noPropertyAccessFromIndexSignature, so it only failed `pnpm typecheck`; a land that
+  // skipped typecheck left master red (#434). Flag it in `pnpm lint` too.
+  {
+    files: ["**/*.{ts,mts,cts,tsx}"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "MemberExpression[computed=false][object.type='MemberExpression'][object.computed=false][object.object.name='process'][object.property.name='env']",
+          message:
+            "Use process.env[\"NAME\"] (bracket access); dot access is TS4111 under noPropertyAccessFromIndexSignature (repo-template#435).",
+        },
+      ],
+    },
+  },
   // CLI / scripts / tools: console output is intentional, tools can be large builders
   {
     files: ["scripts/**/*.{js,mjs,cjs,ts}", "tools/**/*.{js,mjs,cjs,ts}"],
