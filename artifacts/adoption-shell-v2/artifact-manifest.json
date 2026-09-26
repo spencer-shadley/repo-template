@@ -1424,8 +1424,8 @@
       "path": "eslint.config.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "ced9f873679d4dbbf9ec7d7d61c49797890c00e2b03aa289d112776cd0be21bb",
-      "bytes": 3324
+      "sha256": "8e4590dfb66807bfffdbe0d1460411ad562f4e9477f39d2f0689492648f0d7ae",
+      "bytes": 3080
     },
     {
       "path": "local-ci.json",
@@ -1647,5 +1647,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "03f5e1221d69b668665e9b3e768118892a967a6eca79ce1ea55bdbb08dd63c06"
+  "manifestDigest": "42fe9903a86a8dbadd9c94b3a15b947accd629377f3222a97d4698561c6d037a"
 }
