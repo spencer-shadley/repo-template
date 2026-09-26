@@ -10,6 +10,7 @@ import {
   DEFAULT_FLEET_IGNORES,
   qualityRules,
 } from "@spencer-shadley/repo-quality";
+import { hermeticTestRules } from "@spencer-shadley/repo-quality/hermetic-test-preload/lint";
 
 export default [
   {
@@ -25,6 +26,9 @@ export default [
     ],
   },
   ...qualityRules(),
+  // Tests spawn Git only with the hermetic-test helper env, or declare an explicit
+  // `// @hermetic-boundary reason="..."` (repo-template#431, DOCTRINE §65).
+  ...hermeticTestRules(),
   {
     files: ["**/*.{js,mjs,cjs,ts,tsx}"],
     languageOptions: {

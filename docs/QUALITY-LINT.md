@@ -96,8 +96,12 @@ separate issue with measured clone volume.
 ## Required dependency (dev)
 
 ```json
-"@spencer-shadley/repo-quality": "github:spencer-shadley/repo-template#path:packages/repo-quality"
+"@spencer-shadley/repo-quality": "github:spencer-shadley/repo-template#05b0100ae2673337a2bce0c5b2358df5280337f4&path:packages/repo-quality"
 ```
+
+Pin a commit at or after `05b0100` (repo-quality 1.11.0), the first to carry
+`./hermetic-test-preload/lint`, which the seeded `eslint.config.ts` imports for its default
+`hermeticTestRules()` block. Package release tags are not required; consumers pin commits.
 
 The kit owns ESLint, `@eslint/js`, `globals`, `typescript-eslint`, sonarjs, and unicorn. JS-only
 repos may call `qualityRules({ typescript: false })`.

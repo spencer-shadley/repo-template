@@ -1,3 +1,4 @@
+// @hermetic-boundary reason="reads published commits of this real checkout and adds/removes a detached scratch worktree"
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";

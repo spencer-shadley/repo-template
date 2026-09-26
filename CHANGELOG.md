@@ -7,6 +7,9 @@ one entry per user-visible or structural change.
 ## [Unreleased]
 
 ### Changed
+- **Seeded `eslint.config.ts` enables `hermeticTestRules()` by default (repo-template#431 item 3):** test code must spawn Git with the hermetic-test helper env or declare `// @hermetic-boundary reason="..."`. The template's own three boundary test files carry explicit reasons. `docs/QUALITY-LINT.md` pins the consumer dependency to commit `05b0100` (repo-quality 1.11.0), the first carrying `./hermetic-test-preload/lint`; consumers must pin at or after it before re-syncing the seeded config. MINOR.
+
+### Changed
 - **Re-cut the LocalCiContractV3 frozen candidate to 3.3.2 at d2550c5b (includes #442 overlay fields):** re-recorded `verification-evidence.json` at the candidate, bumped `FROZEN_CANDIDATE_COMMIT`/`TREE`, `FROZEN_SEMVER` 3.3.2, `RECEIPT_ID` and `FROZEN_VERIFICATION_EVIDENCE_DIGEST`, and regenerated `canary-candidate-receipt.json` / `pre-publication-receipt.json`. Version bump is in files only; tagging v3.3.2 is a separate step. Consumers vendoring the candidate (model-gateway, repo-factory) must re-vendor. PATCH.
 
 ### Fixed
