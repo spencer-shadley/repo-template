@@ -46,11 +46,12 @@ export default [
       "unicorn/no-exports-in-scripts": "off",
     },
   },
-  // repo-template#435: `process.env.X` is TS4111 under noPropertyAccessFromIndexSignature and
-  // turned master typecheck red (#434). Refuse it at lint time too, so a land that skips
-  // typecheck still fails. Use `process.env["X"]`.
+  // repo-template#435 / #452: `process.env.X` is TS4111 under noPropertyAccessFromIndexSignature
+  // and turned master typecheck red (#434). Refuse it at lint time too, in all TypeScript
+  // (scripts, tools, packages, tests), so a land that skips typecheck still fails.
+  // Use `process.env["X"]`.
   {
-    files: ["scripts/**/*.{js,mjs,cjs,ts}", "tools/**/*.{js,mjs,cjs,ts}"],
+    files: ["**/*.{ts,mts,cts,tsx}", "scripts/**/*.{js,mjs,cjs}", "tools/**/*.{js,mjs,cjs}"],
     rules: {
       "no-restricted-syntax": [
         "error",
