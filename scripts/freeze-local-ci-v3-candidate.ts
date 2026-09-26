@@ -328,14 +328,23 @@ export function readFrozenBlob(commit: string, relativePath: string): Buffer {
   }
 }
 
-export function sha256File(relativePath: string): string {
-  return createHash("sha256").update(readFrozenBlob(FROZEN_CANDIDATE_COMMIT, relativePath)).digest("hex");
+export function sha256File(relativePath: string, commit: string = FROZEN_CANDIDATE_COMMIT): string {
+  return createHash("sha256").update(readFrozenBlob(commit, relativePath)).digest("hex");
 }
 
-export function computeCanonicalDigests(): Record<string, string> {
+/**
+ * Canonical digests at `commit` (default: this script's frozen candidate).
+ * The publication script passes its own published candidate and path
+ * snapshot so re-cutting the candidate here never moves the published
+ * v3.3.0 attestation.
+ */
+export function computeCanonicalDigests(
+  commit: string = FROZEN_CANDIDATE_COMMIT,
+  paths: readonly string[] = CANONICAL_V3_PATHS,
+): Record<string, string> {
   const digests: Record<string, string> = {};
-  for (const relativePath of CANONICAL_V3_PATHS) {
-    digests[relativePath] = sha256File(relativePath);
+  for (const relativePath of paths) {
+    digests[relativePath] = sha256File(relativePath, commit);
   }
   return digests;
 }
@@ -562,8 +571,8 @@ export function loadVerificationEvidence(): VerificationEvidenceLedger {
   return raw;
 }
 
-function parseFrozenJson(relativePath: string): unknown {
-  return JSON.parse(readFrozenBlob(FROZEN_CANDIDATE_COMMIT, relativePath).toString("utf8"));
+function parseFrozenJson(relativePath: string, commit: string = FROZEN_CANDIDATE_COMMIT): unknown {
+  return JSON.parse(readFrozenBlob(commit, relativePath).toString("utf8"));
 }
 
 /**
@@ -574,27 +583,27 @@ function parseFrozenJson(relativePath: string): unknown {
  * `manifestDigests.releasePayloadSet` while `candidate.commit`/`candidate.tree`
  * stayed frozen. Now the bytes come from the frozen commit only.
  */
-export function loadFrozenPayloadSet(): ReleasePayloadSet {
+export function loadFrozenPayloadSet(commit: string = FROZEN_CANDIDATE_COMMIT): ReleasePayloadSet {
   const result = validateReleasePayloadSetV2(
-    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.releasePayloadSet),
+    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.releasePayloadSet, commit),
   );
   if (!result.ok) throw new Error("Invalid payload set: " + JSON.stringify(result.diagnostics));
   return result.value;
 }
 
 /** Read the capability bundle registry from the frozen commit's tree (RT-340b). */
-export function loadFrozenCapabilityRegistry(): CapabilityBundleRegistry {
+export function loadFrozenCapabilityRegistry(commit: string = FROZEN_CANDIDATE_COMMIT): CapabilityBundleRegistry {
   const result = validateCapabilityBundleRegistryV2(
-    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.capabilityBundleRegistry),
+    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.capabilityBundleRegistry, commit),
   );
   if (!result.ok) throw new Error("Invalid capability registry: " + JSON.stringify(result.diagnostics));
   return result.value;
 }
 
 /** Read the artifact manifest from the frozen commit's tree (RT-340b). */
-export function loadFrozenArtifactManifest(): ArtifactManifest {
+export function loadFrozenArtifactManifest(commit: string = FROZEN_CANDIDATE_COMMIT): ArtifactManifest {
   const result = validateArtifactManifestV2(
-    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.artifactManifest),
+    parseFrozenJson(FROZEN_MANIFEST_INPUT_PATHS.artifactManifest, commit),
   );
   if (!result.ok) throw new Error("Invalid artifact manifest: " + JSON.stringify(result.diagnostics));
   return result.value;
@@ -613,13 +622,16 @@ export function loadFrozenArtifactManifest(): ArtifactManifest {
  * the frozen tree itself, this fails closed instead of freezing a receipt whose
  * payload digest describes nothing checkable.
  */
-export function verifyFrozenPayloadSetReproducible(payloadSet: ReleasePayloadSet): void {
-  const reDerived = constructReleasePayloadAt(FROZEN_CANDIDATE_COMMIT).payload;
+export function verifyFrozenPayloadSetReproducible(
+  payloadSet: ReleasePayloadSet,
+  commit: string = FROZEN_CANDIDATE_COMMIT,
+): void {
+  const reDerived = constructReleasePayloadAt(commit).payload;
   const fields = ["releaseDigest", "payloadDigest", "payloadDigestAlgorithm", "entryCount"] as const;
   for (const field of fields) {
     if (reDerived[field] !== payloadSet[field]) {
       throw new Error(
-        `Release payload set committed at ${FROZEN_CANDIDATE_COMMIT} is not reproducible from that commit's own tree: ${field} is ${String(payloadSet[field])} in the frozen file but ${String(reDerived[field])} when re-enumerated with "${FROZEN_ENUMERATION_METHOD}".`,
+        `Release payload set committed at ${commit} is not reproducible from that commit's own tree: ${field} is ${String(payloadSet[field])} in the frozen file but ${String(reDerived[field])} when re-enumerated with "${FROZEN_ENUMERATION_METHOD}".`,
       );
     }
   }
