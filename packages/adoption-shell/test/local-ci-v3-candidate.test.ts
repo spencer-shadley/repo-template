@@ -6,7 +6,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import type { AnySchema } from "ajv";
 import { Ajv2020 } from "ajv/dist/2020.js";
@@ -29,9 +29,6 @@ import {
   buildVerificationFromEvidence,
   buildVersionBinding,
   computeCanonicalDigests,
-  loadFrozenArtifactManifest,
-  loadFrozenCapabilityRegistry,
-  loadFrozenPayloadSet,
   loadVerificationEvidence,
   readCommittedBytes,
   readFrozenBlob,
@@ -191,23 +188,21 @@ void test("schema rejects invalid git commit sha", () => {
 void test("REGRESSION: a mutated working-tree copy of a canonical file does not change the frozen digest (defect: working-tree hashing)", () => {
   const [firstCanonicalPath] = CANONICAL_V3_PATHS;
   assert.ok(firstCanonicalPath, "CANONICAL_V3_PATHS must not be empty");
-  const fullPath = path.join(root, ...firstCanonicalPath.split("/"));
-  const original = fs.readFileSync(fullPath);
-  const before = sha256File(firstCanonicalPath);
-  try {
-    fs.writeFileSync(
-      fullPath,
-      Buffer.concat([original, Buffer.from("\n// REGRESSION-mutation\n")]),
-    );
-    const after = sha256File(firstCanonicalPath);
-    assert.equal(
-      after,
-      before,
-      "sha256File must read the frozen commit's git object, not the mutated working-tree bytes",
-    );
-  } finally {
-    fs.writeFileSync(fullPath, original);
-  }
+  // Mutate a throwaway clone, never this checkout: parallel test files read these bytes (#450).
+  const result = inScratchClone("rt340-canonical-", (clone) =>
+    evalFreezeModuleIn(clone, String.raw`
+      const rel = ${JSON.stringify(firstCanonicalPath)};
+      const full = path.join(process.cwd(), ...rel.split("/"));
+      const before = m.sha256File(rel);
+      fs.writeFileSync(full, Buffer.concat([fs.readFileSync(full), Buffer.from("\n// REGRESSION-mutation\n")]));
+      out({ before, after: m.sha256File(rel) });
+    `),
+  ) as { before: string; after: string };
+  assert.equal(
+    result.after,
+    result.before,
+    "sha256File must read the frozen commit's git object, not the mutated working-tree bytes",
+  );
 });
 
 void test("REGRESSION: a wrong declared candidate tree is rejected (defect: commit/tree pairing never proven)", () => {
@@ -419,21 +414,6 @@ function diagnosticCodes(
   return result.ok ? [] : result.diagnostics.map((row) => row.code);
 }
 
-/** Temporarily replace a tracked working-tree file, then restore it exactly. */
-function withMutatedWorkingTreeFile(relativePath: string, run: () => void): void {
-  const fullPath = path.join(root, ...relativePath.split("/"));
-  const original = fs.readFileSync(fullPath);
-  const parsed: unknown = JSON.parse(original.toString("utf8"));
-  assert.ok(parsed !== null && typeof parsed === "object", `${relativePath} must be a JSON object`);
-  const mutated = { ...(parsed as Record<string, unknown>), rt340bMutation: "regression" };
-  try {
-    fs.writeFileSync(fullPath, `${JSON.stringify(mutated, null, 2)}\n`, "utf8");
-    run();
-  } finally {
-    fs.writeFileSync(fullPath, original);
-  }
-}
-
 void test("RT-340b: every manifest digest in the receipt equals the value the frozen commit itself declares", () => {
   const receipt = loadReceipt("contracts/local-ci/v3/pre-publication-receipt.json");
 
@@ -489,33 +469,42 @@ void test("RT-340b: the release payload enumeration is pinned to the frozen comm
 });
 
 void test("RT-340b: a working-tree edit to the payload set, artifact manifest or capability registry cannot move a single receipt digest", () => {
-  const expected = serializeReceipt(buildPrePublicationReceipt());
   const loaders = [
-    ["release/release-payload-set.json", () => loadFrozenPayloadSet().releaseDigest],
-    [
-      "artifacts/adoption-shell-v2/artifact-manifest.json",
-      () => loadFrozenArtifactManifest().manifestDigest,
-    ],
-    [
-      "contracts/adoption-shell-v2/capability-bundle-registry.json",
-      () => loadFrozenCapabilityRegistry().registryDigest,
-    ],
+    ["release/release-payload-set.json", "m.loadFrozenPayloadSet().releaseDigest"],
+    ["artifacts/adoption-shell-v2/artifact-manifest.json", "m.loadFrozenArtifactManifest().manifestDigest"],
+    ["contracts/adoption-shell-v2/capability-bundle-registry.json", "m.loadFrozenCapabilityRegistry().registryDigest"],
   ] as const;
 
-  for (const [relativePath, readDigest] of loaders) {
-    const before = readDigest();
-    withMutatedWorkingTreeFile(relativePath, () => {
-      assert.equal(
-        readDigest(),
-        before,
-        `${relativePath} must be read from ${FROZEN_CANDIDATE_COMMIT}, not from the checkout`,
-      );
-      assert.equal(
-        serializeReceipt(buildPrePublicationReceipt()),
-        expected,
-        `mutating ${relativePath} in the working tree changed the frozen receipt`,
-      );
-    });
+  // Mutate a throwaway clone, never this checkout: parallel test files read these bytes (#450).
+  const rows = inScratchClone("rt340b-loaders-", (clone) =>
+    evalFreezeModuleIn(clone, String.raw`
+      const expected = m.serializeReceipt(m.buildPrePublicationReceipt());
+      const rows = [];
+      for (const [rel, read] of ${JSON.stringify(loaders.map(([rel, expr]) => [rel, expr]))}) {
+        const readDigest = new Function("m", "return " + read);
+        const full = path.join(process.cwd(), ...rel.split("/"));
+        const original = fs.readFileSync(full);
+        const before = readDigest(m);
+        const parsed = JSON.parse(original.toString("utf8"));
+        fs.writeFileSync(full, JSON.stringify({ ...parsed, rt340bMutation: "regression" }, null, 2) + "\n", "utf8");
+        try {
+          rows.push({ rel, before, after: readDigest(m), receiptSame: m.serializeReceipt(m.buildPrePublicationReceipt()) === expected });
+        } finally {
+          fs.writeFileSync(full, original);
+        }
+      }
+      out(rows);
+    `),
+  ) as { rel: string; before: string; after: string; receiptSame: boolean }[];
+
+  assert.equal(rows.length, loaders.length);
+  for (const row of rows) {
+    assert.equal(
+      row.after,
+      row.before,
+      `${row.rel} must be read from ${FROZEN_CANDIDATE_COMMIT}, not from the checkout`,
+    );
+    assert.equal(row.receiptSame, true, `mutating ${row.rel} in the working tree changed the frozen receipt`);
   }
 });
 
@@ -539,8 +528,7 @@ function otherTreePayloadDigest(): string {
 
 void test("RT-340b: freeze --check and --self-test reject a receipt whose payload digest describes a tree other than the one it names", () => {
   const relativePath = "contracts/local-ci/v3/pre-publication-receipt.json";
-  const fullPath = path.join(root, ...relativePath.split("/"));
-  const original = fs.readFileSync(fullPath);
+  const original = fs.readFileSync(path.join(root, ...relativePath.split("/")));
 
   // The exact identity-mismatched receipt the PR #363 reviewer produced: the
   // branch tip's payload digest under the frozen commit's declared identity,
@@ -569,20 +557,23 @@ void test("RT-340b: freeze --check and --self-test reject a receipt whose payloa
     "digest recomputation alone cannot see this: it is honestly recomputed, just over the wrong tree",
   );
 
+  // Write the mismatched receipt into a throwaway clone, never this checkout (#450).
+  const clone = cloneWorkingStateAtHead("rt340b-freeze-");
   try {
-    fs.writeFileSync(fullPath, `${JSON.stringify(mismatched, null, 2)}\n`, "utf8");
+    fs.writeFileSync(
+      path.join(clone, ...relativePath.split("/")),
+      `${JSON.stringify(mismatched, null, 2)}\n`,
+      "utf8",
+    );
     for (const mode of ["--check", "--self-test"]) {
-      assert.throws(
-        () =>
-          execFileSync("node", ["scripts/freeze-local-ci-v3-candidate.ts", mode], {
-            cwd: root,
-            stdio: "pipe",
-          }),
+      assert.notEqual(
+        runFreeze(clone, mode).status,
+        0,
         `freeze ${mode} must reject a receipt whose digests describe a different tree than it names`,
       );
     }
   } finally {
-    fs.writeFileSync(fullPath, original);
+    fs.rmSync(path.dirname(clone), { recursive: true, force: true });
   }
 });
 
@@ -679,38 +670,41 @@ void test("RT-340b: a frozen manifest that parses but is not a JSON object is re
 // commit postdates that commit -- so it is bound to committed bytes instead.
 
 void test("RT-340c: an uncommitted edit to the verification evidence ledger cannot reach receiptDigest", () => {
-  const relativePath = "contracts/local-ci/v3/verification-evidence.json";
-  const fullPath = path.join(root, ...relativePath.split("/"));
-  const original = fs.readFileSync(fullPath);
-  const before = serializeReceipt(buildPrePublicationReceipt());
+  // The reviewer's exact mutation, applied in a throwaway clone, never this checkout (#450).
+  const result = inScratchClone("rt340c-ledger-", (clone) =>
+    evalFreezeModuleIn(clone, String.raw`
+      const rel = ${JSON.stringify(LEDGER_PATH)};
+      const full = path.join(process.cwd(), ...rel.split("/"));
+      const original = fs.readFileSync(full);
+      const before = m.serializeReceipt(m.buildPrePublicationReceipt());
+      const ledger = JSON.parse(original.toString("utf8"));
+      const [firstCheckId] = Object.keys(ledger.checks);
+      if (!firstCheckId) throw new Error("the ledger must contain at least one check");
+      ledger.checks[firstCheckId].finishedAt = "2099-01-01T00:00:00.000Z";
+      const errorOf = (fn) => { try { fn(); return null; } catch (e) { return String(e && e.message); } };
+      fs.writeFileSync(full, JSON.stringify(ledger, null, 2) + "\n", "utf8");
+      let buildError, loadError;
+      try {
+        buildError = errorOf(() => m.buildPrePublicationReceipt());
+        loadError = errorOf(() => m.loadVerificationEvidence());
+      } finally {
+        fs.writeFileSync(full, original);
+      }
+      out({ before, buildError, loadError, after: m.serializeReceipt(m.buildPrePublicationReceipt()) });
+    `),
+  ) as { before: string; buildError: string | null; loadError: string | null; after: string };
 
-  const ledger: unknown = JSON.parse(original.toString("utf8"));
-  assert.ok(ledger !== null && typeof ledger === "object", "ledger must be a JSON object");
-  const checks = (ledger as { checks: Record<string, { finishedAt: string }> }).checks;
-  const [firstCheckId] = Object.keys(checks);
-  assert.ok(firstCheckId, "the ledger must contain at least one check");
-  const firstCheck = checks[firstCheckId];
-  assert.ok(firstCheck, "the first check must exist");
-
-  // The reviewer's exact mutation.
-  firstCheck.finishedAt = "2099-01-01T00:00:00.000Z";
-  try {
-    fs.writeFileSync(fullPath, `${JSON.stringify(ledger, null, 2)}
-`, "utf8");
-    assert.throws(
-      () => buildPrePublicationReceipt(),
-      /differ from its committed bytes/,
-      "an uncommitted ledger edit must refuse the freeze, never mint a new receiptDigest",
-    );
-    assert.throws(() => loadVerificationEvidence(), /differ from its committed bytes/);
-  } finally {
-    fs.writeFileSync(fullPath, original);
-  }
-
+  assert.match(
+    result.buildError ?? "",
+    /differ from its committed bytes/,
+    "an uncommitted ledger edit must refuse the freeze, never mint a new receiptDigest",
+  );
+  assert.match(result.loadError ?? "", /differ from its committed bytes/);
+  assert.equal(result.after, result.before, "restoring the committed bytes must restore the exact receipt");
   assert.equal(
+    result.before,
     serializeReceipt(buildPrePublicationReceipt()),
-    before,
-    "restoring the committed bytes must restore the exact receipt",
+    "the clone must reproduce this checkout's receipt",
   );
 });
 
@@ -908,6 +902,50 @@ function runFreeze(clone: string, mode: string): { status: number; output: strin
     status: result.status ?? 1,
     output: result.stdout + result.stderr,
   };
+}
+
+/**
+ * Run `fn` against a throwaway clone of the current working state and remove it
+ * afterwards. Tests that need to mutate tracked files do it here: `node --test`
+ * runs test files concurrently, so an in-place edit of this checkout (even one
+ * restored in `finally`) is visible to every other test reading those bytes
+ * (repo-template#450, DOCTRINE §65).
+ */
+function inScratchClone<T>(label: string, fn: (clone: string) => T): T {
+  const clone = cloneWorkingStateAtHead(label);
+  try {
+    return fn(clone);
+  } finally {
+    fs.rmSync(path.dirname(clone), { recursive: true, force: true });
+  }
+}
+
+/**
+ * Evaluate `body` in a child process rooted at `clone`, with the clone's own
+ * freeze module bound to `m`, `fs`/`path` in scope and `out(value)` returning
+ * JSON. The freeze module resolves its repository root from its own location,
+ * so importing the clone's copy makes every read and write land in the clone.
+ */
+function evalFreezeModuleIn(clone: string, body: string): unknown {
+  const script = path.join(path.dirname(clone), "eval.mjs");
+  const moduleUrl = pathToFileURL(path.join(clone, "scripts", "freeze-local-ci-v3-candidate.ts")).href;
+  fs.writeFileSync(
+    script,
+    [
+      'import fs from "node:fs";',
+      'import path from "node:path";',
+      `const m = await import(${JSON.stringify(moduleUrl)});`,
+      "const out = (value) => process.stdout.write(JSON.stringify(value));",
+      body,
+    ].join(NEWLINE),
+    "utf8",
+  );
+  const result = spawnSync(process.execPath, ["--experimental-strip-types", script], {
+    cwd: clone,
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, `scratch evaluation failed:\n${result.stderr}`);
+  return JSON.parse(result.stdout) as unknown;
 }
 
 function receiptDigestIn(clone: string): string {
