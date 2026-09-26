@@ -68,6 +68,8 @@ export const PUBLISHED_CANONICAL_V3_PATHS: readonly string[] = [
   "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md",
   "docs/MIGRATION.md",
 ];
+export const PUBLISHED_PRE_PUBLICATION_RECEIPT_PATH =
+  "contracts/local-ci/v3/published/v3.3.0/pre-publication-receipt.json";
 export const PUBLICATION_SEMVER = "3.3.0";
 export const PUBLICATION_TAG = `v${PUBLICATION_SEMVER}`;
 export const RECEIPT_ID = "receipt-issue-341-mu15pl0x";
@@ -616,7 +618,10 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
   verifyFrozenPayloadSetReproducible(payloadSet, FROZEN_CANDIDATE_COMMIT);
   const canonicalDigests = computeCanonicalDigests(FROZEN_CANDIDATE_COMMIT, PUBLISHED_CANONICAL_V3_PATHS);
 
-  const prePubPath = path.join(root, "contracts", "local-ci", "v3", "pre-publication-receipt.json");
+  // Snapshot of the pre-publication receipt v3.3.0 was published against. The
+  // live contracts/local-ci/v3/pre-publication-receipt.json is rewritten by
+  // every candidate re-cut (`freeze --write`) and must not move this attestation.
+  const prePubPath = path.join(root, ...PUBLISHED_PRE_PUBLICATION_RECEIPT_PATH.split("/"));
   if (!fs.existsSync(prePubPath)) {
     throw new Error("Missing pre-publication receipt at " + prePubPath);
   }

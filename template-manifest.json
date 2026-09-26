@@ -158,6 +158,7 @@
   "contracts/local-ci/v3/post-publication-readback-receipt.schema.json": "self",
   "contracts/local-ci/v3/post-publication-receipt.json": "self",
   "contracts/local-ci/v3/pre-publication-receipt.json": "self",
+  "contracts/local-ci/v3/published/v3.3.0/pre-publication-receipt.json": "self",
   "contracts/local-ci/v3/published-release-receipt.json": "self",
   "contracts/local-ci/v3/verification-evidence.json": "self",
   "contracts/plan-record/v1/fixtures/classification-cases.json": "self",
