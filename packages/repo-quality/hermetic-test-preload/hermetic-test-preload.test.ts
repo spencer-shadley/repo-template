@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -41,8 +41,8 @@ void test("strips GIT_DIR and isolates config writes from a sentinel repo", () =
       0,
     );
     assert.deepEqual(readFileSync(path.join(sentinel, ".git", "config")), before);
-    assert.equal(hermetic.env.GIT_DIR, undefined);
-    assert.equal(hermetic.env.GIT_CONFIG_NOSYSTEM, "1");
+    assert.equal(hermetic.env["GIT_DIR"], undefined);
+    assert.equal(hermetic.env["GIT_CONFIG_NOSYSTEM"], "1");
   } finally {
     rmSync(parent, { recursive: true, force: true });
   }

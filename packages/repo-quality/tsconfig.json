@@ -6,6 +6,7 @@
     "allowImportingTsExtensions": true
   },
   "include": [
-    "./*.ts"
+    "./*.ts",
+    "./hermetic-test-preload/*.ts"
   ]
 }
