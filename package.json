@@ -12,7 +12,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p packages/repo-quality/tsconfig.json --noEmit",
     "build": "node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "build:check": "node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",
-    "test": "node --test packages/adoption-shell/test/*.test.ts && pnpm todo-issue-link:selfcheck && pnpm hermetic-test-preload:selfcheck",
+    "test": "node --test packages/adoption-shell/test/*.test.ts tests/env-dot-access-lint.test.ts && pnpm todo-issue-link:selfcheck && pnpm hermetic-test-preload:selfcheck",
     "release:payload": "node tools/release-payload.ts write",
     "release:payload:check": "node tools/release-payload.ts check",
     "verify:artifact": "node tools/artifact-build.ts verify",
