@@ -382,6 +382,7 @@
   "skills/full-validation/SKILL.md": "copy",
   "skills/pr-validation/SKILL.md": "copy",
   "template-manifest.json": "self",
+  "tests/env-dot-access-lint.test.ts": "self",
   "tests/fixtures/user-surface-lint/allowlisted/config.json": "copy",
   "tests/fixtures/user-surface-lint/allowlisted/src/messages.js": "copy",
   "tests/fixtures/user-surface-lint/bad/config.json": "copy",
