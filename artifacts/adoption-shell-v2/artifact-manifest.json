@@ -6,7 +6,7 @@
   "contractVersion": "2.0.0",
   "digestAlgorithm": "sha256-rfc8785-v1",
   "artifactDigestAlgorithm": "sha256-rfc8785-v1",
-  "artifactDigest": "b76cb5456ea06358a77eda7adec6a492544f3b9aced5b96cdcb1b12da7f43eb9",
+  "artifactDigest": "3816f7b8bc7656e053f78ada36c8b247cf6100fc5177f52b80aa041706936aeb",
   "toolchain": {
     "typescript": "7.0.2",
     "nodeCompatibility": ">=24.16.0 <25",
@@ -70,8 +70,8 @@
       "path": "packages/adoption-shell/src/index.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "936b982d6f90fac3c2758f039d8ec7a609be210ad9c60ee870d3e1ac5fa5857b",
-      "bytes": 9319
+      "sha256": "25b7449ecd00f0d4fd6689ad8f1529724f465ccc80ac2e4a87896890df79e63c",
+      "bytes": 9464
     },
     {
       "path": "packages/adoption-shell/src/local-ci-contract-v2.ts",
@@ -81,11 +81,18 @@
       "bytes": 12270
     },
     {
+      "path": "packages/adoption-shell/src/local-ci-contract-v3-overlay.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f9cf1b093340cd37fd54186d25f57c84463205b910bd55a3905d1c6ac1dd033d",
+      "bytes": 9151
+    },
+    {
       "path": "packages/adoption-shell/src/local-ci-contract-v3.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "fc8d5507bd4654b311c6d018a83bd4bbabc0d4065b0e9be62624cf0555a19d41",
-      "bytes": 19854
+      "sha256": "a5ac66fb2990b2155663a94246ddabe5717c8edfcb5adc9248321be818b0b9ff",
+      "bytes": 19954
     },
     {
       "path": "packages/adoption-shell/src/local-ci-outcome-v1.ts",
@@ -435,8 +442,8 @@
       "path": "index.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "fde12b1e81eb2e018fd9fe18799f6dd077b8b838c03068a37e02d69808ae50ee",
-      "bytes": 8700
+      "sha256": "58f628a5c52e80c2f3ac6eed09a3fb592a7544bca523af06f1e1be34135794c1",
+      "bytes": 8839
     },
     {
       "path": "index.js",
@@ -460,18 +467,32 @@
       "bytes": 9573
     },
     {
+      "path": "local-ci-contract-v3-overlay.d.ts",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "9d1245851006dfa064d3b5c54a613cbc8c74089e006f463f7ec94d7d44887780",
+      "bytes": 2574
+    },
+    {
+      "path": "local-ci-contract-v3-overlay.js",
+      "kind": "file",
+      "mode": "100644",
+      "sha256": "f6e064f5aa611f4d5a92b5fafb236e2f5cac68f66505692ac3b4949606725116",
+      "bytes": 7991
+    },
+    {
       "path": "local-ci-contract-v3.d.ts",
       "kind": "file",
       "mode": "100644",
-      "sha256": "8ec23c1247492af5aba6709ed058d185feeb47c0a90b26ea3e22c67a9abd60c2",
-      "bytes": 5681
+      "sha256": "5b536190ed22e08c5b6ea3b14f0a9e01683930b8eecc4bdab8d08e505e7f3cda",
+      "bytes": 6280
     },
     {
       "path": "local-ci-contract-v3.js",
       "kind": "file",
       "mode": "100644",
-      "sha256": "840e2d435c5014dcddfa4bef3a66d73372dac3f3a6c8212bbea6769857f2f731",
-      "bytes": 15193
+      "sha256": "b65daf9e279afbe22e5965eeafd2327005ae98524a2c1542953dc98956970dd5",
+      "bytes": 14758
     },
     {
       "path": "local-ci-outcome-v1.d.ts",
@@ -1095,8 +1116,8 @@
       "path": "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "942db214785f4df7e584b454400879c59fe42a1fbe5f98a3c0c6fed5321c8180",
-      "bytes": 7897
+      "sha256": "b2cadd29b88da6a4629cc24ae992cac0cd94c00c986ff0d607747671bc5b79ab",
+      "bytes": 11141
     },
     {
       "path": "contracts/local-ci/v3/local-ci-outcome-v1.schema.json",
@@ -1594,7 +1615,7 @@
       "path": "contracts/adoption-shell-v2/golden/deterministic-receipt.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "05b7751a2bc658acd7fbed2f250463f5f11eb310ae816f810fb04912024daf76",
+      "sha256": "9848155060d768debd7f97c3487d66320e760b2963bdaf6d3939d1a952861348",
       "bytes": 876
     },
     {
@@ -1626,5 +1647,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "bbe82afceb532b737af997f66d970dd369c4a394cf0799b08baa37c4c2e2f25e"
+  "manifestDigest": "03f5e1221d69b668665e9b3e768118892a967a6eca79ce1ea55bdbb08dd63c06"
 }

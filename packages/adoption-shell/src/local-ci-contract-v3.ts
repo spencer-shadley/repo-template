@@ -6,6 +6,10 @@ import {
   validateLocalCiContractV2,
   type LegacyLineageKind,
 } from "./local-ci-contract-v2.ts";
+import {
+  COMMAND_ID_PATTERN, FAILURE_DISPOSITIONS, LEG_ID_PATTERN, LOCAL_CI_CONTRACT_V3_FLEET_OVERLAY_FIELDS, SHELLS,
+  stringArray, validateFleetOverlayV3, type LocalCiPrReceiptBindingV3, type LocalCiSimpleDiffClassV3,
+} from "./local-ci-contract-v3-overlay.ts";
 import { Diagnostics, escapePointer, isRecord } from "./validation-helpers.ts";
 
 export const LOCAL_CI_CONTRACT_V3_ID = "repo-template/local-ci-v3" as const;
@@ -117,6 +121,15 @@ export interface LocalCiContractV3 {
   readonly effects: LocalCiEffectsV3;
   /** Optional platform-bound required legs (repo-template#417). */
   readonly requiredPlatformLegs?: readonly LocalCiRequiredPlatformLegV3[];
+  /** Fleet PR-validation overlay (see local-ci-contract-v3-overlay.ts). */
+  readonly prMergeProfileId?: string;
+  readonly prBroaderFallback?: boolean;
+  readonly prReceiptBindsCandidate?: boolean;
+  readonly prReceiptBindsBase?: boolean;
+  readonly prReceiptBindsIntegration?: boolean;
+  readonly prReceipt?: LocalCiPrReceiptBindingV3;
+  readonly fullRequiredLegIds?: readonly string[];
+  readonly simpleDiff?: Readonly<Record<string, LocalCiSimpleDiffClassV3>>;
 }
 
 export type LegacyLineageKindV3 = LegacyLineageKind | "local-ci-v2";
@@ -131,22 +144,9 @@ export interface LegacyLocalCiDispositionV3 {
   readonly diagnostics?: readonly Diagnostic[];
 }
 
-const SHELLS = new Set(["pwsh", "cmd", "bash", "sh", "none"]);
-const FAILURE_DISPOSITIONS = new Set(["fail-gate", "warning", "non-routable"]);
 const NETWORK_EXPECTATIONS = new Set(["offline-only", "local-loopback", "outbound-allowed"]);
 const PLATFORM_LEG_PLATFORMS = new Set(["linux", "win32", "darwin"]);
-const LEG_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
-const COMMAND_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
-function stringArray(value: unknown, pointer: string, min: number, max: number, diagnostics: Diagnostics): void {
-  if (!diagnostics.array(value, pointer, min, max)) return;
-  const seen = new Set<string>();
-  for (const [index, item] of value.entries()) {
-    if (!diagnostics.string(item, `${pointer}/${String(index)}`, { min: 1 })) continue;
-    if (seen.has(item)) diagnostics.add("E_DUPLICATE", `${pointer}/${String(index)}`, `duplicate value: ${item}`);
-    else seen.add(item);
-  }
-}
 
 function finish<T>(value: T | undefined, diagnostics: Diagnostics): ValidationResult<T> {
   const sorted = diagnostics.sorted();
@@ -440,7 +440,7 @@ export function evaluateRequiredPlatformLegsV3(
 export function validateLocalCiContractV3(value: unknown): ValidationResult<LocalCiContractV3> {
   const diagnostics = new Diagnostics();
   const requiredFields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
-  const allowedFields = [...requiredFields, "requiredPlatformLegs"];
+  const allowedFields = [...requiredFields, "requiredPlatformLegs", ...LOCAL_CI_CONTRACT_V3_FLEET_OVERLAY_FIELDS];
   if (!diagnostics.object(value, "", allowedFields, requiredFields)) return finish<LocalCiContractV3>(undefined, diagnostics);
 
   diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_ID });
@@ -453,6 +453,7 @@ export function validateLocalCiContractV3(value: unknown): ValidationResult<Loca
   validateEnvironmentV3(value["environment"], diagnostics);
   validateEffectsV3(value["effects"], diagnostics);
   validateRequiredPlatformLegsV3(value["requiredPlatformLegs"], value["commands"], diagnostics);
+  validateFleetOverlayV3(value, diagnostics);
 
   return finish(
     hasValidatedShape(value, diagnostics) ? value : undefined,

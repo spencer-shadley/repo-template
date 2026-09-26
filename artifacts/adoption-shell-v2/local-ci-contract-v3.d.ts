@@ -1,5 +1,6 @@
 import { type Diagnostic, type ValidationResult } from "./contract.ts";
 import { type LegacyLineageKind } from "./local-ci-contract-v2.ts";
+import { type LocalCiPrReceiptBindingV3, type LocalCiSimpleDiffClassV3 } from "./local-ci-contract-v3-overlay.ts";
 export declare const LOCAL_CI_CONTRACT_V3_ID: "repo-template/local-ci-v3";
 export declare const LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION: "3.0.0";
 export declare const LOCAL_CI_CONTRACT_V3_SCHEMA_ID: "https://schemas.repo-template.dev/local-ci-v3/local-ci-contract-v3.schema.json";
@@ -106,6 +107,15 @@ export interface LocalCiContractV3 {
     readonly effects: LocalCiEffectsV3;
     /** Optional platform-bound required legs (repo-template#417). */
     readonly requiredPlatformLegs?: readonly LocalCiRequiredPlatformLegV3[];
+    /** Fleet PR-validation overlay (see local-ci-contract-v3-overlay.ts). */
+    readonly prMergeProfileId?: string;
+    readonly prBroaderFallback?: boolean;
+    readonly prReceiptBindsCandidate?: boolean;
+    readonly prReceiptBindsBase?: boolean;
+    readonly prReceiptBindsIntegration?: boolean;
+    readonly prReceipt?: LocalCiPrReceiptBindingV3;
+    readonly fullRequiredLegIds?: readonly string[];
+    readonly simpleDiff?: Readonly<Record<string, LocalCiSimpleDiffClassV3>>;
 }
 export type LegacyLineageKindV3 = LegacyLineageKind | "local-ci-v2";
 export interface LegacyLocalCiDispositionV3 {
