@@ -602,7 +602,10 @@ void test("publication readback stays pinned to the published candidate when the
     for (const relativePath of [
       "scripts/freeze-local-ci-v3-candidate.ts",
       "scripts/publish-local-ci-v3-release.ts",
+      "contracts/local-ci/v3/published/v3.3.0/pre-publication-receipt.json",
     ]) {
+      if (!fs.existsSync(path.join(root, relativePath))) continue;
+      fs.mkdirSync(path.dirname(path.join(worktree, relativePath)), { recursive: true });
       fs.copyFileSync(path.join(root, relativePath), path.join(worktree, relativePath));
     }
     fs.symlinkSync(path.join(root, "node_modules"), path.join(worktree, "node_modules"), "dir");
@@ -615,6 +618,17 @@ void test("publication readback stays pinned to the published candidate when the
       .replace(/export const FROZEN_CANDIDATE_TREE = "[0-9a-f]{40}";/, `export const FROZEN_CANDIDATE_TREE = "${movedTree}";`);
     assert.notEqual(moved, source, "freeze candidate constants were not found to move");
     fs.writeFileSync(freezePath, moved);
+    // A re-cut also rewrites the live candidate receipts (`freeze --write`).
+    // Simulate that: the published attestation must not read them.
+    const livePrePub = path.join(worktree, "contracts", "local-ci", "v3", "pre-publication-receipt.json");
+    const recut = JSON.parse(fs.readFileSync(livePrePub, "utf8")) as {
+      candidate: { commit: string; tree: string };
+      receiptDigest: string;
+    };
+    recut.candidate.commit = movedCommit;
+    recut.candidate.tree = movedTree;
+    recut.receiptDigest = "0".repeat(64);
+    fs.writeFileSync(livePrePub, JSON.stringify(recut, null, 2) + "\n");
     execFileSync(process.execPath, ["scripts/publish-local-ci-v3-release.ts", "--check"], {
       cwd: worktree,
       stdio: "pipe",
