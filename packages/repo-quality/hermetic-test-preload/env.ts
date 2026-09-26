@@ -99,27 +99,27 @@ export function buildHermeticTestEnvironment(
     .map((entry) => path.resolve(entry))
     .filter((entry, index, all) => all.indexOf(entry) === index);
 
-  env.HOME = home;
-  env.XDG_CONFIG_HOME = xdgConfig;
+  env["HOME"] = home;
+  env["XDG_CONFIG_HOME"] = xdgConfig;
   if (options.redirectUserProfile !== false) {
-    env.USERPROFILE = home;
+    env["USERPROFILE"] = home;
   }
-  env.GIT_CONFIG_GLOBAL = gitConfigGlobal;
-  env.GIT_CONFIG_SYSTEM = gitConfigSystem;
-  env.GIT_CONFIG_NOSYSTEM = "1";
-  env.GIT_ATTR_NOSYSTEM = "1";
-  env.GIT_CEILING_DIRECTORIES = ceilings.join(path.delimiter);
+  env["GIT_CONFIG_GLOBAL"] = gitConfigGlobal;
+  env["GIT_CONFIG_SYSTEM"] = gitConfigSystem;
+  env["GIT_CONFIG_NOSYSTEM"] = "1";
+  env["GIT_ATTR_NOSYSTEM"] = "1";
+  env["GIT_CEILING_DIRECTORIES"] = ceilings.join(path.delimiter);
   // Identity for any incidental commits inside fixtures — never a real operator identity.
-  env.GIT_AUTHOR_NAME = "Fleet Hermetic Test";
-  env.GIT_AUTHOR_EMAIL = "hermetic-test@invalid.example";
-  env.GIT_COMMITTER_NAME = env.GIT_AUTHOR_NAME;
-  env.GIT_COMMITTER_EMAIL = env.GIT_AUTHOR_EMAIL;
+  env["GIT_AUTHOR_NAME"] = "Fleet Hermetic Test";
+  env["GIT_AUTHOR_EMAIL"] = "hermetic-test@invalid.example";
+  env["GIT_COMMITTER_NAME"] = env["GIT_AUTHOR_NAME"];
+  env["GIT_COMMITTER_EMAIL"] = env["GIT_AUTHOR_EMAIL"];
   // Disable signing for disposable fixtures (cli-wrappers test harness class).
-  env.GIT_CONFIG_COUNT = "2";
-  env.GIT_CONFIG_KEY_0 = "commit.gpgsign";
-  env.GIT_CONFIG_VALUE_0 = "false";
-  env.GIT_CONFIG_KEY_1 = "tag.gpgsign";
-  env.GIT_CONFIG_VALUE_1 = "false";
+  env["GIT_CONFIG_COUNT"] = "2";
+  env["GIT_CONFIG_KEY_0"] = "commit.gpgsign";
+  env["GIT_CONFIG_VALUE_0"] = "false";
+  env["GIT_CONFIG_KEY_1"] = "tag.gpgsign";
+  env["GIT_CONFIG_VALUE_1"] = "false";
 
   return { root, env };
 }
@@ -139,9 +139,9 @@ export function applyHermeticTestEnvironment(
   for (const key of Object.keys(target)) {
     if (isHermeticStripKey(key)) delete target[key];
   }
-  delete target.HOME;
-  delete target.USERPROFILE;
-  delete target.XDG_CONFIG_HOME;
+  delete target["HOME"];
+  delete target["USERPROFILE"];
+  delete target["XDG_CONFIG_HOME"];
   Object.assign(target, built.env);
   return built.root;
 }
@@ -152,11 +152,11 @@ export function hermeticEnvironmentSummary(built: HermeticTestEnvironment): Reco
   return {
     schema: "HermeticTestEnvironmentSummaryV1",
     root: built.root,
-    home: built.env.HOME,
-    xdgConfigHome: built.env.XDG_CONFIG_HOME,
-    gitConfigGlobal: built.env.GIT_CONFIG_GLOBAL,
-    gitConfigNosystem: built.env.GIT_CONFIG_NOSYSTEM,
-    gitCeilingDirectories: built.env.GIT_CEILING_DIRECTORIES,
+    home: built.env["HOME"],
+    xdgConfigHome: built.env["XDG_CONFIG_HOME"],
+    gitConfigGlobal: built.env["GIT_CONFIG_GLOBAL"],
+    gitConfigNosystem: built.env["GIT_CONFIG_NOSYSTEM"],
+    gitCeilingDirectories: built.env["GIT_CEILING_DIRECTORIES"],
     strippedExact: [...HERMETIC_STRIP_EXACT],
   };
 }

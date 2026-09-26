@@ -49,7 +49,7 @@
     "lint:dir-breadth:selfcheck": "node --experimental-strip-types scripts/check-dir-breadth.selfcheck.ts",
     "generate:repository-shape-validators": "node --experimental-strip-types tools/generate-repository-shape-validators.ts write",
     "check:repository-shape-validators": "node --experimental-strip-types tools/generate-repository-shape-validators.ts check",
-    "hermetic-test-preload:selfcheck": "node --experimental-strip-types --test ./packages/repo-quality/hermetic-test-preload/hermetic-test-preload.test.ts"
+    "hermetic-test-preload:selfcheck": "node --experimental-strip-types --test ./packages/repo-quality/hermetic-test-preload/hermetic-test-preload.test.ts ./packages/repo-quality/hermetic-test-preload/enrollment.test.ts"
   },
   "devDependencies": {
     "@spencer-shadley/repo-quality": "file:packages/repo-quality",
