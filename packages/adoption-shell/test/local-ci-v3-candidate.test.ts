@@ -1,3 +1,4 @@
+// @hermetic-boundary reason="reads frozen-candidate objects and working-tree diffs of this real checkout; writes only unreferenced objects and a throwaway clone"
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
