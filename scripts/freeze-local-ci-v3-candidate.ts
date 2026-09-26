@@ -27,10 +27,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // release -- see repo-template#340 comment 5663732372). Rebinding publication
 // (#341) and the two canaries (model-gateway#991, repo-factory#187) to this
 // repaired identity is explicitly out of scope for this chunk.
-export const FROZEN_CANDIDATE_COMMIT = "88591ee869bb109ef481171aa817d1ed204a970e";
-export const FROZEN_CANDIDATE_TREE = "995ea497114b2eba0b86cc3adb3666306829e0fb";
-export const FROZEN_SEMVER = "3.2.0";
-export const RECEIPT_ID = "receipt-issue-340-rt340repair1";
+export const FROZEN_CANDIDATE_COMMIT = "d2550c5b6de29e8207566e3bd318a4d7628b0917";
+export const FROZEN_CANDIDATE_TREE = "8febccb334704f23936581384efdf33e7b701e02";
+export const FROZEN_SEMVER = "3.3.2";
+export const RECEIPT_ID = "receipt-issue-340-recut442";
 const TREE_VERIFICATION_METHOD = "git rev-parse <commit>^{tree}";
 
 /**
@@ -62,7 +62,7 @@ const TREE_VERIFICATION_METHOD = "git rev-parse <commit>^{tree}";
  * must be re-bound. Never bump it to make a red gate go green.
  */
 export const FROZEN_VERIFICATION_EVIDENCE_DIGEST =
-  "4909577d95def2b0b5c8094f0eead2f16d70c4a069ddd389b6322270dc5fa378";
+  "b6dd629d0fbe67645dcb393c3a4f3792e63244852f47588a60b428d532ab1ae8";
 
 // "corepack pnpm verify" (the complete repository gate) is deliberately NOT
 // one of these ledger-backed checks: this script's own --self-test/--check
