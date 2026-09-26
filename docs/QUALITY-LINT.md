@@ -51,9 +51,11 @@ node ./node_modules/@spencer-shadley/repo-quality/default-branch-guard.mjs insta
 node ./node_modules/@spencer-shadley/repo-quality/default-branch-guard.mjs check   # exit 1 on drift
 ```
 
-`install` writes `pre-commit` and `pre-merge-commit` into the path from `git rev-parse --git-path
-hooks` (so `core.hooksPath` is honored), upgrades an older guard version, and never overwrites a
-foreign hook: it reports it and exits 1. `check` reports each hook as `current`, `outdated`,
+`install` writes `pre-commit`, `pre-merge-commit`, and `prepare-commit-msg` into the path from
+`git rev-parse --git-path hooks` (so `core.hooksPath` is honored). `prepare-commit-msg` closes the
+cherry-pick/revert gap left by the other two hooks. An older guard is upgraded only when the entire
+hook exactly matches a previously generated guard body; a composed hook containing the guard marker
+is treated as foreign and is never overwritten. `check` reports each hook as `current`, `outdated`,
 `missing` or `foreign`. Pin `@spencer-shadley/repo-quality` at or after 1.12.0.
 
 ## Knip (required for TypeScript/JavaScript repos)

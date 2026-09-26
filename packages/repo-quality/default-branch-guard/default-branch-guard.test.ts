@@ -63,7 +63,10 @@ void test("the rendered hook carries a version marker and names the worktree exi
   assert.match(hook, /^#!\/bin\/sh\n/);
   assert.match(hook, new RegExp(String.raw`repo-quality default-branch-guard v${String(DEFAULT_BRANCH_GUARD_VERSION)}\b`));
   assert.match(hook, /git worktree add/);
-  assert.deepEqual([...DEFAULT_BRANCH_GUARD_HOOKS], ["pre-commit", "pre-merge-commit"]);
+  assert.deepEqual(
+    [...DEFAULT_BRANCH_GUARD_HOOKS],
+    ["pre-commit", "pre-merge-commit", "prepare-commit-msg"],
+  );
 });
 
 void test("an installed checkout refuses a default-branch commit and names the worktree exit", () => {
@@ -75,6 +78,35 @@ void test("an installed checkout refuses a default-branch commit and names the w
     assert.match(refused.out, /default-branch-guard: refusing to commit on 'master'/);
     assert.match(refused.out, /git worktree add/);
     assert.equal(mustGit(clone, env, ["rev-list", "--count", "HEAD"]).trim(), "1");
+  });
+});
+
+void test("cherry-pick cannot create a commit on the canonical default branch", () => {
+  withFixture(({ env, clone }) => {
+    installDefaultBranchGuard({ repoRoot: clone, env });
+    mustGit(clone, env, ["switch", "-c", "topic"]);
+    assert.equal(commitFile(clone, env, "topic.txt").status, 0);
+    const topicSha = mustGit(clone, env, ["rev-parse", "HEAD"]).trim();
+    mustGit(clone, env, ["switch", "master"]);
+    const before = mustGit(clone, env, ["rev-parse", "HEAD"]).trim();
+    const refused = git(clone, env, ["cherry-pick", topicSha]);
+    assert.notEqual(refused.status, 0);
+    assert.match(refused.out, /default-branch-guard: refusing to commit on 'master'/);
+    assert.equal(mustGit(clone, env, ["rev-parse", "HEAD"]).trim(), before);
+    git(clone, env, ["cherry-pick", "--abort"]);
+  });
+});
+
+void test("revert cannot create a commit on the canonical default branch", () => {
+  withFixture(({ env, clone }) => {
+    assert.equal(commitFile(clone, env, "victim.txt").status, 0);
+    installDefaultBranchGuard({ repoRoot: clone, env });
+    const before = mustGit(clone, env, ["rev-parse", "HEAD"]).trim();
+    const refused = git(clone, env, ["revert", "--no-edit", "HEAD"]);
+    assert.notEqual(refused.status, 0);
+    assert.match(refused.out, /default-branch-guard: refusing to commit on 'master'/);
+    assert.equal(mustGit(clone, env, ["rev-parse", "HEAD"]).trim(), before);
+    git(clone, env, ["revert", "--abort"]);
   });
 });
 
@@ -116,12 +148,12 @@ void test("inspect reports current, outdated, missing and foreign hooks so drift
   withFixture(({ env, clone }) => {
     const before = inspectDefaultBranchGuard({ repoRoot: clone, env });
     assert.equal(before.ok, false);
-    assert.deepEqual(before.hooks.map((hook) => hook.state), ["missing", "missing"]);
+    assert.deepEqual(before.hooks.map((hook) => hook.state), ["missing", "missing", "missing"]);
 
     installDefaultBranchGuard({ repoRoot: clone, env });
     const current = inspectDefaultBranchGuard({ repoRoot: clone, env });
     assert.equal(current.ok, true);
-    assert.deepEqual(current.hooks.map((hook) => hook.state), ["current", "current"]);
+    assert.deepEqual(current.hooks.map((hook) => hook.state), ["current", "current", "current"]);
 
     const preCommit = path.join(current.hooksDir, "pre-commit");
     writeFileSync(
@@ -152,6 +184,23 @@ void test("install never overwrites a foreign hook", () => {
     assert.deepEqual(receipt.refused, ["pre-commit"]);
     assert.equal(readFileSync(path.join(hooksDir, "pre-commit"), "utf8"), foreign);
     assert.equal(inspectDefaultBranchGuard({ repoRoot: clone, env }).hooks[0]?.state, "foreign");
+  });
+});
+
+void test("install never overwrites a composed hook that contains the guard marker", () => {
+  withFixture(({ env, clone }) => {
+    const receipt = installDefaultBranchGuard({ repoRoot: clone, env });
+    assert.equal(receipt.ok, true, JSON.stringify(receipt));
+    const hooksDir = receipt.hooksDir;
+    const preCommit = path.join(hooksDir, "pre-commit");
+    const composed = `${readFileSync(preCommit, "utf8")}\necho foreign-tail\n`;
+    writeFileSync(preCommit, composed, "utf8");
+    const inspection = inspectDefaultBranchGuard({ repoRoot: clone, env });
+    assert.equal(inspection.hooks[0]?.state, "foreign");
+    const reinstall = installDefaultBranchGuard({ repoRoot: clone, env });
+    assert.equal(reinstall.ok, false);
+    assert.deepEqual(reinstall.refused, ["pre-commit"]);
+    assert.equal(readFileSync(preCommit, "utf8"), composed);
   });
 });
 

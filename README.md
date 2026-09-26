@@ -12,6 +12,8 @@ audit, the autonomous loop) rely on these paths.
 | `CLAUDE.md` | thin pointer at AGENTS.md (single source of truth) |
 | `docs/adr/` | Architecture Decision Records — decide-once, audit-forever |
 | `docs/MIGRATION.md` | overlay playbook for adopting template updates in existing repos |
+| `docs/QUALITY-LINT.md` | required repo-quality bootstrap, including install/check of the versioned default-branch commit guard |
+| `packages/repo-quality/default-branch-guard/` | portable guard implementation used by the package export; adoption installs it into Git hooks |
 | `docs/QUEUE-ENROLLMENT.md` | how this repo joins the autonomous flywheel — enrollment is the default, opt-out needs an ADR |
 | `docs/INCIDENTS.md` | curated post-mortems (majors only) |
 | `docs/RUNBOOK.md` | recovery recipes specific to this repo |
