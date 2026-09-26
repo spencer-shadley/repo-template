@@ -28,6 +28,46 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const FROZEN_CANDIDATE_COMMIT = "88591ee869bb109ef481171aa817d1ed204a970e";
 export const FROZEN_CANDIDATE_TREE = "995ea497114b2eba0b86cc3adb3666306829e0fb";
 export const FROZEN_SEMVER = "3.2.0";
+/**
+ * Snapshot of the canonical V3 paths the published candidate attests. Frozen
+ * here (not imported from CANONICAL_V3_PATHS) so the freeze script can re-cut
+ * a later candidate -- moving its commit and path list -- without moving this
+ * published attestation. Every read below passes FROZEN_CANDIDATE_COMMIT from
+ * THIS module, never the freeze script's constant.
+ */
+export const PUBLISHED_CANONICAL_V3_PATHS: readonly string[] = [
+  "contracts/local-ci/v3/local-ci-contract-v3.schema.json",
+  "contracts/local-ci/v3/local-ci-outcome-v1.schema.json",
+  "packages/adoption-shell/src/local-ci-contract-v3.ts",
+  "packages/adoption-shell/src/local-ci-outcome-v1.ts",
+  "artifacts/adoption-shell-v2/local-ci-contract-v3.js",
+  "artifacts/adoption-shell-v2/local-ci-contract-v3.d.ts",
+  "artifacts/adoption-shell-v2/local-ci-outcome-v1.js",
+  "artifacts/adoption-shell-v2/local-ci-outcome-v1.d.ts",
+  "contracts/local-ci/v3/fixtures/invalid-detection-proof-conflict.json",
+  "contracts/local-ci/v3/fixtures/invalid-detection-proof-empty-exempt.json",
+  "contracts/local-ci/v3/fixtures/invalid-duplicate-command-id.json",
+  "contracts/local-ci/v3/fixtures/invalid-extra-effect.json",
+  "contracts/local-ci/v3/fixtures/invalid-incomplete-env.json",
+  "contracts/local-ci/v3/fixtures/invalid-malformed.json",
+  "contracts/local-ci/v3/fixtures/invalid-missing-detection-proof.json",
+  "contracts/local-ci/v3/fixtures/invalid-missing-field.json",
+  "contracts/local-ci/v3/fixtures/invalid-no-authoritative-gate.json",
+  "contracts/local-ci/v3/fixtures/invalid-unsupported-version.json",
+  "contracts/local-ci/v3/fixtures/legacy-local-ci-v2.json",
+  "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json",
+  "scripts/proof-of-detection/run-meta-gate.ts",
+  "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts",
+  "scripts/proof-of-detection/reference-detectors/fixtures/dark-hex.css",
+  "scripts/proof-of-detection/reference-detectors/fixtures/dark-rgb.css",
+  "scripts/proof-of-detection/reference-detectors/fixtures/light.css",
+  ".runtime-artifact-registry.json",
+  ".runtime-artifact-registry.schema.json",
+  "scripts/check-runtime-artifact-registry.ts",
+  "local-ci.json",
+  "docs/adr/0009-local-ci-contract-v3-proof-of-detection.md",
+  "docs/MIGRATION.md",
+];
 export const PUBLICATION_SEMVER = "3.3.0";
 export const PUBLICATION_TAG = `v${PUBLICATION_SEMVER}`;
 export const RECEIPT_ID = "receipt-issue-341-mu15pl0x";
@@ -311,10 +351,10 @@ export interface PostPublicationReadbackReceipt {
 export function buildPublishedReleaseReceipt(
   identity: PublicationIdentity,
 ): TemplateReleaseReceipt {
-  const payloadSet = loadFrozenPayloadSet();
-  const capabilityRegistry = loadFrozenCapabilityRegistry();
-  const artifactManifest = loadFrozenArtifactManifest();
-  verifyFrozenPayloadSetReproducible(payloadSet);
+  const payloadSet = loadFrozenPayloadSet(FROZEN_CANDIDATE_COMMIT);
+  const capabilityRegistry = loadFrozenCapabilityRegistry(FROZEN_CANDIDATE_COMMIT);
+  const artifactManifest = loadFrozenArtifactManifest(FROZEN_CANDIDATE_COMMIT);
+  verifyFrozenPayloadSetReproducible(payloadSet, FROZEN_CANDIDATE_COMMIT);
 
   // Nested releaseEvidence is omitted: its review.subject is const
   // "producer-commit" and canary URLs are constrained to issue comments, but
@@ -570,11 +610,11 @@ export function compareCanonicalDigests(
 }
 
 export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackReceipt {
-  const payloadSet = loadFrozenPayloadSet();
-  const capabilityRegistry = loadFrozenCapabilityRegistry();
-  const artifactManifest = loadFrozenArtifactManifest();
-  verifyFrozenPayloadSetReproducible(payloadSet);
-  const canonicalDigests = computeCanonicalDigests();
+  const payloadSet = loadFrozenPayloadSet(FROZEN_CANDIDATE_COMMIT);
+  const capabilityRegistry = loadFrozenCapabilityRegistry(FROZEN_CANDIDATE_COMMIT);
+  const artifactManifest = loadFrozenArtifactManifest(FROZEN_CANDIDATE_COMMIT);
+  verifyFrozenPayloadSetReproducible(payloadSet, FROZEN_CANDIDATE_COMMIT);
+  const canonicalDigests = computeCanonicalDigests(FROZEN_CANDIDATE_COMMIT, PUBLISHED_CANONICAL_V3_PATHS);
 
   const prePubPath = path.join(root, "contracts", "local-ci", "v3", "pre-publication-receipt.json");
   if (!fs.existsSync(prePubPath)) {

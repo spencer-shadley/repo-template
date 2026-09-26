@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -17,6 +18,7 @@ import {
   FROZEN_CANDIDATE_TREE,
   FROZEN_SEMVER,
   PUBLICATION_SEMVER,
+  PUBLISHED_CANONICAL_V3_PATHS,
   PUBLICATION_TAG,
   RECEIPT_ID,
   FIRST_CANARY_RECEIPT_DIGEST,
@@ -198,11 +200,11 @@ void test("readback receipt deterministically matches recomputed bytes and diges
 });
 
 void test("all canonical V3 artifacts on disk match their recorded digests in readback receipt", () => {
-  const digests = computeCanonicalDigests();
+  const digests = computeCanonicalDigests(FROZEN_CANDIDATE_COMMIT, PUBLISHED_CANONICAL_V3_PATHS);
   const receipt = loadReadbackReceipt("contracts/local-ci/v3/post-publication-readback-receipt.json");
 
   for (const [filePath, expectedDigest] of Object.entries(receipt.canonicalDigests)) {
-    const actualDigest = digests[filePath] ?? sha256File(filePath);
+    const actualDigest = digests[filePath] ?? sha256File(filePath, FROZEN_CANDIDATE_COMMIT);
     assert.equal(
       actualDigest,
       expectedDigest,
@@ -587,3 +589,38 @@ void test("compareCanonicalDigests enforces exact agreement and fails on drift",
   assert.equal(compareCanonicalDigests({}, {}), false);
 });
 
+
+void test("publication readback stays pinned to the published candidate when the freeze candidate moves", () => {
+  // The published v3.3.0 attestation must verify against its own immutable
+  // candidate, not follow FROZEN_CANDIDATE_COMMIT in the freeze script (which
+  // moves on every receipt-only re-cut). Move the freeze constant in a scratch
+  // worktree and prove `--check` still passes.
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "rt-publish-pin-"));
+  const worktree = path.join(scratch, "wt");
+  execFileSync("git", ["worktree", "add", "--detach", worktree, "HEAD"], { cwd: root, stdio: "ignore" });
+  try {
+    for (const relativePath of [
+      "scripts/freeze-local-ci-v3-candidate.ts",
+      "scripts/publish-local-ci-v3-release.ts",
+    ]) {
+      fs.copyFileSync(path.join(root, relativePath), path.join(worktree, relativePath));
+    }
+    fs.symlinkSync(path.join(root, "node_modules"), path.join(worktree, "node_modules"), "dir");
+    const freezePath = path.join(worktree, "scripts", "freeze-local-ci-v3-candidate.ts");
+    const movedCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+    const movedTree = execFileSync("git", ["rev-parse", "HEAD^{tree}"], { cwd: root, encoding: "utf8" }).trim();
+    const source = fs.readFileSync(freezePath, "utf8");
+    const moved = source
+      .replace(/export const FROZEN_CANDIDATE_COMMIT = "[0-9a-f]{40}";/, `export const FROZEN_CANDIDATE_COMMIT = "${movedCommit}";`)
+      .replace(/export const FROZEN_CANDIDATE_TREE = "[0-9a-f]{40}";/, `export const FROZEN_CANDIDATE_TREE = "${movedTree}";`);
+    assert.notEqual(moved, source, "freeze candidate constants were not found to move");
+    fs.writeFileSync(freezePath, moved);
+    execFileSync(process.execPath, ["scripts/publish-local-ci-v3-release.ts", "--check"], {
+      cwd: worktree,
+      stdio: "pipe",
+    });
+  } finally {
+    execFileSync("git", ["worktree", "remove", "--force", worktree], { cwd: root, stdio: "ignore" });
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
+});
