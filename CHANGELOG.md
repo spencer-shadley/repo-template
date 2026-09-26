@@ -20,6 +20,7 @@ one entry per user-visible or structural change.
 - **Tip-green: retarget live `discoverPublicContracts` pin to repo-quality 1.10.1:** the public-contract discovery test now matches the published kit identity. PATCH.
 
 ### Added
+- **`@spencer-shadley/repo-quality` 1.11.0 `hermetic/no-unscoped-git-spawn` + `hermeticTestRules()` (repo-template#431):** new `./hermetic-test-preload/lint` export with a parser-aware rule that flags test code spawning Git (`spawn`/`spawnSync`/`execFile`/`execFileSync`, or `exec`/`execSync` with a `git ...` command) unless its `env` comes from the hermetic-test helper, or the file declares `// @hermetic-boundary reason="..."`. Opt-in via `...hermeticTestRules()`; not yet in the default `qualityRules()` (item 3). MINOR.
 - **`@spencer-shadley/repo-quality` 1.10.0 hermetic-test preload (code#6081):** publish `hermetic-test-preload` (+ `.mjs` launcher) so every consumer can `--import` a scrubbed git/HOME/XDG environment. PATCH. Tracks code#6081.
 
 - **Tip-green: sync fleet-law projection after Code #6120 (code#4141 F1):** Refresh `scripts/generated/fleet-law-projection.v1.json` to Code digest `sha256:2892b823…` (adds `local-required` + fleet host-id labels). Harden `check-fleet-law-sync` Code-source discovery for cloud/session worktrees outside the monorepo overlay. PATCH. Advances spencer-shadley/code#4141 F1 no-drift.
