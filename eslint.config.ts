@@ -46,6 +46,23 @@ export default [
       "unicorn/no-exports-in-scripts": "off",
     },
   },
+  // repo-template#435: `process.env.X` is TS4111 under noPropertyAccessFromIndexSignature and
+  // turned master typecheck red (#434). Refuse it at lint time too, so a land that skips
+  // typecheck still fails. Use `process.env["X"]`.
+  {
+    files: ["scripts/**/*.{js,mjs,cjs,ts}", "tools/**/*.{js,mjs,cjs,ts}"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "MemberExpression[computed=false][object.type='MemberExpression'][object.computed=false][object.object.name='process'][object.property.name='env']",
+          message:
+            'Use process.env["NAME"] instead of process.env.NAME (TS4111 under noPropertyAccessFromIndexSignature; repo-template#435).',
+        },
+      ],
+    },
+  },
   // Comprehensive schema/contract validators and fixture generators
   {
     files: ["packages/adoption-shell/src/**/*.ts", "tools/**/*.ts"],
