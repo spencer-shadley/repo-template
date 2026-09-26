@@ -2,29 +2,13 @@ import {} from "./contract.js";
 import { canonicalizeJson } from "./canonical-json.js";
 import { sha256Bytes } from "./digest.js";
 import { classifyAndMigrateLegacyLocalCiV1, validateLocalCiContractV2, } from "./local-ci-contract-v2.js";
+import { COMMAND_ID_PATTERN, FAILURE_DISPOSITIONS, LEG_ID_PATTERN, LOCAL_CI_CONTRACT_V3_FLEET_OVERLAY_FIELDS, SHELLS, stringArray, validateFleetOverlayV3, } from "./local-ci-contract-v3-overlay.js";
 import { Diagnostics, escapePointer, isRecord } from "./validation-helpers.js";
 export const LOCAL_CI_CONTRACT_V3_ID = "repo-template/local-ci-v3";
 export const LOCAL_CI_CONTRACT_V3_SCHEMA_VERSION = "3.0.0";
 export const LOCAL_CI_CONTRACT_V3_SCHEMA_ID = "https://schemas.repo-template.dev/local-ci-v3/local-ci-contract-v3.schema.json";
-const SHELLS = new Set(["pwsh", "cmd", "bash", "sh", "none"]);
-const FAILURE_DISPOSITIONS = new Set(["fail-gate", "warning", "non-routable"]);
 const NETWORK_EXPECTATIONS = new Set(["offline-only", "local-loopback", "outbound-allowed"]);
 const PLATFORM_LEG_PLATFORMS = new Set(["linux", "win32", "darwin"]);
-const LEG_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
-const COMMAND_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
-function stringArray(value, pointer, min, max, diagnostics) {
-    if (!diagnostics.array(value, pointer, min, max))
-        return;
-    const seen = new Set();
-    for (const [index, item] of value.entries()) {
-        if (!diagnostics.string(item, `${pointer}/${String(index)}`, { min: 1 }))
-            continue;
-        if (seen.has(item))
-            diagnostics.add("E_DUPLICATE", `${pointer}/${String(index)}`, `duplicate value: ${item}`);
-        else
-            seen.add(item);
-    }
-}
 function finish(value, diagnostics) {
     const sorted = diagnostics.sorted();
     return sorted.length === 0 && value !== undefined
@@ -269,7 +253,7 @@ export function evaluateRequiredPlatformLegsV3(contract, receipts = []) {
 export function validateLocalCiContractV3(value) {
     const diagnostics = new Diagnostics();
     const requiredFields = ["schemaId", "schemaVersion", "contractId", "repository", "canonicalBranch", "commands", "environment", "effects"];
-    const allowedFields = [...requiredFields, "requiredPlatformLegs"];
+    const allowedFields = [...requiredFields, "requiredPlatformLegs", ...LOCAL_CI_CONTRACT_V3_FLEET_OVERLAY_FIELDS];
     if (!diagnostics.object(value, "", allowedFields, requiredFields))
         return finish(undefined, diagnostics);
     diagnostics.string(value["schemaId"], "/schemaId", { constant: LOCAL_CI_CONTRACT_V3_SCHEMA_ID });
@@ -281,6 +265,7 @@ export function validateLocalCiContractV3(value) {
     validateEnvironmentV3(value["environment"], diagnostics);
     validateEffectsV3(value["effects"], diagnostics);
     validateRequiredPlatformLegsV3(value["requiredPlatformLegs"], value["commands"], diagnostics);
+    validateFleetOverlayV3(value, diagnostics);
     return finish(hasValidatedShape(value, diagnostics) ? value : undefined, diagnostics);
 }
 export function classifyAndMigrateLocalCiV2ToV3(rawInput, sourceBlob) {

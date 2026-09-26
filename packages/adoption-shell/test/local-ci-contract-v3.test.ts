@@ -78,6 +78,11 @@ void test("all negative V3 contract fixtures fail validation with stable reason 
     { fixture: "invalid-missing-detection-proof.json", expectedCode: "E_REQUIRED" },
     { fixture: "invalid-detection-proof-conflict.json", expectedCode: "E_DETECTION_PROOF_CONFLICT" },
     { fixture: "invalid-detection-proof-empty-exempt.json", expectedCode: "E_LENGTH" },
+    { fixture: "invalid-overlay-pr-broader-fallback-type.json", expectedCode: "E_TYPE" },
+    { fixture: "invalid-overlay-duplicate-full-required-leg.json", expectedCode: "E_DUPLICATE" },
+    { fixture: "invalid-overlay-simple-diff-reserved-class.json", expectedCode: "E_RESERVED" },
+    { fixture: "invalid-overlay-simple-diff-unknown-command-field.json", expectedCode: "E_UNKNOWN_PROPERTY" },
+    { fixture: "invalid-overlay-pr-receipt-incomplete.json", expectedCode: "E_REQUIRED" },
   ];
 
   for (const c of cases) {
@@ -225,4 +230,68 @@ void test("evaluateRequiredPlatformLegsV3: absent requiredPlatformLegs is vacuou
   const verdict = evaluateRequiredPlatformLegsV3(validated.value, []);
   assert.equal(verdict.ok, true);
   assert.equal(verdict.requiredCount, 0);
+});
+
+void test("fleet overlay: real fleet local-ci.json overlay fields pass schema and runtime validation", () => {
+  const overlay = readV3Fixture("valid-local-ci-v3-fleet-overlay.json");
+  assert.equal(validateSchema(overlay), true, JSON.stringify(validateSchema.errors));
+  const result = validateLocalCiContractV3(overlay);
+  assert.equal(result.ok, true, result.ok ? "" : JSON.stringify(result.diagnostics));
+  assert.equal(result.value.prMergeProfileId, "merge");
+  assert.deepEqual(result.value.fullRequiredLegIds, ["default"]);
+  assert.equal(result.value.simpleDiff?.["docs"]?.requiresDependencies, false);
+});
+
+void test("fleet overlay: repository local-ci.json validates strictly", () => {
+  const localCi: unknown = JSON.parse(fs.readFileSync(path.join(root, "local-ci.json"), "utf8"));
+  const result = validateLocalCiContractV3(localCi);
+  assert.equal(result.ok, true, result.ok ? "" : JSON.stringify(result.diagnostics));
+});
+
+void test("fleet overlay: arbitrary unknown top-level properties are still rejected", () => {
+  const overlay = readV3Fixture("valid-local-ci-v3-fleet-overlay.json") as Record<string, unknown>;
+  const result = validateLocalCiContractV3({ ...overlay, prSomethingElse: true });
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((d) => d.code === "E_UNKNOWN_PROPERTY" && d.pointer === "/prSomethingElse"));
+});
+
+void test("fleet overlay: malformed values are rejected with stable codes", () => {
+  const overlay = readV3Fixture("valid-local-ci-v3-fleet-overlay.json") as Record<string, unknown>;
+  const cases: { patch: Record<string, unknown>; code: string; pointer: string }[] = [
+    { patch: { prMergeProfileId: "" }, code: "E_LENGTH", pointer: "/prMergeProfileId" },
+    { patch: { prMergeProfileId: "has space" }, code: "E_FORMAT", pointer: "/prMergeProfileId" },
+    { patch: { prMergeProfileId: 7 }, code: "E_TYPE", pointer: "/prMergeProfileId" },
+    { patch: { prReceiptBindsBase: "true" }, code: "E_TYPE", pointer: "/prReceiptBindsBase" },
+    { patch: { prReceipt: { bindsCandidate: true, bindsBase: 1, bindsIntegration: true } }, code: "E_TYPE", pointer: "/prReceipt/bindsBase" },
+    { patch: { prReceipt: { bindsCandidate: true, bindsBase: true, bindsIntegration: true, extra: true } }, code: "E_UNKNOWN_PROPERTY", pointer: "/prReceipt/extra" },
+    { patch: { fullRequiredLegIds: [] }, code: "E_COUNT", pointer: "/fullRequiredLegIds" },
+    { patch: { fullRequiredLegIds: ["bad leg"] }, code: "E_FORMAT", pointer: "/fullRequiredLegIds/0" },
+    { patch: { fullRequiredLegIds: "default" }, code: "E_TYPE", pointer: "/fullRequiredLegIds" },
+    { patch: { simpleDiff: {} }, code: "E_LENGTH", pointer: "/simpleDiff" },
+    { patch: { simpleDiff: [] }, code: "E_TYPE", pointer: "/simpleDiff" },
+    { patch: { simpleDiff: { docs: { paths: [], commands: { a: { executable: "x", args: [] } } } } }, code: "E_COUNT", pointer: "/simpleDiff/docs/paths" },
+    { patch: { simpleDiff: { docs: { paths: ["*.md"], commands: {} } } }, code: "E_LENGTH", pointer: "/simpleDiff/docs/commands" },
+    { patch: { simpleDiff: { docs: { paths: ["*.md"], commands: { a: { args: [] } } } } }, code: "E_REQUIRED", pointer: "/simpleDiff/docs/commands/a/executable" },
+    { patch: { simpleDiff: { docs: { paths: ["*.md"], requiresDependencies: "no", commands: { a: { executable: "x", args: [] } } } } }, code: "E_TYPE", pointer: "/simpleDiff/docs/requiresDependencies" },
+    { patch: { simpleDiff: { docs: { paths: ["*.md"], commands: { a: { executable: "x", args: [], failureDisposition: "ignore" } } } } }, code: "E_ENUM", pointer: "/simpleDiff/docs/commands/a/failureDisposition" },
+    { patch: { simpleDiff: { docs: { paths: ["*.md"], commands: { a: { executable: "x", args: [], timeoutSeconds: 0 } } } } }, code: "E_TYPE", pointer: "/simpleDiff/docs/commands/a/timeoutSeconds" },
+    { patch: { simpleDiff: { " docs": { paths: ["*.md"], commands: { a: { executable: "x", args: [] } } } } }, code: "E_FORMAT", pointer: "/simpleDiff/ docs" },
+  ];
+  for (const c of cases) {
+    const value = { ...overlay, ...c.patch };
+    const result = validateLocalCiContractV3(value);
+    assert.equal(result.ok, false, JSON.stringify(c.patch));
+    assert.ok(
+      result.diagnostics.some((d) => d.code === c.code && d.pointer === c.pointer),
+      `${JSON.stringify(c.patch)} => ${JSON.stringify(result.diagnostics)}`,
+    );
+    assert.equal(validateSchema(value), false, `schema must also reject ${JSON.stringify(c.patch)}`);
+  }
+});
+
+void test("fleet overlay: flat prReceipt* flags that disagree with prReceipt fail closed", () => {
+  const overlay = readV3Fixture("valid-local-ci-v3-fleet-overlay.json") as Record<string, unknown>;
+  const result = validateLocalCiContractV3({ ...overlay, prReceiptBindsIntegration: false });
+  assert.equal(result.ok, false);
+  assert.ok(result.diagnostics.some((d) => d.code === "E_PR_RECEIPT_CONFLICT" && d.pointer === "/prReceipt/bindsIntegration"));
 });

@@ -173,6 +173,11 @@ export type {
   LocalCiShellV3,
   OrderedLocalCiCommandV3,
 } from "./local-ci-contract-v3.ts";
+export type {
+  LocalCiPrReceiptBindingV3,
+  LocalCiSimpleDiffClassV3,
+  LocalCiSimpleDiffCommandV3,
+} from "./local-ci-contract-v3-overlay.ts";
 export {
   isValidLocalCiV3CandidateReceiptV1,
   validateLocalCiV3CandidateReceiptV1,
