@@ -509,7 +509,7 @@ test("discoverPublicContracts discovers independent public contracts and tags de
 
   const repoQuality = contracts.find((c) => c.name === "@spencer-shadley/repo-quality");
   assert.ok(repoQuality);
-  assert.equal(repoQuality.version, "1.10.1");
+  assert.equal(repoQuality.version, "1.11.0");
   assert.equal(repoQuality.isDerived, undefined);
 });
 

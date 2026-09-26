@@ -414,6 +414,8 @@
   "packages/repo-quality/hermetic-test-preload.mjs": "self",
   "packages/repo-quality/hermetic-test-preload/env.ts": "self",
   "packages/repo-quality/hermetic-test-preload/index.ts": "self",
+  "packages/repo-quality/hermetic-test-preload/lint.ts": "self",
   "packages/repo-quality/hermetic-test-preload/preload.ts": "self",
-  "packages/repo-quality/hermetic-test-preload/hermetic-test-preload.test.ts": "self"
+  "packages/repo-quality/hermetic-test-preload/hermetic-test-preload.test.ts": "self",
+  "packages/repo-quality/hermetic-test-preload/no-unscoped-git-spawn.test.ts": "self"
 }
