@@ -18,14 +18,15 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const localProjectionPath = path.join(root, "scripts", "generated", "fleet-law-projection.v1.json");
 
 const candidateCodeSourcePaths = [
+  // An explicitly selected Code checkout is authoritative for this sync invocation.
+  ...(process.env["CODE_REPO_ROOT"]
+    ? [path.resolve(process.env["CODE_REPO_ROOT"], "tools/work-spine/fleet-law-projection.v1.json")]
+    : []),
   path.resolve(root, "../../../tools/work-spine/fleet-law-projection.v1.json"),
   path.resolve(root, "../../tools/work-spine/fleet-law-projection.v1.json"),
   "C:/code/tools/work-spine/fleet-law-projection.v1.json",
   // Cursor Cloud / AO session worktrees often sit outside the monorepo overlay.
   path.resolve("/workspace/tools/work-spine/fleet-law-projection.v1.json"),
-  ...(process.env["CODE_REPO_ROOT"]
-    ? [path.resolve(process.env["CODE_REPO_ROOT"], "tools/work-spine/fleet-law-projection.v1.json")]
-    : []),
 ];
 
 export function findCodeSourcePath(): string | undefined {

@@ -1,10 +1,25 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 1,
-  "sourceCommit": "07a846a0c7860feafe0df27fa6f503996c5d97dd",
+  "sourceCommit": "c309cc006329a410055d9b0a2e46ec4a4daf423d",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 17,
-  "currentTriageLabel": "triaged:v17",
+  "governedIntakeRevision": 20,
+  "currentTriageLabel": "triaged:v20",
+  "governedIntakeProducer": {
+    "schema": "GovernedIntakeCurrentReleasePinV1",
+    "producer": {
+      "repository": "spencer-shadley/.github",
+      "defaultBranch": "main",
+      "releaseCommit": "1d81cda670cc76673c91a1119b7ba3e802458d9e",
+      "producerCommit": "cdd254ff7ee05e0148da22ede5bd8deab1e9b484",
+      "sourcePath": "contracts/governed-intake-body.v1.json",
+      "sourceBlobSha": "0900894819320c2283fa649361f0e8961143351f",
+      "releaseManifestPath": "contracts/generated/governed-intake/manifest.json",
+      "releaseManifestBlobSha": "f9261addf23b8c3c5c50822bed26bed4d9525582"
+    },
+    "revision": 20,
+    "payloadDigest": "sha256:e8a19cac85303dcca2688e24888a21828df3e5cd5f918b28ac2d5baa30af9431"
+  },
   "bannedLabels": [
     "work:triaged",
     "tier:human",
@@ -463,6 +478,21 @@
       "color": "0E8A16"
     },
     {
+      "name": "triaged:v18",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 18; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v19",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 19; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "triaged:v20",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 20; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
       "name": "triaged:v3",
       "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 3; strip on re-triage.",
       "color": "0E8A16"
@@ -528,5 +558,5 @@
       "color": "BFDADC"
     }
   ],
-  "contentDigest": "sha256:e5af1a6d7fb63e47bdaa6dd1f66345a408a29de56c6c9b90e5603390bd101e56"
+  "contentDigest": "sha256:b824847ca531dddad216b375990fde20c2cea433a25cb9ef122f8a2b759282ff"
 }
