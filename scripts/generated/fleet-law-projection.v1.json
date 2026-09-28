@@ -1,24 +1,24 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 1,
-  "sourceCommit": "c309cc006329a410055d9b0a2e46ec4a4daf423d",
+  "sourceCommit": "1057f42bb39591d9940d266c6b57ded0f32e5c94",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 20,
-  "currentTriageLabel": "triaged:v20",
+  "governedIntakeRevision": 21,
+  "currentTriageLabel": "triaged:v21",
   "governedIntakeProducer": {
     "schema": "GovernedIntakeCurrentReleasePinV1",
     "producer": {
       "repository": "spencer-shadley/.github",
       "defaultBranch": "main",
-      "releaseCommit": "1d81cda670cc76673c91a1119b7ba3e802458d9e",
-      "producerCommit": "cdd254ff7ee05e0148da22ede5bd8deab1e9b484",
+      "releaseCommit": "74286b893ba828f777b14ef4c17293a656095443",
+      "producerCommit": "20e9c344b479832b2c5130c44c78fb149613e7df",
       "sourcePath": "contracts/governed-intake-body.v1.json",
-      "sourceBlobSha": "0900894819320c2283fa649361f0e8961143351f",
+      "sourceBlobSha": "c9b702b74b25a76060b7ac6193f39bd01ab50873",
       "releaseManifestPath": "contracts/generated/governed-intake/manifest.json",
-      "releaseManifestBlobSha": "f9261addf23b8c3c5c50822bed26bed4d9525582"
+      "releaseManifestBlobSha": "813616105ee34e0c1c0e640a30472ed3a4edf03e"
     },
-    "revision": 20,
-    "payloadDigest": "sha256:e8a19cac85303dcca2688e24888a21828df3e5cd5f918b28ac2d5baa30af9431"
+    "revision": 21,
+    "payloadDigest": "sha256:53d7cd2129d98710446a8b54b51429de246666042bc9ffb6afc036a378e7bafd"
   },
   "bannedLabels": [
     "work:triaged",
@@ -493,6 +493,11 @@
       "color": "0E8A16"
     },
     {
+      "name": "triaged:v21",
+      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 21; strip on re-triage.",
+      "color": "0E8A16"
+    },
+    {
       "name": "triaged:v3",
       "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 3; strip on re-triage.",
       "color": "0E8A16"
@@ -558,5 +563,5 @@
       "color": "BFDADC"
     }
   ],
-  "contentDigest": "sha256:b824847ca531dddad216b375990fde20c2cea433a25cb9ef122f8a2b759282ff"
+  "contentDigest": "sha256:99cf12b31c6140d680e0c3c0916089e7a7aae489bc1ea668423b8e38d7309c0b"
 }
