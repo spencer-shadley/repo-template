@@ -1,0 +1,39 @@
+{
+  "packageVersion": "1.12.0",
+  "typeExports": [
+    "DEFAULT_FLEET_GLOBALS",
+    "DEFAULT_FLEET_IGNORES",
+    "ESLINT_INLINE_CONFIG_PATTERN",
+    "ISSUE_TRACKING_PATTERN",
+    "JS_FILE_PATTERN",
+    "KNIP_CONFIG",
+    "knipConfig",
+    "noEslintInlineConfigRule",
+    "preferTypeScriptRule",
+    "QUALITY_LINT_GATE_ID",
+    "QUALITY_LINT_GATE_VERSION",
+    "qualityRules",
+    "RuleTester",
+    "STACK_WAIVER_PATTERN",
+    "typescriptEslint"
+  ],
+  "subpathExports": [
+    ".",
+    "./default-branch-guard",
+    "./default-branch-guard.mjs",
+    "./docs-only-gate",
+    "./docs-only-gate.mjs",
+    "./hermetic-test-preload",
+    "./hermetic-test-preload.mjs",
+    "./hermetic-test-preload/lint",
+    "./hermetic-test-preload/preload",
+    "./jscpd.json",
+    "./jscpd.mjs",
+    "./knip.json",
+    "./knip.mjs",
+    "./quality-lint-simple-diff.json",
+    "./secret-scan.mjs",
+    "./todo-issue-link",
+    "./todo-issue-link.mjs"
+  ]
+}
