@@ -12,10 +12,17 @@
 import {
   preferTypeScriptRule,
   noEslintInlineConfigRule,
-  fleetPlugin,
   RuleTester,
   typescriptEslint,
 } from "@spencer-shadley/repo-quality";
+
+// fleetPlugin is module-private (exposed only through qualityRules()); register the two rules under test directly.
+const fleetPlugin = {
+  rules: {
+    "prefer-typescript": preferTypeScriptRule,
+    "no-eslint-inline-config": noEslintInlineConfigRule,
+  },
+};
 
 const tester = new RuleTester({
   plugins: {

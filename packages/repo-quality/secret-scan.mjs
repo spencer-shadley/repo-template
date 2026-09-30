@@ -2,7 +2,7 @@
 // @generated from secret-scan.ts. DO NOT EDIT.
 // @stack-waiver id=repo-quality-generated-js reason="Published npm entrypoint is generated JavaScript consumed directly by Node."
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
 // The fleet gate blocks on provider-shaped, high-confidence credentials. Betterleaks' broad
 // low/medium heuristics are useful interactively, but repeatedly classified fixtures, placeholders,
@@ -39,16 +39,35 @@ if (!betterleaksPath) {
 const isWindowsCommandShim = process.platform === "win32" && betterleaksPath.endsWith(".cmd");
 function supportsConfidenceFlag(binaryPath, isWindowsShim) {
     try {
+        // Same cmd.exe quoting as the scan below: /s strips one outer quote pair, and verbatim arguments stop Node
+        // escaping the inner quotes. Without both, the probe never ran on .cmd shims and always reported "unsupported".
         const probe = spawnSync(isWindowsShim
             ? process.env["ComSpec"] ?? join(process.env["SystemROOT"] ?? join(process.env["SystemDRIVE"] ?? "C:", "Windows"), "System32", "cmd.exe")
-            : binaryPath, isWindowsShim ? ["/d", "/s", "/c", `"${binaryPath}" dir --help`] : ["dir", "--help"], { encoding: "utf8", windowsHide: true });
+            : binaryPath, isWindowsShim ? ["/d", "/s", "/c", `""${binaryPath}" dir --help"`] : ["dir", "--help"], { encoding: "utf8", windowsHide: true, windowsVerbatimArguments: isWindowsShim });
         return typeof probe.stdout === "string" && probe.stdout.includes("--confidence");
     }
     catch {
         return false;
     }
 }
-const confidenceArgs = supportsConfidenceFlag(betterleaksPath, isWindowsCommandShim) ? ["--confidence", "high"] : [];
+// The kit declares its host-tool minimums next to this code (package.json fleetRequirements). An older Betterleaks
+// without --confidence must fail loudly: scanning unfiltered silently re-enables the rules #302 removed (#463).
+function betterleaksRequirement() {
+    const manifest = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
+    const requirements = typeof manifest === "object" && manifest !== null ? Reflect.get(manifest, "fleetRequirements") : undefined;
+    const requirement = typeof requirements === "object" && requirements !== null ? Reflect.get(requirements, "betterleaks") : undefined;
+    if (typeof requirement !== "string" || requirement === "") {
+        throw new TypeError("@spencer-shadley/repo-quality package.json must declare fleetRequirements.betterleaks");
+    }
+    return requirement;
+}
+if (!supportsConfidenceFlag(betterleaksPath, isWindowsCommandShim)) {
+    const requirement = betterleaksRequirement();
+    console.error(`betterleaks at ${betterleaksPath} lacks --confidence; @spencer-shadley/repo-quality requires betterleaks ${requirement}. `
+        + `Bump the git-github-tooling Betterleaks pin to ${requirement}. Refusing to scan unfiltered (repo-template#463).`);
+    process.exit(3);
+}
+const confidenceArgs = ["--confidence", "high"];
 const commandArgs = {
     dir: ["dir", ".", ...confidenceArgs, "--redact"],
     staged: ["git", ".", "--pre-commit", "--staged", ...confidenceArgs, "--redact"],
