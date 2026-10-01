@@ -1,16 +1,7 @@
-# Security — secrets & leak playbook
+# Security
 
-1. **No secret is ever committed** — tokens, capability URLs (an ntfy topic IS a password), API
-   keys, `.env`. The template `.gitignore` seeds the common patterns; extend it for this repo's
-   shapes BEFORE the first secret exists. <!-- TODO(setup!): add repo-specific secret filename
-   patterns before any real secret is created. -->
-2. **Secrets live in**: gitignored local files (`.***-token`, `.notify.json`-style) or the
-   platform's secret store — never in code, config-committed, or logs. Verify-gate/log output must
-   not echo env (tails get pushed to branches and job logs).
-3. **Leak playbook** (evidence: a runner token was once committed plaintext — rotated same day):
-   ROTATE immediately (the old value is dead the moment it touched a commit, even if scrubbed) →
-   scrub the file (empty the value, keep the shape) → gitignore it → log the incident
-   (`.ops/incidents.jsonl`, kind:"other", plus severity) → check whether anything consumed the
-   leaked value.
-4. **Tools**: secret-scanning hooks/apps (gitleaks, GitGuardian) are advisory layers — the rule is
-   the design (secrets structurally outside the repo), not the scanner.
+The fleet security policy is the root [code SECURITY.md](https://github.com/spencer-shadley/code/blob/master/SECURITY.md): what counts as a secret, where secrets live, the leak playbook (rule 3, including when to rotate) and scanner enforcement. It applies here unchanged. This file adds only rules specific to this repo and never restates the root.
+
+## Repo-specific rules
+
+- Secret shapes: <!-- TODO(setup!): list this repo's secret filename patterns and extend `.gitignore` for them before the first real secret exists. -->
