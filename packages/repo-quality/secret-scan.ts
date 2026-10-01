@@ -85,11 +85,13 @@ if (!supportsConfidenceFlag(betterleaksPath, isWindowsCommandShim)) {
   process.exit(3);
 }
 
+// --verbose prints each finding's file, rule, line, and fingerprint (values stay masked by --redact). Without it a
+// red gate reports only a count, and nobody can triage or allowlist the findings (code#7235).
 const confidenceArgs = ["--confidence", "high"];
 const commandArgs: Record<SecretScanCommand, string[]> = {
-  dir: ["dir", ".", ...confidenceArgs, "--redact"],
-  staged: ["git", ".", "--pre-commit", "--staged", ...confidenceArgs, "--redact"],
-  history: ["git", ".", ...confidenceArgs, "--redact"],
+  dir: ["dir", ".", ...confidenceArgs, "--redact", "--verbose"],
+  staged: ["git", ".", "--pre-commit", "--staged", ...confidenceArgs, "--redact", "--verbose"],
+  history: ["git", ".", ...confidenceArgs, "--redact", "--verbose"],
 };
 
 const commandLine = `"${[betterleaksPath, ...commandArgs[command]]

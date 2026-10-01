@@ -93,7 +93,7 @@ void test("Betterleaks with --confidence scans with the high-confidence filter",
   try {
     const result = runScanWithFake(fake.dir);
     assert.equal(result.status, 0, result.stdout + result.stderr);
-    assert.match(result.stdout, /scanned .*--confidence.*high.*--redact/u);
+    assert.match(result.stdout, /scanned .*--confidence.*high.*--redact.*--verbose/u);
   } finally {
     rmSync(fake.dir, { recursive: true, force: true });
   }

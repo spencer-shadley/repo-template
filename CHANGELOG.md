@@ -7,6 +7,7 @@ one entry per user-visible or structural change.
 ## [Unreleased]
 
 ### Changed
+- **`secret-scan.mjs` names its findings (code#7235):** every `dir`/`staged`/`history` scan now passes `--verbose`, so a red gate prints each finding's file, rule, line and fingerprint. Values stay masked by `--redact`. Before this, the gate printed only `leaks found: N`, which left nothing to triage or allowlist. PATCH.
 - **`@spencer-shadley/repo-quality` declares its consumer contract (repo-template#463 P1/P2/P4):**
   - `secret-scan.mjs` now exits 3 with a named message (`betterleaks at <path> lacks --confidence; ... requires betterleaks >=1.8.0. Bump the git-github-tooling Betterleaks pin ...`) when Betterleaks lacks `--confidence`, instead of silently scanning unfiltered and bringing back the #302 noise.
   - Its Windows `.cmd` probe now uses the same verbatim cmd.exe quoting as the scan. Before this, the probe never ran on shims and always fell back to unfiltered.
