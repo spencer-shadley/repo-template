@@ -30,6 +30,11 @@ const candidateCodeSourcePaths = [
 ];
 
 export function findCodeSourcePath(): string | undefined {
+  if (process.env["CODE_REPO_ROOT"]) {
+    const explicit = candidateCodeSourcePaths[0];
+    if (!explicit || !existsSync(explicit)) throw new Error("explicit Code source projection missing");
+    return explicit;
+  }
   for (const candidate of candidateCodeSourcePaths) {
     if (existsSync(candidate)) return candidate;
   }
@@ -100,7 +105,9 @@ export function runCheckFleetLawSync(options: { check?: boolean; sync?: boolean 
     try {
       const rawCodeText = readFileSync(codeSource, "utf8");
       const parsedCode = JSON.parse(rawCodeText) as Record<string, unknown>;
-      if (parsedCode["contentDigest"] !== localProjection.contentDigest) {
+      const errors = verifyFleetLawProjection(parsedCode);
+      if (errors.length > 0) return { code: 1, output: errors };
+      if (parsedCode["contentDigest"] !== localProjection.contentDigest || parsedCode["sourceCommit"] !== localProjection.sourceCommit) {
         return {
           code: 1,
           output: [
@@ -111,8 +118,8 @@ export function runCheckFleetLawSync(options: { check?: boolean; sync?: boolean 
           ],
         };
       }
-    } catch {
-      // Offline fallback
+    } catch (error) {
+      return { code: 1, output: [`Code source verification failed: ${String(error)}`] };
     }
   }
 

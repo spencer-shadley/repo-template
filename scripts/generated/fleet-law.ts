@@ -11,7 +11,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const FLEET_LAW_SCHEMA = "FleetLawProjectionV1";
-export const FLEET_LAW_REVISION = 1;
+export const FLEET_LAW_REVISION = 2;
 
 export interface FleetLawLabelDefinition {
   name: string;
@@ -35,6 +35,17 @@ export interface FleetLawProjectionV1 {
   sourceFile: string;
   governedIntakeRevision: number;
   currentTriageLabel: string;
+  governedIntakeProducer: {
+    schema: string;
+    revision: number;
+    payloadDigest: string;
+    producer: { repository: string; defaultBranch: string; releaseCommit: string; producerCommit: string; sourcePath: string; sourceBlobSha: string; releaseManifestPath: string; releaseManifestBlobSha: string };
+  };
+  publication: { ready: boolean; reason: string; requiredProducerNamespace: string };
+  assessmentAuthority: { producerRevision: number; producerCommit: string; payloadDigest: string; priorityRequiredExactLabels: string[]; preparationCodeSourceCommit: string | null };
+  dimensions: Record<string, Record<string, unknown>>;
+  lifecycle: Record<string, unknown>;
+  bannedLabelPatterns: string[];
   bannedLabels: string[];
   initialLabels: {
     exact: string[];
@@ -160,47 +171,92 @@ export function computeFleetLawDigest(projection: Record<string, unknown>): stri
   return `sha256:${hash}`;
 }
 
-export function verifyFleetLawProjection(projection: unknown): string[] {
+function record(value: unknown): Record<string, unknown> {
+  return isRecord(value) ? value : {};
+}
+
+function verifyAuthority(projection: Record<string, unknown>): string[] {
   const errors: string[] = [];
-  if (!isRecord(projection)) {
-    errors.push("projection must be a non-null object");
-    return errors;
+  const publication = record(projection["publication"]);
+  const pin = record(projection["governedIntakeProducer"]);
+  const producer = record(pin["producer"]);
+  const assessment = record(projection["assessmentAuthority"]);
+  if (typeof publication["ready"] !== "boolean" || publication["requiredProducerNamespace"] !== "metadata:triage-v") errors.push("publication must declare readiness and metadata namespace");
+  if (pin["schema"] !== "GovernedIntakeCurrentReleasePinV1" || pin["revision"] !== projection["governedIntakeRevision"] || producer["repository"] !== "spencer-shadley/.github" || typeof pin["payloadDigest"] !== "string" || !/^sha256:[0-9a-f]{64}$/.test(pin["payloadDigest"])) errors.push("invalid producer pin");
+  if (assessment["producerRevision"] !== pin["revision"] || assessment["producerCommit"] !== producer["producerCommit"] || assessment["payloadDigest"] !== pin["payloadDigest"] || !Array.isArray(assessment["priorityRequiredExactLabels"])) errors.push("assessment authority must match producer");
+  if (publication["ready"] === true && !sameJson(assessment["priorityRequiredExactLabels"], [])) errors.push("activated taxonomy cannot retain preparation requirements");
+  return errors;
+}
+
+function verifyDimensions(projection: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  const dimensions = record(projection["dimensions"]);
+  for (const name of ["delivers", "type", "source", "effort", "priority:repo", "priority:fleet", "blocked", "environment", "progress", "decomp", "resolution", "metadata"]) {
+    errors.push(...verifyDimensionRule(name, record(dimensions[name])));
   }
-  if (projection["schema"] !== FLEET_LAW_SCHEMA) {
-    errors.push(`schema must be ${FLEET_LAW_SCHEMA}, got ${String(projection["schema"])}`);
-  }
-  if (typeof projection["revision"] !== "number" || projection["revision"] < 1) {
-    errors.push(`revision must be an integer >= 1, got ${String(projection["revision"])}`);
-  }
-  if (typeof projection["sourceCommit"] !== "string" || !/^[0-9a-f]{40}$/i.test(projection["sourceCommit"])) {
-    errors.push(`sourceCommit must be a 40-hex git SHA, got ${String(projection["sourceCommit"])}`);
-  }
-  if (typeof projection["contentDigest"] !== "string" || !/^sha256:[0-9a-f]{64}$/.test(projection["contentDigest"])) {
-    errors.push(`contentDigest must be a valid sha256:<64hex> string, got ${String(projection["contentDigest"])}`);
-  } else {
-    const expectedDigest = computeFleetLawDigest(projection);
-    if (projection["contentDigest"] !== expectedDigest) {
-      errors.push(`contentDigest mismatch: expected ${expectedDigest}, got ${projection["contentDigest"]}`);
+  const status = record(projection["status"]);
+  const progress = record(dimensions["progress"]);
+  if (!sameJson(status["labels"], progress["labels"])) errors.push("status must match progress dimension");
+  return errors;
+}
+
+function verifyDimensionRule(name: string, rule: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+    if (!Array.isArray(rule["labels"])) errors.push(`missing dimension ${name}`);
+    if (["delivers", "type", "source", "blocked", "environment"].includes(name) && rule["maximum"] !== null) errors.push(`${name} must permit multiple values`);
+    if (["type", "source", "effort", "priority:repo", "priority:fleet"].includes(name) && rule["minimumAfterTriage"] !== 1) errors.push(`${name} minimum after triage`);
+    if (["effort", "priority:repo", "priority:fleet"].includes(name) && rule["maximum"] !== 1) errors.push(`${name} must be exactly one`);
+    if (name === "progress" && (rule["minimum"] !== 1 || rule["maximum"] !== 1)) errors.push("progress must be exactly one");
+    if (name === "resolution" && (rule["minimumWhileOpen"] !== 0 || rule["maximumWhileOpen"] !== 0 || rule["minimumWhenResolved"] !== 1 || rule["maximum"] !== 1)) errors.push("resolution cardinality");
+  return errors;
+}
+
+function verifyLifecycle(projection: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  const lifecycle = record(projection["lifecycle"]);
+  const obsolete = record(lifecycle["obsolete"]);
+  if (obsolete["immediateBeforeImplementation"] !== true || obsolete["preserveLastActualProgress"] !== true || obsolete["descriptiveTypesAuthorizeClosure"] !== false || !sameJson(obsolete["requires"], ["causing_issue", "exact_accepted_decision_or_comment", "cause_backlink_listing_obsolete_issues"])) errors.push("obsolete requires causal immediate closure and preserved progress");
+  if (lifecycle["nonDeliveryPreservesProgress"] !== true || lifecycle["deliveredRequires"] !== "verified_acceptance") errors.push("closure must preserve actual progress");
+  const reopen = record(lifecycle["reopen"]);
+  if (reopen["clearResolution"] !== true || reopen["clearInvalidStamp"] !== true || reopen["freshCurrentProducerAssessment"] !== true) errors.push("reopen requires fresh assessment");
+  return errors;
+}
+
+function verifyDefinitionSet(projection: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  const dimensions = record(projection["dimensions"]);
+  const patterns = projection["bannedLabelPatterns"];
+  if (!Array.isArray(patterns) || patterns.some((v) => typeof v !== "string")) errors.push("bannedLabelPatterns must be strings");
+  const retiredPatterns: RegExp[] = [];
+  if (Array.isArray(patterns)) for (const pattern of patterns) { try { retiredPatterns.push(new RegExp(String(pattern), "i")); } catch { errors.push("invalid banned label pattern"); } }
+  const definitions = projection["labels"];
+  if (Array.isArray(definitions)) {
+    const names = new Set<string>();
+    for (const item of definitions) {
+      if (!isRecord(item)) { errors.push("label must be an object"); continue; }
+      const name = String(item["name"]).toLowerCase();
+      if (names.has(name)) errors.push(`duplicate label ${name}`);
+      names.add(name);
+      if (retiredPatterns.some((pattern) => pattern.test(name)) || (Array.isArray(projection["bannedLabels"]) && projection["bannedLabels"].includes(name))) errors.push(`retired label ${name}`);
     }
+    errors.push(...verifyDimensionDefinitions(dimensions, names));
   }
+  return errors;
+}
 
-  if (typeof projection["governedIntakeRevision"] !== "number" || projection["governedIntakeRevision"] < 3) {
-    errors.push(`governedIntakeRevision must be >= 3, got ${String(projection["governedIntakeRevision"])}`);
-  }
-  if (projection["currentTriageLabel"] !== `triaged:v${String(projection["governedIntakeRevision"])}`) {
-    errors.push(`currentTriageLabel must match triaged:v${String(projection["governedIntakeRevision"])}`);
-  }
+function verifyDimensionDefinitions(dimensions: Record<string, unknown>, names: Set<string>): string[] {
+  const errors: string[] = [];
+    for (const rule of Object.values(dimensions)) {
+      if (!isRecord(rule) || !Array.isArray(rule["labels"])) continue;
+      const missing = rule["labels"].filter((name) => !names.has(String(name)));
+      errors.push(...missing.map((name) => `missing dimension label ${String(name)}`));
+    }
 
-  // Banned labels check
-  const banned = projection["bannedLabels"];
-  if (
-    !Array.isArray(banned) ||
-    !banned.includes("priority:provisional") ||
-    !banned.includes("work:triaged")
-  ) {
-    errors.push("bannedLabels must include priority:provisional and work:triaged");
-  }
+  return errors;
+}
 
+function verifyPriority(projection: Record<string, unknown>): string[] {
+  const errors: string[] = [];
   // Priority check
   const priority = isRecord(projection["priority"]) ? (projection["priority"] as Record<string, unknown>) : null;
   if (!priority) {
@@ -215,18 +271,32 @@ export function verifyFleetLawProjection(projection: unknown): string[] {
     if (
       !triplet ||
       triplet["requiredCountPerPriorityDimension"] !== 1 ||
-      !sameJson(triplet["requiredExactLabels"], ["priority:rubric-v1"])
+      !sameJson(triplet["requiredExactLabels"], isRecord(projection["assessmentAuthority"]) ? projection["assessmentAuthority"]["priorityRequiredExactLabels"] : undefined)
     ) {
       errors.push("priority.confirmedTriplet must require priority:rubric-v1 and exactly 1 count per dimension");
     }
   }
 
+  return errors;
+}
+
+function verifyLabelFields(projection: Record<string, unknown>): string[] {
+  const errors: string[] = [];
   // Labels check
   const labels = projection["labels"];
   if (!Array.isArray(labels) || labels.length < 30) {
     errors.push("labels must be an array of at least 30 governed definitions");
   } else {
-    for (const label of labels as Array<Record<string, unknown>>) {
+    for (const item of labels) {
+      if (!isRecord(item)) continue;
+      errors.push(...verifyLabel(item));
+    }
+  }
+  return errors;
+}
+
+function verifyLabel(label: Record<string, unknown>): string[] {
+  const errors: string[] = [];
       if (typeof label["name"] !== "string" || !label["name"].trim()) {
         errors.push("each label must have a non-empty name");
       }
@@ -236,8 +306,59 @@ export function verifyFleetLawProjection(projection: unknown): string[] {
       if (typeof label["color"] !== "string" || !/^[0-9a-fA-F]{6}$/.test(label["color"])) {
         errors.push(`label ${String(label["name"])} must have a valid 6-hex color`);
       }
+  return errors;
+}
+
+function verifyDigest(projection: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  if (typeof projection["contentDigest"] !== "string" || !/^sha256:[0-9a-f]{64}$/.test(projection["contentDigest"])) {
+    errors.push(`contentDigest must be a valid sha256:<64hex> string, got ${String(projection["contentDigest"])}`);
+  } else {
+    const expectedDigest = computeFleetLawDigest(projection);
+    if (projection["contentDigest"] !== expectedDigest) {
+      errors.push(`contentDigest mismatch: expected ${expectedDigest}, got ${projection["contentDigest"]}`);
     }
   }
+  return errors;
+}
+
+export function verifyFleetLawProjection(projection: unknown): string[] {
+  const errors: string[] = [];
+  if (!isRecord(projection)) {
+    errors.push("projection must be a non-null object");
+    return errors;
+  }
+  if (projection["schema"] !== FLEET_LAW_SCHEMA) {
+    errors.push(`schema must be ${FLEET_LAW_SCHEMA}, got ${String(projection["schema"])}`);
+  }
+  if (typeof projection["revision"] !== "number" || projection["revision"] !== FLEET_LAW_REVISION) {
+    errors.push(`revision must be supported revision 2, got ${String(projection["revision"])}`);
+  }
+  if (typeof projection["sourceCommit"] !== "string" || !/^[0-9a-f]{40}$/i.test(projection["sourceCommit"])) {
+    errors.push(`sourceCommit must be a 40-hex git SHA, got ${String(projection["sourceCommit"])}`);
+  }
+  errors.push(...verifyDigest(projection));
+
+  if (typeof projection["governedIntakeRevision"] !== "number" || projection["governedIntakeRevision"] < 3) {
+    errors.push(`governedIntakeRevision must be >= 3, got ${String(projection["governedIntakeRevision"])}`);
+  }
+  if (projection["currentTriageLabel"] !== `${isRecord(projection["publication"]) && projection["publication"]["ready"] === true ? "metadata:triage-v" : "triaged:v"}${String(projection["governedIntakeRevision"])}`) {
+    errors.push(`currentTriageLabel must match triaged:v${String(projection["governedIntakeRevision"])}`);
+  }
+
+  errors.push(...verifyAuthority(projection), ...verifyDimensions(projection), ...verifyLifecycle(projection), ...verifyDefinitionSet(projection));
+
+  // Banned labels check
+  const banned = projection["bannedLabels"];
+  if (
+    !Array.isArray(banned) ||
+    !banned.includes("priority:provisional") ||
+    !banned.includes("work:triaged")
+  ) {
+    errors.push("bannedLabels must include priority:provisional and work:triaged");
+  }
+
+  errors.push(...verifyPriority(projection), ...verifyLabelFields(projection));
 
   return errors;
 }
