@@ -1,46 +1,287 @@
 {
   "schema": "FleetLawProjectionV1",
-  "revision": 1,
-  "sourceCommit": "1057f42bb39591d9940d266c6b57ded0f32e5c94",
+  "revision": 2,
+  "sourceCommit": "02d59ed6c4c46c108f90dd012750b81854879eda",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 21,
-  "currentTriageLabel": "triaged:v21",
+  "governedIntakeRevision": 22,
+  "currentTriageLabel": "triaged:v22",
   "governedIntakeProducer": {
     "schema": "GovernedIntakeCurrentReleasePinV1",
     "producer": {
       "repository": "spencer-shadley/.github",
       "defaultBranch": "main",
-      "releaseCommit": "74286b893ba828f777b14ef4c17293a656095443",
-      "producerCommit": "20e9c344b479832b2c5130c44c78fb149613e7df",
+      "releaseCommit": "a30d28c382a32e41734d18f1b2b61698dacfdf32",
+      "producerCommit": "763aa95282da19e923b6f5834c6f1a51a9ec3bd5",
       "sourcePath": "contracts/governed-intake-body.v1.json",
-      "sourceBlobSha": "c9b702b74b25a76060b7ac6193f39bd01ab50873",
+      "sourceBlobSha": "6cf18690001cefb6e1480d69bc783e0a4c8e7e82",
       "releaseManifestPath": "contracts/generated/governed-intake/manifest.json",
-      "releaseManifestBlobSha": "813616105ee34e0c1c0e640a30472ed3a4edf03e"
+      "releaseManifestBlobSha": "b2f5f3cdceb309419fe51dd07b2a5c1db89e8121"
     },
-    "revision": 21,
-    "payloadDigest": "sha256:53d7cd2129d98710446a8b54b51429de246666042bc9ffb6afc036a378e7bafd"
+    "revision": 22,
+    "payloadDigest": "sha256:2007e37b0d8ca0f5c5a2cd91641ac84f9dea9b0ec26f1b66481c722cc50fb46a"
   },
+  "publication": {
+    "ready": false,
+    "reason": "candidate-producer-not-activated",
+    "requiredProducerNamespace": "metadata:triage-v"
+  },
+  "assessmentAuthority": {
+    "producerRevision": 22,
+    "producerCommit": "763aa95282da19e923b6f5834c6f1a51a9ec3bd5",
+    "payloadDigest": "sha256:2007e37b0d8ca0f5c5a2cd91641ac84f9dea9b0ec26f1b66481c722cc50fb46a",
+    "priorityRequiredExactLabels": [
+      "priority:rubric-v1"
+    ],
+    "preparationCodeSourceCommit": "a747169767d2327bda7db240cf478fc8bc7079fe"
+  },
+  "dimensions": {
+    "delivers": {
+      "labels": [
+        "delivers:agent-efficiency",
+        "delivers:human-efficiency",
+        "delivers:reliability",
+        "delivers:cost-efficiency",
+        "delivers:capability"
+      ],
+      "minimum": 0,
+      "maximum": null,
+      "meaning": "intended_benefits_not_measured_outcomes"
+    },
+    "type": {
+      "labels": [
+        "type:feature",
+        "type:bug",
+        "type:regression",
+        "type:migration",
+        "type:deletion",
+        "type:research",
+        "type:maintenance"
+      ],
+      "minimumAfterTriage": 1,
+      "maximum": null,
+      "regressionRequires": "prior_behavior_or_still_valid_decision_reference",
+      "researchConclusions": [
+        "positive",
+        "negative",
+        "inconclusive"
+      ]
+    },
+    "source": {
+      "labels": [
+        "source:human",
+        "source:runtime-signal",
+        "source:retro-skill",
+        "source:retro-bot",
+        "source:scheduled-task"
+      ],
+      "minimumAfterTriage": 1,
+      "maximum": null,
+      "dynamicPatterns": [
+        "^source:retro-skill:[a-z0-9]+(?:-[a-z0-9]+)*$",
+        "^source:scheduled-task:[a-z0-9]+(?:-[a-z0-9]+)*$"
+      ],
+      "suffixAuthority": "governed_skill_or_stable_task_identity",
+      "meaning": "substantive_origin_or_contributing_evidence_not_routine_comments",
+      "exactRunsAndActors": "structured_evidence"
+    },
+    "effort": {
+      "labels": [
+        "effort:low",
+        "effort:medium",
+        "effort:high"
+      ],
+      "minimumAfterTriage": 1,
+      "maximum": 1
+    },
+    "priority:repo": {
+      "labels": [
+        "priority:repo:p0",
+        "priority:repo:p1",
+        "priority:repo:p2",
+        "priority:repo:p3",
+        "priority:repo:p4",
+        "priority:repo:p5"
+      ],
+      "minimumAfterTriage": 1,
+      "maximum": 1
+    },
+    "priority:fleet": {
+      "labels": [
+        "priority:fleet:p0",
+        "priority:fleet:p1",
+        "priority:fleet:p2",
+        "priority:fleet:p3",
+        "priority:fleet:p4",
+        "priority:fleet:p5"
+      ],
+      "minimumAfterTriage": 1,
+      "maximum": 1
+    },
+    "blocked": {
+      "labels": [
+        "blocked:time",
+        "blocked:human-required",
+        "blocked:issue"
+      ],
+      "minimum": 0,
+      "maximum": null,
+      "evidence": "active_condition_with_exact_release_predicate"
+    },
+    "environment": {
+      "labels": [
+        "environment:fleet-local"
+      ],
+      "minimum": 0,
+      "maximum": null,
+      "dynamicPatterns": [
+        "^environment:host:[a-z0-9]+(?:-[a-z0-9]+)*$",
+        "^environment:hardware:[a-z0-9]+(?:-[a-z0-9]+)*$"
+      ],
+      "hostAuthority": "verified_FleetRegistryReleaseV1_host_id",
+      "hardwareAuthority": "governed_requirement_slug",
+      "meaning": "hard_execution_requirements_not_blockers_or_permission",
+      "andOrRequirements": "structured_execution_contract"
+    },
+    "progress": {
+      "labels": [
+        "progress:triage",
+        "progress:planned",
+        "progress:implementing",
+        "progress:reviewing",
+        "progress:implemented",
+        "progress:verified"
+      ],
+      "minimum": 1,
+      "maximum": 1
+    },
+    "decomp": {
+      "labels": [
+        "decomp:required",
+        "decomp:in-progress",
+        "decomp:complete",
+        "decomp:unnecessary"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "resolution": {
+      "labels": [
+        "resolution:delivered",
+        "resolution:duplicate",
+        "resolution:superseded",
+        "resolution:declined",
+        "resolution:obsolete"
+      ],
+      "minimumWhileOpen": 0,
+      "maximumWhileOpen": 0,
+      "minimumWhenResolved": 1,
+      "maximum": 1
+    },
+    "metadata": {
+      "labels": [],
+      "dynamicPatterns": [
+        "^metadata:triage-v[1-9][0-9]*$"
+      ],
+      "minimum": 0,
+      "maximum": 1,
+      "authority": "actual_verified_current_producer_release_and_semantic_assessment",
+      "invalidOldMissingForgedStamp": "ineligible",
+      "invalidatedBy": [
+        "scope_change",
+        "direction_change",
+        "reopen",
+        "producer_revision_change"
+      ]
+    }
+  },
+  "lifecycle": {
+    "labels": [
+      "resolution:delivered",
+      "resolution:duplicate",
+      "resolution:superseded",
+      "resolution:declined",
+      "resolution:obsolete"
+    ],
+    "vocabulary": [
+      "delivered",
+      "duplicate",
+      "superseded",
+      "declined",
+      "obsolete"
+    ],
+    "mutuallyExclusive": true,
+    "orthogonalToProgress": true,
+    "noneWhileOpen": true,
+    "exactlyOneWhenResolved": true,
+    "deliveredRequires": "verified_acceptance",
+    "nonDeliveryPreservesProgress": true,
+    "reopen": {
+      "clearResolution": true,
+      "clearInvalidStamp": true,
+      "freshCurrentProducerAssessment": true
+    },
+    "obsolete": {
+      "value": "remaining_accepted_outcome_has_no_value_under_accepted_direction",
+      "immediateBeforeImplementation": true,
+      "stateReason": "not_planned",
+      "requires": [
+        "causing_issue",
+        "exact_accepted_decision_or_comment",
+        "cause_backlink_listing_obsolete_issues"
+      ],
+      "preserveLastActualProgress": true,
+      "clearInvalidCurrentStamp": true,
+      "descriptiveTypesAuthorizeClosure": false,
+      "supersededMeaning": "still_valid_work_conserved_under_canonical_issue",
+      "query": "is:closed label:\"resolution:obsolete\"",
+      "historicalStandaloneObsolete": "preserve_closed_history"
+    }
+  },
+  "bannedLabelPatterns": [
+    "^triaged:v[0-9]+$",
+    "^work:",
+    "^disposition:",
+    "^failure(?::|$)"
+  ],
   "bannedLabels": [
     "work:triaged",
     "tier:human",
     "priority:provisional",
     "needs-info",
-    "human-approval"
+    "human-approval",
+    "work:untriaged",
+    "work:planned",
+    "work:in-progress",
+    "work:in-review",
+    "work:implemented",
+    "obsolete",
+    "disposition:land",
+    "disposition:explicit-discard",
+    "disposition:preserve-as-history",
+    "disposition:bounded-successor",
+    "tier:auto",
+    "human-required",
+    "cloud-ready",
+    "local-required",
+    "decomp",
+    "decomp-in-progress",
+    "decomp-needed",
+    "decomp-not-needed",
+    "decomp-atomic",
+    "regression",
+    "retro-finding"
   ],
   "initialLabels": {
     "exact": [
-      "priority:triage-tbd",
-      "work:untriaged"
+      "progress:triage"
     ],
     "prohibitedFilerPatterns": [
       "^effort:",
-      "^tier:",
-      "^work:(triaged|planned|in-progress|in-review|implemented)$",
-      "^disposition:",
-      "^obsolete$",
-      "^priority:guess:",
       "^priority:repo:p[0-5]$",
-      "^priority:fleet:p[0-5]$"
+      "^priority:fleet:p[0-5]$",
+      "^progress:(planned|implementing|reviewing|implemented|verified)$",
+      "^resolution:",
+      "^metadata:triage-v"
     ]
   },
   "intake": {
@@ -152,19 +393,24 @@
     }
   },
   "status": {
+    "semantics": "single_current_stage",
+    "exactlyOne": true,
     "labels": [
-      "work:untriaged",
-      "work:planned",
-      "work:in-progress",
-      "work:in-review",
-      "work:implemented"
+      "progress:triage",
+      "progress:planned",
+      "progress:implementing",
+      "progress:reviewing",
+      "progress:implemented",
+      "progress:verified"
     ],
-    "filingDefault": "work:untriaged",
+    "filingDefault": "progress:triage",
     "progressStagesOrdered": [
-      "work:planned",
-      "work:in-progress",
-      "work:in-review",
-      "work:implemented"
+      "progress:triage",
+      "progress:planned",
+      "progress:implementing",
+      "progress:reviewing",
+      "progress:implemented",
+      "progress:verified"
     ]
   },
   "effort": {
@@ -177,25 +423,23 @@
     "missingMeansNotCheap": true
   },
   "tier": {
-    "labels": [
-      "tier:auto",
-      "human-required"
-    ],
-    "exactlyOneWhenTriaged": true
+    "labels": [],
+    "exactlyOneWhenTriaged": false
   },
   "terminalDispositions": {
     "labels": [
-      "obsolete",
-      "disposition:land",
-      "disposition:explicit-discard",
-      "disposition:preserve-as-history",
-      "disposition:bounded-successor"
+      "resolution:delivered",
+      "resolution:duplicate",
+      "resolution:superseded",
+      "resolution:declined",
+      "resolution:obsolete"
     ],
     "vocabulary": [
-      "land",
-      "explicit-discard",
-      "preserve-as-history",
-      "bounded-successor"
+      "delivered",
+      "duplicate",
+      "superseded",
+      "declined",
+      "obsolete"
     ],
     "mutuallyExclusive": true
   },
@@ -233,14 +477,19 @@
       "color": "0052CC"
     },
     {
-      "name": "byakugan",
-      "description": "Fleet host id byakugan. Add with local-required when this exact machine must run the work.",
-      "color": "C5DEF5"
+      "name": "blocked:human-required",
+      "description": "Active blocker: human-required; exact release predicate in structured evidence.",
+      "color": "EDEDED"
     },
     {
-      "name": "cloud-ready",
-      "description": "Implementation stage assessed ready for provider-hosted remote cloud execution.",
-      "color": "0E8A16"
+      "name": "blocked:issue",
+      "description": "Active blocker: issue; exact release predicate in structured evidence.",
+      "color": "EDEDED"
+    },
+    {
+      "name": "blocked:time",
+      "description": "Active blocker: time; exact release predicate in structured evidence.",
+      "color": "EDEDED"
     },
     {
       "name": "conflicting",
@@ -248,63 +497,98 @@
       "color": "D93F0B"
     },
     {
-      "name": "decomp",
-      "description": "Epic-decomposition graph complete for this root (pair with epic).",
-      "color": "5319E7"
+      "name": "decomp:complete",
+      "description": "Issue decomp: complete.",
+      "color": "EDEDED"
     },
     {
-      "name": "decomp-in-progress",
-      "description": "Ephemeral epic-decomposition run ownership; requires a fleet-wip-run-v1 receipt.",
-      "color": "FBCA04"
+      "name": "decomp:in-progress",
+      "description": "Issue decomp: in-progress.",
+      "color": "EDEDED"
     },
     {
-      "name": "decomp-needed",
-      "description": "Confirmed high-effort work still requires epic decomposition.",
-      "color": "E99695"
+      "name": "decomp:required",
+      "description": "Issue decomp: required.",
+      "color": "EDEDED"
     },
     {
-      "name": "decomp-not-needed",
-      "description": "N=1 indivisible residual; epic decomposition is not required.",
-      "color": "C2E0C6"
+      "name": "decomp:unnecessary",
+      "description": "Issue decomp: unnecessary.",
+      "color": "EDEDED"
     },
     {
-      "name": "disposition:bounded-successor",
-      "description": "Terminal disposition: disposition:bounded-successor",
-      "color": "FBCA04"
+      "name": "delivers:agent-efficiency",
+      "description": "Intended benefit: agent-efficiency; measured outcome remains structured evidence.",
+      "color": "EDEDED"
     },
     {
-      "name": "disposition:explicit-discard",
-      "description": "Terminal disposition: disposition:explicit-discard",
-      "color": "E11D48"
+      "name": "delivers:capability",
+      "description": "Intended benefit: capability; measured outcome remains structured evidence.",
+      "color": "EDEDED"
     },
     {
-      "name": "disposition:land",
-      "description": "Terminal disposition: disposition:land",
-      "color": "0E8A16"
+      "name": "delivers:cost-efficiency",
+      "description": "Intended benefit: cost-efficiency; measured outcome remains structured evidence.",
+      "color": "EDEDED"
     },
     {
-      "name": "disposition:preserve-as-history",
-      "description": "Terminal disposition: disposition:preserve-as-history",
-      "color": "C5DEF5"
+      "name": "delivers:human-efficiency",
+      "description": "Intended benefit: human-efficiency; measured outcome remains structured evidence.",
+      "color": "EDEDED"
+    },
+    {
+      "name": "delivers:reliability",
+      "description": "Intended benefit: reliability; measured outcome remains structured evidence.",
+      "color": "EDEDED"
     },
     {
       "name": "effort:high",
-      "description": "Work effort: high",
-      "color": "E99695"
+      "description": "Issue effort: high.",
+      "color": "EDEDED"
     },
     {
       "name": "effort:low",
-      "description": "Work effort: low",
-      "color": "C2E0C6"
+      "description": "Issue effort: low.",
+      "color": "EDEDED"
     },
     {
       "name": "effort:medium",
-      "description": "Work effort: medium",
-      "color": "FEF2C0"
+      "description": "Issue effort: medium.",
+      "color": "EDEDED"
     },
     {
-      "name": "ems",
-      "description": "Fleet host id ems. Add with local-required when this exact machine must run the work.",
+      "name": "environment:fleet-local",
+      "description": "Hard execution requirement: fleet-local; neither blocker nor permission.",
+      "color": "EDEDED"
+    },
+    {
+      "name": "environment:host:byakugan",
+      "description": "Hard execution requirement: Fleet Registry host byakugan; no permission grant.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "environment:host:ems",
+      "description": "Hard execution requirement: Fleet Registry host ems; no permission grant.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "environment:host:mangekyo",
+      "description": "Hard execution requirement: Fleet Registry host mangekyo; no permission grant.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "environment:host:rinnegan",
+      "description": "Hard execution requirement: Fleet Registry host rinnegan; no permission grant.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "environment:host:sharingan-worker",
+      "description": "Hard execution requirement: Fleet Registry host sharingan-worker; no permission grant.",
+      "color": "C5DEF5"
+    },
+    {
+      "name": "environment:host:thinkugan",
+      "description": "Hard execution requirement: Fleet Registry host thinkugan; no permission grant.",
       "color": "C5DEF5"
     },
     {
@@ -313,255 +597,185 @@
       "color": "5319E7"
     },
     {
-      "name": "human-required",
-      "description": "Human input/merge floor (exact ask in comments); replaces banned tier:human",
-      "color": "D93F0B"
-    },
-    {
-      "name": "local-required",
-      "description": "Needs a fleet local machine; Cursor Cloud seats skip. Agent-doable on that host.",
-      "color": "1D76DB"
-    },
-    {
-      "name": "mangekyo",
-      "description": "Fleet host id mangekyo. Add with local-required when this exact machine must run the work.",
-      "color": "C5DEF5"
-    },
-    {
       "name": "model-agnostic-audit-in-progress",
       "description": "Durable unfinished model-agnostic architecture audit record (not an active-run TTL lease).",
       "color": "C5DEF5"
     },
     {
-      "name": "obsolete",
-      "description": "Terminal disposition: obsolete",
-      "color": "FFFFFF"
-    },
-    {
       "name": "priority:fleet:p0",
-      "description": "Authoritative fleet P0 — start within 1 hour; incident unblock or approved retirement.",
-      "color": "B60205"
+      "description": "Assessed P0: incident unblock or approved retirement; never self-admit.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:fleet:p1",
-      "description": "Authoritative fleet priority P1 — eligible start within 24 hours.",
-      "color": "D93F0B"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:fleet:p2",
-      "description": "Authoritative fleet priority P2 — eligible start within 48 hours.",
-      "color": "FBCA04"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:fleet:p3",
-      "description": "Authoritative fleet priority P3 — eligible start within 72 hours.",
-      "color": "0E8A16"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:fleet:p4",
-      "description": "Authoritative fleet priority P4 — eligible start within 96 hours.",
-      "color": "1D76DB"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:fleet:p5",
-      "description": "Authoritative fleet priority P5 — eligible start within 120 hours.",
-      "color": "6A737D"
-    },
-    {
-      "name": "priority:p0-candidate",
-      "description": "P0 candidate; validate incident-unblock or approved-retirement grounds before assignment.",
-      "color": "B60205"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:repo:p0",
-      "description": "Authoritative repository P0 — start within 1 hour; incident unblock or approved retirement.",
-      "color": "B60205"
+      "description": "Assessed P0: incident unblock or approved retirement; never self-admit.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:repo:p1",
-      "description": "Authoritative repository priority P1 — eligible start within 24 hours.",
-      "color": "D93F0B"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:repo:p2",
-      "description": "Authoritative repository priority P2 — eligible start within 48 hours.",
-      "color": "FBCA04"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:repo:p3",
-      "description": "Authoritative repository priority P3 — eligible start within 72 hours.",
-      "color": "0E8A16"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:repo:p4",
-      "description": "Authoritative repository priority P4 — eligible start within 96 hours.",
-      "color": "1D76DB"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
       "name": "priority:repo:p5",
-      "description": "Authoritative repository priority P5 — eligible start within 120 hours.",
-      "color": "6A737D"
+      "description": "Independent priority assessment from shared evidence; never score classification labels.",
+      "color": "EDEDED"
     },
     {
-      "name": "priority:rubric-v1",
-      "description": "Priority Rubric v1 assessed; body block holds current RP/FP or provisional status.",
-      "color": "1D76DB"
+      "name": "progress:implemented",
+      "description": "Current evidenced stage: implemented; replaces the previous progress label.",
+      "color": "EDEDED"
     },
     {
-      "name": "priority:triage-tbd",
-      "description": "Awaiting durable priority confirmation; not an authoritative priority.",
-      "color": "FBCA04"
+      "name": "progress:implementing",
+      "description": "Current evidenced stage: implementing; replaces the previous progress label.",
+      "color": "EDEDED"
     },
     {
-      "name": "rinnegan",
-      "description": "Fleet host id rinnegan. Add with local-required when this exact machine must run the work.",
-      "color": "C5DEF5"
+      "name": "progress:planned",
+      "description": "Current evidenced stage: planned; replaces the previous progress label.",
+      "color": "EDEDED"
     },
     {
-      "name": "sharingan-host",
-      "description": "Fleet host id sharingan-host. Add with local-required when this exact machine must run the work.",
-      "color": "C5DEF5"
+      "name": "progress:reviewing",
+      "description": "Current evidenced stage: reviewing; replaces the previous progress label.",
+      "color": "EDEDED"
     },
     {
-      "name": "sharingan-ts",
-      "description": "Fleet host id sharingan-ts. Add with local-required when this exact machine must run the work.",
-      "color": "C5DEF5"
+      "name": "progress:triage",
+      "description": "Current evidenced stage: triage; replaces the previous progress label.",
+      "color": "EDEDED"
     },
     {
-      "name": "thinkugan",
-      "description": "Fleet host id thinkugan. Add with local-required when this exact machine must run the work.",
-      "color": "C5DEF5"
+      "name": "progress:verified",
+      "description": "Current evidenced stage: verified; replaces the previous progress label.",
+      "color": "EDEDED"
     },
     {
-      "name": "tier:auto",
-      "description": "Merge tier: auto",
-      "color": "BFD4F2"
+      "name": "resolution:declined",
+      "description": "Terminal outcome: declined; preserve last actual progress.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v10",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 10; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "resolution:delivered",
+      "description": "Terminal outcome: delivered; preserve last actual progress.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v11",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 11; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "resolution:duplicate",
+      "description": "Terminal outcome: duplicate; preserve last actual progress.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v12",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 12; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "resolution:obsolete",
+      "description": "Terminal outcome: obsolete; preserve last actual progress.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v13",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 13; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "resolution:superseded",
+      "description": "Terminal outcome: superseded; preserve last actual progress.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v14",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 14; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "source:human",
+      "description": "Substantive origin: human; routine comments do not qualify.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v15",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 15; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "source:retro-bot",
+      "description": "Substantive origin: retro-bot; routine comments do not qualify.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v16",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 16; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "source:retro-skill",
+      "description": "Substantive origin: retro-skill; routine comments do not qualify.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v17",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 17; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "source:runtime-signal",
+      "description": "Substantive origin: runtime-signal; routine comments do not qualify.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v18",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 18; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "source:scheduled-task",
+      "description": "Substantive origin: scheduled-task; routine comments do not qualify.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v19",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 19; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "type:bug",
+      "description": "Issue type: bug.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v20",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 20; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "type:deletion",
+      "description": "Issue type: deletion.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v21",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 21; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "type:feature",
+      "description": "Issue type: feature.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v3",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 3; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "type:maintenance",
+      "description": "Issue type: maintenance.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v4",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 4; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "type:migration",
+      "description": "Issue type: migration.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v5",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 5; strip on re-triage.",
-      "color": "0E8A16"
+      "name": "type:regression",
+      "description": "Issue type: regression.",
+      "color": "EDEDED"
     },
     {
-      "name": "triaged:v6",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 6; strip on re-triage.",
-      "color": "0E8A16"
-    },
-    {
-      "name": "triaged:v7",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 7; strip on re-triage.",
-      "color": "0E8A16"
-    },
-    {
-      "name": "triaged:v8",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 8; strip on re-triage.",
-      "color": "0E8A16"
-    },
-    {
-      "name": "triaged:v9",
-      "description": "Triage checklist completion stamp for GovernedIntakeBodyV1 version 9; strip on re-triage.",
-      "color": "0E8A16"
-    },
-    {
-      "name": "wait-slo-breached",
-      "description": "Eligible-wait clock breached after confirmed triage; coexists with complete priority triplet.",
-      "color": "D93F0B"
-    },
-    {
-      "name": "work:implemented",
-      "description": "Work spine completed stage: implemented",
-      "color": "5319E7"
-    },
-    {
-      "name": "work:in-progress",
-      "description": "Work spine completed stage: in-progress",
-      "color": "FBCA04"
-    },
-    {
-      "name": "work:in-review",
-      "description": "Work spine completed stage: in-review",
-      "color": "D93F0B"
-    },
-    {
-      "name": "work:planned",
-      "description": "Work spine completed stage: planned",
-      "color": "1D76DB"
-    },
-    {
-      "name": "work:untriaged",
-      "description": "Work spine filing default; not yet triaged for effort/tier/priority.",
-      "color": "BFDADC"
+      "name": "type:research",
+      "description": "Issue type: research.",
+      "color": "EDEDED"
     }
   ],
-  "contentDigest": "sha256:99cf12b31c6140d680e0c3c0916089e7a7aae489bc1ea668423b8e38d7309c0b"
+  "contentDigest": "sha256:0038e1999d8b83d03e24c94ee92128d405d01aa8bc34b302ab7109ab461f9fd9"
 }

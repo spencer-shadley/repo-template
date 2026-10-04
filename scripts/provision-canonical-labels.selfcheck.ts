@@ -10,6 +10,7 @@ import {
   computeProvisionPlan,
   executeProvisionPlan,
   type ExistingLabel,
+  assertPublicationReady,
 } from "./provision-canonical-labels.ts";
 import {
   FLEET_LAW_PROJECTION,
@@ -21,6 +22,8 @@ import {
   FleetLawUnsupportedError,
   FleetLawDigestMismatchError,
   loadFleetLawProjection,
+  computeFleetLawDigest,
+  verifyFleetLawProjection,
 } from "./generated/fleet-law.ts";
 import { runCheckFleetLawSync } from "./check-fleet-law-sync.ts";
 
@@ -36,18 +39,19 @@ for (let level = 0; level <= 5; level += 1) {
 
 // Ensure work-spine stages exist
 const requiredWorkSpine = [
-  "work:untriaged",
-  "work:planned",
-  "work:in-progress",
-  "work:in-review",
-  "work:implemented",
+  "progress:triage",
+  "progress:planned",
+  "progress:implementing",
+  "progress:reviewing",
+  "progress:implemented",
+  "progress:verified",
 ];
 for (const stage of requiredWorkSpine) {
   assert.ok(CANONICAL_LABELS.some((l) => l.name === stage), `Missing ${stage}`);
 }
 
 // Ensure dimensions exist
-for (const dim of ["effort:low", "effort:medium", "effort:high", "tier:auto", "human-required"]) {
+for (const dim of ["effort:low", "effort:medium", "effort:high", "blocked:time", "blocked:human-required", "blocked:issue"]) {
   assert.ok(CANONICAL_LABELS.some((l) => l.name === dim), `Missing ${dim}`);
 }
 
@@ -58,11 +62,11 @@ for (const signal of ["needs-rebase", "needs-verification"]) {
 
 // Ensure terminal dispositions exist
 for (const disp of [
-  "obsolete",
-  "disposition:land",
-  "disposition:explicit-discard",
-  "disposition:preserve-as-history",
-  "disposition:bounded-successor",
+  "resolution:obsolete",
+  "resolution:delivered",
+  "resolution:duplicate",
+  "resolution:declined",
+  "resolution:superseded",
 ]) {
   assert.ok(CANONICAL_LABELS.some((l) => l.name === disp), `Missing ${disp}`);
 }
@@ -95,7 +99,7 @@ const dirtyLabels: ExistingLabel[] = [
   { name: "tier:human", color: "111111", description: "old banned label" },
   { name: "needs-info", color: "222222", description: "old banned label" },
 ];
-const purgePlan = computeProvisionPlan(dirtyLabels);
+const purgePlan = computeProvisionPlan(dirtyLabels, CANONICAL_LABELS, BANNED_LABELS, { purgeBanned: true });
 assert.equal(purgePlan.create.length, 0);
 assert.equal(purgePlan.update.length, 0);
 const sortedPurged = purgePlan.purge.toSorted((a, b) => a.localeCompare(b));
@@ -104,12 +108,12 @@ assert.deepEqual(sortedPurged, expectedPurged);
 
 // Test 6: Plan computation with drift in color/description (updates)
 const driftedLabels: ExistingLabel[] = currentLabels.map((l) =>
-  l.name === "priority:triage-tbd" ? { ...l, color: "000000" } : l
+  l.name === "progress:triage" ? { ...l, color: "000000" } : l
 );
 const driftPlan = computeProvisionPlan(driftedLabels);
 assert.equal(driftPlan.create.length, 0);
 assert.equal(driftPlan.update.length, 1);
-assert.equal(driftPlan.update[0]?.name, "priority:triage-tbd");
+assert.equal(driftPlan.update[0]?.name, "progress:triage");
 
 // Test 7: Dry-run execution
 const firstCanonical = CANONICAL_LABELS[0];
@@ -137,7 +141,7 @@ assert.equal(FLEET_LAW_EVIDENCE.sourceCommit, FLEET_LAW_PROJECTION.sourceCommit)
 // Current triaged:vN present
 const currentTriage = FLEET_LAW_PROJECTION.currentTriageLabel;
 assert.ok(
-  CANONICAL_LABELS.some((l) => l.name === currentTriage),
+  CANONICAL_LABELS.some((l) => l.name === currentTriage) === FLEET_LAW_PROJECTION.publication.ready,
   `Missing current triage label ${currentTriage}`,
 );
 
@@ -222,4 +226,26 @@ assert.equal(checkResult.code, 0);
   assert.ok(existsSync(vocabDoc), "docs/FLEET-LABEL-VOCABULARY.md must exist (repo-template#418 SSOT)");
 }
 
+// Preparation never performs live effects or provisions a legacy completion alias.
+assert.equal(FLEET_LAW_PROJECTION.publication.ready, false);
+assert.throws(() => { assertPublicationReady(); }, /candidate-producer-not-activated/);
+assert.throws(() => { executeProvisionPlan(emptyPlan); }, /candidate-producer-not-activated/);
+assert.deepEqual(computeProvisionPlan(dirtyLabels).purge, [], "closed historical stock remains untouched by default");
+assert.ok(CANONICAL_LABELS.every((l) => !/^triaged:v|^work:|^disposition:/.test(l.name)));
+for (const dimension of ["delivers", "type", "source", "blocked", "environment"]) {
+  assert.equal(FLEET_LAW_PROJECTION.dimensions[dimension]?.["maximum"], null);
+}
+for (const mutate of [
+  (p: typeof FLEET_LAW_PROJECTION) => { const rule = p.dimensions["type"]; assert.ok(rule); rule["maximum"] = 1; },
+  (p: typeof FLEET_LAW_PROJECTION) => { const rule = p.dimensions["progress"]; assert.ok(rule); rule["maximum"] = 2; },
+  (p: typeof FLEET_LAW_PROJECTION) => { const rule = p.lifecycle["obsolete"]; assert.ok(typeof rule === "object" && rule !== null && "immediateBeforeImplementation" in rule); rule.immediateBeforeImplementation = false; },
+  (p: typeof FLEET_LAW_PROJECTION) => { p.labels.push({ name: "triaged:v23", description: "retired", color: "000000" }); },
+  (p: typeof FLEET_LAW_PROJECTION) => { p.revision = 999; },
+]) {
+  const candidate = structuredClone(FLEET_LAW_PROJECTION);
+  mutate(candidate);
+  candidate.contentDigest = computeFleetLawDigest({ ...candidate });
+  assert.ok(verifyFleetLawProjection(candidate).length > 0, "semantic drift fails with a recomputed digest");
+}
 console.log("provision-canonical-labels.selfcheck: PASS");
+

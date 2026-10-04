@@ -7,6 +7,7 @@ one entry per user-visible or structural change.
 ## [Unreleased]
 
 ### Changed
+- **Inactive taxonomy preparation (repo-template#468 / code#7581):** consume Code-generated revision-2 vocabulary, validate cardinalities and causal resolution semantics, refuse live provisioning until matching published producer activation, and preserve closed history by default. Retired label aliases are removed from the portable composition. MAJOR (label/rule reversal); coordinated consumer migration required. P0.1/P1.2/P2.1.
 - **`secret-scan.mjs` names its findings (code#7235):** every `dir`/`staged`/`history` scan now passes `--verbose`, so a red gate prints each finding's file, rule, line and fingerprint. Values stay masked by `--redact`. Before this, the gate printed only `leaks found: N`, which left nothing to triage or allowlist. PATCH.
 - **`@spencer-shadley/repo-quality` declares its consumer contract (repo-template#463 P1/P2/P4):**
   - `secret-scan.mjs` now exits 3 with a named message (`betterleaks at <path> lacks --confidence; ... requires betterleaks >=1.8.0. Bump the git-github-tooling Betterleaks pin ...`) when Betterleaks lacks `--confidence`, instead of silently scanning unfiltered and bringing back the #302 noise.

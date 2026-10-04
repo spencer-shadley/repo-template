@@ -46,16 +46,6 @@ const TEMPLATE_PORTABLE_LABELS: readonly CanonicalLabel[] = Object.freeze([
     description: "Automated agent review and discovery intake",
   },
   {
-    name: "human-feedback",
-    color: "0E8A16",
-    description: "Human-sourced feedback intake",
-  },
-  {
-    name: "in-plan",
-    color: "0E8A16",
-    description: "Accepted into a governed implementation plan",
-  },
-  {
     name: "needs-rebase",
     color: "B60205",
     description:
@@ -66,11 +56,6 @@ const TEMPLATE_PORTABLE_LABELS: readonly CanonicalLabel[] = Object.freeze([
     color: "FBCA04",
     description:
       "Outstanding verification request; not dequeue, merge approval, or completion (repo-template#347).",
-  },
-  {
-    name: "priority:disposition:consolidated",
-    color: "0E8A16",
-    description: "Triaged and consolidated with aligned fleet priority",
   },
 ]);
 
@@ -87,9 +72,9 @@ export function buildCanonicalLabels(): readonly CanonicalLabel[] {
     });
   }
 
-  // Ensure current triaged:vN completion label is present dynamically from projection:
-  const currentTriage = FLEET_LAW_PROJECTION.currentTriageLabel;
-  if (!map.has(currentTriage.toLowerCase())) {
+  // Ensure published metadata:triage-vN completion label is present dynamically from projection:
+  const currentTriage = FLEET_LAW_PROJECTION.publication.ready ? FLEET_LAW_PROJECTION.currentTriageLabel : undefined;
+  if (currentTriage && !map.has(currentTriage.toLowerCase())) {
     map.set(currentTriage.toLowerCase(), {
       name: currentTriage,
       color: "0E8A16",
@@ -110,6 +95,22 @@ export function buildCanonicalLabels(): readonly CanonicalLabel[] {
 
   const all = Array.from(map.values());
   return Object.freeze(all.toSorted((a, b) => a.name.localeCompare(b.name)));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function assertPublicationReady(): void {
+  assertFleetLawValid();
+  const projection = FLEET_LAW_PROJECTION;
+  if (!projection.publication.ready || projection.currentTriageLabel !== `metadata:triage-v${String(projection.governedIntakeRevision)}`) throw new Error("candidate-producer-not-activated: preparation permits dry-run only");
+  const result = spawnSync("gh", ["api", "repos/spencer-shadley/.github/contents/contracts/generated/governed-intake/manifest.json", "--jq", ".content"], { encoding: "utf8", windowsHide: true });
+  if (result.status !== 0) throw new Error(`producer publication readback failed: ${result.stderr.trim()}`);
+  const manifest: unknown = JSON.parse(Buffer.from(result.stdout.trim(), "base64").toString("utf8"));
+  if (!isRecord(manifest) || !isRecord(manifest["producer"])) throw new Error("invalid producer manifest");
+  const pin = projection.governedIntakeProducer;
+  if (manifest["schema"] !== "GovernedIntakeReleaseManifestV1" || manifest["revision"] !== pin.revision || manifest["producer"]["repository"] !== pin.producer.repository || manifest["producer"]["commit"] !== pin.producer.producerCommit || `sha256:${String(manifest["payloadDigest"])}` !== pin.payloadDigest) throw new Error("producer publication identity differs from pinned projection");
 }
 
 export const CANONICAL_LABELS = buildCanonicalLabels();
@@ -185,7 +186,7 @@ export function computeProvisionPlan(
   const { create, update, unchanged } = classifyCanonicalLabels(canonicalLabels, existingByName);
 
   const purge: string[] = [];
-  if (options.purgeBanned !== false) {
+  if (options.purgeBanned === true) {
     const bannedSet = new Set(bannedLabels.map((b) => b.toLowerCase()));
     for (const label of existingLabels) {
       if (bannedSet.has(label.name.toLowerCase())) {
@@ -296,6 +297,7 @@ export function executeProvisionPlan(plan: ProvisionPlan, dryRun: boolean = fals
   purged: string[];
   errors: string[];
 } {
+  if (!dryRun) assertPublicationReady();
   const createRes = executeCreate(plan.create, plan.repo, dryRun);
   const updateRes = executeUpdate(plan.update, plan.repo, dryRun);
   const purgeRes = executePurge(plan.purge, plan.repo, dryRun);
@@ -314,10 +316,11 @@ export function runProvision(options: {
   purgeBanned?: boolean | undefined;
 } = {}) {
   assertFleetLawValid();
+  if (!options.dryRun) assertPublicationReady();
   const repo = options.repo || resolveCurrentRepoSlug();
   const existing = fetchExistingLabels(repo);
   const plan = computeProvisionPlan(existing, CANONICAL_LABELS, BANNED_LABELS, {
-    purgeBanned: options.purgeBanned !== false,
+    purgeBanned: options.purgeBanned === true,
   });
   plan.repo = repo;
   const execution = executeProvisionPlan(plan, options.dryRun);
@@ -367,7 +370,7 @@ if (process.argv[1]?.endsWith("provision-canonical-labels.ts")) {
   const args = process.argv.slice(2);
   let repo: string | undefined;
   let dryRun = false;
-  let purgeBanned = true;
+  const purgeBanned = false;
   let jsonOutput = false;
 
   for (let i = 0; i < args.length; i += 1) {
@@ -376,7 +379,7 @@ if (process.argv[1]?.endsWith("provision-canonical-labels.ts")) {
     } else if (args[i] === "--dry-run") {
       dryRun = true;
     } else if (args[i] === "--no-purge-banned") {
-      purgeBanned = false;
+      // Historical label preservation is already the default.
     } else if (args[i] === "--json") {
       jsonOutput = true;
     }
