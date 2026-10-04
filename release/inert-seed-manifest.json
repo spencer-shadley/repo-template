@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "0b2a24bf256f12a3872690156e17af63e08fa5c0c679fc2d06d9199a38cde04e",
+  "inventoryDigest": "694df10bd669c7c3c2575bb6745f8eafb859d84158f661e3cb9aaa31229489f6",
   "entryCount": 110,
   "excludedCount": 8,
   "entries": [
@@ -558,7 +558,7 @@
       "path": "eslint-suppressions.json",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "6d3249d6caf7fb07879cbdf0c5f8dc5d556a448188717f249f76654f346a1bd3",
+      "contentSha256": "d01cb298e02d964326d0905d22890222bffd12735a31540b990efcbafd3d7741",
       "bytes": 6501
     },
     {
@@ -642,8 +642,8 @@
       "path": "scripts/provision-canonical-labels.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "f41208e12c2939c4418283fa5390c3ff0e443ddbde7651468c84795ae5dcc698",
-      "bytes": 12408
+      "contentSha256": "e5406d110d4c8cb439ec508d9b66a2cb8f5a8dfc9f1f60ad67bde83ee51a5569",
+      "bytes": 13691
     },
     {
       "path": "scripts/verify-quality-lint-required.ts",
@@ -821,5 +821,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "7f626350859f3c211b5a10b6311e0c27dae2214f39412507ffa0fdf6bb1a39ff"
+  "manifestDigest": "873ee0ebde53cfe9f89e857884c67a01e86514459e7628de99937904f415b752"
 }
