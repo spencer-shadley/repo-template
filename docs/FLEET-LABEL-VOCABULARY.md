@@ -41,12 +41,14 @@ node scripts/provision-canonical-labels.selfcheck.ts
 
 The pinned Code-generated revision-2 projection is **inactive preparation data**. Its
 assessment authority records the published producer used during preparation; it is not a
-claim that revision 23 is published. The producer candidate is `.github` PR #36 at
-`6701e9e5b9ef8e7cab3793241eea656fb3c11e1a` (source
-`6425de19f8a401226ef8b332e78c428c10092f93`, candidate payload
-`170617c8552f89750fe3457a710edc3f8c8324a90a337cd337c126d9a77a338b`).
+claim that revision 23 is published. The active combined producer candidate is
+[`.github` PR #53](https://github.com/spencer-shadley/.github/pull/53) at carrier
+`60fe03d17746c4c65482f918bd0dc0d77b28d433` (source
+`4601851a0630d5ba9f3c42bffc66b794f234b079`, candidate payload
+`sha256:d09609ceeed4cdaa3eb9e3162ed0e18f2b57ebe6f5f7febe77e886bfe280774d`).
 
-The inactive pin is the owner-generated projection at Code #7761 head
+The inactive pin is the owner-generated projection delivered by Code #7761 at
+`b2963e2a8035cbd322ccd84fcca0a46a5434d1b2` from reviewed head
 `7e2d5974e3116b01b3798708f618781eddd3afe4`: blob
 `1ddde9ff669ea0f3f7d54dc4a5003797c70dc207`, `sourceCommit`
 `5bdba91b0ac51f1f8815981f0c12b82bb292d951`, content digest
@@ -54,10 +56,12 @@ The inactive pin is the owner-generated projection at Code #7761 head
 That digest matches the accepted candidate blob
 `d927b974e6b1440c1482af3d763190d8e2cb3957` (`sourceCommit`
 `db228a27c32caec64234441e76edea8ab7c177b6`); the later head changes `sourceCommit`
-only. The pin keeps `type:proposal` and `metadata:direction-change`.
+only. The Code projection and Governed Intake release are distinct artifacts, so
+their source commits and content digests are not interchangeable. The pin keeps
+`type:proposal` and `metadata:direction-change`.
 `publication.ready` stays false (`candidate-producer-not-activated`). Published
-Governed Intake revision 22 stays live. This pin does not activate Code #7761 or
-the producer.
+Governed Intake revision 22 stays live. This pin does not activate the producer
+or provision fleet stock.
 
 Dry-run composition supports multiple `delivers`, `type`, and `source` values; exactly one
 current `progress`; independent blockers; and structured risk, authority, and environment.
