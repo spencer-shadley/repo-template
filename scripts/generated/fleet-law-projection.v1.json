@@ -1,7 +1,7 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 2,
-  "sourceCommit": "02d59ed6c4c46c108f90dd012750b81854879eda",
+  "sourceCommit": "5bdba91b0ac51f1f8815981f0c12b82bb292d951",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
   "governedIntakeRevision": 22,
   "currentTriageLabel": "triaged:v22",
@@ -55,7 +55,8 @@
         "type:migration",
         "type:deletion",
         "type:research",
-        "type:maintenance"
+        "type:maintenance",
+        "type:proposal"
       ],
       "minimumAfterTriage": 1,
       "maximum": null,
@@ -281,7 +282,8 @@
       "^priority:fleet:p[0-5]$",
       "^progress:(planned|implementing|reviewing|implemented|verified)$",
       "^resolution:",
-      "^metadata:triage-v"
+      "^metadata:triage-v",
+      "^metadata:direction-change$"
     ]
   },
   "intake": {
@@ -597,6 +599,11 @@
       "color": "5319E7"
     },
     {
+      "name": "metadata:direction-change",
+      "description": "Material direction change; triage/session reconciliation must settle conflicting earlier open work.",
+      "color": "B60205"
+    },
+    {
       "name": "model-agnostic-audit-in-progress",
       "description": "Durable unfinished model-agnostic architecture audit record (not an active-run TTL lease).",
       "color": "C5DEF5"
@@ -767,6 +774,11 @@
       "color": "EDEDED"
     },
     {
+      "name": "type:proposal",
+      "description": "Issue type: proposal.",
+      "color": "EDEDED"
+    },
+    {
       "name": "type:regression",
       "description": "Issue type: regression.",
       "color": "EDEDED"
@@ -777,5 +789,5 @@
       "color": "EDEDED"
     }
   ],
-  "contentDigest": "sha256:0038e1999d8b83d03e24c94ee92128d405d01aa8bc34b302ab7109ab461f9fd9"
+  "contentDigest": "sha256:cd2a9ffbc6ddb606b9634569f89ab20cdc9ddc152a37254173765de2098eec4d"
 }

@@ -226,6 +226,19 @@ assert.equal(checkResult.code, 0);
   assert.ok(existsSync(vocabDoc), "docs/FLEET-LABEL-VOCABULARY.md must exist (repo-template#418 SSOT)");
 }
 
+// Inactive Code #7761 pin: proposal type and direction-change stay consumed, unpublished.
+const typeLabels = FLEET_LAW_PROJECTION.dimensions["type"]?.["labels"];
+assert.ok(Array.isArray(typeLabels) && typeLabels.includes("type:proposal"), "inactive pin must keep type:proposal");
+assert.ok(
+  CANONICAL_LABELS.some((label) => label.name === "metadata:direction-change"),
+  "inactive pin must keep metadata:direction-change",
+);
+assert.equal(
+  FLEET_LAW_PROJECTION.contentDigest,
+  "sha256:cd2a9ffbc6ddb606b9634569f89ab20cdc9ddc152a37254173765de2098eec4d",
+);
+assert.equal(FLEET_LAW_PROJECTION.sourceCommit, "5bdba91b0ac51f1f8815981f0c12b82bb292d951");
+
 // Preparation never performs live effects or provisions a legacy completion alias.
 assert.equal(FLEET_LAW_PROJECTION.publication.ready, false);
 assert.throws(() => { assertPublicationReady(); }, /candidate-producer-not-activated/);
