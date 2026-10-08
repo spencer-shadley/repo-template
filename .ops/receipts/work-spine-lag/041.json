@@ -1,0 +1,26 @@
+{
+  "schema": "WorkSpineLabelLagReceiptV1",
+  "updatedAt": "2026-10-04T13:40:23.388Z",
+  "project": "repo-template",
+  "plan": "041",
+  "attempts": 0,
+  "findings": [
+    {
+      "kind": "stale_wip_no_pr",
+      "severity": "repair",
+      "expectedTip": "work:planned",
+      "observedTip": "work:in-progress",
+      "missing": [],
+      "present": [
+        "work:planned",
+        "work:in-progress"
+      ],
+      "staleLabels": [
+        "work:in-progress"
+      ],
+      "detail": "stale work:in-progress without active FleetIssueLeaseV1 and without open PR",
+      "disposition": "repair"
+    }
+  ],
+  "disposition": "repair"
+}

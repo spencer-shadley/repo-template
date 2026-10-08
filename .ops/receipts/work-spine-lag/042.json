@@ -1,0 +1,22 @@
+{
+  "schema": "WorkSpineLabelLagReceiptV1",
+  "updatedAt": "2026-10-04T13:40:24.046Z",
+  "project": "repo-template",
+  "plan": "042",
+  "attempts": 0,
+  "findings": [
+    {
+      "kind": "label_lag",
+      "severity": "repair",
+      "expectedTip": "work:planned",
+      "observedTip": null,
+      "missing": [
+        "work:planned"
+      ],
+      "present": [],
+      "detail": "label lag: expected contiguous through work:planned; missing=work:planned",
+      "disposition": "repair"
+    }
+  ],
+  "disposition": "repair"
+}
