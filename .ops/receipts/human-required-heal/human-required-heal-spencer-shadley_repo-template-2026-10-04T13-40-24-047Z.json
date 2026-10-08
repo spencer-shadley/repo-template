@@ -1,0 +1,11 @@
+{
+  "schema": "HumanRequiredExactAskHealReceiptV1",
+  "generatedAt": "2026-10-04T13:40:24.047Z",
+  "repo": "spencer-shadley/repo-template",
+  "dryRun": true,
+  "scannedCount": 0,
+  "healedCount": 0,
+  "retainedCount": 0,
+  "skippedCount": 0,
+  "rows": []
+}
