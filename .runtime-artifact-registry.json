@@ -10,6 +10,18 @@
       "incident": null
     },
     {
+      "pattern": "release/inert-seed-manifest.json",
+      "owner": "repo-template",
+      "reason": "tools/release-payload.ts write emits this at release time from the tagged source tree; never committed to the default branch (Code DOCTRINE \u00a738).",
+      "incident": null
+    },
+    {
+      "pattern": "release/release-payload-set.json",
+      "owner": "repo-template",
+      "reason": "tools/release-payload.ts write emits this at release time from the tagged source tree; never committed to the default branch (Code DOCTRINE \u00a738).",
+      "incident": null
+    },
+    {
       "pattern": ".orchestrator-tree.lock",
       "owner": "agent-orchestrator",
       "reason": "worktree lock file held while the orchestrator operates on this checkout.",

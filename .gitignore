@@ -1,6 +1,10 @@
 node_modules/
 # runtime-artifact: owner=repo-template incident=none
 .adoption-shell-build.json
+# runtime-artifact: owner=repo-template incident=none
+release/release-payload-set.json
+# runtime-artifact: owner=repo-template incident=none
+release/inert-seed-manifest.json
 *.log
 .DS_Store
 .env

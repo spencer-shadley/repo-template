@@ -4,10 +4,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { constructReleasePayloadAt, WORKTREE_REF } from "../tools/release-payload.ts";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const manifestPath = path.join(root, "template-manifest.json");
-const inertSeedManifestPath = path.join(root, "release", "inert-seed-manifest.json");
-const releasePayloadSetPath = path.join(root, "release", "release-payload-set.json");
 const enrollmentPath = path.join(root, "docs", "QUEUE-ENROLLMENT.md");
 
 interface RequiredSkill {
@@ -222,13 +222,13 @@ function loadRepositoryInput(repoRoot: string): ValidationSkillsInput {
   const templateManifest: unknown = JSON.parse(manifestRaw);
   if (!isRecord(templateManifest)) throw new Error("template-manifest.json must be an object");
 
-  const inertSeedRaw = fs.readFileSync(path.join(repoRoot, "release", "inert-seed-manifest.json"), "utf8");
-  const inertSeedManifest: unknown = JSON.parse(inertSeedRaw);
-  if (!isRecord(inertSeedManifest)) throw new Error("release/inert-seed-manifest.json must be an object");
-
-  const releasePayloadRaw = fs.readFileSync(path.join(repoRoot, "release", "release-payload-set.json"), "utf8");
-  const releasePayloadSet: unknown = JSON.parse(releasePayloadRaw);
-  if (!isRecord(releasePayloadSet)) throw new Error("release/release-payload-set.json must be an object");
+  // The release artifacts are not committed (Code DOCTRINE §38): compute them live from the
+  // source tree so these checks validate current rules, not a regenerated snapshot.
+  const constructed = constructReleasePayloadAt(WORKTREE_REF);
+  const inertSeedManifest: unknown = constructed.selection;
+  const releasePayloadSet: unknown = constructed.payload;
+  if (!isRecord(inertSeedManifest)) throw new Error("constructed inert seed selection must be an object");
+  if (!isRecord(releasePayloadSet)) throw new Error("constructed release payload set must be an object");
 
   const enrollmentText = fs.readFileSync(path.join(repoRoot, "docs", "QUEUE-ENROLLMENT.md"), "utf8");
 

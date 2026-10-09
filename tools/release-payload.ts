@@ -17,8 +17,10 @@ import {
 } from "../artifacts/adoption-shell-v2/path-policy.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const selectionPath = path.join(root, "release", "inert-seed-manifest.json");
-const payloadPath = path.join(root, "release", "release-payload-set.json");
+// Generated release output. Both files are gitignored build artifacts computed from the source
+// tree at release time (Code DOCTRINE §38); they are never committed to the default branch.
+const selectionRelativePath = "release/inert-seed-manifest.json";
+const payloadRelativePath = "release/release-payload-set.json";
 type TemplateMode = "copy" | "merge";
 
 function isTemplateMode(value: unknown): value is TemplateMode {
@@ -62,10 +64,36 @@ function compare(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
+/** Sentinel ref: enumerate tracked paths from the index and read bytes from the working tree. */
+export const WORKTREE_REF = "--worktree";
+
+function worktreeTreeAndBlobs(): {
+  readonly tree: ReadonlyMap<string, GitTreeEntry>;
+  readonly blobs: ReadonlyMap<string, Buffer>;
+} {
+  const rows = execFileSync("git", ["ls-files", "-s", "-z"], { cwd: root, encoding: "utf8" })
+    .split("\0")
+    .filter(Boolean);
+  const tree = new Map<string, GitTreeEntry>();
+  const blobs = new Map<string, Buffer>();
+  for (const row of rows) {
+    const match = /^(\d{6}) [0-9a-f]+ 0\t(.+)$/.exec(row);
+    if (!match?.[1] || !match[2]) throw new Error(`unexpected Git index row: ${row}`);
+    const pathValue = match[2].replaceAll("\\", "/");
+    const absolute = path.join(root, ...pathValue.split("/"));
+    // Index entries deleted from disk are skipped; selection then reports them missing.
+    if (!fs.existsSync(absolute) || !fs.statSync(absolute).isFile()) continue;
+    tree.set(pathValue, { mode: match[1], object: `worktree:${pathValue}` });
+    blobs.set(`worktree:${pathValue}`, fs.readFileSync(absolute));
+  }
+  return { tree, blobs };
+}
+
 function gitTreeAndBlobs(ref: string): {
   readonly tree: ReadonlyMap<string, GitTreeEntry>;
   readonly blobs: ReadonlyMap<string, Buffer>;
 } {
+  if (ref === WORKTREE_REF) return worktreeTreeAndBlobs();
   const rows = execFileSync("git", ["ls-tree", "-rz", ref], {
     cwd: root,
     encoding: "utf8",
@@ -253,31 +281,52 @@ function serialized(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+function parseRef(argv: readonly string[]): string | undefined {
+  const refFlagIndex = argv.indexOf("--ref");
+  if (refFlagIndex === -1) return undefined;
+  const refArgument = argv[refFlagIndex + 1];
+  if (refArgument === undefined || refArgument.startsWith("--")) {
+    throw new Error("--ref requires a commit-ish argument");
+  }
+  return refArgument;
+}
+
+function parseOutDir(argv: readonly string[]): string {
+  const outFlagIndex = argv.indexOf("--out");
+  if (outFlagIndex === -1) return root;
+  const outArgument = argv[outFlagIndex + 1];
+  if (outArgument === undefined || outArgument.startsWith("--")) {
+    throw new Error("--out requires a directory argument");
+  }
+  return path.resolve(outArgument);
+}
+
+/**
+ * `check` validates the live invariants over the source tree (path policy, explicit exclusions,
+ * closed v2 payload schema, materializer-acceptable entries) by constructing the payload; it
+ * compares against no committed snapshot. `write` is the release step: it emits the two
+ * gitignored release files for the tag being cut.
+ */
 function main(): void {
   const mode = process.argv[2];
   if (mode !== "write" && mode !== "check") {
-    throw new Error("usage: node tools/release-payload.ts <write|check> [--ref <commit-ish>]");
+    throw new Error(
+      "usage: node tools/release-payload.ts <write|check> [--ref <commit-ish>] [--out <dir>]",
+    );
   }
-  const refFlagIndex = process.argv.indexOf("--ref");
-  const refArgument = refFlagIndex === -1 ? undefined : process.argv[refFlagIndex + 1];
-  if (refFlagIndex !== -1 && (refArgument === undefined || refArgument.startsWith("--"))) {
-    throw new Error("--ref requires a commit-ish argument");
-  }
-  const candidate = constructReleasePayloadAt(refArgument ?? "HEAD");
-  if (mode === "write") {
-    fs.mkdirSync(path.dirname(selectionPath), { recursive: true });
-    fs.writeFileSync(selectionPath, serialized(candidate.selection), "utf8");
-    fs.writeFileSync(payloadPath, serialized(candidate.payload), "utf8");
-    return;
-  }
-  for (const [filePath, expected] of [
-    [selectionPath, candidate.selection],
-    [payloadPath, candidate.payload],
+  // `check` validates the live working tree; `write` is the release step and defaults to the
+  // committed HEAD so uncommitted edits can never leak into a tagged payload.
+  const defaultRef = mode === "write" ? "HEAD" : WORKTREE_REF;
+  const candidate = constructReleasePayloadAt(parseRef(process.argv) ?? defaultRef);
+  if (mode === "check") return;
+  const outDir = parseOutDir(process.argv);
+  for (const [relativePath, value] of [
+    [selectionRelativePath, candidate.selection],
+    [payloadRelativePath, candidate.payload],
   ] as const) {
-    if (!fs.existsSync(filePath)) throw new Error(`release artifact missing: ${filePath}`);
-    if (fs.readFileSync(filePath, "utf8") !== serialized(expected)) {
-      throw new Error(`release artifact is not reproducible: ${filePath}`);
-    }
+    const target = path.join(outDir, ...relativePath.split("/"));
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, serialized(value), "utf8");
   }
 }
 
