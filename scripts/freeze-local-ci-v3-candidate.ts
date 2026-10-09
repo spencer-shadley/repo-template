@@ -1011,6 +1011,9 @@ function selfTestManifestInputsAreFrozen(receipt: PrePublicationReceipt): void {
   const expected = serializeReceipt(receipt);
   for (const relativePath of Object.values(FROZEN_MANIFEST_INPUT_PATHS)) {
     const fullPath = path.join(root, ...relativePath.split("/"));
+    // The release payload set is generated at release time and no longer
+    // committed (#480); an absent working-tree copy has nothing to mutate.
+    if (!fs.existsSync(fullPath)) continue;
     const original = fs.readFileSync(fullPath);
     const mutated: unknown = JSON.parse(original.toString("utf8"));
     if (!isPlainObject(mutated)) {
