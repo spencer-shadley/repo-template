@@ -1220,6 +1220,7 @@ function selfTestPayloadEnumerationIsPinned(receipt: PrePublicationReceipt): voi
  */
 export function ensureCommitsPresent(commits: readonly string[]): void {
   for (const commit of commits) {
+    if (!/^[0-9a-f]{40}$/u.test(commit)) throw new Error(`Not a full commit sha: ${commit}`);
     try {
       execFileSync("git", ["cat-file", "-e", `${commit}^{commit}`], { cwd: root, stdio: "ignore" });
       continue;
