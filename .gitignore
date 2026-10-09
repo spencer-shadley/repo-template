@@ -8,6 +8,8 @@ release/inert-seed-manifest.json
 # runtime-artifact: owner=repo-template incident=none
 packages/adoption-shell/src/repository-shape/validators.generated.ts
 # runtime-artifact: owner=repo-template incident=none
+artifacts/adoption-shell-v2/
+# runtime-artifact: owner=repo-template incident=none
 packages/repo-quality/index.mjs
 # runtime-artifact: owner=repo-template incident=none
 packages/repo-quality/jscpd.mjs

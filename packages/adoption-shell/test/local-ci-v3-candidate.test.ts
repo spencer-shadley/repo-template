@@ -829,6 +829,13 @@ function cloneWorkingStateAtHead(label: string): string {
       "working-tree state under test",
     ]);
   }
+  // The compiled adoption-shell artifacts are generated and gitignored (#480), so a clone of
+  // tracked files lacks them; carry the local build output in. Ignored files keep the tree clean.
+  fs.cpSync(
+    path.join(root, "artifacts", "adoption-shell-v2"),
+    path.join(clone, "artifacts", "adoption-shell-v2"),
+    { recursive: true },
+  );
   assert.equal(
     gitIn(clone, ["status", "--porcelain"]),
     "",
