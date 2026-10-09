@@ -7,6 +7,14 @@ release/release-payload-set.json
 release/inert-seed-manifest.json
 # runtime-artifact: owner=repo-template incident=none
 packages/adoption-shell/src/repository-shape/validators.generated.ts
+# runtime-artifact: owner=repo-template incident=none
+packages/repo-quality/index.mjs
+# runtime-artifact: owner=repo-template incident=none
+packages/repo-quality/jscpd.mjs
+# runtime-artifact: owner=repo-template incident=none
+packages/repo-quality/knip.mjs
+# runtime-artifact: owner=repo-template incident=none
+packages/repo-quality/secret-scan.mjs
 *.log
 .DS_Store
 .env

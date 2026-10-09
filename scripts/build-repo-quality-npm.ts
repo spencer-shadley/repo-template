@@ -1,6 +1,10 @@
 import { execFileSync } from "node:child_process";
-import { dirname } from "node:path";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { emitAll, generatedName } from "../tools/emit-repo-quality.ts";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const packageName = "@spencer-shadley/repo-quality";
@@ -22,8 +26,32 @@ function git(args: string[], env: NodeJS.ProcessEnv = process.env): string {
   return execFileSync("git", args, { cwd: root, env, encoding: "utf8" }).trim();
 }
 
+/**
+ * The published .mjs entrypoints are generated, not committed (Code DOCTRINE §38): emit them from the
+ * checked-out sources and add them to the source tree. The checkout must match the source commit so
+ * the emit cannot reflect uncommitted edits.
+ */
+function treeWithGeneratedEntrypoints(sourceCommit: string): string {
+  const sourceTree = git(["rev-parse", `${sourceCommit}:packages/repo-quality`]);
+  if (git(["status", "--porcelain", "--", "packages/repo-quality"]) !== "" || git(["rev-parse", "HEAD"]) !== git(["rev-parse", sourceCommit])) {
+    throw new TypeError("repo-quality artifacts must be emitted from a clean checkout of the source commit");
+  }
+  const scratch = mkdtempSync(join(tmpdir(), "repo-quality-index-"));
+  const env = { ...process.env, GIT_INDEX_FILE: join(scratch, "index") };
+  try {
+    git(["read-tree", sourceTree], env);
+    for (const [sourceName, bytes] of emitAll()) {
+      const blob = execFileSync("git", ["hash-object", "-w", "--stdin"], { cwd: root, input: bytes, encoding: "utf8" }).trim();
+      git(["update-index", "--add", "--cacheinfo", `100644,${blob},${generatedName(sourceName)}`], env);
+    }
+    return git(["write-tree"], env);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
 export function materializeRepoQualityCommit(sourceCommit = "HEAD"): string {
-  const tree = git(["rev-parse", `${sourceCommit}:packages/repo-quality`]);
+  const tree = treeWithGeneratedEntrypoints(sourceCommit);
   const manifest: unknown = JSON.parse(git(["show", `${sourceCommit}:packages/repo-quality/package.json`]));
   if (!isRecord(manifest)) throw new TypeError("repo-quality source manifest must be a JSON object");
   if (manifest["name"] !== packageName || manifest["version"] !== packageVersion) {

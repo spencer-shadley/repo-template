@@ -6,6 +6,9 @@
     "tools/**/*.ts",
     "packages/adoption-shell/src/index.ts"
   ],
+  "ignoreDependencies": [
+    "jscpd"
+  ],
   "ignore": [
     "artifacts/**",
     "packages/adoption-shell/src/**",

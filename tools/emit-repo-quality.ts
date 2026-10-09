@@ -4,20 +4,20 @@
  * Generated output is the stable consumer contract; do not edit it by hand.
  */
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = path.join(root, "packages", "repo-quality");
-const sources = ["index.ts", "jscpd.ts", "knip.ts", "secret-scan.ts"] as const;
+export const sources = ["index.ts", "jscpd.ts", "knip.ts", "secret-scan.ts"] as const;
 
 function portable(filePath: string): string {
   return path.relative(root, filePath).split(path.sep).join("/");
 }
 
-function generatedName(sourceName: (typeof sources)[number]): string {
+export function generatedName(sourceName: (typeof sources)[number]): string {
   return sourceName.replace(/\.ts$/u, ".mjs");
 }
 
@@ -38,7 +38,7 @@ function withBanner(sourceName: (typeof sources)[number], emittedJs: string): st
   return output;
 }
 
-function emitAll(): Map<string, string> {
+export function emitAll(): Map<(typeof sources)[number], string> {
   const ownedRoot = mkdtempSync(path.join(os.tmpdir(), "repo-quality-emit-"));
   const emittedRoot = path.join(ownedRoot, "emitted");
   const tsconfigPath = path.join(root, ".repo-quality-emit.json");
@@ -67,7 +67,7 @@ function emitAll(): Map<string, string> {
     if (tsc.status !== 0) {
       throw new Error(tsc.stdout || tsc.stderr || `tsc exited ${String(tsc.status)}`);
     }
-    const output = new Map<string, string>();
+    const output = new Map<(typeof sources)[number], string>();
     for (const sourceName of sources) {
       const jsName = sourceName.replace(/\.ts$/u, ".js");
       const jsPath = path.join(emittedRoot, jsName);
@@ -89,25 +89,39 @@ function writeAll(): void {
   }
 }
 
+/**
+ * Live rule check (Code DOCTRINE §38): the emitted .mjs files are not committed, so they are
+ * never byte-compared. The emit must compile, carry the generated banner, and parse as ESM;
+ * any on-disk copy must carry the banner too (hand edits to generated output are refused).
+ */
 function checkAll(): void {
   const emitted = emitAll();
-  const mismatches: string[] = [];
+  const problems: string[] = [];
   for (const sourceName of sources) {
-    const expected = emitted.get(sourceName);
-    if (expected === undefined) throw new Error(`emit missed ${sourceName}`);
-    const actual = readFileSync(generatedPath(sourceName), "utf8").replaceAll("\r\n", "\n");
-    if (actual !== expected) mismatches.push(portable(generatedPath(sourceName)));
+    const bytes = emitted.get(sourceName);
+    if (bytes === undefined) throw new Error(`emit missed ${sourceName}`);
+    const banner = `// @generated from ${sourceName}. DO NOT EDIT.`;
+    if (!bytes.includes(banner)) problems.push(`${sourceName}: emitted output lacks the generated banner`);
+    const syntax = spawnSync(process.execPath, ["--input-type=module", "--check"], {
+      input: bytes,
+      encoding: "utf8",
+    });
+    if (syntax.status !== 0) problems.push(`${sourceName}: emitted output is not valid ESM: ${syntax.stderr}`);
+    const onDisk = generatedPath(sourceName);
+    if (existsSync(onDisk) && !readFileSync(onDisk, "utf8").includes(banner)) {
+      problems.push(`${portable(onDisk)}: on-disk file is not generated output; run pnpm repo-quality:emit`);
+    }
   }
-  if (mismatches.length > 0) {
-    throw new Error(
-      `repo-quality generated .mjs is stale: ${mismatches.join(", ")}. Run: pnpm repo-quality:emit`,
-    );
+  if (problems.length > 0) {
+    throw new Error(`repo-quality emit check failed:\n${problems.join("\n")}`);
   }
 }
 
-const action = process.argv[2];
-if (action !== "write" && action !== "check") {
-  throw new Error("usage: node tools/emit-repo-quality.ts <write|check>");
+if (import.meta.main) {
+  const action = process.argv[2];
+  if (action !== "write" && action !== "check") {
+    throw new Error("usage: node tools/emit-repo-quality.ts <write|check>");
+  }
+  if (action === "write") writeAll();
+  else checkAll();
 }
-if (action === "write") writeAll();
-else checkAll();
