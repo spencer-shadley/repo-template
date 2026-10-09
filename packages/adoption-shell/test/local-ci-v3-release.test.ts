@@ -610,6 +610,12 @@ void test("publication readback stays pinned to the published candidate when the
       fs.copyFileSync(path.join(root, relativePath), path.join(worktree, relativePath));
     }
     fs.symlinkSync(path.join(root, "node_modules"), path.join(worktree, "node_modules"), "dir");
+    // Generated and gitignored (#480), so the detached worktree lacks the compiled artifacts.
+    fs.cpSync(
+      path.join(root, "artifacts", "adoption-shell-v2"),
+      path.join(worktree, "artifacts", "adoption-shell-v2"),
+      { recursive: true },
+    );
     const freezePath = path.join(worktree, "scripts", "freeze-local-ci-v3-candidate.ts");
     const movedCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
     const movedTree = execFileSync("git", ["rev-parse", "HEAD^{tree}"], { cwd: root, encoding: "utf8" }).trim();
