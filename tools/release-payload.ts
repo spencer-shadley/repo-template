@@ -314,7 +314,10 @@ function main(): void {
       "usage: node tools/release-payload.ts <write|check> [--ref <commit-ish>] [--out <dir>]",
     );
   }
-  const candidate = constructReleasePayloadAt(parseRef(process.argv) ?? WORKTREE_REF);
+  // `check` validates the live working tree; `write` is the release step and defaults to the
+  // committed HEAD so uncommitted edits can never leak into a tagged payload.
+  const defaultRef = mode === "write" ? "HEAD" : WORKTREE_REF;
+  const candidate = constructReleasePayloadAt(parseRef(process.argv) ?? defaultRef);
   if (mode === "check") return;
   const outDir = parseOutDir(process.argv);
   for (const [relativePath, value] of [
