@@ -90,9 +90,11 @@ function writeAll(): void {
 }
 
 /**
- * Live rule check (Code DOCTRINE §38): the emitted .mjs files are not committed, so they are
- * never byte-compared. The emit must compile, carry the generated banner, and parse as ESM;
- * any on-disk copy must carry the banner too (hand edits to generated output are refused).
+ * The emitted .mjs files ARE committed: consumers install this package straight from git
+ * (`github:spencer-shadley/repo-template#path:packages/repo-quality`), where no build step runs
+ * and Node refuses to strip types under node_modules, so `exports` must resolve to committed JS.
+ * The emit must compile, carry the generated banner, parse as ESM, and match the committed file
+ * (a missing or stale entrypoint breaks every git consumer at tip; repo-template#484 regression).
  */
 function checkAll(): void {
   const emitted = emitAll();
@@ -108,8 +110,10 @@ function checkAll(): void {
     });
     if (syntax.status !== 0) problems.push(`${sourceName}: emitted output is not valid ESM: ${syntax.stderr}`);
     const onDisk = generatedPath(sourceName);
-    if (existsSync(onDisk) && !readFileSync(onDisk, "utf8").includes(banner)) {
-      problems.push(`${portable(onDisk)}: on-disk file is not generated output; run pnpm repo-quality:emit`);
+    if (!existsSync(onDisk)) {
+      problems.push(`${portable(onDisk)}: missing; run pnpm repo-quality:emit and commit it`);
+    } else if (readFileSync(onDisk, "utf8").replaceAll("\r\n", "\n") !== bytes) {
+      problems.push(`${portable(onDisk)}: stale vs ${sourceName}; run pnpm repo-quality:emit and commit it`);
     }
   }
   if (problems.length > 0) {

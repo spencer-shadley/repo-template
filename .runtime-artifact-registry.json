@@ -28,30 +28,6 @@
       "incident": null
     },
     {
-      "pattern": "packages/repo-quality/index.mjs",
-      "owner": "repo-template",
-      "reason": "tools/emit-repo-quality.ts write emits this from index.ts; the npm artifact is materialized with it at release time by scripts/build-repo-quality-npm.ts; never committed (Code DOCTRINE \u00a738).",
-      "incident": null
-    },
-    {
-      "pattern": "packages/repo-quality/jscpd.mjs",
-      "owner": "repo-template",
-      "reason": "tools/emit-repo-quality.ts write emits this from jscpd.ts; the npm artifact is materialized with it at release time by scripts/build-repo-quality-npm.ts; never committed (Code DOCTRINE \u00a738).",
-      "incident": null
-    },
-    {
-      "pattern": "packages/repo-quality/knip.mjs",
-      "owner": "repo-template",
-      "reason": "tools/emit-repo-quality.ts write emits this from knip.ts; the npm artifact is materialized with it at release time by scripts/build-repo-quality-npm.ts; never committed (Code DOCTRINE \u00a738).",
-      "incident": null
-    },
-    {
-      "pattern": "packages/repo-quality/secret-scan.mjs",
-      "owner": "repo-template",
-      "reason": "tools/emit-repo-quality.ts write emits this from secret-scan.ts; the npm artifact is materialized with it at release time by scripts/build-repo-quality-npm.ts; never committed (Code DOCTRINE \u00a738).",
-      "incident": null
-    },
-    {
       "pattern": "artifacts/adoption-shell-v2/",
       "owner": "repo-template",
       "reason": "tools/artifact-build.ts write compiles packages/adoption-shell/src and its manifest at build time; never committed (Code DOCTRINE §38).",
