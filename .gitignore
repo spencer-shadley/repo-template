@@ -10,6 +10,10 @@ packages/adoption-shell/src/repository-shape/validators.generated.ts
 # runtime-artifact: owner=repo-template incident=none
 artifacts/adoption-shell-v2/
 # runtime-artifact: owner=repo-template incident=none
+contracts/adoption-shell-v2/fixtures/
+# runtime-artifact: owner=repo-template incident=none
+contracts/adoption-shell-v2/golden/
+# runtime-artifact: owner=repo-template incident=none
 packages/repo-quality/index.mjs
 # runtime-artifact: owner=repo-template incident=none
 packages/repo-quality/jscpd.mjs
