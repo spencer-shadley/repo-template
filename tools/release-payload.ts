@@ -317,8 +317,12 @@ function main(): void {
   // `check` validates the live working tree; `write` is the release step and defaults to the
   // committed HEAD so uncommitted edits can never leak into a tagged payload.
   const defaultRef = mode === "write" ? "HEAD" : WORKTREE_REF;
-  const candidate = constructReleasePayloadAt(parseRef(process.argv) ?? defaultRef);
-  if (mode === "check") return;
+  const ref = parseRef(process.argv) ?? defaultRef;
+  if (mode === "check") {
+    constructReleasePayloadAt(ref);
+    return;
+  }
+  const candidate = constructReleasePayloadAt(ref);
   const outDir = parseOutDir(process.argv);
   for (const [relativePath, value] of [
     [selectionRelativePath, candidate.selection],

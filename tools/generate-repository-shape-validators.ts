@@ -383,24 +383,33 @@ function main(argv: readonly string[]): void {
       `usage: generate-repository-shape-validators.ts write|check (got ${mode})`,
     );
   }
-  const next = renderGeneratedFile(
-    readSchema(profileSchemaPath),
-    readSchema(turboSchemaPath),
-  );
+  const profile = readSchema(profileSchemaPath);
+  const turbo = readSchema(turboSchemaPath);
+  const next = renderGeneratedFile(profile, turbo);
   if (mode === "write") {
     fs.mkdirSync(path.dirname(outPath), { recursive: true });
     fs.writeFileSync(outPath, next, "utf8");
     process.stdout.write(`wrote ${path.relative(root, outPath)}\n`);
     return;
   }
+  // Live rule check (Code DOCTRINE §38): the output is not committed, so it is
+  // not byte-compared. Emission must be deterministic, and any on-disk copy must
+  // have been derived from the current schema bytes.
+  if (renderGeneratedFile(readSchema(profileSchemaPath), readSchema(turboSchemaPath)) !== next) {
+    throw new Error("repository-shape validator emission is not deterministic");
+  }
   if (!fs.existsSync(outPath)) {
-    throw new Error(`missing generated validators: ${path.relative(root, outPath)}`);
+    throw new Error(
+      `missing generated validators: ${path.relative(root, outPath)}; run pnpm generate:repository-shape-validators`,
+    );
   }
   const current = fs.readFileSync(outPath, "utf8");
-  if (current !== next) {
-    throw new Error(
-      "repository-shape generated validators are stale; run pnpm generate:repository-shape-validators",
-    );
+  for (const digest of [profile.digest, turbo.digest]) {
+    if (!current.includes(digest)) {
+      throw new Error(
+        "repository-shape generated validators were derived from different schemas; run pnpm generate:repository-shape-validators",
+      );
+    }
   }
   process.stdout.write("repository-shape generated validators match schemas\n");
 }

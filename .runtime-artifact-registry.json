@@ -22,6 +22,12 @@
       "incident": null
     },
     {
+      "pattern": "packages/adoption-shell/src/repository-shape/validators.generated.ts",
+      "owner": "repo-template",
+      "reason": "tools/generate-repository-shape-validators.ts write derives this from the contracts/repository-shape/v1 schemas at install/build/test time; never committed (Code DOCTRINE §38).",
+      "incident": null
+    },
+    {
       "pattern": ".orchestrator-tree.lock",
       "owner": "agent-orchestrator",
       "reason": "worktree lock file held while the orchestrator operates on this checkout.",

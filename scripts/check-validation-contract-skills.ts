@@ -225,10 +225,10 @@ function loadRepositoryInput(repoRoot: string): ValidationSkillsInput {
   // The release artifacts are not committed (Code DOCTRINE §38): compute them live from the
   // source tree so these checks validate current rules, not a regenerated snapshot.
   const constructed = constructReleasePayloadAt(WORKTREE_REF);
-  const inertSeedManifest: unknown = constructed.selection;
-  const releasePayloadSet: unknown = constructed.payload;
-  if (!isRecord(inertSeedManifest)) throw new Error("constructed inert seed selection must be an object");
-  if (!isRecord(releasePayloadSet)) throw new Error("constructed release payload set must be an object");
+  if (!isRecord(constructed.selection)) throw new Error("constructed inert seed selection must be an object");
+  if (!isRecord(constructed.payload)) throw new Error("constructed release payload set must be an object");
+  const inertSeedManifest = constructed.selection;
+  const releasePayloadSet = constructed.payload;
 
   const enrollmentText = fs.readFileSync(path.join(repoRoot, "docs", "QUEUE-ENROLLMENT.md"), "utf8");
 
