@@ -23,7 +23,7 @@
     "secret:history": "pnpm repo-quality:emit && node ./node_modules/@spencer-shadley/repo-quality/secret-scan.mjs history",
     "todo-issue-link": "node --experimental-strip-types ./packages/repo-quality/todo-issue-link/cli.ts",
     "todo-issue-link:selfcheck": "node --experimental-strip-types --test ./packages/repo-quality/todo-issue-link/todo-issue-link.test.ts",
-    "lint": "pnpm repo-quality:emit && eslint .",
+    "lint": "pnpm generate:repository-shape-validators && pnpm repo-quality:emit && eslint .",
     "provision:labels": "node scripts/provision-canonical-labels.ts",
     "check:fleet-law": "node scripts/check-fleet-law-sync.ts --check",
     "verify:fleet-law": "node scripts/check-fleet-law-sync.ts --self-test && node scripts/check-fleet-law-sync.ts --check",
