@@ -5,7 +5,7 @@
  * Prefer: node --experimental-strip-types packages/repo-quality/default-branch-guard/cli.ts
  */
 try {
-  await import("./default-branch-guard/cli.ts");
+  await import("./default-branch-guard/cli.mjs");
 } catch (error) {
   console.error(error);
   process.exit(1);

@@ -6,7 +6,7 @@
  * Or TypeScript direct: node --experimental-strip-types --import ./…/hermetic-test-preload/preload.ts
  */
 try {
-  await import("./hermetic-test-preload/preload.ts");
+  await import("./hermetic-test-preload/preload.mjs");
 } catch (error) {
   console.error(error);
   process.exit(1);

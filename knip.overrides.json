@@ -11,6 +11,7 @@
     "packages/adoption-shell/src/**",
     "scripts/proof-of-detection/reference-detectors/**",
     "tests/fixtures/**",
-    "packages/repo-quality/*.ts"
+    "packages/repo-quality/*.ts",
+    "packages/repo-quality/*/cli.ts"
   ]
 }

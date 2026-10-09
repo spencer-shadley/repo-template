@@ -1,5 +1,5 @@
 {
-  "packageVersion": "1.12.1",
+  "packageVersion": "1.12.2",
   "typeExports": [
     "DEFAULT_FLEET_GLOBALS",
     "DEFAULT_FLEET_IGNORES",
