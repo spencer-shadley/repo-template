@@ -1,4 +1,5 @@
 {
+  ".claude/settings.json": "self",
   ".gitattributes": "self",
   ".github/pull_request_template.md": "copy",
   ".gitignore": "merge",
