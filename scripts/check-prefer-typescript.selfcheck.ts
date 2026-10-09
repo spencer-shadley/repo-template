@@ -57,15 +57,34 @@ tester.run("fleet/prefer-typescript", preferTypeScriptRule, {
     },
     // 3. JavaScript files with explicit tracked issue comments
     {
-      code: "// TODO gh issue #1234: Legacy script being migrated to TypeScript\nconsole.log('legacy');",
+      code: "// TODO https://github.com/spencer-shadley/repo-template/issues/1234: Legacy script being migrated to TypeScript\nconsole.log('legacy');",
       filename: "legacy-tool.cjs",
     },
     {
-      code: "/* TODO(gh#5678): migration in progress */\nconst foo = 'bar';",
+      code: "/* TODO(https://github.com/spencer-shadley/repo-template/issues/5678): migration in progress */\nconst foo = 'bar';",
       filename: "temp-script.mjs",
     },
   ],
   invalid: [
+    // 0. Issue shorthand is not a tracked reference (repo-template#345: no shorthand fail-open)
+    {
+      code: "// TODO gh issue #1234: Legacy script being migrated to TypeScript\nconsole.log('legacy');",
+      filename: "legacy-tool.cjs",
+      errors: [
+        {
+          messageId: "preferTypescript",
+        },
+      ],
+    },
+    {
+      code: "/* TODO(gh#5678): migration in progress */\nconst foo = 'bar';",
+      filename: "temp-script.mjs",
+      errors: [
+        {
+          messageId: "preferTypescript",
+        },
+      ],
+    },
     // 1. Plain .mjs file without any comments
     {
       code: "export const x = 42;",
