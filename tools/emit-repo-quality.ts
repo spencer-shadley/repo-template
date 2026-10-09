@@ -38,7 +38,7 @@ function withBanner(sourceName: (typeof sources)[number], emittedJs: string): st
   return output;
 }
 
-export function emitAll(): Map<string, string> {
+export function emitAll(): Map<(typeof sources)[number], string> {
   const ownedRoot = mkdtempSync(path.join(os.tmpdir(), "repo-quality-emit-"));
   const emittedRoot = path.join(ownedRoot, "emitted");
   const tsconfigPath = path.join(root, ".repo-quality-emit.json");
@@ -67,7 +67,7 @@ export function emitAll(): Map<string, string> {
     if (tsc.status !== 0) {
       throw new Error(tsc.stdout || tsc.stderr || `tsc exited ${String(tsc.status)}`);
     }
-    const output = new Map<string, string>();
+    const output = new Map<(typeof sources)[number], string>();
     for (const sourceName of sources) {
       const jsName = sourceName.replace(/\.ts$/u, ".js");
       const jsPath = path.join(emittedRoot, jsName);
