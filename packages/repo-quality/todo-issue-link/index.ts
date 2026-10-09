@@ -6,7 +6,7 @@ export {
   normalizeCommentLogicalLine,
   parseTodoDirective,
 } from "./classify.ts";
-export { scanTodoIssueLinks } from "./scan.ts";
+export { scanTodoIssueLinks, type ScanOptions } from "./scan.ts";
 export type {
   CommentSpanV1,
   CoverageStatus,

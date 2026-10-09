@@ -9,7 +9,7 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const scratchRoot = mkdtempSync(join(tmpdir(), "repo-quality-npm-conformance-"));
 const consumerRoot = join(scratchRoot, "consumer");
 const packageName = "@spencer-shadley/repo-quality";
-const packageVersion = "1.12.1";
+const packageVersion = "1.12.2";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -87,7 +87,11 @@ function testInstall(url: string, artifactCommit: string, isRemote: boolean) {
   writeFileSync(
     join(consumerRoot, "verify-import.mjs"),
     `const kit = await import(${JSON.stringify(packageName)});\n`
-      + `if (!kit.qualityRules) throw new TypeError("qualityRules export missing");\n`,
+      + `if (!kit.qualityRules) throw new TypeError("qualityRules export missing");\n`
+      // Library subpaths must resolve to JavaScript: Node will not strip types under node_modules (repo-template#491).
+      + ["todo-issue-link", "docs-only-gate", "hermetic-test-preload", "hermetic-test-preload/lint", "default-branch-guard"]
+        .map((subpath) => `await import(${JSON.stringify(`${packageName}/${subpath}`)});\n`)
+        .join(""),
   );
   execFileSync(process.execPath, [join(consumerRoot, "verify-import.mjs")], { cwd: consumerRoot, stdio: "inherit" });
 

@@ -6,7 +6,7 @@
  * (package path on disk remains the historical RT#345 directory name.)
  */
 try {
-  await import("./todo-issue-link/cli.ts");
+  await import("./todo-issue-link/cli.mjs");
 } catch (error) {
   console.error(error);
   process.exit(1);

@@ -5,7 +5,7 @@
  * Prefer: node --experimental-strip-types packages/repo-quality/docs-only-gate/cli.ts
  */
 try {
-  await import("./docs-only-gate/cli.ts");
+  await import("./docs-only-gate/cli.mjs");
 } catch (error) {
   console.error(error);
   process.exit(1);

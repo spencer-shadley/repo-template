@@ -27,8 +27,8 @@ const jsonOut = argValue(argv, "--json-out");
 const result = scanTodoIssueLinks({
   rootDir,
   mode: changed ? "changed-files" : "full-tree",
-  paths: changed ? changed.split(",").map((p) => p.trim()).filter(Boolean) : undefined,
   repository,
+  ...(changed ? { paths: changed.split(",").map((p) => p.trim()).filter(Boolean) } : {}),
 });
 
 const payload = `${JSON.stringify(result, null, 2)}\n`;

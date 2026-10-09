@@ -338,5 +338,19 @@
   "packages/repo-quality/default-branch-guard.mjs": "self",
   "packages/repo-quality/default-branch-guard/cli.ts": "self",
   "packages/repo-quality/default-branch-guard/default-branch-guard.test.ts": "self",
-  "packages/repo-quality/default-branch-guard/index.ts": "self"
+  "packages/repo-quality/default-branch-guard/index.ts": "self",
+  "packages/repo-quality/default-branch-guard/cli.mjs": "self",
+  "packages/repo-quality/default-branch-guard/index.mjs": "self",
+  "packages/repo-quality/docs-only-gate/cli.mjs": "self",
+  "packages/repo-quality/docs-only-gate/index.mjs": "self",
+  "packages/repo-quality/hermetic-test-preload/env.mjs": "self",
+  "packages/repo-quality/hermetic-test-preload/index.mjs": "self",
+  "packages/repo-quality/hermetic-test-preload/lint.mjs": "self",
+  "packages/repo-quality/hermetic-test-preload/preload.mjs": "self",
+  "packages/repo-quality/todo-issue-link/classify.mjs": "self",
+  "packages/repo-quality/todo-issue-link/cli.mjs": "self",
+  "packages/repo-quality/todo-issue-link/extractors.mjs": "self",
+  "packages/repo-quality/todo-issue-link/index.mjs": "self",
+  "packages/repo-quality/todo-issue-link/registry.mjs": "self",
+  "packages/repo-quality/todo-issue-link/scan.mjs": "self"
 }
