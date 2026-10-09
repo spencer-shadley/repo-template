@@ -268,9 +268,13 @@ const PRODUCER = "spencer-shadley/.github";
 const HEAD = "a".repeat(40);
 const REL_DIR = "contracts/generated/governed-intake";
 function fakeRelease(revision: number, tamper?: (files: Map<string, Buffer>, manifest: Record<string, unknown>) => void): ReleaseSource {
+  const contract = Buffer.from(JSON.stringify({ schema: "GovernedIntakeBodyV1", version: revision, owner: PRODUCER }));
+  const policy = Buffer.from(JSON.stringify({ schema: "GovernedTriagePolicyV1", owner: PRODUCER }));
   const files = new Map<string, Buffer>([
-    ["governed-intake-body.v1.json", Buffer.from(JSON.stringify({ schema: "GovernedIntakeBodyV1", version: revision, owner: PRODUCER }))],
-    ["governed-intake-triage-policy.v1.json", Buffer.from(JSON.stringify({ schema: "GovernedTriagePolicyV1", owner: PRODUCER }))],
+    ["governed-intake-body.v1.json", contract],
+    ["contract.json", contract],
+    ["governed-intake-triage-policy.v1.json", policy],
+    ["policy.json", policy],
   ]);
   const entries = Object.fromEntries([...files].map(([name, bytes]) => [name, { path: name, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.length }]));
   const manifest: Record<string, unknown> = {
@@ -323,5 +327,17 @@ await Promise.all(forgeries.map(([label, source]) =>
 const forgedDigest = forgeries[0]?.[1];
 assert.ok(forgedDigest);
 await assert.rejects(() => runProvision({ repo: "o/r", dryRun: true, releaseSource: forgedDigest, existingLabels: [] }), ReleaseResolutionError);
+// Live path: unverified/look-alike release objects cannot authorize writes; forged source never reaches gh.
+assert.throws(() => { executeProvisionPlan(emptyPlan, false, { ...r23 }); }, /release-not-resolved/);
+await assert.rejects(() => runProvision({ repo: "o/r", dryRun: false, releaseSource: forgedDigest, existingLabels: [] }), ReleaseResolutionError);
+// Producer-parity cases: missing alias entry, non-SHA head, UTF-16 digest ordering with underscore names.
+await assert.rejects(() => resolveCurrentRelease(fakeRelease(23, (_f, m) => { { const f = m["files"]; if (typeof f === "object" && f !== null) Reflect.deleteProperty(f, "policy.json"); } })), ReleaseResolutionError);
+await assert.rejects(() => resolveCurrentRelease({ ...fakeRelease(23), resolveHead: () => Promise.resolve("") }), ReleaseResolutionError);
+const entry = (name: string) => [name, { path: name, sha256: "1".repeat(64), byteLength: 1 }] as const;
+assert.equal(
+  computePayloadDigest(Object.fromEntries(["ab", "a_b", "a-b"].map(entry))),
+  createHash("sha256").update(["a-b", "a_b", "ab"].map((n) => `${n}:${"1".repeat(64)}:1`).join("\n")).digest("hex"),
+  "digest ordering is UTF-16 code-unit order like the producer",
+);
 console.log("provision-canonical-labels.selfcheck: PASS");
 

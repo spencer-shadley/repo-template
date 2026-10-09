@@ -25,7 +25,7 @@ import {
   FLEET_LAW_PROJECTION,
   type FleetLawLabelDefinition,
 } from "./generated/fleet-law.ts";
-import { resolveCurrentRelease, type ReleaseSource, type ResolvedRelease } from "./governed-intake-release.ts";
+import { isVerifiedRelease, resolveCurrentRelease, type ReleaseSource, type ResolvedRelease } from "./governed-intake-release.ts";
 
 export const SCHEMA = "ProvisionCanonicalLabelsReportV1";
 export const ISSUE = "https://github.com/spencer-shadley/repo-template/issues/308";
@@ -282,7 +282,7 @@ export function executeProvisionPlan(plan: ProvisionPlan, dryRun: boolean = fals
   purged: string[];
   errors: string[];
 } {
-  if (!dryRun && !release) throw new Error("release-not-resolved: live effects require a verified current producer release");
+  if (!dryRun && !isVerifiedRelease(release)) throw new Error("release-not-resolved: live effects require a verified current producer release");
   const createRes = executeCreate(plan.create, plan.repo, dryRun);
   const updateRes = executeUpdate(plan.update, plan.repo, dryRun);
   const purgeRes = executePurge(plan.purge, plan.repo, dryRun);
@@ -323,7 +323,6 @@ export async function runProvision(options: {
       schema: FLEET_LAW_EVIDENCE.schema,
       revision: FLEET_LAW_EVIDENCE.revision,
       contentDigest: FLEET_LAW_EVIDENCE.contentDigest,
-      governedIntakeRevision: FLEET_LAW_EVIDENCE.governedIntakeRevision,
     },
     producerRelease: release,
     plan: {

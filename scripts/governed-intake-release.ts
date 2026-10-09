@@ -4,8 +4,10 @@
  * Fleet rule: no pins, consume latest, record resolved SHAs as evidence. The producer
  * (spencer-shadley/.github) publishes `contracts/generated/governed-intake/manifest.json` on its
  * default branch. Consumers resolve that branch head when they act, verify the manifest and the
- * contract/policy payload bytes the way the producer's own `verify.ts` does (schema, family,
- * repository, full commit SHA, payload digest recomputed from file metadata, byte digests), and
+ * contract/policy payload bytes with the producer's own `verify.ts` rules (schema, family,
+ * repository, full commit SHA, payload digest recomputed from file metadata, alias identity, byte
+ * digests of the contract and policy; the producer's required-file list is deliberately not copied
+ * so a producer adding files needs no consumer change), and
  * fail closed only on unreadable or forged input. Nothing here names a revision number.
  */
 import { createHash } from "node:crypto";
@@ -66,7 +68,8 @@ function parseJson(bytes: Buffer, what: string): unknown {
 /** Same digest rule as the producer: sorted `path:sha256:byteLength` lines. */
 export function computePayloadDigest(files: Record<string, FileEntry>): string {
   const lines = Object.keys(files)
-    .toSorted((left, right) => left.localeCompare(right))
+    // UTF-16 code-unit order, exactly the producer's `.sort()` (locale-independent).
+    .toSorted((left, right) => (left < right ? -1 : 1))
     .map((key) => {
       const entry = files[key];
       return `${entry?.path ?? ""}:${entry?.sha256 ?? ""}:${String(entry?.byteLength)}`;
@@ -89,6 +92,15 @@ function parseFiles(raw: unknown): Record<string, FileEntry> {
   return files;
 }
 
+/** Producer alias rule: contract.json / policy.json must be the canonical bytes. */
+function verifyAliases(files: Record<string, FileEntry>): void {
+  for (const [alias, canonical] of [["contract.json", "governed-intake-body.v1.json"], ["policy.json", "governed-intake-triage-policy.v1.json"]] as const) {
+    const left = files[alias];
+    const right = files[canonical];
+    if (!left || !right || left.sha256 !== right.sha256 || left.byteLength !== right.byteLength) fail(`payload alias ${alias} missing or differs from ${canonical}`);
+  }
+}
+
 function verifyManifest(raw: unknown): { revision: number; producerCommit: string; payloadDigest: string; files: Record<string, FileEntry> } {
   if (!isRecord(raw)) return fail("manifest must be an object");
   if (raw["schema"] !== "GovernedIntakeReleaseManifestV1" || raw["schemaFamily"] !== "GovernedIntakeBodyV1") {
@@ -103,6 +115,7 @@ function verifyManifest(raw: unknown): { revision: number; producerCommit: strin
   if (!isDigest(payloadDigest)) return fail("invalid payload digest");
   const files = parseFiles(raw["files"]);
   if (computePayloadDigest(files) !== payloadDigest) return fail("manifest payloadDigest does not match file metadata");
+  verifyAliases(files);
   return { revision, producerCommit: producer["commit"], payloadDigest, files };
 }
 
@@ -139,7 +152,7 @@ export async function resolveCurrentRelease(source: ReleaseSource = liveReleaseS
   if (!isRecord(policy) || policy["schema"] !== "GovernedTriagePolicyV1" || policy["owner"] !== PRODUCER_REPOSITORY) {
     return fail("policy schema or owner differs from producer identity");
   }
-  return {
+  const resolved: ResolvedRelease = {
     repository: PRODUCER_REPOSITORY,
     branch: PRODUCER_BRANCH,
     headCommit: head,
@@ -148,18 +161,27 @@ export async function resolveCurrentRelease(source: ReleaseSource = liveReleaseS
     payloadDigest: `sha256:${manifest.payloadDigest}`,
     triageLabel: `${TRIAGE_STAMP_NAMESPACE}${String(manifest.revision)}`,
   };
+  verifiedReleases.add(resolved);
+  return resolved;
+}
+
+const verifiedReleases = new WeakSet<object>();
+
+/** True only for objects returned by resolveCurrentRelease (not hand-built look-alikes). */
+export function isVerifiedRelease(value: unknown): value is ResolvedRelease {
+  return typeof value === "object" && value !== null && verifiedReleases.has(value);
 }
 
 /** Anonymous read of the public producer: `git ls-remote` for the head, raw content at that exact SHA. */
 export function liveReleaseSource(): ReleaseSource {
   return {
     resolveHead(): Promise<string> {
-      const result = spawnSync("git", ["ls-remote", `https://github.com/${PRODUCER_REPOSITORY}`, `refs/heads/${PRODUCER_BRANCH}`], { encoding: "utf8", windowsHide: true });
+      const result = spawnSync("git", ["ls-remote", `https://github.com/${PRODUCER_REPOSITORY}`, `refs/heads/${PRODUCER_BRANCH}`], { encoding: "utf8", windowsHide: true, timeout: 30_000 });
       if (result.status !== 0) return Promise.reject(new Error(`git ls-remote failed: ${result.stderr.trim()}`));
       return Promise.resolve(result.stdout.split(/\s/, 1)[0] ?? "");
     },
     async readFile(commit: string, path: string): Promise<Buffer> {
-      const response = await fetch(`https://raw.githubusercontent.com/${PRODUCER_REPOSITORY}/${commit}/${path}`);
+      const response = await fetch(`https://raw.githubusercontent.com/${PRODUCER_REPOSITORY}/${commit}/${path}`, { signal: AbortSignal.timeout(30_000) });
       if (!response.ok) throw new Error(`HTTP ${String(response.status)} reading ${path}@${commit}`);
       return Buffer.from(await response.arrayBuffer());
     },

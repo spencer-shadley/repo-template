@@ -75,7 +75,7 @@ Provisioning consumes the **latest** published Governed Intake release (fleet ru
 record resolved SHAs as evidence). At use time `scripts/governed-intake-release.ts` resolves the
 head of `spencer-shadley/.github` `main`, reads `manifest.json` and the contract/policy payloads
 at that exact SHA, and verifies them the way the producer's `verify.ts` does (schema/family,
-repository, full commit SHA, payload digest recomputed from file metadata, byte digests,
+repository, full commit SHA, payload digest recomputed from file metadata (UTF-16 order), alias identity, byte digests of contract/policy,
 contract revision/owner). Only unreadable or forged input fails closed. The completion stamp is
 `metadata:triage-v<resolved revision>`; the report records head commit, producer commit,
 revision, and payload digest. Dry-run resolves too, so evidence is always recorded. A producer
