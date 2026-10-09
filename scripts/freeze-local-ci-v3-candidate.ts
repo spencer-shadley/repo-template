@@ -1209,8 +1209,35 @@ function selfTestPayloadEnumerationIsPinned(receipt: PrePublicationReceipt): voi
   }
 }
 
+/**
+ * The freeze/publish gates read frozen commits out of git history. A shallow
+ * checkout (the default for CI and cloud clones) does not carry them, which
+ * surfaced as an opaque `git show` failure. Fetch a missing commit by sha, or
+ * fail with an actionable message; never skip the gate.
+ */
+export function ensureCommitsPresent(commits: readonly string[]): void {
+  for (const commit of commits) {
+    try {
+      execFileSync("git", ["cat-file", "-e", `${commit}^{commit}`], { cwd: root, stdio: "ignore" });
+      continue;
+    } catch {
+      // fall through to fetch
+    }
+    try {
+      execFileSync("git", ["fetch", "--quiet", "origin", commit], { cwd: root, stdio: "ignore" });
+      execFileSync("git", ["cat-file", "-e", `${commit}^{commit}`], { cwd: root, stdio: "ignore" });
+    } catch (error) {
+      throw new Error(
+        `Frozen commit ${commit} is not in this checkout and could not be fetched from origin; use a full-history clone (git fetch --unshallow).`,
+        { cause: error },
+      );
+    }
+  }
+}
+
 function main(): void {
   const mode = process.argv[2];
+  ensureCommitsPresent([FROZEN_CANDIDATE_COMMIT]);
   if (mode === "--write") {
     writeReceipts();
     console.log("Pre-publication acceptance receipt written successfully.");

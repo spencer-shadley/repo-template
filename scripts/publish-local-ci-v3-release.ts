@@ -13,6 +13,7 @@ import {
 } from "../artifacts/adoption-shell-v2/index.js";
 import {
   computeCanonicalDigests,
+  ensureCommitsPresent,
   loadFrozenArtifactManifest,
   loadFrozenCapabilityRegistry,
   loadFrozenPayloadSet,
@@ -213,6 +214,7 @@ export function resolvePublishedIdentity(
   runGit: GitRunner = defaultGit,
 ): PublicationIdentity {
   const commit = resolveRemotePeeledCommit(remote, tagName, runGit);
+  ensureCommitsPresent([commit]);
   assertCommitVersionMatchesDeclaredSemver(commit, PUBLICATION_SEMVER, (commitSha, pathName) =>
     runGit(["show", `${commitSha}:${pathName}`]),
   );
@@ -1022,6 +1024,7 @@ export function mintPublicationTag(runGit: GitRunner = defaultGit): PublicationI
 
 function main(): void {
   const mode = process.argv[2];
+  ensureCommitsPresent([FROZEN_CANDIDATE_COMMIT]);
   if (mode === "--mint-tag") {
     const identity = mintPublicationTag();
     console.log(`Minted annotated tag ${PUBLICATION_TAG} at ${identity.commit}`);
