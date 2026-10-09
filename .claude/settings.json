@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude-code-remote__add_repo",
+      "mcp__claude-code-remote__send_message",
+      "Bash(fleet-cli gh pr-merge *)",
+      "PowerShell(fleet-cli gh pr-merge *)",
+      "Bash(fleet-cli gh pr-ready *)",
+      "PowerShell(fleet-cli gh pr-ready *)",
+      "Bash(gh pr merge --repo spencer-shadley/*)",
+      "PowerShell(gh pr merge --repo spencer-shadley/*)",
+      "Bash(gh pr merge * --repo spencer-shadley/*)",
+      "PowerShell(gh pr merge * --repo spencer-shadley/*)",
+      "Bash(pnpm install *)",
+      "PowerShell(pnpm install *)",
+      "Bash(npm install *)",
+      "PowerShell(npm install *)",
+      "Bash(pnpm run build *)",
+      "PowerShell(pnpm run build *)",
+      "Bash(npm run build *)",
+      "PowerShell(npm run build *)",
+      "Bash(pnpm build *)",
+      "PowerShell(pnpm build *)"
+    ]
+  }
+}
