@@ -1,38 +1,21 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 2,
-  "sourceCommit": "5bdba91b0ac51f1f8815981f0c12b82bb292d951",
+  "sourceCommit": "80a22faa0e1ec09a149ab63165a612e1e8d598b1",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 22,
-  "currentTriageLabel": "triaged:v22",
-  "governedIntakeProducer": {
-    "schema": "GovernedIntakeCurrentReleasePinV1",
-    "producer": {
-      "repository": "spencer-shadley/.github",
-      "defaultBranch": "main",
-      "releaseCommit": "a30d28c382a32e41734d18f1b2b61698dacfdf32",
-      "producerCommit": "763aa95282da19e923b6f5834c6f1a51a9ec3bd5",
-      "sourcePath": "contracts/governed-intake-body.v1.json",
-      "sourceBlobSha": "6cf18690001cefb6e1480d69bc783e0a4c8e7e82",
-      "releaseManifestPath": "contracts/generated/governed-intake/manifest.json",
-      "releaseManifestBlobSha": "b2f5f3cdceb309419fe51dd07b2a5c1db89e8121"
-    },
-    "revision": 22,
-    "payloadDigest": "sha256:2007e37b0d8ca0f5c5a2cd91641ac84f9dea9b0ec26f1b66481c722cc50fb46a"
-  },
+  "governedIntakeRevision": 23,
+  "currentTriageLabel": "metadata:triage-v23",
   "publication": {
-    "ready": false,
-    "reason": "candidate-producer-not-activated",
+    "ready": true,
+    "reason": "verified-producer-namespace",
     "requiredProducerNamespace": "metadata:triage-v"
   },
   "assessmentAuthority": {
-    "producerRevision": 22,
-    "producerCommit": "763aa95282da19e923b6f5834c6f1a51a9ec3bd5",
-    "payloadDigest": "sha256:2007e37b0d8ca0f5c5a2cd91641ac84f9dea9b0ec26f1b66481c722cc50fb46a",
-    "priorityRequiredExactLabels": [
-      "priority:rubric-v1"
-    ],
-    "preparationCodeSourceCommit": "a747169767d2327bda7db240cf478fc8bc7079fe"
+    "producerRevision": 23,
+    "producerCommit": "4601851a0630d5ba9f3c42bffc66b794f234b079",
+    "payloadDigest": "sha256:d09609ceeed4cdaa3eb9e3162ed0e18f2b57ebe6f5f7febe77e886bfe280774d",
+    "priorityRequiredExactLabels": [],
+    "preparationCodeSourceCommit": null
   },
   "dimensions": {
     "delivers": {
@@ -346,9 +329,7 @@
       ]
     },
     "confirmedTriplet": {
-      "requiredExactLabels": [
-        "priority:rubric-v1"
-      ],
+      "requiredExactLabels": [],
       "repositoryPriorityPatterns": [
         "^priority:repo:p[0-5]$"
       ],
@@ -604,6 +585,11 @@
       "color": "B60205"
     },
     {
+      "name": "metadata:triage-v23",
+      "description": "Verified current producer revision 23; semantic assessment required.",
+      "color": "0E8A16"
+    },
+    {
       "name": "model-agnostic-audit-in-progress",
       "description": "Durable unfinished model-agnostic architecture audit record (not an active-run TTL lease).",
       "color": "C5DEF5"
@@ -789,5 +775,5 @@
       "color": "EDEDED"
     }
   ],
-  "contentDigest": "sha256:cd2a9ffbc6ddb606b9634569f89ab20cdc9ddc152a37254173765de2098eec4d"
+  "contentDigest": "sha256:d0fbd48b2c95d88d6d5eb22be157b39c670cdc0cc40f247106e399a0893e30e8"
 }

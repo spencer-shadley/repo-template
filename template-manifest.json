@@ -276,6 +276,7 @@
   "scripts/check-supply-chain-controls.ts": "self",
   "scripts/check-validation-contract-skills.ts": "self",
   "scripts/dir-breadth.json": "self",
+  "scripts/fixtures/governed-intake-verify.js.txt": "self",
   "scripts/freeze-local-ci-v3-candidate.ts": "self",
   "scripts/generated/fleet-law-projection.v1.json": "self",
   "scripts/generated/fleet-law.ts": "self",

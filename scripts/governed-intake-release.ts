@@ -1,26 +1,26 @@
 /**
- * At-use-time resolver for the CURRENT published Governed Intake release (repo-template#468).
- *
- * Fleet rule: no pins, consume latest, record resolved SHAs as evidence. The producer
- * (spencer-shadley/.github) publishes `contracts/generated/governed-intake/manifest.json` on its
- * default branch. Consumers resolve that branch head when they act, verify the manifest and the
- * contract/policy payload bytes with the producer's own `verify.ts` rules (schema, family,
- * repository, full commit SHA, payload digest recomputed from file metadata, alias identity, byte
- * digests of the contract and policy; the producer's required-file list is deliberately not copied
- * so a producer adding files needs no consumer change), and
- * fail closed only on unreadable or forged input. Nothing here names a revision number.
+ * Resolve the current published producer once and verify all release bytes with that release's
+ * own portable verifier. The verifier is trusted code from the same immutable producer commit,
+ * not a consumer-owned copy of its admission rules. No revision or verifier SHA is pinned here.
  */
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 export const PRODUCER_REPOSITORY = "spencer-shadley/.github";
-export const PRODUCER_BRANCH = "main";
 export const RELEASE_DIR = "contracts/generated/governed-intake";
 export const TRIAGE_STAMP_NAMESPACE = "metadata:triage-v";
 
+export interface ProducerHead {
+  branch: string;
+  commit: string;
+}
+
 export interface ReleaseSource {
-  /** Full 40-hex commit SHA of the producer default branch head. */
-  resolveHead(): Promise<string>;
+  /** The producer symbolic default branch and full commit SHA from the same observation. */
+  resolveHead(): Promise<ProducerHead>;
   /** Bytes of `path` at exactly `commit`. */
   readFile(commit: string, path: string): Promise<Buffer>;
 }
@@ -65,11 +65,17 @@ function parseJson(bytes: Buffer, what: string): unknown {
   }
 }
 
+/** Preserve the producer's locale-independent UTF-16 code-unit ordering. */
+function compareCodeUnits(left: string, right: string): number {
+  if (left === right) return 0;
+  return left < right ? -1 : 1;
+}
+
 /** Same digest rule as the producer: sorted `path:sha256:byteLength` lines. */
 export function computePayloadDigest(files: Record<string, FileEntry>): string {
   const lines = Object.keys(files)
     // UTF-16 code-unit order like the producer's `.sort()` (names are ASCII, so byte order is identical; locale-independent).
-    .toSorted((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
+    .toSorted(compareCodeUnits)
     .map((key) => {
       const entry = files[key];
       return `${entry?.path ?? ""}:${entry?.sha256 ?? ""}:${String(entry?.byteLength)}`;
@@ -92,39 +98,63 @@ function parseFiles(raw: unknown): Record<string, FileEntry> {
   return files;
 }
 
-/** Producer alias rule: contract.json / policy.json must be the canonical bytes. */
-function verifyAliases(files: Record<string, FileEntry>): void {
-  for (const [alias, canonical] of [["contract.json", "governed-intake-body.v1.json"], ["policy.json", "governed-intake-triage-policy.v1.json"]] as const) {
-    const left = files[alias];
-    const right = files[canonical];
-    if (!left || !right || left.sha256 !== right.sha256 || left.byteLength !== right.byteLength) fail(`payload alias ${alias} missing or differs from ${canonical}`);
+async function materializePayload(source: ReleaseSource, head: string, files: Record<string, FileEntry>, dir: string): Promise<Buffer> {
+  let verifierBytes: Buffer | undefined;
+  // Read every declared payload at the one resolved immutable commit, including both aliases.
+  // Sequential reads bound fetch fan-out and guarantee cleanup after the last outstanding write.
+  for (const [name, entry] of Object.entries(files)) {
+    if (name === "manifest.json") return fail("payload collides with manifest.json");
+    const bytes = await source.readFile(head, `${RELEASE_DIR}/${name}`);
+    if (bytes.length !== entry.byteLength || sha256(bytes) !== entry.sha256) {
+      return fail(`payload digest or byteLength mismatch: ${name}`);
+    }
+    writeFileSync(path.join(dir, name), bytes, { flag: "wx" });
+    if (name === "verify.js") verifierBytes = bytes;
   }
+  if (!verifierBytes) return fail("published verifier bytes are missing");
+  return verifierBytes;
 }
 
-function verifyManifest(raw: unknown): { revision: number; producerCommit: string; payloadDigest: string; files: Record<string, FileEntry> } {
-  if (!isRecord(raw)) return fail("manifest must be an object");
-  if (raw["schema"] !== "GovernedIntakeReleaseManifestV1" || raw["schemaFamily"] !== "GovernedIntakeBodyV1") {
-    return fail("unsupported manifest schema or family");
+/**
+ * This is a transport boundary, not an alternate release rubric: filenames are constrained before
+ * materializing producer bytes, then the producer owns required entries, aliases and schema checks.
+ * Only integrity-checked verifier bytes from the resolved release are executed. The child inherits
+ * no credentials and has read permission only for this directory, with no subprocess/worker/addon
+ * permissions. Node permissions are defense in depth for trusted producer code, not a network sandbox.
+ */
+async function verifyWithPublishedProducer(source: ReleaseSource, head: string, manifestBytes: Buffer): Promise<Record<string, unknown>> {
+  const manifest = parseJson(manifestBytes, "manifest.json");
+  if (!isRecord(manifest)) return fail("manifest must be an object");
+  const files = parseFiles(manifest["files"]);
+  const verifier = files["verify.js"];
+  if (!verifier) return fail("published verifier payload is missing");
+  const dir = mkdtempSync(path.join(os.tmpdir(), "governed-intake-release-"));
+  try {
+    writeFileSync(path.join(dir, "manifest.json"), manifestBytes, { flag: "wx" });
+    const verifierBytes = await materializePayload(source, head, files, dir);
+    // Leading underscores cannot collide with a producer payload filename.
+    writeFileSync(path.join(dir, "__producer-verify.mjs"), verifierBytes, { flag: "wx" });
+    writeFileSync(path.join(dir, "__consumer-verify.mjs"), [
+      'import { verifyGovernedIntakeRelease } from "./__producer-verify.mjs";',
+      'const result = verifyGovernedIntakeRelease(process.cwd());',
+      'process.stdout.write(JSON.stringify(result));',
+    ].join("\n"), { flag: "wx" });
+    const result = spawnSync(process.execPath, [
+      "--permission", `--allow-fs-read=${dir}`, path.join(dir, "__consumer-verify.mjs"),
+    ], { cwd: dir, env: {}, encoding: "utf8", windowsHide: true, timeout: 30_000, maxBuffer: 1024 * 1024 });
+    if (result.error || result.status !== 0) {
+      return fail(`published verifier did not complete: ${result.error?.message ?? result.stderr.trim()}`);
+    }
+    const checked = parseJson(Buffer.from(result.stdout), "producer verification result");
+    if (!isRecord(checked) || checked["ok"] !== true || !isRecord(checked["manifest"])) {
+      return fail(`published verifier rejected release: ${isRecord(checked) ? String(checked["code"]) + ": " + String(checked["error"]) : "invalid result"}`);
+    }
+    // The portable verifier returns the parsed input manifest. Do not trust substitute identity.
+    if (JSON.stringify(checked["manifest"]) !== JSON.stringify(manifest)) return fail("producer result changed manifest identity");
+    return checked["manifest"];
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
   }
-  const revision = raw["revision"];
-  if (typeof revision !== "number" || !Number.isSafeInteger(revision) || revision < 1) return fail("revision must be a positive integer");
-  const producer = raw["producer"];
-  if (!isRecord(producer) || producer["repository"] !== PRODUCER_REPOSITORY) return fail(`producer.repository must be ${PRODUCER_REPOSITORY}`);
-  if (!isCommit(producer["commit"])) return fail("producer.commit must be a nonzero full lowercase commit SHA");
-  const payloadDigest = raw["payloadDigest"];
-  if (!isDigest(payloadDigest)) return fail("invalid payload digest");
-  const files = parseFiles(raw["files"]);
-  if (computePayloadDigest(files) !== payloadDigest) return fail("manifest payloadDigest does not match file metadata");
-  verifyAliases(files);
-  return { revision, producerCommit: producer["commit"], payloadDigest, files };
-}
-
-async function verifyPayload(source: ReleaseSource, head: string, files: Record<string, FileEntry>, name: string): Promise<unknown> {
-  const entry = files[name];
-  if (!entry) return fail(`manifest missing required payload entry: ${name}`);
-  const bytes = await source.readFile(head, `${RELEASE_DIR}/${name}`);
-  if (bytes.length !== entry.byteLength || sha256(bytes) !== entry.sha256) return fail(`payload digest or byteLength mismatch: ${name}`);
-  return parseJson(bytes, name);
 }
 
 /** Resolve and verify the producer's current published release. Throws ReleaseResolutionError on any doubt. */
@@ -138,28 +168,28 @@ async function unreadableAsRefusal<T>(read: () => Promise<T>): Promise<T> {
 }
 
 export async function resolveCurrentRelease(source: ReleaseSource = liveReleaseSource()): Promise<ResolvedRelease> {
-  const head = await unreadableAsRefusal(() => source.resolveHead());
+  const selected = await unreadableAsRefusal(() => source.resolveHead());
+  const head = selected.commit;
+  if (!selected.branch || /\s/.test(selected.branch)) return fail("producer default branch is invalid");
   if (!isCommit(head)) return fail("producer head is not a full commit SHA");
   const manifestBytes = await unreadableAsRefusal(() => source.readFile(head, `${RELEASE_DIR}/manifest.json`));
-  const manifest = verifyManifest(parseJson(manifestBytes, "manifest.json"));
-  const [contract, policy] = await unreadableAsRefusal(() => Promise.all([
-    verifyPayload(source, head, manifest.files, "governed-intake-body.v1.json"),
-    verifyPayload(source, head, manifest.files, "governed-intake-triage-policy.v1.json"),
-  ]));
-  if (!isRecord(contract) || contract["schema"] !== "GovernedIntakeBodyV1" || contract["version"] !== manifest.revision || contract["owner"] !== PRODUCER_REPOSITORY) {
-    return fail("contract schema, revision or owner differs from release identity");
-  }
-  if (!isRecord(policy) || policy["schema"] !== "GovernedTriagePolicyV1" || policy["owner"] !== PRODUCER_REPOSITORY) {
-    return fail("policy schema or owner differs from producer identity");
+  const manifest = await unreadableAsRefusal(() => verifyWithPublishedProducer(source, head, manifestBytes));
+  // Validate the portable result shape before constructing this consumer's receipt; the producer
+  // has already admitted schema/revision/owner/payload semantics over all actual bytes.
+  const revision = manifest["revision"];
+  const producer = manifest["producer"];
+  const payloadDigest = manifest["payloadDigest"];
+  if (typeof revision !== "number" || !isRecord(producer) || typeof producer["commit"] !== "string" || typeof payloadDigest !== "string") {
+    return fail("unsupported producer verification result");
   }
   const resolved: ResolvedRelease = {
     repository: PRODUCER_REPOSITORY,
-    branch: PRODUCER_BRANCH,
+    branch: selected.branch,
     headCommit: head,
-    producerCommit: manifest.producerCommit,
-    revision: manifest.revision,
-    payloadDigest: `sha256:${manifest.payloadDigest}`,
-    triageLabel: `${TRIAGE_STAMP_NAMESPACE}${String(manifest.revision)}`,
+    producerCommit: producer["commit"],
+    revision,
+    payloadDigest: `sha256:${payloadDigest}`,
+    triageLabel: `${TRIAGE_STAMP_NAMESPACE}${String(revision)}`,
   };
   verifiedReleases.add(resolved);
   return resolved;
@@ -172,13 +202,28 @@ export function isVerifiedRelease(value: unknown): value is ResolvedRelease {
   return typeof value === "object" && value !== null && verifiedReleases.has(value);
 }
 
+/** Parse one symbolic HEAD observation; named branches never substitute for the default. */
+export function parseProducerHead(output: string): ProducerHead {
+  const rows = output.trim().split(/\r?\n/).map((line) => line.split("\t"));
+  const refs = rows.filter(([value, ref]) => ref === "HEAD" && value?.startsWith("ref: "));
+  const heads = rows.filter(([value, ref]) => ref === "HEAD" && isCommit(value));
+  const target = refs[0]?.[0];
+  const commit = heads[0]?.[0];
+  if (refs.length !== 1 || heads.length !== 1 || !target?.startsWith("ref: refs/heads/") || !commit) {
+    return fail("producer symbolic HEAD is missing or ambiguous");
+  }
+  const branch = target.slice("ref: refs/heads/".length);
+  if (!branch || /\s/.test(branch)) return fail("producer symbolic HEAD branch is invalid");
+  return { branch, commit };
+}
+
 /** Anonymous read of the public producer: `git ls-remote` for the head, raw content at that exact SHA. */
 export function liveReleaseSource(): ReleaseSource {
   return {
-    resolveHead(): Promise<string> {
-      const result = spawnSync("git", ["ls-remote", `https://github.com/${PRODUCER_REPOSITORY}`, `refs/heads/${PRODUCER_BRANCH}`], { encoding: "utf8", windowsHide: true, timeout: 30_000 });
+    resolveHead(): Promise<ProducerHead> {
+      const result = spawnSync("git", ["ls-remote", "--symref", "https://github.com/" + PRODUCER_REPOSITORY, "HEAD"], { encoding: "utf8", windowsHide: true, timeout: 30_000 });
       if (result.status !== 0) return Promise.reject(new Error(`git ls-remote failed: ${result.stderr.trim()}`));
-      return Promise.resolve(result.stdout.split(/\s/, 1)[0] ?? "");
+      return Promise.resolve(parseProducerHead(result.stdout));
     },
     async readFile(commit: string, path: string): Promise<Buffer> {
       const response = await fetch(`https://raw.githubusercontent.com/${PRODUCER_REPOSITORY}/${commit}/${path}`, { signal: AbortSignal.timeout(30_000) });
