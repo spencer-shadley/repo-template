@@ -16,6 +16,7 @@ import {
 } from "./provision-canonical-labels.ts";
 import {
   computePayloadDigest,
+  parseProducerHead,
   ReleaseResolutionError,
   resolveCurrentRelease,
   type ReleaseSource,
@@ -231,18 +232,24 @@ assert.equal(checkResult.code, 0);
   assert.ok(existsSync(vocabDoc), "docs/FLEET-LABEL-VOCABULARY.md must exist (repo-template#418 SSOT)");
 }
 
-// Inactive Code #7761 pin: proposal type and direction-change stay consumed, unpublished.
+// Code owns the current projection. It contains provenance, never an embedded live admission pin.
 const typeLabels = FLEET_LAW_PROJECTION.dimensions["type"]?.["labels"];
-assert.ok(Array.isArray(typeLabels) && typeLabels.includes("type:proposal"), "inactive pin must keep type:proposal");
-assert.ok(
-  CANONICAL_LABELS.some((label) => label.name === "metadata:direction-change"),
-  "inactive pin must keep metadata:direction-change",
-);
-assert.equal(
-  FLEET_LAW_PROJECTION.contentDigest,
-  "sha256:cd2a9ffbc6ddb606b9634569f89ab20cdc9ddc152a37254173765de2098eec4d",
-);
-assert.equal(FLEET_LAW_PROJECTION.sourceCommit, "5bdba91b0ac51f1f8815981f0c12b82bb292d951");
+assert.ok(Array.isArray(typeLabels) && typeLabels.includes("type:proposal"));
+assert.ok(CANONICAL_LABELS.some((label) => label.name === "metadata:direction-change"));
+assert.equal(FLEET_LAW_PROJECTION.governedIntakeProducer, undefined);
+assert.equal(FLEET_LAW_PROJECTION.assessmentAuthority.producerRevision, FLEET_LAW_PROJECTION.governedIntakeRevision);
+assert.deepEqual(verifyFleetLawProjection(FLEET_LAW_PROJECTION), []);
+for (const mutate of [
+  (p: typeof FLEET_LAW_PROJECTION) => { p.assessmentAuthority.producerRevision += 1; },
+  (p: typeof FLEET_LAW_PROJECTION) => { p.assessmentAuthority.producerCommit = "0".repeat(40); },
+  (p: typeof FLEET_LAW_PROJECTION) => { p.assessmentAuthority.payloadDigest = "not-a-digest"; },
+  (p: typeof FLEET_LAW_PROJECTION) => { p.currentTriageLabel = "triaged:v" + String(p.governedIntakeRevision); },
+]) {
+  const candidate = structuredClone(FLEET_LAW_PROJECTION);
+  mutate(candidate);
+  candidate.contentDigest = computeFleetLawDigest({ ...candidate });
+  assert.ok(verifyFleetLawProjection(candidate).length > 0, "invalid current projection provenance is refused even with coherent outer digest");
+}
 
 // Live effects require a verified, use-time-resolved producer release.
 assert.throws(() => { executeProvisionPlan(emptyPlan); }, /release-not-resolved/);
@@ -263,19 +270,28 @@ for (const mutate of [
   candidate.contentDigest = computeFleetLawDigest({ ...candidate });
   assert.ok(verifyFleetLawProjection(candidate).length > 0, "semantic drift fails with a recomputed digest");
 }
-// Hermetic producer release (r22 -> r23 with no code change; forged input refused).
+// Exact published verifier fixture from .github@fb86 (blob e7d5d458d67c75ed95252962012f79a7a3e0cb09).
+// It is test data only: production always reads verify.js from the currently resolved producer.
+const verifierFixture = readFileSync(new URL("./fixtures/governed-intake-verify.js.txt", import.meta.url));
+const requiredMatch = /export const REQUIRED_RELEASE_PAYLOADS = \[([\s\S]*?)\]/.exec(verifierFixture.toString("utf8"));
+assert.ok(requiredMatch?.[1]);
+const fixturePayloadNames = [...requiredMatch[1].matchAll(/"([^"]+)"/g)].map((match) => match[1]);
+assert.equal(fixturePayloadNames.length, 36);
+// Hermetic complete release (r22 -> r23 with no consumer code change; forged input refused).
 const PRODUCER = "spencer-shadley/.github";
 const HEAD = "a".repeat(40);
 const REL_DIR = "contracts/generated/governed-intake";
 function fakeRelease(revision: number, tamper?: (files: Map<string, Buffer>, manifest: Record<string, unknown>) => void): ReleaseSource {
   const contract = Buffer.from(JSON.stringify({ schema: "GovernedIntakeBodyV1", version: revision, owner: PRODUCER }));
   const policy = Buffer.from(JSON.stringify({ schema: "GovernedTriagePolicyV1", owner: PRODUCER }));
-  const files = new Map<string, Buffer>([
+  const files = new Map<string, Buffer>(fixturePayloadNames.map((name) => { assert.ok(name); return [name, Buffer.from(`fixture ${name}`)]; }));
+  for (const [name, bytes] of new Map<string, Buffer>([
     ["governed-intake-body.v1.json", contract],
     ["contract.json", contract],
     ["governed-intake-triage-policy.v1.json", policy],
     ["policy.json", policy],
-  ]);
+    ["verify.js", verifierFixture],
+  ])) files.set(name, bytes);
   const entries = Object.fromEntries([...files].map(([name, bytes]) => [name, { path: name, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.length }]));
   const manifest: Record<string, unknown> = {
     schema: "GovernedIntakeReleaseManifestV1",
@@ -287,7 +303,7 @@ function fakeRelease(revision: number, tamper?: (files: Map<string, Buffer>, man
   };
   tamper?.(files, manifest);
   return {
-    resolveHead: () => Promise.resolve(HEAD),
+    resolveHead: () => Promise.resolve({ branch: "master", commit: HEAD }),
     readFile: (commit, file) => {
       assert.equal(commit, HEAD, "payload bytes are read at the resolved head SHA");
       if (file === `${REL_DIR}/manifest.json`) return Promise.resolve(Buffer.from(JSON.stringify(manifest)));
@@ -296,8 +312,20 @@ function fakeRelease(revision: number, tamper?: (files: Map<string, Buffer>, man
     },
   };
 }
+
+// Rebuild metadata only when testing a self-consistent but semantically invalid release.
+function updateMetadata(files: Map<string, Buffer>, manifest: Record<string, unknown>): void {
+  const entries = Object.fromEntries([...files].map(([name, bytes]) => [name, {
+    path: name, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.length,
+  }]));
+  manifest["files"] = entries;
+  manifest["payloadDigest"] = computePayloadDigest(entries);
+}
+
 const r22 = await resolveCurrentRelease(fakeRelease(22));
 const r23 = await resolveCurrentRelease(fakeRelease(23));
+const newerRelease = await resolveCurrentRelease(fakeRelease(FLEET_LAW_PROJECTION.governedIntakeRevision + 1));
+assert.deepEqual(buildCanonicalLabels(newerRelease).filter((label) => /^metadata:triage-v[0-9]+$/.test(label.name)).map((label) => label.name), [newerRelease.triageLabel], "a newer verified publication replaces the projection completion definition rather than accumulating stamps");
 assert.equal(r22.triageLabel, "metadata:triage-v22");
 assert.equal(r23.triageLabel, "metadata:triage-v23");
 assert.equal(r23.headCommit, HEAD);
@@ -320,6 +348,12 @@ const forgeries: [string, ReleaseSource][] = [
   ["schema", fakeRelease(23, (_f, m) => { m["schema"] = "Other"; })],
   ["bytes", fakeRelease(23, (f) => { f.set("governed-intake-body.v1.json", Buffer.from("{}")); })],
   ["revision-mismatch", fakeRelease(23, (_f, m) => { m["revision"] = 24; })],
+  ["missing-required", fakeRelease(23, (f, m) => { f.delete("evaluator.ts"); updateMetadata(f, m); })],
+  ["corrupt-other-payload", fakeRelease(23, (f) => { f.set("task.md", Buffer.from("corrupted")); })],
+  ["corrupt-contract-alias", fakeRelease(23, (f) => { f.set("contract.json", Buffer.from("{}")); })],
+  ["self-consistent-contract-alias", fakeRelease(23, (f, m) => { f.set("contract.json", Buffer.from("{}")); updateMetadata(f, m); })],
+  ["self-consistent-policy-alias", fakeRelease(23, (f, m) => { f.set("policy.json", Buffer.from("{}")); updateMetadata(f, m); })],
+  ["corrupt-verifier", fakeRelease(23, (f) => { f.set("verify.js", Buffer.from("throw Error('must not run')")); })],
   ["unreadable", { resolveHead: () => Promise.reject(new Error("offline")), readFile: () => Promise.reject(new Error("offline")) }],
 ];
 await Promise.all(forgeries.map(([label, source]) =>
@@ -332,12 +366,43 @@ assert.throws(() => { executeProvisionPlan(emptyPlan, false, { ...r23 }); }, /re
 await assert.rejects(() => runProvision({ repo: "o/r", dryRun: false, releaseSource: forgedDigest, existingLabels: [] }), ReleaseResolutionError);
 // Producer-parity cases: missing alias entry, non-SHA head, UTF-16 digest ordering with underscore names.
 await assert.rejects(() => resolveCurrentRelease(fakeRelease(23, (_f, m) => { { const f = m["files"]; if (typeof f === "object" && f !== null) Reflect.deleteProperty(f, "policy.json"); } })), ReleaseResolutionError);
-await assert.rejects(() => resolveCurrentRelease({ ...fakeRelease(23), resolveHead: () => Promise.resolve("") }), ReleaseResolutionError);
+await assert.rejects(() => resolveCurrentRelease({ ...fakeRelease(23), resolveHead: () => Promise.resolve({ branch: "master", commit: "" }) }), ReleaseResolutionError);
 const entry = (name: string) => [name, { path: name, sha256: "1".repeat(64), byteLength: 1 }] as const;
 assert.equal(
   computePayloadDigest(Object.fromEntries(["ab", "a_b", "a-b"].map(entry))),
   createHash("sha256").update(["a-b", "a_b", "ab"].map((n) => `${n}:${"1".repeat(64)}:1`).join("\n")).digest("hex"),
   "digest ordering is UTF-16 code-unit order like the producer",
 );
+// A future producer owns its new required payload without a consumer source update.
+const evolvedVerifier = Buffer.from(verifierFixture.toString("utf8").replace(
+  'export const REQUIRED_RELEASE_PAYLOADS = [',
+  'export const REQUIRED_RELEASE_PAYLOADS = ["future-payload.json",',
+));
+const futureRelease = (includeRequired: boolean) => fakeRelease(23, (files, manifest) => {
+  files.set("verify.js", evolvedVerifier);
+  if (includeRequired) files.set("future-payload.json", Buffer.from("{}"));
+  updateMetadata(files, manifest);
+});
+await assert.rejects(() => resolveCurrentRelease(futureRelease(false)), /missing required payload entry: future-payload.json/);
+assert.equal((await resolveCurrentRelease(futureRelease(true))).revision, 23);
+// The producer default branch is discovered through symbolic HEAD, never a named main channel.
+for (const branch of ["main", "master", "release/next"]) {
+  const remote = "ref: refs/heads/" + branch + "\tHEAD\n" + HEAD + "\tHEAD\n" + "c".repeat(40) + "\trefs/heads/main\n";
+  const selected = parseProducerHead(remote);
+  assert.deepEqual(selected, { branch, commit: HEAD });
+  const resolved = await resolveCurrentRelease({ ...fakeRelease(23), resolveHead: () => Promise.resolve(selected) });
+  assert.equal(resolved.branch, branch);
+  assert.equal(resolved.headCommit, HEAD);
+}
+assert.deepEqual(parseProducerHead("ref: refs/heads/trunk\tHEAD\n" + "d".repeat(40) + "\tHEAD\n"), { branch: "trunk", commit: "d".repeat(40) });
+for (const malformed of [
+  HEAD + "\tHEAD\n",
+  "ref: refs/heads/main\tHEAD\n",
+  "ref: refs/tags/v1\tHEAD\n" + HEAD + "\tHEAD\n",
+  "ref: refs/heads/\tHEAD\n" + HEAD + "\tHEAD\n",
+  "ref: refs/heads/main\tHEAD\nnot-a-sha\tHEAD\n",
+  "ref: refs/heads/main\tHEAD\nref: refs/heads/master\tHEAD\n" + HEAD + "\tHEAD\n",
+  "ref: refs/heads/main\tHEAD\n" + HEAD + "\tHEAD\n" + "d".repeat(40) + "\tHEAD\n",
+]) assert.throws(() => parseProducerHead(malformed), ReleaseResolutionError);
 console.log("provision-canonical-labels.selfcheck: PASS");
 

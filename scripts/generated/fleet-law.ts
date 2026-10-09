@@ -35,7 +35,8 @@ export interface FleetLawProjectionV1 {
   sourceFile: string;
   governedIntakeRevision: number;
   currentTriageLabel: string;
-  governedIntakeProducer: {
+  /** Optional historical projection provenance; never a live admission pin. */
+  governedIntakeProducer?: {
     schema: string;
     revision: number;
     payloadDigest: string;
@@ -175,15 +176,30 @@ function record(value: unknown): Record<string, unknown> {
   return isRecord(value) ? value : {};
 }
 
+function invalidAssessmentProvenance(assessment: Record<string, unknown>, projection: Record<string, unknown>): boolean {
+  return assessment["producerRevision"] !== projection["governedIntakeRevision"]
+    || typeof assessment["producerCommit"] !== "string" || !/^[0-9a-f]{40}$/.test(assessment["producerCommit"]) || /^0+$/.test(assessment["producerCommit"])
+    || typeof assessment["payloadDigest"] !== "string" || !/^sha256:[0-9a-f]{64}$/.test(assessment["payloadDigest"])
+    || !Array.isArray(assessment["priorityRequiredExactLabels"])
+    || assessment["priorityRequiredExactLabels"].some((label: unknown) => typeof label !== "string");
+}
+
 function verifyAuthority(projection: Record<string, unknown>): string[] {
   const errors: string[] = [];
   const publication = record(projection["publication"]);
-  const pin = record(projection["governedIntakeProducer"]);
-  const producer = record(pin["producer"]);
   const assessment = record(projection["assessmentAuthority"]);
   if (typeof publication["ready"] !== "boolean" || publication["requiredProducerNamespace"] !== "metadata:triage-v") errors.push("publication must declare readiness and metadata namespace");
-  if (pin["schema"] !== "GovernedIntakeCurrentReleasePinV1" || pin["revision"] !== projection["governedIntakeRevision"] || producer["repository"] !== "spencer-shadley/.github" || typeof pin["payloadDigest"] !== "string" || !/^sha256:[0-9a-f]{64}$/.test(pin["payloadDigest"])) errors.push("invalid producer pin");
-  if (assessment["producerRevision"] !== pin["revision"] || assessment["producerCommit"] !== producer["producerCommit"] || assessment["payloadDigest"] !== pin["payloadDigest"] || !Array.isArray(assessment["priorityRequiredExactLabels"])) errors.push("assessment authority must match producer");
+  // Code owns this projection. Current generation carries source-bound assessment provenance,
+  // without the retired governedIntakeProducer pin. Live admission stays in resolveCurrentRelease.
+  if (invalidAssessmentProvenance(assessment, projection)) errors.push("invalid assessment provenance");
+  // Retained historical projections must remain internally coherent when this optional field exists.
+  if (projection["governedIntakeProducer"] !== undefined) {
+    const pin = record(projection["governedIntakeProducer"]);
+    const producer = record(pin["producer"]);
+    if (pin["schema"] !== "GovernedIntakeCurrentReleasePinV1" || pin["revision"] !== projection["governedIntakeRevision"]
+      || producer["repository"] !== "spencer-shadley/.github" || pin["payloadDigest"] !== assessment["payloadDigest"]
+      || producer["producerCommit"] !== assessment["producerCommit"]) errors.push("historical producer provenance mismatch");
+  }
   if (publication["ready"] === true && !sameJson(assessment["priorityRequiredExactLabels"], [])) errors.push("activated taxonomy cannot retain preparation requirements");
   return errors;
 }
@@ -200,6 +216,10 @@ function verifyDimensions(projection: Record<string, unknown>): string[] {
   return errors;
 }
 
+function invalidResolutionCardinality(rule: Record<string, unknown>): boolean {
+  return rule["minimumWhileOpen"] !== 0 || rule["maximumWhileOpen"] !== 0 || rule["minimumWhenResolved"] !== 1 || rule["maximum"] !== 1;
+}
+
 function verifyDimensionRule(name: string, rule: Record<string, unknown>): string[] {
   const errors: string[] = [];
     if (!Array.isArray(rule["labels"])) errors.push(`missing dimension ${name}`);
@@ -207,7 +227,7 @@ function verifyDimensionRule(name: string, rule: Record<string, unknown>): strin
     if (["type", "source", "effort", "priority:repo", "priority:fleet"].includes(name) && rule["minimumAfterTriage"] !== 1) errors.push(`${name} minimum after triage`);
     if (["effort", "priority:repo", "priority:fleet"].includes(name) && rule["maximum"] !== 1) errors.push(`${name} must be exactly one`);
     if (name === "progress" && (rule["minimum"] !== 1 || rule["maximum"] !== 1)) errors.push("progress must be exactly one");
-    if (name === "resolution" && (rule["minimumWhileOpen"] !== 0 || rule["maximumWhileOpen"] !== 0 || rule["minimumWhenResolved"] !== 1 || rule["maximum"] !== 1)) errors.push("resolution cardinality");
+    if (name === "resolution" && invalidResolutionCardinality(rule)) errors.push("resolution cardinality");
   return errors;
 }
 

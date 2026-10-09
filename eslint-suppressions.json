@@ -239,9 +239,6 @@
     "@typescript-eslint/no-unsafe-type-assertion": {
       "count": 2
     },
-    "complexity": {
-      "count": 1
-    },
     "max-classes-per-file": {
       "count": 1
     },

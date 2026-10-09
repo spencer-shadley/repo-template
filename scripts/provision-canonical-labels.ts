@@ -66,6 +66,8 @@ export function buildCanonicalLabels(release?: ResolvedRelease): readonly Canoni
 
   // 1. Code-owned managed label slice from exact FleetLawProjectionV1 artifact:
   for (const def of FLEET_LAW_PROJECTION.labels) {
+    // Completion definitions follow the verified publication resolved at use time.
+    if (/^metadata:triage-v[0-9]+$/.test(def.name)) continue;
     map.set(def.name.toLowerCase(), {
       name: def.name,
       color: def.color,

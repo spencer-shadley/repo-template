@@ -609,7 +609,7 @@ void test("publication readback stays pinned to the published candidate when the
       fs.mkdirSync(path.dirname(path.join(worktree, relativePath)), { recursive: true });
       fs.copyFileSync(path.join(root, relativePath), path.join(worktree, relativePath));
     }
-    fs.symlinkSync(path.join(root, "node_modules"), path.join(worktree, "node_modules"), "dir");
+    fs.symlinkSync(path.join(root, "node_modules"), path.join(worktree, "node_modules"), process.platform === "win32" ? "junction" : "dir");
     // Generated and gitignored (#480), so the detached worktree lacks the compiled artifacts.
     fs.cpSync(
       path.join(root, "artifacts", "adoption-shell-v2"),
