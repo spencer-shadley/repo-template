@@ -410,24 +410,31 @@ function compareEmitted(
   }
 }
 
+/**
+ * capability-bundle-registry.json is a published owner contract and stays committed: its generator
+ * must reproduce it exactly. fixtures/ and golden/ are generated at build time and gitignored
+ * (Code DOCTRINE §38), so only a local copy, when present, must match a fresh generation.
+ */
 function compareGeneratedContract(generatedContractRoot: string): void {
   const generatedPaths = listFiles(generatedContractRoot);
-  const committedPaths = [
+  const localGenerated = ["fixtures", "golden"].flatMap((directory) =>
+    listFiles(path.join(contractRoot, directory)).map((relativePath) => `${directory}/${relativePath}`),
+  );
+  const expectedPaths = [
     "capability-bundle-registry.json",
-    ...listFiles(path.join(contractRoot, "fixtures")).map(
-      (relativePath) => `fixtures/${relativePath}`,
-    ),
-    ...listFiles(path.join(contractRoot, "golden")).map(
-      (relativePath) => `golden/${relativePath}`,
-    ),
+    ...(localGenerated.length === 0 ? [] : generatedPaths.filter((entry) => entry !== "capability-bundle-registry.json")),
   ].sort(compare);
-  if (JSON.stringify(generatedPaths) !== JSON.stringify(committedPaths)) {
-    throw new Error("generated fixture/golden path set differs from the committed closure");
+  const comparedPaths = generatedPaths.filter((entry) => expectedPaths.includes(entry));
+  if (JSON.stringify(comparedPaths) !== JSON.stringify(expectedPaths)) {
+    throw new Error("generated contract path set is incomplete");
   }
-  for (const relativePath of generatedPaths) {
+  if (localGenerated.length > 0 && JSON.stringify(localGenerated.slice().sort(compare)) !== JSON.stringify(expectedPaths.filter((entry) => entry !== "capability-bundle-registry.json"))) {
+    throw new Error("local fixture/golden path set differs from a fresh generation; run pnpm build");
+  }
+  for (const relativePath of expectedPaths) {
     const actual = bytes(path.join(generatedContractRoot, ...relativePath.split("/")));
-    const committed = bytes(path.join(contractRoot, ...relativePath.split("/")));
-    if (!Buffer.from(actual).equals(committed)) {
+    const local = bytes(path.join(contractRoot, ...relativePath.split("/")));
+    if (!Buffer.from(actual).equals(local)) {
       throw new Error(`generated contract bytes differ for ${relativePath}`);
     }
   }
