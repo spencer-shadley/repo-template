@@ -12,9 +12,18 @@ import {
   validateReleasePayloadSetV2,
   type MaterializerInput,
 } from "../../../artifacts/adoption-shell-v2/index.js";
+import { constructReleasePayloadAt, WORKTREE_REF } from "../../../tools/release-payload.ts";
 import { isIssueTemplateOverride } from "../../../artifacts/adoption-shell-v2/path-policy.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+
+// The release files are gitignored build output (Code DOCTRINE §38): construct them from the
+// source tree under test instead of reading a committed snapshot.
+let cachedRelease: ReturnType<typeof constructReleasePayloadAt> | undefined;
+function generatedRelease(): ReturnType<typeof constructReleasePayloadAt> {
+  cachedRelease ??= constructReleasePayloadAt(WORKTREE_REF);
+  return cachedRelease;
+}
 
 function readJson(relativePath: string): unknown {
   const value: unknown = JSON.parse(
@@ -51,10 +60,10 @@ function readMaterializerInput(relativePath: string): MaterializerInput {
 }
 
 void test("released inert seed closes over exactly its selected safe bytes", () => {
-  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
   if (!payloadResult.ok) throw new Error("released payload must be valid");
   const payload = payloadResult.value;
-  const selection = readJson("release/inert-seed-manifest.json");
+  const selection = generatedRelease().selection;
   assert.ok(isSeedSelection(selection));
   assert.equal(selection.entryCount, payload.entryCount);
   assert.deepEqual(
@@ -102,7 +111,7 @@ void test("path policy still classifies local issue-template overrides", () => {
 });
 
 void test("released inert seed passes the exact materializer and emits once in memory", () => {
-  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
   if (!payloadResult.ok) throw new Error("released payload must be valid");
   const payload = payloadResult.value;
   const capabilitiesResult = validateCapabilityBundleRegistryV2(readJson(
@@ -127,10 +136,10 @@ void test("released inert seed passes the exact materializer and emits once in m
 });
 
 void test("released inert seed includes validation skills with exact content closure", () => {
-  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
   if (!payloadResult.ok) throw new Error("released payload must be valid");
   const payload = payloadResult.value;
-  const selection = readJson("release/inert-seed-manifest.json");
+  const selection = generatedRelease().selection;
   if (!isSeedSelection(selection)) throw new Error("released inert seed selection must be valid");
 
   const validationSkillPaths = [
@@ -160,7 +169,7 @@ void test("released inert seed includes validation skills with exact content clo
 });
 
 void test("materialized inert seed delivers both validation skills into adopted repo", () => {
-  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
   if (!payloadResult.ok) throw new Error("released payload must be valid");
   const payload = payloadResult.value;
   const capabilitiesResult = validateCapabilityBundleRegistryV2(readJson(
@@ -190,7 +199,7 @@ void test("materialized inert seed delivers both validation skills into adopted 
 });
 
 void test("inert seed release payload fails closed if validation skill is omitted or tampered", () => {
-  const payloadResult = validateReleasePayloadSetV2(readJson("release/release-payload-set.json"));
+  const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
   if (!payloadResult.ok) throw new Error("released payload must be valid");
   const payload = payloadResult.value;
 

@@ -346,8 +346,6 @@
   "plans/drafts/000-smoke.md": "copy",
   "pnpm-lock.yaml": "self",
   "pnpm-workspace.yaml": "self",
-  "release/inert-seed-manifest.json": "self",
-  "release/release-payload-set.json": "self",
   "scripts/build-repo-quality-npm.ts": "self",
   "scripts/check-changelog-structure.ts": "self",
   "scripts/check-dir-breadth.selfcheck.ts": "self",

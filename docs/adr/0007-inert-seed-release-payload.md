@@ -29,8 +29,11 @@ Keep `template-manifest.json` complete and unchanged in meaning. Publish a separ
   authority requires a later portable projection.
 
 `release/release-payload-set.json` carries the selected bytes under the existing closed v2 schema.
-`tools/release-payload.ts check` reconstructs both artifacts from tracked source bytes and rejects
-drift. The exact compiled materializer must accept and materialize the complete payload in memory
+Both files are gitignored build output: `tools/release-payload.ts write` (`pnpm release:payload`) emits
+them from the tagged source tree at release time, and `tools/release-payload.ts check`
+(`pnpm release:payload:validate`) validates the live invariants (path policy, explicit exclusions, the
+closed v2 schema) by constructing them from source. Nothing compares against a committed snapshot
+(Code DOCTRINE §38, repo-template#480). The exact compiled materializer must accept and materialize the complete payload in memory
 before publication. Factory remains the sole owner of destination writes, repository creation, and
 custody acquisition. Local issue-template installation remains forbidden; GitHub inherits the
 account-wide form. Pre-custody workflow installation remains Factory-owned after custody.
@@ -40,7 +43,7 @@ account-wide form. Pre-custody workflow installation remains Factory-owned after
 Raw overlay consumers continue to see the complete Template structure. Create-only consumers get a
 named inert contract rather than silently filtering producer bytes or bypassing path policy.
 Adding another pre-custody-forbidden raw path becomes an explicit exclusion automatically; removing
-or changing a selected byte requires regenerating the content-addressed release artifacts.
+or changing a selected byte changes the content-addressed release artifacts produced at the next release.
 
 Published tags remain immutable. Correct forward with a fresh SemVer and annotated receipt; never
 reinterpret `v3.0.1`.
