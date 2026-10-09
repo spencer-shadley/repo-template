@@ -375,6 +375,7 @@
   "scripts/proof-of-detection/reference-detectors/theme-dual-mode-lint.ts": "copy",
   "scripts/proof-of-detection/run-meta-gate.ts": "copy",
   "scripts/provision-canonical-labels.selfcheck.ts": "self",
+  "scripts/governed-intake-release.ts": "copy",
   "scripts/provision-canonical-labels.ts": "copy",
   "scripts/publish-local-ci-v3-release.ts": "self",
   "scripts/record-local-ci-v3-verification-evidence.ts": "self",

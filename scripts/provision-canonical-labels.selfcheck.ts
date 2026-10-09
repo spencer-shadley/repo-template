@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync, mkdtempSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -9,9 +10,16 @@ import {
   CANONICAL_LABELS,
   computeProvisionPlan,
   executeProvisionPlan,
+  buildCanonicalLabels,
+  runProvision,
   type ExistingLabel,
-  assertPublicationReady,
 } from "./provision-canonical-labels.ts";
+import {
+  computePayloadDigest,
+  ReleaseResolutionError,
+  resolveCurrentRelease,
+  type ReleaseSource,
+} from "./governed-intake-release.ts";
 import {
   FLEET_LAW_PROJECTION,
   FLEET_LAW_EVIDENCE,
@@ -138,12 +146,9 @@ assert.equal(FLEET_LAW_EVIDENCE.revision, FLEET_LAW_REVISION);
 assert.equal(FLEET_LAW_EVIDENCE.contentDigest, FLEET_LAW_PROJECTION.contentDigest);
 assert.equal(FLEET_LAW_EVIDENCE.sourceCommit, FLEET_LAW_PROJECTION.sourceCommit);
 
-// Current triaged:vN present
-const currentTriage = FLEET_LAW_PROJECTION.currentTriageLabel;
-assert.ok(
-  CANONICAL_LABELS.some((l) => l.name === currentTriage) === FLEET_LAW_PROJECTION.publication.ready,
-  `Missing current triage label ${currentTriage}`,
-);
+// The projection's stale producer pin / ready flag is not authoritative: no completion stamp is
+// baked into the static catalogue; it comes from the release resolved at use time.
+assert.ok(CANONICAL_LABELS.every((l) => !l.name.startsWith("metadata:triage-v")));
 
 // Recurrence guard: ensure no hand-authored priority policy or label mirrors in provision-canonical-labels.ts
 const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -239,10 +244,8 @@ assert.equal(
 );
 assert.equal(FLEET_LAW_PROJECTION.sourceCommit, "5bdba91b0ac51f1f8815981f0c12b82bb292d951");
 
-// Preparation never performs live effects or provisions a legacy completion alias.
-assert.equal(FLEET_LAW_PROJECTION.publication.ready, false);
-assert.throws(() => { assertPublicationReady(); }, /candidate-producer-not-activated/);
-assert.throws(() => { executeProvisionPlan(emptyPlan); }, /candidate-producer-not-activated/);
+// Live effects require a verified, use-time-resolved producer release.
+assert.throws(() => { executeProvisionPlan(emptyPlan); }, /release-not-resolved/);
 assert.deepEqual(computeProvisionPlan(dirtyLabels).purge, [], "closed historical stock remains untouched by default");
 assert.ok(CANONICAL_LABELS.every((l) => !/^triaged:v|^work:|^disposition:/.test(l.name)));
 for (const dimension of ["delivers", "type", "source", "blocked", "environment"]) {
@@ -260,5 +263,65 @@ for (const mutate of [
   candidate.contentDigest = computeFleetLawDigest({ ...candidate });
   assert.ok(verifyFleetLawProjection(candidate).length > 0, "semantic drift fails with a recomputed digest");
 }
+// Hermetic producer release (r22 -> r23 with no code change; forged input refused).
+const PRODUCER = "spencer-shadley/.github";
+const HEAD = "a".repeat(40);
+const REL_DIR = "contracts/generated/governed-intake";
+function fakeRelease(revision: number, tamper?: (files: Map<string, Buffer>, manifest: Record<string, unknown>) => void): ReleaseSource {
+  const files = new Map<string, Buffer>([
+    ["governed-intake-body.v1.json", Buffer.from(JSON.stringify({ schema: "GovernedIntakeBodyV1", version: revision, owner: PRODUCER }))],
+    ["governed-intake-triage-policy.v1.json", Buffer.from(JSON.stringify({ schema: "GovernedTriagePolicyV1", owner: PRODUCER }))],
+  ]);
+  const entries = Object.fromEntries([...files].map(([name, bytes]) => [name, { path: name, sha256: createHash("sha256").update(bytes).digest("hex"), byteLength: bytes.length }]));
+  const manifest: Record<string, unknown> = {
+    schema: "GovernedIntakeReleaseManifestV1",
+    schemaFamily: "GovernedIntakeBodyV1",
+    revision,
+    producer: { repository: PRODUCER, commit: "b".repeat(40) },
+    payloadDigest: computePayloadDigest(entries),
+    files: entries,
+  };
+  tamper?.(files, manifest);
+  return {
+    resolveHead: () => Promise.resolve(HEAD),
+    readFile: (commit, file) => {
+      assert.equal(commit, HEAD, "payload bytes are read at the resolved head SHA");
+      if (file === `${REL_DIR}/manifest.json`) return Promise.resolve(Buffer.from(JSON.stringify(manifest)));
+      const bytes = files.get(file.slice(REL_DIR.length + 1));
+      return bytes ? Promise.resolve(bytes) : Promise.reject(new Error(`missing ${file}`));
+    },
+  };
+}
+const r22 = await resolveCurrentRelease(fakeRelease(22));
+const r23 = await resolveCurrentRelease(fakeRelease(23));
+assert.equal(r22.triageLabel, "metadata:triage-v22");
+assert.equal(r23.triageLabel, "metadata:triage-v23");
+assert.equal(r23.headCommit, HEAD);
+assert.equal(r23.producerCommit, "b".repeat(40));
+assert.match(r23.payloadDigest, /^sha256:[0-9a-f]{64}$/);
+assert.ok(buildCanonicalLabels(r23).some((l) => l.name === "metadata:triage-v23"));
+assert.ok(buildCanonicalLabels(r23).every((l) => l.name !== "metadata:triage-v22"));
+// Live (non-dry-run) execution is allowed once a release is verified; dry-run reports r23 with no code change.
+const report23 = await runProvision({ repo: "o/r", dryRun: true, releaseSource: fakeRelease(23), existingLabels: [] });
+assert.equal(report23.producerRelease.revision, 23);
+assert.equal(report23.plan.createCount, buildCanonicalLabels(r23).length);
+assert.ok(report23.execution.created.includes("metadata:triage-v23"));
+const report22 = await runProvision({ repo: "o/r", dryRun: true, releaseSource: fakeRelease(22), existingLabels: [] });
+assert.ok(report22.execution.created.includes("metadata:triage-v22"));
+// Forged / unverifiable input fails closed.
+const forgeries: [string, ReleaseSource][] = [
+  ["digest", fakeRelease(23, (_f, m) => { m["payloadDigest"] = "0".repeat(64); })],
+  ["repository", fakeRelease(23, (_f, m) => { m["producer"] = { repository: "evil/.github", commit: "b".repeat(40) }; })],
+  ["commit", fakeRelease(23, (_f, m) => { m["producer"] = { repository: PRODUCER, commit: "0".repeat(40) }; })],
+  ["schema", fakeRelease(23, (_f, m) => { m["schema"] = "Other"; })],
+  ["bytes", fakeRelease(23, (f) => { f.set("governed-intake-body.v1.json", Buffer.from("{}")); })],
+  ["revision-mismatch", fakeRelease(23, (_f, m) => { m["revision"] = 24; })],
+  ["unreadable", { resolveHead: () => Promise.reject(new Error("offline")), readFile: () => Promise.reject(new Error("offline")) }],
+];
+await Promise.all(forgeries.map(([label, source]) =>
+  assert.rejects(() => resolveCurrentRelease(source), ReleaseResolutionError, `forged ${label} must be refused`)));
+const forgedDigest = forgeries[0]?.[1];
+assert.ok(forgedDigest);
+await assert.rejects(() => runProvision({ repo: "o/r", dryRun: true, releaseSource: forgedDigest, existingLabels: [] }), ReleaseResolutionError);
 console.log("provision-canonical-labels.selfcheck: PASS");
 
