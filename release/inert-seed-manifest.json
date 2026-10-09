@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "8d8d05313f30d9c5cd67d638af36c4ee6d5efc92e1751a0d99fa20d13532eab0",
+  "inventoryDigest": "45e41c5fb5358efd611b81acb8dacf6cd391166f4bdacc268de5cdd643bdce11",
   "entryCount": 111,
   "excludedCount": 8,
   "entries": [
@@ -600,8 +600,8 @@
       "path": "scripts/governed-intake-release.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "bd66348b81fdaa779e0d1df01ddb52a59e9956c9a70d6b66a573f97b6e7bde8c",
-      "bytes": 9636
+      "contentSha256": "189a591990975b1a2df56f2680b73d278ee381780f442f8b49bb9b097cd954e4",
+      "bytes": 9707
     },
     {
       "path": "scripts/lint-user-surface-leaks.ts",
@@ -828,5 +828,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "85d0e0f0c7bb972d977aaf1547236606265d3a3a01396ef824f44417f7e77d65"
+  "manifestDigest": "93a24bf5ba92dd3f100da254eec4be2f4cb4a8a68a227dad61ca6a30768e7cf6"
 }
