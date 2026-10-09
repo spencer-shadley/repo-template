@@ -780,6 +780,31 @@ function writeCommitted(emittedRoot: string): void {
 }
 
 
+/**
+ * Live rules (Code DOCTRINE §38): artifacts/adoption-shell-v2 and its manifest are generated at
+ * build time and never committed, so there is no committed snapshot to byte-compare. The
+ * manifest must validate against its own schema, the generated contract fixtures must
+ * reproduce, and a local build output, when present, must not be stale against a fresh emit.
+ */
+function checkLiveRules(
+  emittedRoot: string,
+  generatedContractRoot: string,
+  expectedManifest: ArtifactManifest,
+): void {
+  const validation = validateArtifactManifestV2(expectedManifest);
+  if (!validation.ok) {
+    throw new Error(
+      `artifact manifest failed validation: ${validation.diagnostics.map((row) => `${row.code} ${row.pointer}`).join(", ")}`,
+    );
+  }
+  compareGeneratedContract(generatedContractRoot);
+  if (!fs.existsSync(manifestPath)) return;
+  compareEmitted(emittedRoot, loadManifest().emitted);
+  if (!Buffer.from(manifestBytes(expectedManifest)).equals(bytes(manifestPath))) {
+    throw new Error("local artifact manifest is stale; run pnpm build");
+  }
+}
+
 async function main(): Promise<void> {
   const action = process.argv[2];
   if (!["prepare", "finish", "verify"].includes(String(action))) {
@@ -815,14 +840,7 @@ async function main(): Promise<void> {
     if (mode === "write") {
       fs.writeFileSync(manifestPath, manifestBytes(expectedManifest));
     } else {
-      const committed = loadManifest();
-      compareEmitted(emittedRoot, committed.emitted);
-      compareGeneratedContract(generatedContractRoot);
-      if (
-        !Buffer.from(manifestBytes(expectedManifest)).equals(bytes(manifestPath))
-      ) {
-        throw new Error("artifact manifest is not reproducible from the declared closure");
-      }
+      checkLiveRules(emittedRoot, generatedContractRoot, expectedManifest);
     }
   } finally {
     fs.rmSync(ownedTemp, { recursive: true, force: true });

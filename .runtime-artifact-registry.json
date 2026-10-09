@@ -52,6 +52,12 @@
       "incident": null
     },
     {
+      "pattern": "artifacts/adoption-shell-v2/",
+      "owner": "repo-template",
+      "reason": "tools/artifact-build.ts write compiles packages/adoption-shell/src and its manifest at build time; never committed (Code DOCTRINE §38).",
+      "incident": null
+    },
+    {
       "pattern": ".orchestrator-tree.lock",
       "owner": "agent-orchestrator",
       "reason": "worktree lock file held while the orchestrator operates on this checkout.",
