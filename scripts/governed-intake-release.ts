@@ -68,8 +68,8 @@ function parseJson(bytes: Buffer, what: string): unknown {
 /** Same digest rule as the producer: sorted `path:sha256:byteLength` lines. */
 export function computePayloadDigest(files: Record<string, FileEntry>): string {
   const lines = Object.keys(files)
-    // UTF-16 code-unit order, exactly the producer's `.sort()` (locale-independent).
-    .toSorted((left, right) => (left < right ? -1 : 1))
+    // UTF-16 code-unit order like the producer's `.sort()` (names are ASCII, so byte order is identical; locale-independent).
+    .toSorted((left, right) => Buffer.compare(Buffer.from(left), Buffer.from(right)))
     .map((key) => {
       const entry = files[key];
       return `${entry?.path ?? ""}:${entry?.sha256 ?? ""}:${String(entry?.byteLength)}`;

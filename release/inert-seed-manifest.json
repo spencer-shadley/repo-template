@@ -4,7 +4,7 @@
   "purpose": "inert-pre-custody-seed",
   "payloadSetPath": "release/release-payload-set.json",
   "inventoryDigestAlgorithm": "sha256-rfc8785-v1",
-  "inventoryDigest": "e057945b1ccbc52cbb2bc72acba15f9420f88b5c4234fea78105aab4a1317797",
+  "inventoryDigest": "8d8d05313f30d9c5cd67d638af36c4ee6d5efc92e1751a0d99fa20d13532eab0",
   "entryCount": 111,
   "excludedCount": 8,
   "entries": [
@@ -600,8 +600,8 @@
       "path": "scripts/governed-intake-release.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "189cbbac6f2ac94ab268606c9ad94cccde86eb2d79c566adae9713f6718042b4",
-      "bytes": 8374
+      "contentSha256": "bd66348b81fdaa779e0d1df01ddb52a59e9956c9a70d6b66a573f97b6e7bde8c",
+      "bytes": 9636
     },
     {
       "path": "scripts/lint-user-surface-leaks.ts",
@@ -649,8 +649,8 @@
       "path": "scripts/provision-canonical-labels.ts",
       "templateMode": "copy",
       "gitMode": "100644",
-      "contentSha256": "16588b55bf160d80c205b9ca18725d344a09f0a96d3826b7f004fd151d7c7139",
-      "bytes": 12983
+      "contentSha256": "dc63ad1ba84c156b0ee320fd5c06a06cde0f3f11caeb3e6768b69a6f21a836b6",
+      "bytes": 12948
     },
     {
       "path": "scripts/verify-quality-lint-required.ts",
@@ -828,5 +828,5 @@
       "reason": "requires-portable-document-projection"
     }
   ],
-  "manifestDigest": "57858264c068b2d616e3fb568ac7987d9baf79b282d949fa2c810992d43c8a54"
+  "manifestDigest": "85d0e0f0c7bb972d977aaf1547236606265d3a3a01396ef824f44417f7e77d65"
 }
