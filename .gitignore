@@ -5,6 +5,8 @@ node_modules/
 release/release-payload-set.json
 # runtime-artifact: owner=repo-template incident=none
 release/inert-seed-manifest.json
+# runtime-artifact: owner=repo-template incident=none
+packages/adoption-shell/src/repository-shape/validators.generated.ts
 *.log
 .DS_Store
 .env
