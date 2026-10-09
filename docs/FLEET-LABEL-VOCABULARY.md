@@ -59,9 +59,9 @@ That digest matches the accepted candidate blob
 only. The Code projection and Governed Intake release are distinct artifacts, so
 their source commits and content digests are not interchangeable. The pin keeps
 `type:proposal` and `metadata:direction-change`.
-`publication.ready` stays false (`candidate-producer-not-activated`). Published
-Governed Intake revision 22 stays live. This pin does not activate the producer
-or provision fleet stock.
+The projection's `publication` flag and producer pin are **not authoritative** for
+provisioning (they remain only because Code owns the projection bytes; Code should drop them
+at its next generation). This pin does not activate the producer or provision fleet stock.
 
 Dry-run composition supports multiple `delivers`, `type`, and `source` values; exactly one
 current `progress`; independent blockers; and structured risk, authority, and environment.
@@ -71,10 +71,16 @@ change it. `metadata:triage-vN` is the sole new completion family and is emitted
 activated, matching published projection after actual semantic assessment by its owner.
 No completion alias is added during preparation.
 
-Live provisioning refuses inactive preparation and freshly reads the producer's published
-manifest before effects. Coordinated activation must first publish the accepted producer,
-then obtain its Code-generated active projection and run `--sync` / scoped checks. No local
-readiness, tier, legacy namespace, or serialized-ready-only fallback authorizes effects.
+Provisioning consumes the **latest** published Governed Intake release (fleet rule: no pins,
+record resolved SHAs as evidence). At use time `scripts/governed-intake-release.ts` resolves the
+head of `spencer-shadley/.github` `main`, reads `manifest.json` and the contract/policy payloads
+at that exact SHA, and verifies them the way the producer's `verify.ts` does (schema/family,
+repository, full commit SHA, payload digest recomputed from file metadata (UTF-16 order), alias identity, byte digests of contract/policy,
+contract revision/owner). Only unreadable or forged input fails closed. The completion stamp is
+`metadata:triage-v<resolved revision>`; the report records head commit, producer commit,
+revision, and payload digest. Dry-run resolves too, so evidence is always recorded. A producer
+revision bump needs no consumer code change. No local readiness, tier, legacy namespace, or
+serialized-ready-only fallback authorizes effects.
 Existing deployed consumers retain their published contract until the coordinated switch.
 Do not use this preparation to provision fleet stock or activate inherited forms.
 

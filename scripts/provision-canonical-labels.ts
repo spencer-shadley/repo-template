@@ -25,6 +25,7 @@ import {
   FLEET_LAW_PROJECTION,
   type FleetLawLabelDefinition,
 } from "./generated/fleet-law.ts";
+import { isVerifiedRelease, resolveCurrentRelease, type ReleaseSource, type ResolvedRelease } from "./governed-intake-release.ts";
 
 export const SCHEMA = "ProvisionCanonicalLabelsReportV1";
 export const ISSUE = "https://github.com/spencer-shadley/repo-template/issues/308";
@@ -59,7 +60,7 @@ const TEMPLATE_PORTABLE_LABELS: readonly CanonicalLabel[] = Object.freeze([
   },
 ]);
 
-export function buildCanonicalLabels(): readonly CanonicalLabel[] {
+export function buildCanonicalLabels(release?: ResolvedRelease): readonly CanonicalLabel[] {
   assertFleetLawValid();
   const map = new Map<string, CanonicalLabel>();
 
@@ -72,13 +73,12 @@ export function buildCanonicalLabels(): readonly CanonicalLabel[] {
     });
   }
 
-  // Ensure published metadata:triage-vN completion label is present dynamically from projection:
-  const currentTriage = FLEET_LAW_PROJECTION.publication.ready ? FLEET_LAW_PROJECTION.currentTriageLabel : undefined;
-  if (currentTriage && !map.has(currentTriage.toLowerCase())) {
-    map.set(currentTriage.toLowerCase(), {
-      name: currentTriage,
+  // The completion stamp follows the CURRENT published release resolved at use time (no pinned revision).
+  if (release && !map.has(release.triageLabel.toLowerCase())) {
+    map.set(release.triageLabel.toLowerCase(), {
+      name: release.triageLabel,
       color: "0E8A16",
-      description: `Triage checklist completion stamp for GovernedIntakeBodyV1 version ${String(FLEET_LAW_PROJECTION.governedIntakeRevision)}; strip on re-triage.`,
+      description: `Triage checklist completion stamp for GovernedIntakeBodyV1 version ${String(release.revision)}; strip on re-triage.`,
     });
   }
 
@@ -95,22 +95,6 @@ export function buildCanonicalLabels(): readonly CanonicalLabel[] {
 
   const all = Array.from(map.values());
   return Object.freeze(all.toSorted((a, b) => a.name.localeCompare(b.name)));
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-export function assertPublicationReady(): void {
-  assertFleetLawValid();
-  const projection = FLEET_LAW_PROJECTION;
-  if (!projection.publication.ready || projection.currentTriageLabel !== `metadata:triage-v${String(projection.governedIntakeRevision)}`) throw new Error("candidate-producer-not-activated: preparation permits dry-run only");
-  const result = spawnSync("gh", ["api", "repos/spencer-shadley/.github/contents/contracts/generated/governed-intake/manifest.json", "--jq", ".content"], { encoding: "utf8", windowsHide: true });
-  if (result.status !== 0) throw new Error(`producer publication readback failed: ${result.stderr.trim()}`);
-  const manifest: unknown = JSON.parse(Buffer.from(result.stdout.trim(), "base64").toString("utf8"));
-  if (!isRecord(manifest) || !isRecord(manifest["producer"])) throw new Error("invalid producer manifest");
-  const pin = projection.governedIntakeProducer;
-  if (manifest["schema"] !== "GovernedIntakeReleaseManifestV1" || manifest["revision"] !== pin.revision || manifest["producer"]["repository"] !== pin.producer.repository || manifest["producer"]["commit"] !== pin.producer.producerCommit || `sha256:${String(manifest["payloadDigest"])}` !== pin.payloadDigest) throw new Error("producer publication identity differs from pinned projection");
 }
 
 export const CANONICAL_LABELS = buildCanonicalLabels();
@@ -210,18 +194,19 @@ function isExistingLabel(item: unknown): item is ExistingLabel {
 }
 
 export function fetchExistingLabels(repo: string): ExistingLabel[] {
+  // REST (not `gh label list`, which needs GraphQL); one JSON object per line across pages.
   const result = spawnSync(
     "gh",
-    ["label", "list", "--repo", repo, "--json", "name,color,description", "--limit", "200"],
+    ["api", "--paginate", `repos/${repo}/labels?per_page=100`, "--jq", ".[] | {name, color, description}"],
     { encoding: "utf8", windowsHide: true },
   );
   if (result.status !== 0) {
     throw new Error(`Failed to list labels for ${repo}: ${result.stderr.trim()}`);
   }
-  const parsed: unknown = JSON.parse(result.stdout);
-  if (!Array.isArray(parsed)) {
-    throw new TypeError(`Unexpected response from gh label list: ${result.stdout}`);
-  }
+  const parsed: unknown[] = result.stdout
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .map((line): unknown => JSON.parse(line));
   return parsed.filter(isExistingLabel);
 }
 
@@ -291,13 +276,13 @@ function executePurge(names: readonly string[], repo: string, dryRun: boolean): 
   return { purged, errors };
 }
 
-export function executeProvisionPlan(plan: ProvisionPlan, dryRun: boolean = false): {
+export function executeProvisionPlan(plan: ProvisionPlan, dryRun: boolean = false, release?: ResolvedRelease): {
   created: string[];
   updated: string[];
   purged: string[];
   errors: string[];
 } {
-  if (!dryRun) assertPublicationReady();
+  if (!dryRun && !isVerifiedRelease(release)) throw new Error("release-not-resolved: live effects require a verified current producer release");
   const createRes = executeCreate(plan.create, plan.repo, dryRun);
   const updateRes = executeUpdate(plan.update, plan.repo, dryRun);
   const purgeRes = executePurge(plan.purge, plan.repo, dryRun);
@@ -310,20 +295,23 @@ export function executeProvisionPlan(plan: ProvisionPlan, dryRun: boolean = fals
   };
 }
 
-export function runProvision(options: {
+export async function runProvision(options: {
   repo?: string | undefined;
   dryRun?: boolean | undefined;
   purgeBanned?: boolean | undefined;
+  releaseSource?: ReleaseSource | undefined;
+  existingLabels?: readonly ExistingLabel[] | undefined;
 } = {}) {
   assertFleetLawValid();
-  if (!options.dryRun) assertPublicationReady();
+  // Resolve + verify the current published producer release before any effect (dry-run included).
+  const release = await resolveCurrentRelease(options.releaseSource);
   const repo = options.repo || resolveCurrentRepoSlug();
-  const existing = fetchExistingLabels(repo);
-  const plan = computeProvisionPlan(existing, CANONICAL_LABELS, BANNED_LABELS, {
+  const existing = options.existingLabels ?? fetchExistingLabels(repo);
+  const plan = computeProvisionPlan(existing, buildCanonicalLabels(release), BANNED_LABELS, {
     purgeBanned: options.purgeBanned === true,
   });
   plan.repo = repo;
-  const execution = executeProvisionPlan(plan, options.dryRun);
+  const execution = executeProvisionPlan(plan, options.dryRun, release);
 
   return {
     schema: SCHEMA,
@@ -335,8 +323,8 @@ export function runProvision(options: {
       schema: FLEET_LAW_EVIDENCE.schema,
       revision: FLEET_LAW_EVIDENCE.revision,
       contentDigest: FLEET_LAW_EVIDENCE.contentDigest,
-      governedIntakeRevision: FLEET_LAW_EVIDENCE.governedIntakeRevision,
     },
+    producerRelease: release,
     plan: {
       createCount: plan.create.length,
       updateCount: plan.update.length,
@@ -347,12 +335,13 @@ export function runProvision(options: {
   };
 }
 
-function printCliReport(report: ReturnType<typeof runProvision>, jsonOutput: boolean): void {
+function printCliReport(report: Awaited<ReturnType<typeof runProvision>>, jsonOutput: boolean): void {
   if (jsonOutput) {
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     return;
   }
   console.log(`Repository: ${report.repo} (dry-run: ${String(report.dryRun)})`);
+  console.log(`Producer release: r${String(report.producerRelease.revision)} head ${report.producerRelease.headCommit} payload ${report.producerRelease.payloadDigest} stamp ${report.producerRelease.triageLabel}`);
   console.log(`- Created: ${String(report.execution.created.length)}`);
   console.log(`- Updated: ${String(report.execution.updated.length)}`);
   console.log(`- Purged:  ${String(report.execution.purged.length)}`);
@@ -386,7 +375,7 @@ if (process.argv[1]?.endsWith("provision-canonical-labels.ts")) {
   }
 
   try {
-    const report = runProvision({ repo, dryRun, purgeBanned });
+    const report = await runProvision({ repo, dryRun, purgeBanned });
     printCliReport(report, jsonOutput);
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err));
