@@ -78,10 +78,30 @@ const commandArgs = {
 const commandLine = `"${[betterleaksPath, ...commandArgs[command]]
     .map((argument) => `"${argument.replaceAll('"', '""')}"`)
     .join(" ")}"`;
+// On Windows, pass core.longpaths=true via GIT_CONFIG_* env variables so the git child Betterleaks starts
+// can access files in deep worktree paths (repo-template#466). Preserve any caller-supplied GIT_CONFIG_* settings.
+function childEnv() {
+    if (process.platform !== "win32") {
+        return process.env;
+    }
+    const rawCount = process.env["GIT_CONFIG_COUNT"] ?? process.env["git_config_count"];
+    const parsedCount = rawCount !== undefined && rawCount.trim() !== "" ? Number(rawCount) : 0;
+    const count = Number.isSafeInteger(parsedCount) && parsedCount >= 0 ? parsedCount : 0;
+    const countIndex = String(count);
+    const env = {
+        ...process.env,
+        [`GIT_CONFIG_KEY_${countIndex}`]: "core.longpaths",
+        [`GIT_CONFIG_VALUE_${countIndex}`]: "true",
+        GIT_CONFIG_COUNT: String(count + 1),
+    };
+    delete env["git_config_count"];
+    return env;
+}
 const result = spawnSync(isWindowsCommandShim
     ? process.env["ComSpec"] ?? join(process.env["SystemROOT"] ?? join(process.env["SystemDRIVE"] ?? "C:", "Windows"), "System32", "cmd.exe")
     : betterleaksPath, isWindowsCommandShim ? ["/d", "/s", "/c", commandLine] : [...commandArgs[command]], {
     cwd: process.cwd(),
+    env: childEnv(),
     stdio: "inherit",
     windowsVerbatimArguments: isWindowsCommandShim,
 });
