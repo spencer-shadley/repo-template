@@ -49,23 +49,65 @@ function fakeBetterleaks(helpText: string): { dir: string; binary: string } {
   if (process.platform === "win32") {
     const binary = join(dir, "betterleaks.cmd");
     const lines = helpText.split("\n").map((line) => `  echo ${line}`);
-    writeFileSync(binary, ["@echo off", 'if "%2"=="--help" (', ...lines, "  exit /b 0", ")", "echo scanned %*", "exit /b 0", ""].join("\r\n"));
+    writeFileSync(
+      binary,
+      [
+        "@echo off",
+        'if "%2"=="--help" (',
+        ...lines,
+        "  exit /b 0",
+        ")",
+        "echo scanned %*",
+        "if defined GIT_CONFIG_COUNT echo GIT_CONFIG_COUNT=%GIT_CONFIG_COUNT%",
+        "if defined GIT_CONFIG_KEY_0 echo GIT_CONFIG_KEY_0=%GIT_CONFIG_KEY_0%",
+        "if defined GIT_CONFIG_VALUE_0 echo GIT_CONFIG_VALUE_0=%GIT_CONFIG_VALUE_0%",
+        "if defined GIT_CONFIG_KEY_1 echo GIT_CONFIG_KEY_1=%GIT_CONFIG_KEY_1%",
+        "if defined GIT_CONFIG_VALUE_1 echo GIT_CONFIG_VALUE_1=%GIT_CONFIG_VALUE_1%",
+        "if defined GIT_CONFIG_KEY_2 echo GIT_CONFIG_KEY_2=%GIT_CONFIG_KEY_2%",
+        "if defined GIT_CONFIG_VALUE_2 echo GIT_CONFIG_VALUE_2=%GIT_CONFIG_VALUE_2%",
+        "exit /b 0",
+        "",
+      ].join("\r\n"),
+    );
     return { dir, binary };
   }
   const binary = join(dir, "betterleaks");
   const help = helpText.split("\n").map((line) => `  echo '${line}'`).join("\n");
-  writeFileSync(binary, `#!/bin/sh\nif [ "$2" = "--help" ]; then\n${help}\n  exit 0\nfi\necho "scanned $*"\nexit 0\n`);
+  writeFileSync(
+    binary,
+    [
+      "#!/bin/sh",
+      'if [ "$2" = "--help" ]; then',
+      help,
+      "  exit 0",
+      "fi",
+      'echo "scanned $*"',
+      'if [ -n "$GIT_CONFIG_COUNT" ]; then echo "GIT_CONFIG_COUNT=$GIT_CONFIG_COUNT"; fi',
+      'if [ -n "$GIT_CONFIG_KEY_0" ]; then echo "GIT_CONFIG_KEY_0=$GIT_CONFIG_KEY_0"; fi',
+      'if [ -n "$GIT_CONFIG_VALUE_0" ]; then echo "GIT_CONFIG_VALUE_0=$GIT_CONFIG_VALUE_0"; fi',
+      'if [ -n "$GIT_CONFIG_KEY_1" ]; then echo "GIT_CONFIG_KEY_1=$GIT_CONFIG_KEY_1"; fi',
+      'if [ -n "$GIT_CONFIG_VALUE_1" ]; then echo "GIT_CONFIG_VALUE_1=$GIT_CONFIG_VALUE_1"; fi',
+      'if [ -n "$GIT_CONFIG_KEY_2" ]; then echo "GIT_CONFIG_KEY_2=$GIT_CONFIG_KEY_2"; fi',
+      'if [ -n "$GIT_CONFIG_VALUE_2" ]; then echo "GIT_CONFIG_VALUE_2=$GIT_CONFIG_VALUE_2"; fi',
+      "exit 0",
+      "",
+    ].join("\n"),
+  );
   chmodSync(binary, 0o755);
   return { dir, binary };
 }
 
-function runScanWithFake(fakeDir: string) {
-  const env: Record<string, string> = { PATH: fakeDir, HOME: fakeDir, USERPROFILE: fakeDir };
+function runScanWithFake(
+  fakeDir: string,
+  command: "dir" | "staged" | "history" = "dir",
+  extraEnv: Record<string, string> = {},
+) {
+  const env: Record<string, string> = { PATH: fakeDir, HOME: fakeDir, USERPROFILE: fakeDir, ...extraEnv };
   for (const key of ["SystemRoot", "SYSTEMROOT", "ComSpec", "TEMP", "TMP"]) {
     const value = process.env[key];
-    if (value !== undefined) env[key] = value;
+    if (value !== undefined && env[key] === undefined) env[key] = value;
   }
-  return spawnSync(process.execPath, [scanner, "dir"], { cwd: fakeDir, env, encoding: "utf8" });
+  return spawnSync(process.execPath, [scanner, command], { cwd: fakeDir, env, encoding: "utf8" });
 }
 
 void test("kit declares its Betterleaks minimum next to secret-scan", () => {
@@ -94,6 +136,44 @@ void test("Betterleaks with --confidence scans with the high-confidence filter",
     const result = runScanWithFake(fake.dir);
     assert.equal(result.status, 0, result.stdout + result.stderr);
     assert.match(result.stdout, /scanned .*--confidence.*high.*--redact.*--verbose/u);
+  } finally {
+    rmSync(fake.dir, { recursive: true, force: true });
+  }
+});
+
+// repo-template#466: on Windows, Betterleaks git child must receive core.longpaths=true via GIT_CONFIG_* env.
+void test("Betterleaks receives core.longpaths on Windows and preserves caller GIT_CONFIG entries", () => {
+  const fake = fakeBetterleaks("Usage: betterleaks dir [flags]\n      --confidence string   minimum confidence");
+  try {
+    const withoutCallerEnv = runScanWithFake(fake.dir, "history");
+    assert.equal(withoutCallerEnv.status, 0, withoutCallerEnv.stdout + withoutCallerEnv.stderr);
+    assert.match(withoutCallerEnv.stdout, /scanned .*--confidence.*high.*--redact.*--verbose/u);
+    if (process.platform === "win32") {
+      assert.match(withoutCallerEnv.stdout, /GIT_CONFIG_COUNT=1/u);
+      assert.match(withoutCallerEnv.stdout, /GIT_CONFIG_KEY_0=core\.longpaths/u);
+      assert.match(withoutCallerEnv.stdout, /GIT_CONFIG_VALUE_0=true/u);
+    } else {
+      assert.doesNotMatch(withoutCallerEnv.stdout, /core\.longpaths/u);
+    }
+
+    const withCallerEnv = runScanWithFake(fake.dir, "history", {
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: "user.name",
+      GIT_CONFIG_VALUE_0: "Test User",
+    });
+    assert.equal(withCallerEnv.status, 0, withCallerEnv.stdout + withCallerEnv.stderr);
+    if (process.platform === "win32") {
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_COUNT=2/u);
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_KEY_0=user\.name/u);
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_VALUE_0=Test User/u);
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_KEY_1=core\.longpaths/u);
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_VALUE_1=true/u);
+    } else {
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_COUNT=1/u);
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_KEY_0=user\.name/u);
+      assert.match(withCallerEnv.stdout, /GIT_CONFIG_VALUE_0=Test User/u);
+      assert.doesNotMatch(withCallerEnv.stdout, /core\.longpaths/u);
+    }
   } finally {
     rmSync(fake.dir, { recursive: true, force: true });
   }
