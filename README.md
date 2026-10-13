@@ -33,6 +33,8 @@ audit, the autonomous loop) rely on these paths.
 | `.user-surface-lint.json` | configured user-facing source globs and justified allowlist for developer-leak lint |
 | `.user-surface-lint.schema.json` | schema for the user-surface leak lint config |
 | `scripts/lint-user-surface-leaks.ts` | deterministic lint preventing developer/operator internals in user-visible literals |
+| `scripts/provision-canonical-labels.ts` | portable label provisioning with verified current-producer evidence; ships with `governed-intake-release.ts` and both `scripts/generated/fleet-law` dependencies |
+| `docs/FLEET-LABEL-VOCABULARY.md` | Code-owned projection consumption, inherited issue forms, and history-preserving label adoption |
 | `packages/repo-quality/secret-scan.ts` | shared Betterleaks current-tree, staged, and onboarding-history scan recipes |
 | `PLAN_TEMPLATE.md` | canonical plan header and Markdown-to-`PlanRecordV1` adapter |
 | `plans/archive/` | archived completed plan specs/results/logs |

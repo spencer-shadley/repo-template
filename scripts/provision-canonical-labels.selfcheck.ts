@@ -141,7 +141,7 @@ assert.deepEqual(dryRunResult.created, [firstCanonical.name]);
 assert.deepEqual(dryRunResult.purged, ["tier:human"]);
 assert.equal(dryRunResult.errors.length, 0);
 
-// Test 8: Fleet law evidence, current triaged:vN, and recurrence guard
+// Test 8: Fleet law evidence, current metadata:triage-vN, and recurrence guard
 assert.equal(FLEET_LAW_EVIDENCE.schema, FLEET_LAW_SCHEMA);
 assert.equal(FLEET_LAW_EVIDENCE.revision, FLEET_LAW_REVISION);
 assert.equal(FLEET_LAW_EVIDENCE.contentDigest, FLEET_LAW_PROJECTION.contentDigest);
@@ -258,6 +258,31 @@ assert.ok(CANONICAL_LABELS.every((l) => !/^triaged:v|^work:|^disposition:/.test(
 for (const dimension of ["delivers", "type", "source", "blocked", "environment"]) {
   assert.equal(FLEET_LAW_PROJECTION.dimensions[dimension]?.["maximum"], null);
 }
+// Portable acceptance (repo-template#468): preserve the Code-owned evidence boundaries.
+assert.equal(FLEET_LAW_PROJECTION.dimensions["type"]?.["regressionRequires"], "prior_behavior_or_still_valid_decision_reference");
+assert.equal(FLEET_LAW_PROJECTION.dimensions["blocked"]?.["evidence"], "active_condition_with_exact_release_predicate");
+assert.equal(FLEET_LAW_PROJECTION.dimensions["environment"]?.["meaning"], "hard_execution_requirements_not_blockers_or_permission");
+assert.equal(FLEET_LAW_PROJECTION.dimensions["environment"]["andOrRequirements"], "structured_execution_contract");
+assert.deepEqual(FLEET_LAW_PROJECTION.tier, { labels: [], exactlyOneWhenTriaged: false }, "risk and permission are not tier labels");
+for (const name of ["source:retro-skill", "source:retro-bot", "type:regression", "resolution:obsolete", "resolution:superseded"]) {
+  assert.ok(CANONICAL_LABELS.some((label) => label.name === name), `missing portable definition ${name}`);
+}
+assert.ok(BANNED_LABELS.includes("retro-finding"));
+assert.ok(CANONICAL_LABELS.every((label) => label.name !== "retro-finding" && !label.name.startsWith("tier:")));
+const unrelatedLabels: ExistingLabel[] = [
+  ...dirtyLabels,
+  { name: "product:custom", color: "123456", description: "consumer-owned label" },
+  { name: "source:retro-skill:consumer-audit", color: "654321", description: "dynamic source evidence" },
+];
+const beforePlanning = structuredClone(unrelatedLabels);
+const preservedPlan = computeProvisionPlan(unrelatedLabels);
+assert.deepEqual(unrelatedLabels, beforePlanning, "planning never changes caller-owned label data");
+assert.deepEqual(preservedPlan, computeProvisionPlan(dirtyLabels), "unrelated and dynamic labels stay outside the portable plan");
+assert.deepEqual(
+  computeProvisionPlan(unrelatedLabels, CANONICAL_LABELS, BANNED_LABELS, { purgeBanned: true }),
+  purgePlan,
+  "even explicit retired-label purging preserves unrelated and dynamic labels",
+);
 for (const mutate of [
   (p: typeof FLEET_LAW_PROJECTION) => { const rule = p.dimensions["type"]; assert.ok(rule); rule["maximum"] = 1; },
   (p: typeof FLEET_LAW_PROJECTION) => { const rule = p.dimensions["progress"]; assert.ok(rule); rule["maximum"] = 2; },
