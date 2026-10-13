@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
   materializeAdoptionShellV2,
@@ -195,6 +197,43 @@ void test("materialized inert seed delivers both validation skills into adopted 
     const diskSha256 = crypto.createHash("sha256").update(diskContent).digest("hex");
     assert.equal(materialized.contentSha256, diskSha256);
     assert.deepEqual(Buffer.from(materialized.contentBase64, "base64"), diskContent);
+  }
+});
+
+void test("materialized inert seed imports the portable label provisioner without the template checkout", () => {
+  const output = materializeAdoptionShellV2({
+    ...readMaterializerInput("contracts/adoption-shell-v2/fixtures/minimal-input.json"),
+    release: generatedRelease().payload,
+    capabilities: readJson("contracts/adoption-shell-v2/capability-bundle-registry.json"),
+    requestedBundles: [],
+  });
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "rt468-provisioner-"));
+  try {
+    for (const relativePath of [
+      "scripts/provision-canonical-labels.ts",
+      "scripts/governed-intake-release.ts",
+      "scripts/generated/fleet-law.ts",
+      "scripts/generated/fleet-law-projection.v1.json",
+    ]) {
+      const entry = output.entries.find((item) => item.path === relativePath);
+      assert.ok(entry, `adopted seed must include provisioner dependency ${relativePath}`);
+      const target = path.join(tempRoot, relativePath);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.writeFileSync(target, Buffer.from(entry.contentBase64, "base64"));
+    }
+    const provisionerUrl = pathToFileURL(path.join(tempRoot, "scripts/provision-canonical-labels.ts")).href;
+    const child = spawnSync(process.execPath, ["--input-type=module", "--eval", [
+      'import assert from "node:assert/strict";',
+      `const { CANONICAL_LABELS } = await import(${JSON.stringify(provisionerUrl)});`,
+      'assert.ok(CANONICAL_LABELS.some(label => label.name === "resolution:obsolete"));',
+      'assert.ok(CANONICAL_LABELS.every(label => !label.name.startsWith("triaged:v")));',
+      'console.log("portable-provisioner-import: PASS");',
+    ].join("\n")], { cwd: tempRoot, encoding: "utf8", timeout: 30_000 });
+    assert.equal(child.error, undefined);
+    assert.equal(child.status, 0, child.stderr);
+    assert.equal(child.stdout.trim(), "portable-provisioner-import: PASS");
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
   }
 });
 
