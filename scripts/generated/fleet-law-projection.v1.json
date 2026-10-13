@@ -1,19 +1,19 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 2,
-  "sourceCommit": "80a22faa0e1ec09a149ab63165a612e1e8d598b1",
+  "sourceCommit": "a1effe3fbccbbf115af6ef0171c8ced82108e309",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
-  "governedIntakeRevision": 23,
-  "currentTriageLabel": "metadata:triage-v23",
+  "governedIntakeRevision": 25,
+  "currentTriageLabel": "metadata:triage-v25",
   "publication": {
     "ready": true,
     "reason": "verified-producer-namespace",
     "requiredProducerNamespace": "metadata:triage-v"
   },
   "assessmentAuthority": {
-    "producerRevision": 23,
-    "producerCommit": "4601851a0630d5ba9f3c42bffc66b794f234b079",
-    "payloadDigest": "sha256:d09609ceeed4cdaa3eb9e3162ed0e18f2b57ebe6f5f7febe77e886bfe280774d",
+    "producerRevision": 25,
+    "producerCommit": "4ad778c7a326096621a77894c6d8fbb5dd55f65a",
+    "payloadDigest": "sha256:adfcf678eb9324127a796371ec2a97bd08fec386e8a8a91355a7d6efdfd2023e",
     "priorityRequiredExactLabels": [],
     "preparationCodeSourceCommit": null
   },
@@ -585,8 +585,8 @@
       "color": "B60205"
     },
     {
-      "name": "metadata:triage-v23",
-      "description": "Verified current producer revision 23; semantic assessment required.",
+      "name": "metadata:triage-v25",
+      "description": "Verified current producer revision 25; semantic assessment required.",
       "color": "0E8A16"
     },
     {
@@ -735,6 +735,36 @@
       "color": "EDEDED"
     },
     {
+      "name": "task:design",
+      "description": "TaskProfileV1: architecture, API, schema, protocol or algorithm design is a dominant category.",
+      "color": "D4C5F9"
+    },
+    {
+      "name": "task:diagnose",
+      "description": "TaskProfileV1: diagnosis, investigation, debugging and causal reasoning.",
+      "color": "D4C5F9"
+    },
+    {
+      "name": "task:implement",
+      "description": "TaskProfileV1: code, build, refactor, test, configure or migration is a dominant reasoning category.",
+      "color": "D4C5F9"
+    },
+    {
+      "name": "task:judgment",
+      "description": "TaskProfileV1: judgment, tradeoff resolution or synthesis is a dominant category.",
+      "color": "D4C5F9"
+    },
+    {
+      "name": "task:mixed",
+      "description": "TaskProfileV1: broad multi-category reasoning where no single mode reaches the dominant threshold.",
+      "color": "0E8A16"
+    },
+    {
+      "name": "task:review",
+      "description": "TaskProfileV1: review, audit, critique, verification or inspection is a dominant category.",
+      "color": "D4C5F9"
+    },
+    {
       "name": "type:bug",
       "description": "Issue type: bug.",
       "color": "EDEDED"
@@ -775,5 +805,5 @@
       "color": "EDEDED"
     }
   ],
-  "contentDigest": "sha256:d0fbd48b2c95d88d6d5eb22be157b39c670cdc0cc40f247106e399a0893e30e8"
+  "contentDigest": "sha256:e11c03d2ae3883b822ad18fb1ab001549c06e5764dccff4d97a98c79d421eb1f"
 }

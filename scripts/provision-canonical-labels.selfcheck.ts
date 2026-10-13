@@ -262,7 +262,7 @@ for (const dimension of ["delivers", "type", "source", "blocked", "environment"]
 assert.equal(FLEET_LAW_PROJECTION.dimensions["type"]?.["regressionRequires"], "prior_behavior_or_still_valid_decision_reference");
 assert.equal(FLEET_LAW_PROJECTION.dimensions["blocked"]?.["evidence"], "active_condition_with_exact_release_predicate");
 assert.equal(FLEET_LAW_PROJECTION.dimensions["environment"]?.["meaning"], "hard_execution_requirements_not_blockers_or_permission");
-assert.equal(FLEET_LAW_PROJECTION.dimensions["environment"]?.["andOrRequirements"], "structured_execution_contract");
+assert.equal(FLEET_LAW_PROJECTION.dimensions["environment"]["andOrRequirements"], "structured_execution_contract");
 assert.deepEqual(FLEET_LAW_PROJECTION.tier, { labels: [], exactlyOneWhenTriaged: false }, "risk and permission are not tier labels");
 for (const name of ["source:retro-skill", "source:retro-bot", "type:regression", "resolution:obsolete", "resolution:superseded"]) {
   assert.ok(CANONICAL_LABELS.some((label) => label.name === name), `missing portable definition ${name}`);
