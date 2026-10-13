@@ -46,7 +46,9 @@ digest, assessment identity and label semantics; it does not author the JSON or 
 retired `governedIntakeProducer` pin. A legacy pin, if present, must remain internally
 consistent, but it never admits a live provision operation.
 
-Code #8389 supplies the published revision-23 projection. The Code source/digest provenance
+Code #8389 supplied the first published revision-23 projection. The current consumed artifact
+includes revision-25 provenance and task-profile definitions from Code's owning generator.
+The Code source/digest provenance
 and the Governed Intake producer commit/payload digest describe distinct artifacts and are
 recorded separately. Their values are evidence of the consumed bytes, not requirements that
 future publications equal the same commit or revision. Historical #476/#477 preparation and
@@ -87,6 +89,13 @@ requires current published assessment. Provisioning preserves unrelated labels a
 not delete retired repository labels from closed history by default. Stock migration stays
 with the programme owner. GitHub native inheritance remains the only form distribution:
 no `.github/ISSUE_TEMPLATE/**` copies.
+
+The portable manifest copies the provisioner, release resolver, offline consumer and its
+Code-generated JSON projection together. The inert release must include all four files:
+an isolated materialized-seed import proves the provisioner works without the Template
+checkout. This closes the dependency omission found during #468 acceptance; adopting this
+addition needs no new setup answer or label mutation. Existing consumers can overlay the two
+`scripts/generated/fleet-law` files from the same Template candidate before running the kit.
 
 The owning selfcheck includes valid full-release, missing required payload, corrupt
 noncanonical payload, alias mismatch and future-verifier requirement controls. Projection
