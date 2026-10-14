@@ -3,12 +3,22 @@
   "version": "0.0.0-private",
   "private": true,
   "type": "module",
+  "files": [
+    "artifacts/adoption-shell-v2"
+  ],
+  "exports": {
+    "./*.js": {
+      "types": "./artifacts/adoption-shell-v2/*.d.ts",
+      "default": "./artifacts/adoption-shell-v2/*.js"
+    }
+  },
   "packageManager": "pnpm@11.17.0",
   "engines": {
     "node": ">=24.16.0 <25",
     "pnpm": "11.17.0"
   },
   "scripts": {
+    "prepare": "node --experimental-strip-types tools/generate-repository-shape-validators.ts write && node tools/artifact-build.ts prepare write && node ./node_modules/typescript/lib/tsc.js -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "typecheck": "pnpm build && tsc -p tsconfig.json --noEmit && tsc -p packages/repo-quality/tsconfig.json --noEmit",
     "build": "pnpm generate:repository-shape-validators && node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "build:check": "pnpm generate:repository-shape-validators && node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",

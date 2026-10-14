@@ -53,7 +53,7 @@ them when working on this repo.
   ```
   corepack_bin=corepack
   if command -v corepack.cmd >/dev/null 2>&1; then corepack_bin=corepack.cmd; fi
-  "$corepack_bin" pnpm install --frozen-lockfile --ignore-scripts
+  "$corepack_bin" pnpm install --frozen-lockfile
   "$corepack_bin" pnpm verify
   ```
 - **Change discipline:** every structural change states WHICH fleet learning/incident motivates it

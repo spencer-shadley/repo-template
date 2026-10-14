@@ -599,8 +599,8 @@ function verifyPackage(): void {
     throw new Error("package boundary does not match the exact v2 toolchain");
   }
   const npmrc = fs.readFileSync(path.join(root, ".npmrc"), "utf8");
-  if (!npmrc.split(/\r?\n/).includes("ignore-scripts=true")) {
-    throw new Error(".npmrc must disable install scripts");
+  if (!/^engine-strict\s*=\s*true\s*$/mu.test(npmrc)) {
+    throw new Error(".npmrc must declare engine-strict=true");
   }
   const lock = fs.readFileSync(path.join(root, "pnpm-lock.yaml"), "utf8");
   if (
