@@ -40,7 +40,7 @@ import {
   resolveRemotePeeledCommit,
   serializeReceipt,
   validateCanaryReceipts,
-  VENDOR_MG_RECEIPT_PATH,
+  DURABLE_MG_CANARY_RECEIPT_PATH,
   type PostPublicationReadbackReceipt,
 } from "../../../scripts/publish-local-ci-v3-release.ts";
 import {
@@ -357,7 +357,7 @@ void test("non-receipt canary URL fails closed", () => {
 
 void test("canary loader rejects a tampered candidate.commit even when the digest is recomputed", () => {
   const genuine = loadDurableCanaryReceipt(
-    VENDOR_MG_RECEIPT_PATH,
+    DURABLE_MG_CANARY_RECEIPT_PATH,
     FIRST_CANARY_RECEIPT_DIGEST,
     "Model Gateway",
   );
