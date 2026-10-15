@@ -400,8 +400,8 @@ export function buildPublishedReleaseReceipt(
   return validated.value;
 }
 
-export const VENDOR_MG_RECEIPT_PATH = "vendor/model-gateway/canary-receipt.json";
-export const VENDOR_RF_RECEIPT_PATH = "vendor/repo-factory/canary-receipt.json";
+export const DURABLE_MG_CANARY_RECEIPT_PATH = "docs/receipts/model-gateway-canary-receipt.json";
+export const DURABLE_RF_CANARY_RECEIPT_PATH = "docs/receipts/repo-factory-canary-receipt.json";
 
 /**
  * Parse and validate the published release receipt from an exact annotated tag
@@ -494,8 +494,8 @@ export function loadDurableCanaryReceipt(
 export function validateCanaryReceipts(): void {
   assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
   assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);
-  loadDurableCanaryReceipt(VENDOR_MG_RECEIPT_PATH, FIRST_CANARY_RECEIPT_DIGEST, "Model Gateway");
-  loadDurableCanaryReceipt(VENDOR_RF_RECEIPT_PATH, SECOND_CANARY_RECEIPT_DIGEST, "Repo Factory");
+  loadDurableCanaryReceipt(DURABLE_MG_CANARY_RECEIPT_PATH, FIRST_CANARY_RECEIPT_DIGEST, "Model Gateway");
+  loadDurableCanaryReceipt(DURABLE_RF_CANARY_RECEIPT_PATH, SECOND_CANARY_RECEIPT_DIGEST, "Repo Factory");
 }
 
 export interface RemoteReadbackOptions {
@@ -645,7 +645,7 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
   assertCanaryReceiptUrl(FIRST_CANARY_RECEIPT_URL, FIRST_CANARY_RECEIPT_ID);
   assertCanaryReceiptUrl(SECOND_CANARY_RECEIPT_URL, SECOND_CANARY_RECEIPT_ID);
   const mg = loadDurableCanaryReceipt(
-    VENDOR_MG_RECEIPT_PATH,
+    DURABLE_MG_CANARY_RECEIPT_PATH,
     FIRST_CANARY_RECEIPT_DIGEST,
     "Model Gateway",
   );
@@ -659,7 +659,7 @@ export function buildPostPublicationReadbackReceipt(): PostPublicationReadbackRe
   }
 
   const rf = loadDurableCanaryReceipt(
-    VENDOR_RF_RECEIPT_PATH,
+    DURABLE_RF_CANARY_RECEIPT_PATH,
     SECOND_CANARY_RECEIPT_DIGEST,
     "Repo Factory",
   );
