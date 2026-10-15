@@ -80,3 +80,6 @@ plans/*.work-spine-lag.json
 .ops/proof-of-detection-plant-ledger.json
 # runtime-artifact: owner=repo-template incident=repo-template#152
 .ops/jscpd-ai.txt
+
+# Build output is never committed (code#7738). prepare/build emit dist/.
+dist/
