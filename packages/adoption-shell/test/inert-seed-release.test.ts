@@ -83,7 +83,6 @@ void test("released inert seed closes over exactly its selected safe bytes", () 
   assert.deepEqual(
     selection.excluded.map((entry) => entry.path),
     [
-      ".github/pull_request_template.md",
       ".ops/README.md",
       "AGENTS.md",
       "CHANGELOG.md",

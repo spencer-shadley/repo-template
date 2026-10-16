@@ -18,6 +18,7 @@
     "pnpm": "11.17.0"
   },
   "scripts": {
+    "pr-attestation:project": "node --experimental-strip-types tools/pr-attestation-template.ts",
     "prepare": "node --experimental-strip-types tools/generate-repository-shape-validators.ts write && node tools/artifact-build.ts prepare write && node ./node_modules/typescript/lib/tsc.js -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "typecheck": "pnpm build && tsc -p tsconfig.json --noEmit && tsc -p packages/repo-quality/tsconfig.json --noEmit",
     "build": "pnpm generate:repository-shape-validators && node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",

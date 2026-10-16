@@ -322,6 +322,7 @@
   "tools/generate-contract-fixtures.ts": "self",
   "tools/generate-negative-fixtures.ts": "self",
   "tools/generate-repository-shape-validators.ts": "self",
+  "tools/pr-attestation-template.ts": "template-self",
   "tools/release-payload.ts": "self",
   "tools/verify-template-self.ts": "self",
   "tsconfig.build.json": "self",
