@@ -7,6 +7,7 @@ one entry per user-visible or structural change.
 ## [Unreleased]
 
 ### Changed
+- **Canonical PR-attestation layout (#460):** generate the three pending core questions from Code’s public producer, separate conditional required concerns from advisory reviewer prompts, and check consumed-contract drift without pinning a revision or adding a merge gate. Normal materialization preserves the generated block. No release or consumer adoption. MINOR.
 - **Validation protocol anti-regrowth (#459):** stop shipping generic PR/full-validation skill copies; preserve repository-owned commands and canonical Code protocol evidence requirements in enrollment guidance. Refuse copied skills and protocol pins in generated releases, and verify normal materialization does not regrow them. Source preparation only; existing consumers and published releases are unchanged. MINOR.
 - **Hermetic test consumer migration (#431):** document published preload versus helper entry points, consumer-owned test/lint wiring, explicit boundary suites and sentinel/readback checks. Reconcile the runtime-artifact registry with the already-adopted `artifacts/` ignore so release verification can run. Existing consumers are unchanged. PATCH.
 - **Durable LocalCi canary receipts leave `vendor/<fleet-repo>/` (code#7742):** the frozen Model Gateway and Repo Factory canary receipts now live at `docs/receipts/model-gateway-canary-receipt.json` and `docs/receipts/repo-factory-canary-receipt.json`. Bytes and digests are unchanged. Template-self only. PATCH. Refs spencer-shadley/code#7742.

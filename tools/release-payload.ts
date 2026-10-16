@@ -50,7 +50,6 @@ interface GitTreeEntry {
 }
 
 const portableProjectionRequired = new Set([
-  ".github/pull_request_template.md",
   ".ops/README.md",
   "AGENTS.md",
   "CHANGELOG.md",
@@ -163,6 +162,27 @@ interface ProcessContext {
   readonly drafts: ReleasePayloadEntryDraftV2[];
 }
 
+/** Shape check only; actual canonical producer conformance is the projection command. */
+export function assertPrTemplateProjection(text: string): void {
+  if ((text.match(/<!-- governed-pr-attestation:v1 -->/g) ?? []).length !== 1 ||
+      (text.match(/<!-- \/governed-pr-attestation:v1 -->/g) ?? []).length !== 1 ||
+      !/Consumed contract: sha256:[a-f0-9]{64}/.test(text)) {
+    throw new Error("PR template must be a generated portable Code attestation projection");
+  }
+}
+
+function excludeUnprojectedPrTemplate(
+  pathValue: string, content: Buffer, templateMode: TemplateMode, ctx: ProcessContext,
+): boolean {
+  if (pathValue !== ".github/pull_request_template.md") return false;
+  try { assertPrTemplateProjection(content.toString("utf8")); return false; }
+  catch {
+    // Frozen historical trees keep their original exclusion and payload identity.
+    ctx.excluded.push({ path: pathValue, templateMode, reason: "requires-portable-document-projection" });
+    return true;
+  }
+}
+
 function processManifestEntry(
   pathValue: string,
   rawMode: unknown,
@@ -186,6 +206,7 @@ function processManifestEntry(
   }
   const content = ctx.blobs.get(tracked.object);
   if (!content) throw new Error(`selected path lacks batched Git bytes: ${pathValue}`);
+  if (excludeUnprojectedPrTemplate(pathValue, content, templateMode, ctx)) return;
   const contentSha256 = createHash("sha256").update(content).digest("hex");
   const encoding = content.includes(0) ? "binary" : "utf-8";
   ctx.inventory.push({
