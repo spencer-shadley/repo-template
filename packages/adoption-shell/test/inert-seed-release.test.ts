@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -137,40 +136,16 @@ void test("released inert seed passes the exact materializer and emits once in m
   assert.equal(result.manifest.releasePayloadDigest, payload.payloadDigest);
 });
 
-void test("released inert seed includes validation skills with exact content closure", () => {
-  const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
-  if (!payloadResult.ok) throw new Error("released payload must be valid");
-  const payload = payloadResult.value;
-  const selection = generatedRelease().selection;
-  if (!isSeedSelection(selection)) throw new Error("released inert seed selection must be valid");
-
-  const validationSkillPaths = [
-    "skills/pr-validation/SKILL.md",
-    "skills/full-validation/SKILL.md",
-  ] as const;
-
-  for (const skillPath of validationSkillPaths) {
-    const selectionEntry: SeedSelection["entries"][number] | undefined =
-      selection.entries.find((entry) => entry.path === skillPath);
-    assert.ok(selectionEntry, `inert-seed manifest must include ${skillPath}`);
-    assert.equal(selectionEntry.gitMode, "100644");
-
-    const payloadEntry = payload.entries.find((e) => e.path === skillPath);
-    assert.ok(payloadEntry, `release-payload-set must include ${skillPath}`);
-    assert.equal(payloadEntry.kind, "file");
-    assert.equal(payloadEntry.mode, "100644");
-
-    const diskContent = fs.readFileSync(path.join(root, ...skillPath.split("/")));
-    const diskSha256 = crypto.createHash("sha256").update(diskContent).digest("hex");
-
-    assert.equal(selectionEntry.contentSha256, diskSha256);
-    assert.equal(selectionEntry.bytes, diskContent.byteLength);
-    assert.equal(payloadEntry.contentSha256, diskSha256);
-    assert.deepEqual(Buffer.from(payloadEntry.contentBase64, "base64"), diskContent);
+void test("released inert seed excludes generic validation protocol copies", () => {
+  const release = generatedRelease();
+  if (!isSeedSelection(release.selection)) throw new Error("released inert seed selection must be valid");
+  for (const skillPath of ["skills/pr-validation/SKILL.md", "skills/full-validation/SKILL.md"]) {
+    assert.equal(release.selection.entries.some((entry) => entry.path === skillPath), false);
+    assert.equal(release.payload.entries.some((entry) => entry.path === skillPath), false);
   }
 });
 
-void test("materialized inert seed delivers both validation skills into adopted repo", () => {
+void test("materialized inert seed does not regrow generic validation protocol copies", () => {
   const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
   if (!payloadResult.ok) throw new Error("released payload must be valid");
   const payload = payloadResult.value;
@@ -192,11 +167,7 @@ void test("materialized inert seed delivers both validation skills into adopted 
 
   for (const skillPath of ["skills/pr-validation/SKILL.md", "skills/full-validation/SKILL.md"]) {
     const materialized = result.entries.find((e) => e.path === skillPath);
-    assert.ok(materialized, `materialized output must include ${skillPath}`);
-    const diskContent = fs.readFileSync(path.join(root, ...skillPath.split("/")));
-    const diskSha256 = crypto.createHash("sha256").update(diskContent).digest("hex");
-    assert.equal(materialized.contentSha256, diskSha256);
-    assert.deepEqual(Buffer.from(materialized.contentBase64, "base64"), diskContent);
+    assert.equal(materialized, undefined, `materialization must not regrow ${skillPath}`);
   }
 });
 
@@ -237,16 +208,16 @@ void test("materialized inert seed imports the portable label provisioner withou
   }
 });
 
-void test("inert seed release payload fails closed if validation skill is omitted or tampered", () => {
+void test("inert seed release payload fails closed if enrollment guidance is omitted or tampered", () => {
   const payloadResult = validateReleasePayloadSetV2(generatedRelease().payload);
   if (!payloadResult.ok) throw new Error("released payload must be valid");
   const payload = payloadResult.value;
 
-  // Negative 1: omitting validation skill entry
+  // Negative 1: omitting enrollment guidance entry
   const omitted = {
     ...payload,
     entryCount: payload.entryCount - 1,
-    entries: payload.entries.filter((e) => e.path !== "skills/pr-validation/SKILL.md"),
+    entries: payload.entries.filter((e) => e.path !== "docs/QUEUE-ENROLLMENT.md"),
   };
   const omittedResult = validateReleasePayloadSetV2(omitted);
   assert.equal(omittedResult.ok, false);
@@ -255,7 +226,7 @@ void test("inert seed release payload fails closed if validation skill is omitte
   const tampered = {
     ...payload,
     entries: payload.entries.map((e) =>
-      e.path === "skills/pr-validation/SKILL.md"
+      e.path === "docs/QUEUE-ENROLLMENT.md"
         ? { ...e, contentSha256: "0".repeat(64) }
         : e,
     ),
