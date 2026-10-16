@@ -10,8 +10,10 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-/** Exact routing / config keys that must never leak a real repository into a test. */
+/** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
+    "FLEET_SEAT_WORKTREE",
+    "FLEET_SEAT_JOB_ID",
     "GIT_DIR",
     "GIT_WORK_TREE",
     "GIT_INDEX_FILE",
@@ -32,7 +34,7 @@ const GIT_CONFIG_KEY_VALUE = /^GIT_CONFIG_(?:KEY|VALUE)_\d+$/i;
 function isRecord(value) {
     return value !== null && typeof value === "object" && !Array.isArray(value);
 }
-/** True when the key is a git routing or injectible config variable that tests must not inherit. */
+/** True when the key is inherited seat custody, git routing, or injectible config that tests must not inherit. */
 export function isHermeticStripKey(key) {
     const upper = key.toUpperCase();
     if (HERMETIC_STRIP_EXACT.includes(upper))
