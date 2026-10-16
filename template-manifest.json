@@ -297,8 +297,6 @@
   "scripts/rotate-changelog-weekly.ts": "self",
   "scripts/verify-quality-lint-required.ts": "copy",
   "scripts/verify-repo-quality-npm.ts": "self",
-  "skills/full-validation/SKILL.md": "copy",
-  "skills/pr-validation/SKILL.md": "copy",
   "template-manifest.json": "self",
   "tests/env-dot-access-lint.test.ts": "self",
   "tests/fixtures/user-surface-lint/allowlisted/config.json": "copy",
