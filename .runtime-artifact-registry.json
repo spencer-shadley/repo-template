@@ -28,7 +28,7 @@
       "incident": null
     },
     {
-      "pattern": "artifacts/adoption-shell-v2/",
+      "pattern": "artifacts/",
       "owner": "repo-template",
       "reason": "tools/artifact-build.ts write compiles packages/adoption-shell/src and its manifest at build time; never committed (Code DOCTRINE §38).",
       "incident": null

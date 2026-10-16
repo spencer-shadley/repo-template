@@ -136,6 +136,53 @@ consumer repositories continue using the GitHub path above. The merge-blocking
 and runs the lock-backed `npm ci` consumer gate against the installed dependency manifest. Set
 `REPO_QUALITY_NPM_SPEC` when checking a specific producer spec.
 
+### Adopt hermetic tests in an existing repository (#431)
+
+The consumer repository owns this migration and its review. Updating Repo Template does not
+change an existing consumer's package scripts, ESLint configuration, or tests. Pin and install
+the published kit as described above; keep the consumer's existing test runner and arguments.
+
+1. Add the published preload to every ordinary Node test entry point, including subprocess
+   entry points that start a new Node test process. For example:
+
+   ```json
+   "test": "node --import @spencer-shadley/repo-quality/hermetic-test-preload.mjs --test tests/*.test.mjs"
+   ```
+
+   The `.mjs` launcher applies isolation before tests load. The extensionless
+   `@spencer-shadley/repo-quality/hermetic-test-preload` export contains helper functions;
+   importing that library alone does not apply the preload. Do not set a machine-wide
+   `NODE_OPTIONS` or rewrite a real user's Git configuration to enable isolation.
+
+2. Retain `...qualityRules()` and add the published rule block to the consumer's flat config:
+
+   ```ts
+   import { hermeticTestRules } from "@spencer-shadley/repo-quality/hermetic-test-preload/lint";
+   // Inside the exported configuration array:
+   // ...qualityRules(), ...hermeticTestRules()
+   ```
+
+3. For a test that spawns Git, import `buildHermeticTestEnvironment` from
+   `@spencer-shadley/repo-quality/hermetic-test-preload`, create a disposable environment,
+   and pass its `env` explicitly to each subprocess. Keep fixture repositories under a
+   disposable directory and remove that directory after the test. Do not copy the helper
+   implementation into the consumer or spread the ambient environment back over its result.
+
+4. A test that deliberately observes real host or network state belongs in a separately
+   invoked boundary suite. Its Git-spawning file must declare
+   `// @hermetic-boundary reason="specific boundary and why isolation would invalidate it"`.
+   This marker permits the lint boundary; it does not disable the preload, authorize a real
+   mutation, or make a network test part of the ordinary hermetic suite.
+
+Before landing the consumer migration, run its ordinary tests and lint, then check that an
+outside sentinel repository's `.git/config` and a sentinel global Git configuration remain
+byte-identical after a test attempts fixture-local and global configuration writes. Retain
+the exact kit commit and those results in the consumer's migration receipt. Repo Template's
+own `pnpm hermetic-test-preload:selfcheck` covers the helper, sentinel and lint behavior;
+`pnpm repo-quality:npm:check` materializes an exact deterministic package tree and verifies
+its installed JavaScript exports in a clean npm consumer. A local artifact check does not
+claim a new remote artifact/tag was published or that existing consumers adopted it.
+
 ### GitHub path publication audit (Fixes #299)
 
 | Subpath | Publication status | Audit result |
