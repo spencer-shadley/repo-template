@@ -7,17 +7,17 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import type { AnySchema } from "ajv";
 import type { FormatsPlugin } from "ajv-formats";
 
-import { canonicalizeJson } from "../src/canonical-json.ts";
-import { sha256Bytes } from "../src/digest.ts";
-import { validatePlanRecordV1 } from "../src/plan-record-v1.ts";
+import { canonicalizeJson } from "../../src/canonical-json.ts";
+import { sha256Bytes } from "../../src/digest.ts";
+import { validatePlanRecordV1 } from "../../src/plan-record-v1.ts";
 import {
   archiveAggregateSha256V1,
   createWorkMigrationManifestV1,
   validateWorkMigrationManifestV1,
-} from "../src/work-migration-manifest-v1.ts";
+} from "../../src/work-migration-manifest-v1.ts";
 
 const contract = (name: string): URL =>
-  new URL(`../../../contracts/plan-record/v1/${name}`, import.meta.url);
+  new URL(`../../../../contracts/plan-record/v1/${name}`, import.meta.url);
 const parse = (name: string): unknown =>
   JSON.parse(fs.readFileSync(contract(name), "utf8")) as unknown;
 
