@@ -7,24 +7,24 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import type { AnySchema } from "ajv";
 import type { FormatsPlugin } from "ajv-formats";
 
-import { canonicalizeJson } from "../src/canonical-json.ts";
+import { canonicalizeJson } from "../../src/canonical-json.ts";
 import {
   classifyPlanRecordV1,
   planRecordTransitionReasonV1,
   validatePlanRecordV1,
   type PlanRecordV1,
-} from "../src/plan-record-v1.ts";
+} from "../../src/plan-record-v1.ts";
 import {
   ARCHIVE_AGGREGATE_ALGORITHM_V1,
   archiveAggregateSha256V1,
   createWorkMigrationManifestV1,
   validateWorkMigrationManifestV1,
-} from "../src/work-migration-manifest-v1.ts";
+} from "../../src/work-migration-manifest-v1.ts";
 import {
   classifyPlanRecordV1 as classifyGeneratedPlanRecordV1,
   createWorkMigrationManifestV1 as createGeneratedWorkMigrationManifestV1,
   validateWorkMigrationManifestV1 as validateGeneratedWorkMigrationManifestV1,
-} from "../../../artifacts/adoption-shell-v2/index.js";
+} from "../../../../artifacts/adoption-shell-v2/index.js";
 
 interface ClassificationFixture {
   readonly name: string;
@@ -36,7 +36,7 @@ interface ClassificationFixture {
 }
 
 const contract = (name: string): URL =>
-  new URL(`../../../contracts/plan-record/v1/${name}`, import.meta.url);
+  new URL(`../../../../contracts/plan-record/v1/${name}`, import.meta.url);
 const parse = (name: string): unknown =>
   JSON.parse(fs.readFileSync(contract(name), "utf8")) as unknown;
 

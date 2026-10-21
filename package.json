@@ -23,7 +23,7 @@
     "typecheck": "pnpm build && tsc -p tsconfig.json --noEmit && tsc -p packages/repo-quality/tsconfig.json --noEmit",
     "build": "pnpm generate:repository-shape-validators && node tools/artifact-build.ts prepare write && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish write",
     "build:check": "pnpm generate:repository-shape-validators && node tools/artifact-build.ts prepare check && tsc -p .adoption-shell-build.json && node tools/artifact-build.ts finish check",
-    "test": "pnpm build && pnpm repo-quality:emit && node --test packages/adoption-shell/test/*.test.ts tests/env-dot-access-lint.test.ts && pnpm todo-issue-link:selfcheck && pnpm hermetic-test-preload:selfcheck && pnpm default-branch-guard:selfcheck",
+    "test": "pnpm build && pnpm repo-quality:emit && node --test packages/adoption-shell/test/*.test.ts packages/adoption-shell/test/plan/*.test.ts tests/env-dot-access-lint.test.ts && pnpm todo-issue-link:selfcheck && pnpm hermetic-test-preload:selfcheck && pnpm default-branch-guard:selfcheck",
     "release:payload": "pnpm build && node tools/release-payload.ts write",
     "release:payload:validate": "pnpm build && node tools/release-payload.ts check",
     "verify:artifact": "pnpm build && node tools/artifact-build.ts verify",
