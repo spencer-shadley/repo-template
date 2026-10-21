@@ -89,9 +89,8 @@ recent incidents. Leave `TODO(setup!):` markers only where a human policy answer
 
 ## Tier rule
 
-Migrations for risk-tiered repositories, including the orchestrator and workspace root, run as
-human-tier work with `--no-queue`. Leaf repos may use the auto lane when their local autonomy policy
-allows it.
+Migrations are fully autonomous in every repository (fleet AGENTS.md); there is no per-repo
+approval tier. A genuine one-way door goes to Spencer through human-escalation-confirm.
 
 ## Rollout order
 
