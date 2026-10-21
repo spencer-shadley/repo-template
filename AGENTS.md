@@ -141,8 +141,8 @@ schedules; deploys to production; performs an irreversible migration; transfers 
 writer/effect authority; or cuts over a capability. Split those effects into their governed
 transaction. An applicable failed check or actual negative review blocks the candidate bytes.
 
-Persistent goals are disabled for autonomous repo managers and coordinators until native
-pre-injection guards exist. A bounded heartbeat wakes exactly one finite deliverable; a paused or
+Persistent goals are allowed; continuation guards warn on unsafe continuation.
+A bounded heartbeat wakes exactly one finite deliverable; a paused or
 no-progress manager stops and never self-requeues.
 
 At every poll, the coordinator consumes AO's typed `GoalContinuationDecisionV1` contract to contain
@@ -269,7 +269,7 @@ interaction events.
 
 ## Autonomy policy
 
-{{AUTONOMY_POLICY}}  <!-- TODO(setup!): fully-autonomous | risk-tiered (per-plan auto/human) | human-approval. If not fully-autonomous, list the triggers that force `human` (deletion, one-way/irreversible, live-service risk, major changes) and note that the auto-merge claim lane holds ONLY auto-tier plans. Do not recreate plans/QUEUE.md. -->
+{{AUTONOMY_POLICY}}  <!-- TODO(setup!): Fully autonomous (fleet AGENTS.md). One-way doors go to Spencer through human-escalation-confirm; no per-repo approval tier. Do not recreate plans/QUEUE.md. -->
 Default Effort for plans: **{{DEFAULT_EFFORT}}**. <!-- TODO(setup!): Pick by cost-vs-first-attempt-quality: `low` = docs/config repos and repos with cheap, fast verify gates (retries are cheap); `medium` = product repos (default starting point); `high` = only where a failed first attempt is expensive (long verify gates like e2e suites, e.g. 30+ min). The ladder auto-escalates per plan regardless; this sets the FLOOR. Repo priority offsets may modulate this in future (orchestrator #171). -->
 
 ## Incident log (`.ops/incidents.jsonl`)

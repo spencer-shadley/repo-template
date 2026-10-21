@@ -175,8 +175,8 @@ for (const heading of portableCharterHeadings) {
 }
 const requiredDirectL0Defaults = [
   [
-    "persistent goals disabled pending native guards",
-    /persistent goals are disabled for autonomous repo managers and coordinators[\s\S]{0,100}native\s+pre-injection guards exist/i,
+    "persistent goals allowed with warning continuation guards",
+    /persistent goals are allowed; continuation guards warn on unsafe continuation/i,
   ],
   [
     "one finite heartbeat deliverable and terminal stop",
@@ -218,7 +218,7 @@ function validateModelAgnosticPolicy(text: string): string[] {
   }
 
   const managerSectionMatch =
-    /Persistent goals are disabled for autonomous repo managers[\s\S]*?(?=## Binding steer|$)/i.exec(
+    /Persistent goals are allowed[\s\S]*?(?=## Binding steer|$)/i.exec(
       payload,
     );
   if (!managerSectionMatch) {
