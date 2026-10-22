@@ -3,7 +3,7 @@
 /**
  * Hermetic test environment (code#6081 / DOCTRINE §65).
  *
- * Strips inherited git routing, redirects HOME/XDG/GIT_CONFIG_* into a disposable
+ * Strips inherited git routing and host-harness identity markers, redirects HOME/XDG/TEMP/GIT_CONFIG_* into a disposable
  * temp root, and ceilings discovery so cwd-based git cannot climb into a real checkout.
  * Pure helpers — call \`applyHermeticTestEnvironment()\` from the preload or tests.
  */
@@ -30,6 +30,32 @@ export const HERMETIC_STRIP_EXACT = Object.freeze([
     "GIT_PREFIX",
     "GIT_ATTR_NOSYSTEM",
 ]);
+/**
+ * Host-harness identity markers (repo-template#514). Fleet protocol detection (fleet-hook, process-termination,
+ * session-metadata) answers from these, so an agent session running the suite would otherwise leak its own
+ * identity into spawned hook CLIs. Tests that need a marker set it explicitly in the child env.
+ */
+const HERMETIC_HARNESS_STRIP_EXACT = Object.freeze([
+    "CLAUDECODE",
+    "CLAUDE_HOOK_EVENT",
+    "CLAUDE_CODE_ENTRYPOINT",
+    "CLAUDE_CODE_SESSION_ID",
+    "COPILOT_HOOK_EVENT",
+    "COPILOT_AGENT_SESSION_ID",
+    "COPILOT_PROJECT_DIR",
+    "COPILOT_RUN_ID",
+    "COPILOT_MODEL",
+    "COPILOT_ALLOW_ALL",
+    "GROK_HOOK_EVENT",
+    "ANTIGRAVITY_AGENT",
+    "CURSOR_AGENT",
+    "CURSOR_CONVERSATION_ID",
+    "CODEX_THREAD_ID",
+    "CODEX_SESSION_ID",
+]);
+const HARNESS_PREFIXES = ["CURSOR_HOOK"];
+/** Temp-dir variables redirected into the disposable root so tests never share os.tmpdir() state. */
+const TEMP_KEYS = ["TEMP", "TMP", "TMPDIR"];
 const GIT_CONFIG_KEY_VALUE = /^GIT_CONFIG_(?:KEY|VALUE)_\d+$/i;
 function isRecord(value) {
     return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -41,7 +67,22 @@ export function isHermeticStripKey(key) {
         return true;
     if (GIT_CONFIG_KEY_VALUE.test(upper))
         return true;
+    if (HERMETIC_HARNESS_STRIP_EXACT.includes(upper))
+        return true;
+    if (HARNESS_PREFIXES.some((prefix) => upper.startsWith(prefix)))
+        return true;
     return false;
+}
+/** Copy `source`, dropping undefined values, stripped keys, and the identity/temp keys this module redirects. */
+function copyInheritedEnvironment(source) {
+    const redirected = new Set(["HOME", "USERPROFILE", "XDG_CONFIG_HOME", ...TEMP_KEYS]);
+    const env = {};
+    for (const [key, value] of Object.entries(source)) {
+        if (value === undefined || isHermeticStripKey(key) || redirected.has(key.toUpperCase()))
+            continue;
+        env[key] = value;
+    }
+    return env;
 }
 /**
  * Build a scrubbed env pointing HOME / XDG / GIT_CONFIG_* at a fresh temp root.
@@ -57,26 +98,19 @@ export function buildHermeticTestEnvironment(options = {}) {
     const xdgConfig = path.join(root, "xdg-config");
     const gitConfigGlobal = path.join(root, "gitconfig.global");
     const gitConfigSystem = path.join(root, "gitconfig.system");
-    mkdirSync(home, { recursive: true });
-    mkdirSync(xdgConfig, { recursive: true });
+    const tempDir = path.join(root, "tmp");
+    for (const dir of [home, xdgConfig, tempDir])
+        mkdirSync(dir, { recursive: true });
     writeFileSync(gitConfigGlobal, "# fleet hermetic test global\n", "utf8");
     writeFileSync(gitConfigSystem, "# fleet hermetic test system\n", "utf8");
-    const env = {};
-    for (const [key, value] of Object.entries(source)) {
-        if (value === undefined)
-            continue;
-        if (isHermeticStripKey(key))
-            continue;
-        const upper = key.toUpperCase();
-        if (upper === "HOME" || upper === "USERPROFILE" || upper === "XDG_CONFIG_HOME")
-            continue;
-        env[key] = value;
-    }
+    const env = copyInheritedEnvironment(source);
     const ceilings = (options.ceilingDirectories ?? [root])
         .map((entry) => path.resolve(entry))
         .filter((entry, index, all) => all.indexOf(entry) === index);
     env["HOME"] = home;
     env["XDG_CONFIG_HOME"] = xdgConfig;
+    for (const key of TEMP_KEYS)
+        env[key] = tempDir;
     if (options.redirectUserProfile !== false) {
         env["USERPROFILE"] = home;
     }
@@ -114,6 +148,10 @@ export function applyHermeticTestEnvironment(options = {}, target = process.env)
     delete target["HOME"];
     delete target["USERPROFILE"];
     delete target["XDG_CONFIG_HOME"];
+    for (const key of Object.keys(target)) {
+        if (TEMP_KEYS.includes(key.toUpperCase()))
+            delete target[key];
+    }
     Object.assign(target, built.env);
     return built.root;
 }
@@ -129,6 +167,7 @@ export function hermeticEnvironmentSummary(built) {
         gitConfigGlobal: built.env["GIT_CONFIG_GLOBAL"],
         gitConfigNosystem: built.env["GIT_CONFIG_NOSYSTEM"],
         gitCeilingDirectories: built.env["GIT_CEILING_DIRECTORIES"],
-        strippedExact: [...HERMETIC_STRIP_EXACT],
+        tempDir: built.env["TMPDIR"],
+        strippedExact: [...HERMETIC_STRIP_EXACT, ...HERMETIC_HARNESS_STRIP_EXACT],
     };
 }
