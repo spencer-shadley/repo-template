@@ -98,6 +98,17 @@ export function isHermeticStripKey(key: string): boolean {
   return false;
 }
 
+/** Copy `source`, dropping undefined values, stripped keys, and the identity/temp keys this module redirects. */
+function copyInheritedEnvironment(source: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const redirected = new Set<string>(["HOME", "USERPROFILE", "XDG_CONFIG_HOME", ...TEMP_KEYS]);
+  const env: NodeJS.ProcessEnv = {};
+  for (const [key, value] of Object.entries(source)) {
+    if (value === undefined || isHermeticStripKey(key) || redirected.has(key.toUpperCase())) continue;
+    env[key] = value;
+  }
+  return env;
+}
+
 /**
  * Build a scrubbed env pointing HOME / XDG / GIT_CONFIG_* at a fresh temp root.
  * Does not mutate the input env object; returns a new one.
@@ -119,15 +130,7 @@ export function buildHermeticTestEnvironment(
   writeFileSync(gitConfigGlobal, "# fleet hermetic test global\n", "utf8");
   writeFileSync(gitConfigSystem, "# fleet hermetic test system\n", "utf8");
 
-  const env: NodeJS.ProcessEnv = {};
-  for (const [key, value] of Object.entries(source)) {
-    if (value === undefined) continue;
-    if (isHermeticStripKey(key)) continue;
-    const upper = key.toUpperCase();
-    if (upper === "HOME" || upper === "USERPROFILE" || upper === "XDG_CONFIG_HOME") continue;
-    if ((TEMP_KEYS as readonly string[]).includes(upper)) continue;
-    env[key] = value;
-  }
+  const env = copyInheritedEnvironment(source);
 
   const ceilings = (options.ceilingDirectories ?? [root])
     .map((entry) => path.resolve(entry))
