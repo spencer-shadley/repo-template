@@ -35,7 +35,7 @@ export const HERMETIC_STRIP_EXACT = Object.freeze([
  * session-metadata) answers from these, so an agent session running the suite would otherwise leak its own
  * identity into spawned hook CLIs. Tests that need a marker set it explicitly in the child env.
  */
-export const HERMETIC_HARNESS_STRIP_EXACT = Object.freeze([
+const HERMETIC_HARNESS_STRIP_EXACT = Object.freeze([
     "CLAUDECODE",
     "CLAUDE_HOOK_EVENT",
     "CLAUDE_CODE_ENTRYPOINT",
