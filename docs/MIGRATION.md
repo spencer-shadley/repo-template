@@ -2,7 +2,8 @@
 
 Use this when overlaying repo-template onto an existing repository. Migration is an overlay, not a
 directory copy: existing operational truth wins, template structure fills gaps, and every intentional
-divergence is anchored so later drift sweeps do not re-file known skips.
+divergence is listed in the migration PR body. This playbook is template-owned and is not copied into
+consumers; they link to it here.
 
 The raw overlay map and the create-only release payload are deliberately different contracts.
 `template-manifest.json` remains the complete post-custody overlay map and does not include
@@ -16,7 +17,7 @@ Issue intake is inherited from [`spencer-shadley/.github`](https://github.com/sp
 
 ## Overlay algorithm
 
-1. Read `template-manifest.json` from the template commit being adopted.
+1. Read `template-manifest.json` from the current template default branch.
 2. Iterate the manifest per file. Never copy whole directories.
 3. Before copying, check whether the destination path already exists case-insensitively. On
    Windows/NTFS, copying `docs/ARCHITECTURE.md` over an existing `docs/architecture.md` can silently
@@ -52,9 +53,8 @@ file-format or storage authority silently resolve to an unrelated local decision
 
 When the destination already owns the same ADR number or uses another decision format, do not copy
 over or reinterpret either decision. Link to the exact titled Template decision by canonical URL,
-record the skipped path in `.template-sync.json` `skipPaths`, and cite the repo-local decision or
-changelog line that explains the conflict. If local policy differs, add a new repo-local decision
-at its next free identity that explicitly supersedes the inherited decision by exact title; never
+and cite the repo-local decision or changelog line that explains the conflict in the migration PR.
+If local policy differs, add a new repo-local decision at its next free identity that explicitly supersedes the inherited decision by exact title; never
 reuse the inherited number or title for different authority. Do not convert ADR formats during
 migration.
 
@@ -68,18 +68,6 @@ receive a short index that points to the real runbooks.
 
 List every merge and never-touch decision in the migration PR body so reviewers can distinguish
 intentional preservation from accidental omission.
-
-## Anchor and skipPaths
-
-Every migration PR must update `.template-sync.json`:
-
-- `syncedVersion`: the template version adopted.
-- `syncedCommit`: the exact template commit adopted.
-- `syncedAt`: the migration timestamp.
-- `skipPaths`: every intentional divergence from the manifest.
-
-Each `skipPaths` entry needs a citation to a repo ADR or a `CHANGELOG.md` `Unchanged (intentional)`
-line. Without that anchor, the drift sweep should assume the path was missed and file it again.
 
 ## Survey sourcing
 
@@ -125,6 +113,15 @@ migration-attributed `.ops/incidents.jsonl` line while completing that set makes
 Block the fleet rollout immediately, open a P1 issue against repo-template with the canary PR and
 incident or verify evidence, then choose one recovery path before retrying: revert the canary
 migration PR, or hotfix the template/canary and rerun the complete exposure set from the beginning.
+
+## Template pins and copied template docs removed (repo-template#471)
+
+Delete `.template-sync.json`; no repo records the template commit it adopted. This playbook and ADRs
+0002–0005 are template-owned: delete byte-identical copies and link each reference to
+`https://github.com/spencer-shadley/repo-template/blob/master/<path>`. A customized copy becomes a
+repo-local decision at the next free ADR number. Rollback is reverting the consumer's migration
+commit. The canary stays `gmail-markdown`: it carries the pin, and this change touches only the pin
+and docs, so its verify surface is still the smallest.
 
 ## PlanRecordV1 no-grandfather migration
 

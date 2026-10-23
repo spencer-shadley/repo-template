@@ -69,6 +69,7 @@ one entry per user-visible or structural change.
 
 ### Removed
 
+- **Delete the `.template-sync.json` pin and stop copying template-owned docs (repo-template#471, code#7736):** `.template-sync.json` and its manifest row are gone, so no repo records the template commit or tag it adopted. `docs/MIGRATION.md` and ADRs 0002–0005 are now template-self: materialized `AGENTS.md`, `README.md`, `docs/INCIDENTS.md` and ADR-0001 link to them on repo-template's default branch instead of shipping copies. The README, TODO and queue-enrollment anchor steps and the playbook's anchor/`skipPaths` section are removed. Existing consumers migrate per the playbook's "Template pins and copied template docs removed" section; the rollout canary stays `gmail-markdown`. MAJOR. Refs #471.
 - **Stop carrying a local issue-template override (RT#438):** Remove `.github/ISSUE_TEMPLATE/task.md` from the overlay map after #437/#439 deleted the checkout copy. Repo Template no longer overlays or pins a fleet issue form; GitHub inherits `spencer-shadley/.github`. Intake and template-self verification refuse local `.github/ISSUE_TEMPLATE` paths and overlay keys. Regenerated inert-seed/release payload metadata and the adoption-shell artifact-manifest closure. Future adoption cannot reintroduce a local issue-template override. MAJOR. Fixes #438.
 
 ## [3.3.0] - 2026-09-18

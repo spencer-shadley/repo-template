@@ -55,8 +55,7 @@ instantiating or adopting a repository.
    Agent-Orchestrator queue membership/configuration step required for its execution lane.
 6. Configure recurring queue/drain machinery only through the current fleet scheduler owner; do not
    invent a repo-local scheduler authority here.
-7. Declare the risk tier and repository charter in `AGENTS.md` and set `.template-sync.json` anchors
-   (`syncedVersion`/`syncedCommit`).
+7. Declare the risk tier and repository charter in `AGENTS.md`.
 8. Confirm green merge-path and exhaustive baselines using the repository-owned validation profile
    and canonical Code protocol on the current default-tip SHA before normal
    autonomous work begins.

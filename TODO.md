@@ -7,7 +7,6 @@ that is a product backlog, not this adoption checklist.
 - [ ] Enroll in the queue system per docs/QUEUE-ENROLLMENT.md (NEAR-MANDATORY — opt-out requires
       an accepted ADR).
 - [ ] From the workspace root, add this repo to agy `watchlist.tsv` with a focus prompt.
-- [ ] Set template sync anchors in `.template-sync.json` after the first sync commit lands.
 - [ ] Install and verify the default-branch commit guard from `@spencer-shadley/repo-quality`:
       run `default-branch-guard.mjs install` then `check`; resolve any foreign/composed hooks
       without overwriting their existing logic.
