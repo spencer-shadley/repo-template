@@ -11,7 +11,6 @@ audit, the autonomous loop) rely on these paths.
 | `AGENTS.md` | THE operating manual for agents: commands, verify gate, risk tiers |
 | `CLAUDE.md` | thin pointer at AGENTS.md (single source of truth) |
 | `docs/adr/` | Architecture Decision Records — decide-once, audit-forever |
-| `docs/MIGRATION.md` | overlay playbook for adopting template updates in existing repos |
 | `docs/QUALITY-LINT.md` | required repo-quality bootstrap, including install/check of the versioned default-branch commit guard |
 | `packages/repo-quality/default-branch-guard/` | portable guard implementation used by the package export; adoption installs it into Git hooks |
 | `docs/QUEUE-ENROLLMENT.md` | how this repo joins the autonomous flywheel — enrollment is the default, opt-out needs an ADR |
@@ -44,7 +43,6 @@ audit, the autonomous loop) rely on these paths.
 | `SECURITY.md` | secrets doctrine + leak playbook |
 | `CHANGELOG.md` | Keep-a-Changelog + the *Unchanged (intentional)* frozen-namespace section |
 | `GEMINI.md` | thin pointer (every agent tool gets one; all point at AGENTS.md) |
-| `.template-sync.json` | subscription anchor: which template commit this repo last synced to |
 | `.gitignore` | secret/transient ignore baseline, including incident-log tracking exceptions |
 | `.github/workflows/ci.yml` | advisory clean-room CI skeleton |
 | `.github/pull_request_template.md` | review prompts for side effects and obligations |
@@ -62,7 +60,8 @@ block the first plan because they define safety boundaries. Audit command:
 `grep -rnE 'TODO\(setup!?\):|\{\{[A-Z0-9_]+\}\}' --exclude-dir=.git .` — zero hits = fully
 configured.
 
-Workspace context: use `docs/MIGRATION.md` when applying this living template to an existing repo.
+Workspace context: use the template [migration playbook](https://github.com/spencer-shadley/repo-template/blob/master/docs/MIGRATION.md) when applying this
+living template to an existing repo.
 
 Issue forms are **not** portable template payload. Normal repositories inherit the live account-wide
 forms from [`spencer-shadley/.github`](https://github.com/spencer-shadley/.github/tree/main/.github/ISSUE_TEMPLATE).

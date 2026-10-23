@@ -5,6 +5,8 @@ import path from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
 
+import { constructReleasePayloadAt, WORKTREE_REF } from "../../../tools/release-payload.ts";
+
 import {
   AdoptionShellValidationError,
   materializeAdoptionShellV2,
@@ -341,4 +343,14 @@ void test("synthetic v2 payloads contain no local intake override or pre-custody
       name,
     );
   }
+});
+
+void test("release payload carries no template pin or copied template-owned docs (#471)", () => {
+  const { entries } = constructReleasePayloadAt(WORKTREE_REF).payload;
+  const owned = /^(?:\.template-sync\.json|docs\/MIGRATION\.md|docs\/adr\/000[2-5]-.*)$/u;
+  assert.deepEqual(entries.filter((entry) => owned.test(entry.path)).map((entry) => entry.path), []);
+  const canonical = "https://github.com/spencer-shadley/repo-template/blob/master/docs/";
+  assert.ok(decodeEntry(entries, "README.md").includes(`${canonical}MIGRATION.md`));
+  assert.ok(decodeEntry(entries, "docs/INCIDENTS.md").includes(`${canonical}adr/0003-file-format-selection.md`));
+  assert.deepEqual(validateDocumentationLinks(entries.filter((entry) => entry.path.endsWith(".md"))), []);
 });

@@ -27,7 +27,7 @@ fine — record WHY here.
 4. **CI posture** — GitHub Actions is ADVISORY in this workspace (quota-immune local worktree CI is
    the merge gate). <!-- TODO(setup): list what Actions still runs (security scans etc.) -->
 5. **State & data** — pick the storage rung via
-   [ADR-0004: When to use a real database (the storage escalation ladder)](0004-when-to-use-a-real-database.md);
+   [ADR-0004: When to use a real database (the storage escalation ladder)](https://github.com/spencer-shadley/repo-template/blob/master/docs/adr/0004-when-to-use-a-real-database.md);
    if a DB: declare disposable-vs-durable, and durable REQUIRES
    migrations+backups+restore recipe day one.
    <!-- TODO(setup): storage rung and migration/backup posture -->

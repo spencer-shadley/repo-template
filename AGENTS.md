@@ -232,7 +232,7 @@ empty `include` globs are a committed no-user-surface choice and print a no-op n
 ```
 
 <!-- TODO(setup!): replace with the exact merge-blocking gate. It must validate every artifact type
-     this repo contains and follow docs/adr/0002-verify-gate-contract.md. -->
+     this repo contains and follow https://github.com/spencer-shadley/repo-template/blob/master/docs/adr/0002-verify-gate-contract.md. -->
 
 ## Core user flows
 
