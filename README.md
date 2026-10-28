@@ -20,6 +20,7 @@ audit, the autonomous loop) rely on these paths.
 | `.ops/README.md` | incident stream schema and append rules |
 | `.ops/incidents.jsonl` | machine incident stream (appears lazily; append-only; weekly-rotated) |
 | `contracts/local-ci/v2/` | versioned machine-readable LocalCiContractV2 schema and fixtures |
+| `local-ci.json` | repository-owned validation profile; resolve destination commands and identity during adoption (see `docs/QUEUE-ENROLLMENT.md`) |
 | `contracts/local-ci/v3/` | LocalCiContractV3 (required `detectionProof` per command) and LocalCiOutcomeV1 (`pass\|fail\|skipped\|could-not-execute`) schemas and fixtures |
 | `contracts/product-overlay/v1/` | versioned machine-readable ProductPlatformOverlayV1 and registry overlay schemas |
 | `contracts/test-harness/v1/` | versioned machine-readable TestHarnessProfileV1 schema and fixtures for portable Vitest generation |

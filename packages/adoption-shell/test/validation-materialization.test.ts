@@ -8,6 +8,8 @@ import {
   AdoptionShellValidationError,
   canonicalizeJson,
   materializeAdoptionShellV2,
+  validateCapabilityBundleRegistryV2,
+  validateLocalCiContractV3,
   validateMaterializerInputV2,
   validateMaterializerOutputManifestV2,
   validateDocumentationLinks,
@@ -21,6 +23,7 @@ import {
   portablePathFailure,
   resolvePayloadLink,
 } from "../../../artifacts/adoption-shell-v2/path-policy.js";
+import { constructReleasePayloadAt, WORKTREE_REF } from "../../../tools/release-payload.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -116,6 +119,41 @@ void test("valid fixtures materialize deterministically without mutating inputs"
     assert.ok(Object.isFrozen(first.manifest));
     assert.ok(first.entries.every(Object.isFrozen));
   }
+});
+
+void test("released validation profile survives materialization with its executable authority", () => {
+  const fixture = readMaterializerInput("contracts/adoption-shell-v2/fixtures/minimal-input.json");
+  const capabilities = validateCapabilityBundleRegistryV2(readJson(
+    "contracts/adoption-shell-v2/capability-bundle-registry.json",
+  ));
+  assert.ok(capabilities.ok);
+  const output = materializeAdoptionShellV2({
+    ...fixture,
+    release: constructReleasePayloadAt(WORKTREE_REF).payload,
+    capabilities: capabilities.value,
+    requestedBundles: [],
+  });
+  const entry = output.entries.find((row) => row.path === "local-ci.json");
+  assert.ok(entry, "the adopter receives the repository-owned profile");
+  const bytes = Buffer.from(entry.contentBase64, "base64");
+  assert.deepEqual(bytes, fs.readFileSync(path.join(root, "local-ci.json")));
+  const profile = validateLocalCiContractV3(JSON.parse(bytes.toString("utf8")));
+  assert.ok(profile.ok);
+  const gate = profile.value.commands["authoritative-gate"];
+  assert.ok(gate);
+  const pkg = readRecord("package.json");
+  assert.ok(isRecord(pkg["scripts"]));
+  assert.equal(gate.executable, "pnpm");
+  assert.deepEqual(gate.args, ["verify"]);
+  assert.equal(typeof pkg["scripts"]["verify"], "string");
+  assert.equal(profile.value.repository, "spencer-shadley/repo-template");
+  assert.equal(profile.value.prMergeProfileId, "merge");
+  assert.equal(profile.value.prBroaderFallback, true);
+  assert.deepEqual(profile.value.fullRequiredLegIds, ["default"]);
+  const enrollment = output.entries.find((row) => row.path === "docs/QUEUE-ENROLLMENT.md");
+  assert.ok(enrollment);
+  assert.match(Buffer.from(enrollment.contentBase64, "base64").toString("utf8"),
+    /spencer-shadley\/code:skills\/validation-protocol\/SKILL\.md/);
 });
 
 void test("object key order cannot influence output bytes or receipts", () => {
