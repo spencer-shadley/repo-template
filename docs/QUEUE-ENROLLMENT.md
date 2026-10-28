@@ -72,3 +72,31 @@ Enrollment is complete only when all of the following are true:
 - a trivial docs plan drains end-to-end autonomously: enqueue → scheduled drain → PR → merge.
 
 `plans/drafts/000-smoke.md` is the standard smoke plan.
+
+### Template validation profile
+
+For Repo Template itself, `local-ci.json` is the repository-owned validation profile. Its
+`authoritative-gate` command resolves to `pnpm verify` in `package.json`; `merge` uses the explicit
+broader fallback, and the exhaustive `default` leg runs that same authority. The quality-lint
+`simpleDiff` entry resolves to `pnpm lint`. These are template commands, to be replaced with the
+destination's actual commands and repository identity during adoption.
+
+The exhaustive test inventory is `packages/adoption-shell/test/*.test.ts`,
+`packages/adoption-shell/test/plan/*.test.ts`, and `tests/env-dot-access-lint.test.ts`, plus the
+repo-quality TODO-link, hermetic-preload, and default-branch-guard selfchecks selected by `pnpm test`.
+`pnpm verify` also runs the build, lint, typecheck, artifact, secret, duplication, unused-code and
+template-integrity checks listed in `package.json`. That package manifest is the executable source
+of truth for the current command composition. There are no additional local receipt fields beyond the
+profile's candidate/base/integration bindings; generic evidence semantics remain Code-owned.
+
+`packages/adoption-shell/test/validation-materialization.test.ts` exercises the generated release
+through the materializer and checks that the local profile and canonical protocol reference survive.
+The existing `scripts/check-validation-contract-skills.ts` checks conservation without protocol
+copies or pins. Neither check establishes a fleet coverage PASS by itself.
+
+The coverage consumer is Code's `tools/validation-contract-coverage/cli.ts --markdown`
+(code#5480, programme code#5954). Record its actual default-branch SHA and row after landing.
+If it still reports `missing-pr-validation-skill` / `missing-full-validation-skill`, retain that GAP
+with those owners: #459 retired those generic template copies in favor of the repository-owned
+profile and the live canonical protocol. A collector requiring the retired paths needs alignment
+at its owner; reproducing the paths would reverse the accepted ownership decision.
