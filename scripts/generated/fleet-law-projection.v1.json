@@ -1,7 +1,7 @@
 {
   "schema": "FleetLawProjectionV1",
   "revision": 2,
-  "sourceCommit": "a1effe3fbccbbf115af6ef0171c8ced82108e309",
+  "sourceCommit": "36b47149658c9f6c4d968cb414c41d0f2f1fd0b0",
   "sourceFile": "tools/work-spine/work-spine-contract.v1.json",
   "governedIntakeRevision": 25,
   "currentTriageLabel": "metadata:triage-v25",
@@ -12,8 +12,8 @@
   },
   "assessmentAuthority": {
     "producerRevision": 25,
-    "producerCommit": "4ad778c7a326096621a77894c6d8fbb5dd55f65a",
-    "payloadDigest": "sha256:adfcf678eb9324127a796371ec2a97bd08fec386e8a8a91355a7d6efdfd2023e",
+    "producerCommit": "7d56616e1e0bd45600aefc6338592e485de6919a",
+    "payloadDigest": "sha256:639d127c45efdc0f708cfaf62d6a2e46d4b21b434a887e07b011b69b771ef1e9",
     "priorityRequiredExactLabels": [],
     "preparationCodeSourceCommit": null
   },
@@ -113,16 +113,27 @@
     },
     "environment": {
       "labels": [
-        "environment:fleet-local"
+        "environment:fleet-local",
+        "environment:account:spencershadley",
+        "environment:account:sshadley-dev",
+        "environment:harness:grok-bot"
       ],
       "minimum": 0,
       "maximum": null,
       "dynamicPatterns": [
         "^environment:host:[a-z0-9]+(?:-[a-z0-9]+)*$",
-        "^environment:hardware:[a-z0-9]+(?:-[a-z0-9]+)*$"
+        "^environment:hardware:[a-z0-9]+(?:-[a-z0-9]+)*$",
+        "^environment:provider:[a-z0-9]+(?:-[a-z0-9]+)*$",
+        "^environment:account:(?:spencershadley|sshadley-dev)$",
+        "^environment:harness:[a-z0-9]+(?:-[a-z0-9]+)*$",
+        "^environment:model:[a-z0-9]+(?:[.-][a-z0-9]+)*$"
       ],
       "hostAuthority": "verified_FleetRegistryReleaseV1_host_id",
       "hardwareAuthority": "governed_requirement_slug",
+      "providerAuthority": "governed_provider_id",
+      "accountAuthority": "governed_account_style_spencershadley_or_sshadley-dev",
+      "harnessAuthority": "governed_harness_slug",
+      "modelAuthority": "governed_model_slug",
       "meaning": "hard_execution_requirements_not_blockers_or_permission",
       "andOrRequirements": "structured_execution_contract"
     },
@@ -253,7 +264,12 @@
     "decomp-not-needed",
     "decomp-atomic",
     "regression",
-    "retro-finding"
+    "retro-finding",
+    "rinnegan",
+    "sharingan",
+    "ems",
+    "thinkugan",
+    "mangekyo"
   ],
   "initialLabels": {
     "exact": [
@@ -540,8 +556,23 @@
       "color": "EDEDED"
     },
     {
+      "name": "environment:account:spencershadley",
+      "description": "Hard execution requirement: account:spencershadley; neither blocker nor permission.",
+      "color": "EDEDED"
+    },
+    {
+      "name": "environment:account:sshadley-dev",
+      "description": "Hard execution requirement: account:sshadley-dev; neither blocker nor permission.",
+      "color": "EDEDED"
+    },
+    {
       "name": "environment:fleet-local",
       "description": "Hard execution requirement: fleet-local; neither blocker nor permission.",
+      "color": "EDEDED"
+    },
+    {
+      "name": "environment:harness:grok-bot",
+      "description": "Hard execution requirement: harness:grok-bot; neither blocker nor permission.",
       "color": "EDEDED"
     },
     {
@@ -805,5 +836,5 @@
       "color": "EDEDED"
     }
   ],
-  "contentDigest": "sha256:e11c03d2ae3883b822ad18fb1ab001549c06e5764dccff4d97a98c79d421eb1f"
+  "contentDigest": "sha256:fbfde8e5aebcc6658557ac31fcb21f000b7dacc536568fa069da404a3f492dc4"
 }
