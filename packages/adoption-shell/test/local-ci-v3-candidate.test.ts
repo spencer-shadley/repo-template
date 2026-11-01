@@ -344,7 +344,7 @@ void test("REGRESSION: a schema-valid tampered receipt is rejected by the consum
 // but left three receipt inputs -- the release payload set, the artifact
 // manifest and the capability bundle registry -- reading the current checkout,
 // and left `tools/release-payload.ts` enumerating `git ls-tree -rz HEAD`. The
-// independent exact-head review of PR #363 (review 5205237477, head 7cef1596)
+// independent review of PR #363 at head 7cef1596 (review 5205237477)
 // exploited that: it committed one unrelated `.gitignore` line on top of the
 // frozen candidate, re-derived, and every gate accepted a receipt whose payload
 // and receipt digests had moved while `candidate.commit`, `candidate.tree` and
@@ -758,7 +758,7 @@ void test("RT-340b: the receipt binds the frozen tree's own VERSION/TEMPLATE_VER
 // repo-template#368 (RT-340c, repair round 2): the COMMITTED re-record attack.
 //
 // Round 1 bound the evidence ledger to committed bytes, which closed the
-// uncommitted path. The independent exact-head review of PR #369 (review
+// uncommitted path. The independent review of PR #369 at its head (review
 // 5206050540) then proved by execution that committing the same mutation still
 // worked: one `finishedAt` 2026-09-15T03:15:05.604Z -> 2026-09-15T03:15:06.999Z
 // moved `receiptDigest` e7021ea1... -> e6821fb9..., and `--write`, `--check`,

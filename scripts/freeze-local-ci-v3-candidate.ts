@@ -38,7 +38,7 @@ const TREE_VERIFICATION_METHOD = "git rev-parse <commit>^{tree}";
  * identity was frozen against.
  *
  * repo-template#368 (RT-340c, repair round 2): binding the ledger to committed
- * bytes closed the *uncommitted* attack, but the independent exact-head review
+ * bytes closed the *uncommitted* attack, but the independent review
  * of PR #369 (review 5206050540) proved by execution that the *committed* one
  * survived at full strength. Committing a timestamp-only re-record -- one
  * `finishedAt` 2026-09-15T03:15:05.604Z -> 2026-09-15T03:15:06.999Z, nothing
