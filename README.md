@@ -36,9 +36,7 @@ audit, the autonomous loop) rely on these paths.
 | `scripts/provision-canonical-labels.ts` | portable label provisioning with verified current-producer evidence; ships with `governed-intake-release.ts` and both `scripts/generated/fleet-law` dependencies |
 | `docs/FLEET-LABEL-VOCABULARY.md` | Code-owned projection consumption, inherited issue forms, and history-preserving label adoption |
 | `packages/repo-quality/secret-scan.ts` | shared Betterleaks current-tree, staged, and onboarding-history scan recipes |
-| `PLAN_TEMPLATE.md` | canonical plan header and Markdown-to-`PlanRecordV1` adapter |
 | `plans/archive/` | archived completed plan specs/results/logs |
-| `plans/drafts/000-smoke.md` | first enrollment-proof plan for new repos |
 | `TODO.md` | one-shot setup survey (deleted once setup completes) |
 | `docs/ARCHITECTURE.md` | the system map agents load when entering cold |
 | `SECURITY.md` | secrets doctrine + leak playbook |

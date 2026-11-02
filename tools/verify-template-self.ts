@@ -365,7 +365,6 @@ const boundaryErrors: string[] = [
   ...userSurfaceLintSyncErrors_,
 ];
 const planRecordManifestModes: Readonly<Record<string, string>> = {
-  "PLAN_TEMPLATE.md": "copy",
   "contracts/plan-record/v1/fixtures/classification-cases.json": "self",
   "contracts/plan-record/v1/plan-record.example.json": "self",
   "contracts/plan-record/v1/plan-record.schema.json": "self",
@@ -378,18 +377,6 @@ const planRecordManifestModes: Readonly<Record<string, string>> = {
 for (const [file, mode] of Object.entries(planRecordManifestModes)) {
   if (manifest[file] !== mode) {
     boundaryErrors.push(`PlanRecordV1 manifest mode must be ${mode}: ${file}`);
-  }
-}
-const planTemplate = fs.readFileSync(path.join(root, "PLAN_TEMPLATE.md"), "utf8");
-for (const required of [
-  "**Status:** `planned`",
-  "**Issue:**",
-  "**enqueuedAt:**",
-  "**Tier:**",
-  "PlanRecordV1 adapter mapping",
-]) {
-  if (!planTemplate.includes(required)) {
-    boundaryErrors.push(`PLAN_TEMPLATE.md missing canonical adapter field: ${required}`);
   }
 }
 if (manifest["model-boundary.json"] !== "copy") {

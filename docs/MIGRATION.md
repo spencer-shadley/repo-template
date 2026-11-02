@@ -185,8 +185,9 @@ adaptation and corpus mutation belong to `agent-orchestrator#2814`, not to this 
 
 ## Enrollment proof
 
-Finish migration by running the smoke plan at `plans/drafts/000-smoke.md`. The smoke plan proves the
-repo can enter the queue, run the expected lightweight checks, and archive cleanly.
+Finish migration with an issue-native smoke: file a trivial docs issue and confirm it drains to a
+merged PR with the expected lightweight checks passing. The GitHub issue is the spec;
+gh-issue-plan-execute plans just in time.
 
 ## LocalCiContractV2 migration and rollback
 
