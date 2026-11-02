@@ -69,9 +69,9 @@ Enrollment is complete only when all of the following are true:
 - the repository-owned validation profile resolves real local commands and the canonical Code
   protocol, with equivalent integrity, availability and rollback evidence for adoption;
 - both baseline validations have exact-SHA evidence for the current default tip; and
-- a trivial docs plan drains end-to-end autonomously: enqueue → scheduled drain → PR → merge.
+- a trivial docs issue drains end-to-end autonomously: issue → scheduled drain → PR → merge.
 
-`plans/drafts/000-smoke.md` is the standard smoke plan.
+The GitHub issue is the spec; gh-issue-plan-execute plans just in time.
 
 ### Template validation profile
 

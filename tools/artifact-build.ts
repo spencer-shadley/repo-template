@@ -72,13 +72,11 @@ const QUALITY_LINT_ARTIFACT_PATHS = [
   "scripts/verify-quality-lint-required.ts",
 ] as const;
 const PLAN_RECORD_ARTIFACT_PATHS = [
-  "PLAN_TEMPLATE.md",
   "contracts/plan-record/v1/fixtures/classification-cases.json",
   "contracts/plan-record/v1/plan-record.example.json",
   "contracts/plan-record/v1/plan-record.schema.json",
   "contracts/plan-record/v1/work-migration-manifest.example.json",
   "contracts/plan-record/v1/work-migration-manifest.schema.json",
-  "plans/drafts/000-smoke.md",
 ] as const;
 const LOCAL_CI_V2_ARTIFACT_PATHS = [
   "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",

@@ -14,5 +14,6 @@ that is a product backlog, not this adoption checklist.
       repo has model-backed flows, update `model-boundary.json` with capabilities, gateway/adapter
       ownership, declared provider-specific paths, and the owning role. Do not pick a sacred default
       model.
-- [ ] Run the enrollment smoke plan from `plans/drafts/000-smoke.md` and verify the gate passes.
+- [ ] Prove enrollment issue-native: file a trivial docs issue and confirm it drains to a merged PR
+      with the gate passing (the GitHub issue is the spec; gh-issue-plan-execute plans just in time).
 - [ ] Delete this file in the same change that completes adoption.
