@@ -81,8 +81,8 @@ broader fallback, and the exhaustive `default` leg runs that same authority. The
 `simpleDiff` entry resolves to `pnpm lint`. These are template commands, to be replaced with the
 destination's actual commands and repository identity during adoption.
 
-The exhaustive test inventory is `packages/adoption-shell/test/*.test.ts`,
-`packages/adoption-shell/test/plan/*.test.ts`, and `tests/env-dot-access-lint.test.ts`, plus the
+The exhaustive test inventory is `packages/adoption-shell/test/*.test.ts` and
+`tests/env-dot-access-lint.test.ts`, plus the
 repo-quality TODO-link, hermetic-preload, and default-branch-guard selfchecks selected by `pnpm test`.
 `pnpm verify` also runs the build, lint, typecheck, artifact, secret, duplication, unused-code and
 template-integrity checks listed in `package.json`. That package manifest is the executable source

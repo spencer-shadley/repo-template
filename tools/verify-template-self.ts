@@ -364,21 +364,6 @@ const boundaryErrors: string[] = [
   ...conflictMarkerSelfTestErrors,
   ...userSurfaceLintSyncErrors_,
 ];
-const planRecordManifestModes: Readonly<Record<string, string>> = {
-  "contracts/plan-record/v1/fixtures/classification-cases.json": "self",
-  "contracts/plan-record/v1/plan-record.example.json": "self",
-  "contracts/plan-record/v1/plan-record.schema.json": "self",
-  "contracts/plan-record/v1/work-migration-manifest.example.json": "self",
-  "contracts/plan-record/v1/work-migration-manifest.schema.json": "self",
-  "packages/adoption-shell/src/plan-record-v1.ts": "self",
-  "packages/adoption-shell/src/work-migration-manifest-v1.ts": "self",
-  "packages/adoption-shell/test/plan/plan-record-v1.test.ts": "self",
-};
-for (const [file, mode] of Object.entries(planRecordManifestModes)) {
-  if (manifest[file] !== mode) {
-    boundaryErrors.push(`PlanRecordV1 manifest mode must be ${mode}: ${file}`);
-  }
-}
 if (manifest["model-boundary.json"] !== "copy") {
   boundaryErrors.push("model-boundary.json must be manifest copy");
 }
