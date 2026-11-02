@@ -71,13 +71,6 @@ const QUALITY_LINT_ARTIFACT_PATHS = [
   "local-ci.json",
   "scripts/verify-quality-lint-required.ts",
 ] as const;
-const PLAN_RECORD_ARTIFACT_PATHS = [
-  "contracts/plan-record/v1/fixtures/classification-cases.json",
-  "contracts/plan-record/v1/plan-record.example.json",
-  "contracts/plan-record/v1/plan-record.schema.json",
-  "contracts/plan-record/v1/work-migration-manifest.example.json",
-  "contracts/plan-record/v1/work-migration-manifest.schema.json",
-] as const;
 const LOCAL_CI_V2_ARTIFACT_PATHS = [
   "contracts/local-ci/v2/fixtures/invalid-duplicate-command-id.json",
   "contracts/local-ci/v2/fixtures/invalid-extra-effect.json",
@@ -318,7 +311,6 @@ function fixtureRows(
   const portableClosure = [
     ...PORTABLE_CAPABILITY_PATHS,
     ...QUALITY_LINT_ARTIFACT_PATHS,
-    ...PLAN_RECORD_ARTIFACT_PATHS,
     ...LOCAL_CI_V2_ARTIFACT_PATHS,
     ...LOCAL_CI_V3_ARTIFACT_PATHS,
     ...PROOF_OF_DETECTION_ARTIFACT_PATHS,
