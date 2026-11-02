@@ -78,15 +78,15 @@ them when working on this repo.
 
 ## Mission
 
-{{ONE_LINE_DESCRIPTION}} <!-- TODO(setup!): one durable outcome, stated without implementation or model identity. -->
+{{ONE_LINE_DESCRIPTION}} <!-- TODO(setup!): one sentence, one durable outcome, stated without implementation or model identity. A stranger can tell whether a given file serves it. -->
 
 ## Responsibilities
 
-{{RESPONSIBILITIES}} <!-- TODO(setup!): what this repo owns; one short paragraph or 2-4 bullets. -->
+{{RESPONSIBILITIES}} <!-- TODO(setup!): at most 7 rows, each "- <Verb> <one object>. `capability:<id>`". One object per row, no comma lists. The id is globally unique and names the capability, not this repo. -->
 
 ## Non-responsibilities
 
-{{NON_GOALS}} <!-- TODO(setup!): adjacent authority this repo must not absorb. -->
+{{NON_GOALS}} <!-- TODO(setup!): "- <adjacent object> → <owner repo>" for what an agent here would be tempted to absorb. If unowned: "→ none (<issue>)". -->
 
 ## Current status / readiness
 
