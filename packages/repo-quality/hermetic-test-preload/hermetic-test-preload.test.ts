@@ -8,7 +8,7 @@ import { test } from "node:test";
 import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, isHermeticStripKey } from "./env.ts";
 
 const agentStorageKeys = ["FLEET_AGENTS_ROOT", "FLEET_AGENTS_TEMP", "AO_WORKTREES_ROOT", "ORCH_WORKTREE_ROOT",
-  "npm_config_store_dir", "pnpm_config_store_dir", "npm_config_cache", "npm_config_cache_dir"] as const;
+  "npm_config_store_dir", "pnpm_config_store_dir", "npm_config_cache", "npm_config_cache_dir", "pnpm_config_cache_dir"] as const;
 
 void test("explicit and legacy state paths cannot escape the private test homes", () => {
   const parent = mkdtempSync(path.join(tmpdir(), "rq-state-homes-"));
@@ -127,6 +127,7 @@ void test("agent roots and package caches are private in the builder, in-place a
         assert.equal(process.env["FLEET_CENTRAL_DB_PATH"], path.join(HERMETIC_TEST_ROOT, "fleet-central.sqlite"));
         assert.deepEqual(Object.keys(process.env).filter((key) => key.toUpperCase() === "FLEET_CENTRAL_DB_PATH"), ["FLEET_CENTRAL_DB_PATH"]);
         writeFileSync(process.env["FLEET_CENTRAL_DB_PATH"], "private child database state");
+        writeFileSync(path.join(process.env["pnpm_config_cache_dir"], "pnpm-cache-proof"), "private child package cache");
         assert.equal(process.env["FIXTURE_UNRELATED"], "kept");
       } finally { rmSync(HERMETIC_TEST_ROOT, { recursive: true, force: true }); }
     `], { env: { PATH: process.env["PATH"], SystemRoot: process.env["SystemRoot"], TEMP: parent, TMP: parent, TMPDIR: parent, ...source },

@@ -83,6 +83,7 @@ const PRIVATE_AGENT_STORAGE_PATHS = {
   pnpm_config_store_dir: ["agents-temp", "cache", "pnpm"],
   npm_config_cache: ["agents-temp", "cache", "npm"],
   npm_config_cache_dir: ["agents-temp", "cache", "pnpm-runtime"],
+  pnpm_config_cache_dir: ["agents-temp", "cache", "pnpm-runtime"],
 } as const;
 const PRIVATE_AGENT_STORAGE_KEYS = new Set(Object.keys(PRIVATE_AGENT_STORAGE_PATHS).map((key) => key.toUpperCase()));
 
