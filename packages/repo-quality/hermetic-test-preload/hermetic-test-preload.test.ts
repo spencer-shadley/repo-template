@@ -1,7 +1,7 @@
 // @hermetic-boundary reason="creates the sentinel repo with the ambient env on purpose, to prove the hermetic env leaves it unchanged"
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -9,6 +9,72 @@ import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, isHermeticS
 
 const agentStorageKeys = ["FLEET_AGENTS_ROOT", "FLEET_AGENTS_TEMP", "AO_WORKTREES_ROOT", "ORCH_WORKTREE_ROOT",
   "npm_config_store_dir", "pnpm_config_store_dir", "npm_config_cache", "npm_config_cache_dir"] as const;
+
+void test("explicit and legacy state paths cannot escape the private test homes", () => {
+  const parent = mkdtempSync(path.join(tmpdir(), "rq-state-homes-"));
+  const sentinel = path.join(parent, "caller-state");
+  const homes = ["HOME", "USERPROFILE", "XDG_CONFIG_HOME", "APPDATA", "LOCALAPPDATA", "XDG_STATE_HOME", "XDG_DATA_HOME", "XDG_CACHE_HOME"];
+  const overrides = ["FLEET_STATE_ROOT", "CLI_WRAPPERS_STATE_ROOT", "CLI_WRAPPERS_STATE_DIR"];
+  try {
+    mkdirSync(sentinel);
+    writeFileSync(path.join(sentinel, "keep.txt"), "caller state must not change\n");
+    const source: NodeJS.ProcessEnv = {
+      CODE_ROOT: path.join(parent, "declared-code"), FLEET_CODE_ROOT: path.join(parent, "declared-code"),
+      CLAUDE_CODE_OAUTH_TOKEN: "fixture-auth-value", FIXTURE_UNRELATED: "kept",
+    };
+    for (const key of [...homes, ...overrides]) {
+      source[key] = sentinel;
+      source[key.toLowerCase()] = sentinel;
+    }
+    const before = { ...source };
+    const built = buildHermeticTestEnvironment({ env: source, tempParent: parent });
+    const applied = { ...source };
+    const appliedRoot = applyHermeticTestEnvironment({ tempParent: parent }, applied);
+    assert.deepEqual(source, before);
+    for (const [env, root] of [[built.env, built.root], [applied, appliedRoot]] as const) {
+      for (const key of homes) {
+        const directory = env[key];
+        assert.ok(directory && path.relative(root, directory) && !path.relative(root, directory).startsWith(".."), key);
+        assert.ok(statSync(directory).isDirectory(), key);
+        assert.deepEqual(Object.keys(env).filter((candidate) => candidate.toUpperCase() === key), [key]);
+      }
+      for (const key of overrides) {
+        assert.equal(isHermeticStripKey(key.toLowerCase()), true);
+        assert.deepEqual(Object.keys(env).filter((candidate) => candidate.toUpperCase() === key), []);
+      }
+      for (const key of ["CODE_ROOT", "FLEET_CODE_ROOT", "CLAUDE_CODE_OAUTH_TOKEN", "FIXTURE_UNRELATED"]) {
+        assert.equal(env[key], source[key], key);
+      }
+    }
+    const entry = new URL("../hermetic-test-preload.mjs", import.meta.url).href;
+    const child = spawnSync(process.execPath, ["--import", entry, "--input-type=module", "-e", `
+      import assert from "node:assert/strict";
+      import path from "node:path";
+      import { rmSync, writeFileSync } from "node:fs";
+      const { HERMETIC_TEST_ROOT } = await import(${JSON.stringify(new URL("./preload.mjs", import.meta.url).href)});
+      try {
+        for (const key of ${JSON.stringify(homes)}) {
+          const directory = process.env[key];
+          assert.ok(directory && path.relative(HERMETIC_TEST_ROOT, directory) && !path.relative(HERMETIC_TEST_ROOT, directory).startsWith(".."), key);
+          assert.deepEqual(Object.keys(process.env).filter((candidate) => candidate.toUpperCase() === key), [key]);
+          writeFileSync(path.join(directory, key + ".txt"), "private child state");
+        }
+        for (const key of ${JSON.stringify(overrides)}) {
+          assert.deepEqual(Object.keys(process.env).filter((candidate) => candidate.toUpperCase() === key), []);
+        }
+        assert.equal(process.env["CODE_ROOT"], ${JSON.stringify(source["CODE_ROOT"])});
+        assert.equal(process.env["FLEET_CODE_ROOT"], process.env["CODE_ROOT"]);
+        assert.equal(process.env["CLAUDE_CODE_OAUTH_TOKEN"], "fixture-auth-value");
+        assert.equal(process.env["FIXTURE_UNRELATED"], "kept");
+      } finally { rmSync(HERMETIC_TEST_ROOT, { recursive: true, force: true }); }
+    `], { env: { PATH: process.env["PATH"], SystemRoot: process.env["SystemRoot"], TEMP: parent, TMP: parent, TMPDIR: parent, ...source },
+      encoding: "utf8", timeout: 10_000 });
+    assert.equal(child.error, undefined);
+    assert.equal(child.status, 0, child.stderr);
+    assert.deepEqual(readdirSync(sentinel), ["keep.txt"]);
+    assert.equal(readFileSync(path.join(sentinel, "keep.txt"), "utf8"), "caller state must not change\n");
+  } finally { rmSync(parent, { recursive: true, force: true }); }
+});
 
 void test("agent roots and package caches are private in the builder, in-place apply, and public child preload", () => {
   const parent = mkdtempSync(path.join(tmpdir(), "rq-agent-storage-"));
