@@ -13,6 +13,9 @@ import path from "node:path";
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
     "FLEET_CENTRAL_DB_PATH",
+    "FLEET_STATE_ROOT",
+    "CLI_WRAPPERS_STATE_ROOT",
+    "CLI_WRAPPERS_STATE_DIR",
     "FLEET_SEAT_WORKTREE",
     "FLEET_SEAT_JOB_ID",
     "GIT_DIR",
@@ -57,6 +60,15 @@ const HERMETIC_HARNESS_STRIP_EXACT = Object.freeze([
 const HARNESS_PREFIXES = ["CURSOR_HOOK"];
 /** Temp-dir variables redirected into the disposable root so tests never share os.tmpdir() state. */
 const TEMP_KEYS = ["TEMP", "TMP", "TMPDIR"];
+/** Legacy state discovery must see private homes even when no explicit state override is set. */
+const PRIVATE_STATE_HOME_PATHS = {
+    APPDATA: ["home", "AppData", "Roaming"],
+    LOCALAPPDATA: ["home", "AppData", "Local"],
+    XDG_STATE_HOME: ["xdg-state"],
+    XDG_DATA_HOME: ["xdg-data"],
+    XDG_CACHE_HOME: ["xdg-cache"],
+};
+const REDIRECTED_HOME_KEYS = new Set(["HOME", "USERPROFILE", "XDG_CONFIG_HOME", ...Object.keys(PRIVATE_STATE_HOME_PATHS)]);
 /** Explicit private test namespaces, not operational fleet defaults. No inherited host path survives. */
 const PRIVATE_AGENT_STORAGE_PATHS = {
     FLEET_AGENTS_ROOT: ["agents"],
@@ -90,7 +102,7 @@ export function isHermeticStripKey(key) {
 }
 /** Copy `source`, dropping undefined values, stripped keys, and the identity/temp keys this module redirects. */
 function copyInheritedEnvironment(source) {
-    const redirected = new Set(["HOME", "USERPROFILE", "XDG_CONFIG_HOME", ...TEMP_KEYS]);
+    const redirected = new Set([...REDIRECTED_HOME_KEYS, ...TEMP_KEYS]);
     const env = {};
     for (const [key, value] of Object.entries(source)) {
         if (value === undefined || isHermeticStripKey(key) || redirected.has(key.toUpperCase()))
@@ -120,7 +132,7 @@ export function buildHermeticTestEnvironment(options = {}) {
     writeFileSync(gitConfigSystem, "# fleet hermetic test system\n", "utf8");
     const env = copyInheritedEnvironment(source);
     env["FLEET_CENTRAL_DB_PATH"] = path.join(root, "fleet-central.sqlite");
-    for (const [key, relative] of Object.entries(PRIVATE_AGENT_STORAGE_PATHS)) {
+    for (const [key, relative] of Object.entries({ ...PRIVATE_AGENT_STORAGE_PATHS, ...PRIVATE_STATE_HOME_PATHS })) {
         const directory = path.join(root, ...relative);
         mkdirSync(directory, { recursive: true });
         env[key] = directory;
@@ -163,14 +175,9 @@ export function applyHermeticTestEnvironment(options = {}, target = process.env)
         env: options.env ?? { ...target },
     });
     for (const key of Object.keys(target)) {
-        if (isHermeticStripKey(key))
-            delete target[key];
-    }
-    delete target["HOME"];
-    delete target["USERPROFILE"];
-    delete target["XDG_CONFIG_HOME"];
-    for (const key of Object.keys(target)) {
-        if (TEMP_KEYS.includes(key.toUpperCase()))
+        const upper = key.toUpperCase();
+        if (isHermeticStripKey(key) || REDIRECTED_HOME_KEYS.has(upper)
+            || TEMP_KEYS.includes(upper))
             delete target[key];
     }
     Object.assign(target, built.env);
