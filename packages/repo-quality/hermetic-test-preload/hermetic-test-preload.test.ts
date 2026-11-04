@@ -17,7 +17,7 @@ void test("agent roots and package caches are private in the builder, in-place a
     mkdirSync(sentinel);
     const sentinelFile = path.join(sentinel, "keep.txt");
     writeFileSync(sentinelFile, "host storage must not change\n");
-    const source: NodeJS.ProcessEnv = { FIXTURE_UNRELATED: "kept" };
+    const source: NodeJS.ProcessEnv = { FIXTURE_UNRELATED: "kept", FLEET_CENTRAL_DB_PATH: sentinelFile, fLeEt_CeNtRaL_dB_pAtH: sentinelFile };
     for (const key of agentStorageKeys) {
       source[key] = sentinel;
       source[key.toLowerCase() === key ? key.toUpperCase() : key.toLowerCase()] = sentinel;
@@ -36,15 +36,19 @@ void test("agent roots and package caches are private in the builder, in-place a
         assert.ok(statSync(value).isDirectory(), key);
         assert.deepEqual(Object.keys(env).filter((candidate) => candidate.toUpperCase() === key.toUpperCase()), [key]);
       }
-      assert.equal(env["AO_WORKTREES_ROOT"], path.join(env["FLEET_AGENTS_TEMP"]!, "worktrees"));
+      const agentsTemp = env["FLEET_AGENTS_TEMP"];
+      assert.ok(agentsTemp);
+      assert.equal(env["AO_WORKTREES_ROOT"], path.join(agentsTemp, "worktrees"));
       assert.equal(env["ORCH_WORKTREE_ROOT"], env["AO_WORKTREES_ROOT"]);
+      assert.equal(env["FLEET_CENTRAL_DB_PATH"], path.join(root, "fleet-central.sqlite"));
+      assert.deepEqual(Object.keys(env).filter((key) => key.toUpperCase() === "FLEET_CENTRAL_DB_PATH"), ["FLEET_CENTRAL_DB_PATH"]);
       assert.equal(env["FIXTURE_UNRELATED"], "kept");
     }
     const entry = new URL("../hermetic-test-preload.mjs", import.meta.url).href;
     const child = spawnSync(process.execPath, ["--import", entry, "--input-type=module", "-e", `
       import assert from "node:assert/strict";
       import path from "node:path";
-      import { rmSync, statSync } from "node:fs";
+      import { rmSync, statSync, writeFileSync } from "node:fs";
       const { HERMETIC_TEST_ROOT } = await import(${JSON.stringify(new URL("./preload.mjs", import.meta.url).href)});
       try {
         for (const key of ${JSON.stringify(agentStorageKeys)}) {
@@ -54,6 +58,9 @@ void test("agent roots and package caches are private in the builder, in-place a
           assert.deepEqual(Object.keys(process.env).filter((candidate) => candidate.toUpperCase() === key.toUpperCase()), [key]);
         }
         assert.equal(process.env["AO_WORKTREES_ROOT"], path.join(process.env["FLEET_AGENTS_TEMP"], "worktrees"));
+        assert.equal(process.env["FLEET_CENTRAL_DB_PATH"], path.join(HERMETIC_TEST_ROOT, "fleet-central.sqlite"));
+        assert.deepEqual(Object.keys(process.env).filter((key) => key.toUpperCase() === "FLEET_CENTRAL_DB_PATH"), ["FLEET_CENTRAL_DB_PATH"]);
+        writeFileSync(process.env["FLEET_CENTRAL_DB_PATH"], "private child database state");
         assert.equal(process.env["FIXTURE_UNRELATED"], "kept");
       } finally { rmSync(HERMETIC_TEST_ROOT, { recursive: true, force: true }); }
     `], { env: { PATH: process.env["PATH"], SystemRoot: process.env["SystemRoot"], TEMP: parent, TMP: parent, TMPDIR: parent, ...source },

@@ -11,6 +11,7 @@ import path from "node:path";
 
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
+  "FLEET_CENTRAL_DB_PATH",
   "FLEET_SEAT_WORKTREE",
   "FLEET_SEAT_JOB_ID",
   "GIT_DIR",
@@ -145,6 +146,7 @@ export function buildHermeticTestEnvironment(
   writeFileSync(gitConfigSystem, "# fleet hermetic test system\n", "utf8");
 
   const env = copyInheritedEnvironment(source);
+  env["FLEET_CENTRAL_DB_PATH"] = path.join(root, "fleet-central.sqlite");
   for (const [key, relative] of Object.entries(PRIVATE_AGENT_STORAGE_PATHS)) {
     const directory = path.join(root, ...relative);
     mkdirSync(directory, { recursive: true });
