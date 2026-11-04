@@ -59,6 +59,19 @@ const HARNESS_PREFIXES = ["CURSOR_HOOK"] as const;
 /** Temp-dir variables redirected into the disposable root so tests never share os.tmpdir() state. */
 const TEMP_KEYS = ["TEMP", "TMP", "TMPDIR"] as const;
 
+/** Explicit private test namespaces, not operational fleet defaults. No inherited host path survives. */
+const PRIVATE_AGENT_STORAGE_PATHS = {
+  FLEET_AGENTS_ROOT: ["agents"],
+  FLEET_AGENTS_TEMP: ["agents-temp"],
+  AO_WORKTREES_ROOT: ["agents-temp", "worktrees"],
+  ORCH_WORKTREE_ROOT: ["agents-temp", "worktrees"],
+  npm_config_store_dir: ["agents-temp", "cache", "pnpm"],
+  pnpm_config_store_dir: ["agents-temp", "cache", "pnpm"],
+  npm_config_cache: ["agents-temp", "cache", "npm"],
+  npm_config_cache_dir: ["agents-temp", "cache", "pnpm-runtime"],
+} as const;
+const PRIVATE_AGENT_STORAGE_KEYS = new Set(Object.keys(PRIVATE_AGENT_STORAGE_PATHS).map((key) => key.toUpperCase()));
+
 const GIT_CONFIG_KEY_VALUE = /^GIT_CONFIG_(?:KEY|VALUE)_\d+$/i;
 
 export interface HermeticTestEnvironmentOptions {
@@ -92,6 +105,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export function isHermeticStripKey(key: string): boolean {
   const upper = key.toUpperCase();
   if ((HERMETIC_STRIP_EXACT as readonly string[]).includes(upper)) return true;
+  if (PRIVATE_AGENT_STORAGE_KEYS.has(upper)) return true;
   if (GIT_CONFIG_KEY_VALUE.test(upper)) return true;
   if ((HERMETIC_HARNESS_STRIP_EXACT as readonly string[]).includes(upper)) return true;
   if (HARNESS_PREFIXES.some((prefix) => upper.startsWith(prefix))) return true;
@@ -131,6 +145,11 @@ export function buildHermeticTestEnvironment(
   writeFileSync(gitConfigSystem, "# fleet hermetic test system\n", "utf8");
 
   const env = copyInheritedEnvironment(source);
+  for (const [key, relative] of Object.entries(PRIVATE_AGENT_STORAGE_PATHS)) {
+    const directory = path.join(root, ...relative);
+    mkdirSync(directory, { recursive: true });
+    env[key] = directory;
+  }
 
   const ceilings = (options.ceilingDirectories ?? [root])
     .map((entry) => path.resolve(entry))

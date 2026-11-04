@@ -1,11 +1,68 @@
 // @hermetic-boundary reason="creates the sentinel repo with the ambient env on purpose, to prove the hermetic env leaves it unchanged"
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { buildHermeticTestEnvironment, isHermeticStripKey } from "./env.ts";
+import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, isHermeticStripKey } from "./env.ts";
+
+const agentStorageKeys = ["FLEET_AGENTS_ROOT", "FLEET_AGENTS_TEMP", "AO_WORKTREES_ROOT", "ORCH_WORKTREE_ROOT",
+  "npm_config_store_dir", "pnpm_config_store_dir", "npm_config_cache", "npm_config_cache_dir"] as const;
+
+void test("agent roots and package caches are private in the builder, in-place apply, and public child preload", () => {
+  const parent = mkdtempSync(path.join(tmpdir(), "rq-agent-storage-"));
+  const sentinel = path.join(parent, "host-storage");
+  try {
+    mkdirSync(sentinel);
+    const sentinelFile = path.join(sentinel, "keep.txt");
+    writeFileSync(sentinelFile, "host storage must not change\n");
+    const source: NodeJS.ProcessEnv = { FIXTURE_UNRELATED: "kept" };
+    for (const key of agentStorageKeys) {
+      source[key] = sentinel;
+      source[key.toLowerCase() === key ? key.toUpperCase() : key.toLowerCase()] = sentinel;
+      assert.equal(isHermeticStripKey(key), true);
+      assert.equal(isHermeticStripKey(key.toLowerCase()), true);
+    }
+    const before = { ...source };
+    const built = buildHermeticTestEnvironment({ env: source, tempParent: parent });
+    assert.deepEqual(source, before);
+    const applied = { ...source };
+    const appliedRoot = applyHermeticTestEnvironment({ tempParent: parent }, applied);
+    for (const [env, root] of [[built.env, built.root], [applied, appliedRoot]] as const) {
+      for (const key of agentStorageKeys) {
+        const value = env[key];
+        assert.ok(value && path.relative(root, value) && !path.relative(root, value).startsWith(".."), key);
+        assert.ok(statSync(value).isDirectory(), key);
+        assert.deepEqual(Object.keys(env).filter((candidate) => candidate.toUpperCase() === key.toUpperCase()), [key]);
+      }
+      assert.equal(env["AO_WORKTREES_ROOT"], path.join(env["FLEET_AGENTS_TEMP"]!, "worktrees"));
+      assert.equal(env["ORCH_WORKTREE_ROOT"], env["AO_WORKTREES_ROOT"]);
+      assert.equal(env["FIXTURE_UNRELATED"], "kept");
+    }
+    const entry = new URL("../hermetic-test-preload.mjs", import.meta.url).href;
+    const child = spawnSync(process.execPath, ["--import", entry, "--input-type=module", "-e", `
+      import assert from "node:assert/strict";
+      import path from "node:path";
+      import { rmSync, statSync } from "node:fs";
+      const { HERMETIC_TEST_ROOT } = await import(${JSON.stringify(new URL("./preload.mjs", import.meta.url).href)});
+      try {
+        for (const key of ${JSON.stringify(agentStorageKeys)}) {
+          const value = process.env[key];
+          assert.ok(value && path.relative(HERMETIC_TEST_ROOT, value) && !path.relative(HERMETIC_TEST_ROOT, value).startsWith(".."), key);
+          assert.ok(statSync(value).isDirectory(), key);
+          assert.deepEqual(Object.keys(process.env).filter((candidate) => candidate.toUpperCase() === key.toUpperCase()), [key]);
+        }
+        assert.equal(process.env["AO_WORKTREES_ROOT"], path.join(process.env["FLEET_AGENTS_TEMP"], "worktrees"));
+        assert.equal(process.env["FIXTURE_UNRELATED"], "kept");
+      } finally { rmSync(HERMETIC_TEST_ROOT, { recursive: true, force: true }); }
+    `], { env: { PATH: process.env["PATH"], SystemRoot: process.env["SystemRoot"], TEMP: parent, TMP: parent, TMPDIR: parent, ...source },
+      encoding: "utf8", timeout: 10_000 });
+    assert.equal(child.error, undefined);
+    assert.equal(child.status, 0, child.stderr);
+    assert.equal(readFileSync(sentinelFile, "utf8"), "host storage must not change\n");
+  } finally { rmSync(parent, { recursive: true, force: true }); }
+});
 
 void test("strips GIT_DIR and isolates config writes from a sentinel repo", () => {
   assert.equal(isHermeticStripKey("GIT_DIR"), true);
