@@ -1,11 +1,11 @@
 // @hermetic-boundary reason="creates the sentinel repo with the ambient env on purpose, to prove the hermetic env leaves it unchanged"
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, isHermeticStripKey } from "./env.ts";
+import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, HERMETIC_OWNER_MARKER, isHermeticStripKey, sweepDeadHermeticRoots } from "./env.ts";
 
 const agentStorageKeys = ["FLEET_AGENTS_ROOT", "FLEET_AGENTS_TEMP", "AO_WORKTREES_ROOT", "ORCH_WORKTREE_ROOT",
   "npm_config_store_dir", "pnpm_config_store_dir", "npm_config_cache", "npm_config_cache_dir", "pnpm_config_cache_dir"] as const;
@@ -269,6 +269,39 @@ void test("redirects TEMP/TMP/TMPDIR into the disposable root and strips harness
     });
     assert.equal(child.error, undefined);
     assert.equal(child.status, 0, child.stderr);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+void test("code#13858: a disposable root is removed at exit, and a killed owner's root by the next sweep", () => {
+  const parent = mkdtempSync(path.join(tmpdir(), "rq-dispose-"));
+  try {
+    const envModule = JSON.stringify(new URL("./env.ts", import.meta.url).href);
+    const child = (tail: string) => spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e",
+      `import { buildHermeticTestEnvironment } from ${envModule};
+       const { root } = buildHermeticTestEnvironment({ tempParent: ${JSON.stringify(parent)}, prefix: "owned-" });
+       process.stdout.write(root); ${tail}`], { encoding: "utf8" });
+
+    const clean = child("");
+    assert.equal(clean.status, 0, clean.stderr);
+    assert.equal(existsSync(clean.stdout), false, "a normal exit removes its root");
+
+    const killed = child("process.kill(process.pid, 'SIGKILL');");
+    assert.ok(killed.stdout && existsSync(killed.stdout), "a killed process skips its exit hook");
+    assert.ok(existsSync(path.join(killed.stdout, HERMETIC_OWNER_MARKER)));
+
+    const live = path.join(parent, "owned-live");
+    mkdirSync(live);
+    writeFileSync(path.join(live, HERMETIC_OWNER_MARKER), String(process.pid));
+    const unmarked = path.join(parent, "owned-unmarked");
+    mkdirSync(unmarked);
+
+    assert.equal(sweepDeadHermeticRoots(parent, "owned-"), 1);
+    assert.equal(existsSync(killed.stdout), false, "a dead owner's root is reclaimed");
+    assert.ok(existsSync(live), "a live owner's root is kept");
+    assert.ok(existsSync(unmarked), "an unmarked directory is not ours to remove");
+    assert.equal(sweepDeadHermeticRoots(parent, "owned-"), 0, "the sweep is throttled");
   } finally {
     rmSync(parent, { recursive: true, force: true });
   }

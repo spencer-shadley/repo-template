@@ -6,8 +6,10 @@
  *   node --import @spencer-shadley/repo-quality/hermetic-test-preload …
  *   node --experimental-strip-types --import ./node_modules/@spencer-shadley/repo-quality/hermetic-test-preload/preload.ts …
  */
-import { applyHermeticTestEnvironment } from "./env.mjs";
-export const HERMETIC_TEST_ROOT = applyHermeticTestEnvironment({
-    prefix: "fleet-hermetic-preload-",
-});
+import { tmpdir } from "node:os";
+import { applyHermeticTestEnvironment, sweepDeadHermeticRoots } from "./env.mjs";
+const PREFIX = "fleet-hermetic-preload-";
+// Reclaim roots whose test process was killed before its exit hook ran (code#13858).
+sweepDeadHermeticRoots(tmpdir(), PREFIX);
+export const HERMETIC_TEST_ROOT = applyHermeticTestEnvironment({ prefix: PREFIX });
 export { applyHermeticTestEnvironment, buildHermeticTestEnvironment, hermeticEnvironmentSummary, isHermeticStripKey, } from "./env.mjs";

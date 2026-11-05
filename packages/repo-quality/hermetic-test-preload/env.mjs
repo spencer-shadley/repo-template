@@ -7,7 +7,7 @@
  * temp root, and ceilings discovery so cwd-based git cannot climb into a real checkout.
  * Pure helpers — call \`applyHermeticTestEnvironment()\` from the preload or tests.
  */
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
@@ -122,6 +122,7 @@ export function buildHermeticTestEnvironment(options = {}) {
     const prefix = options.prefix ?? "fleet-hermetic-test-";
     mkdirSync(parent, { recursive: true });
     const root = mkdtempSync(path.join(parent, prefix));
+    disposeHermeticRootOnExit(root);
     const home = path.join(root, "home");
     const xdgConfig = path.join(root, "xdg-config");
     const gitConfigGlobal = path.join(root, "gitconfig.global");
@@ -183,6 +184,85 @@ export function applyHermeticTestEnvironment(options = {}, target = process.env)
     }
     Object.assign(target, built.env);
     return built.root;
+}
+/** Owner marker inside every disposable root: the creating pid, so a later sweep can prove the owner is gone. */
+export const HERMETIC_OWNER_MARKER = ".fleet-hermetic-owner";
+const SWEEP_INTERVAL_MS = 10 * 60_000;
+const ownedRoots = new Set();
+function removeOwnedRoots() {
+    for (const root of ownedRoots) {
+        try {
+            rmSync(root, { recursive: true, force: true });
+        }
+        catch {
+            // A held handle (win32) leaves it for the dead-owner sweep.
+        }
+    }
+    ownedRoots.clear();
+}
+/**
+ * Mark `root` as owned by this process and remove it when the process exits (code#13858). The root also holds the
+ * redirected TEMP, so everything a test makes with os.tmpdir() goes with it. A killed process skips `exit`; its
+ * marker names a dead pid and `sweepDeadHermeticRoots` reclaims it.
+ */
+export function disposeHermeticRootOnExit(root) {
+    writeFileSync(path.join(root, HERMETIC_OWNER_MARKER), String(process.pid), "utf8");
+    if (ownedRoots.size === 0)
+        process.once("exit", removeOwnedRoots);
+    ownedRoots.add(root);
+}
+function pidAlive(pid) {
+    try {
+        process.kill(pid, 0);
+        return true;
+    }
+    catch (error) {
+        return error.code === "EPERM";
+    }
+}
+/**
+ * Remove `parent/<prefix>*` roots whose owner marker names a dead pid. Only real directories that carry the marker
+ * are touched; links, unmarked and live-owner roots are left alone. At most one scan per parent and prefix every ten
+ * minutes, so a crowded temp directory is not listed by every test process. Returns the number removed.
+ */
+export function sweepDeadHermeticRoots(parent, prefix, now = Date.now()) {
+    const stamp = path.join(parent, `${prefix.replace(/-+$/, "")}.sweep-stamp`);
+    try {
+        if (now - statSync(stamp).mtimeMs < SWEEP_INTERVAL_MS)
+            return 0;
+    }
+    catch {
+        // No stamp yet: sweep.
+    }
+    let removed = 0;
+    try {
+        writeFileSync(stamp, "", "utf8");
+        for (const entry of readdirSync(parent, { withFileTypes: true })) {
+            if (!entry.name.startsWith(prefix) || !entry.isDirectory())
+                continue;
+            const root = path.join(parent, entry.name);
+            let pid;
+            try {
+                pid = Number.parseInt(readFileSync(path.join(root, HERMETIC_OWNER_MARKER), "utf8"), 10);
+            }
+            catch {
+                continue;
+            }
+            if (!Number.isSafeInteger(pid) || pid <= 0 || pid === process.pid || pidAlive(pid))
+                continue;
+            try {
+                rmSync(root, { recursive: true, force: true });
+                removed += 1;
+            }
+            catch {
+                // Held or racing: the next sweep retries.
+            }
+        }
+    }
+    catch {
+        // An unreadable temp directory never blocks a test run.
+    }
+    return removed;
 }
 /** Serialize a built environment for subprocess receipts / diagnostics. */
 export function hermeticEnvironmentSummary(built) {
