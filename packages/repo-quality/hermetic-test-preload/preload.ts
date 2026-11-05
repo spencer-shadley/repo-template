@@ -8,8 +8,9 @@ import { tmpdir } from "node:os";
 import { applyHermeticTestEnvironment, sweepDeadHermeticRoots } from "./env.ts";
 
 const PREFIX = "fleet-hermetic-preload-";
-// Reclaim roots whose test process was killed before its exit hook ran (code#13858).
-sweepDeadHermeticRoots(tmpdir(), PREFIX);
+// Reclaim roots whose test process was killed before its exit hook ran, including the builder's default prefix
+// (code#13858).
+for (const prefix of [PREFIX, "fleet-hermetic-test-"]) sweepDeadHermeticRoots(tmpdir(), prefix);
 export const HERMETIC_TEST_ROOT = applyHermeticTestEnvironment({ prefix: PREFIX });
 
 export {
