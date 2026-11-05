@@ -8,6 +8,7 @@
 import { mkdirSync, mkdtempSync, opendirSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { hostname, tmpdir, uptime } from "node:os";
 import path from "node:path";
+import { isMainThread } from "node:worker_threads";
 
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
@@ -270,6 +271,9 @@ function removeOwnedRoots(): void {
 export function disposeHermeticRootOnExit(root: string): string {
   const owner: HermeticOwner = { pid: process.pid, host: hostname(), boot: bootIdentity(), createdAt: Date.now() };
   writeFileSync(path.join(root, HERMETIC_OWNER_MARKER), JSON.stringify(owner), "utf8");
+  // A Worker's process "exit" event ends that thread, not the process named by the marker.
+  // Keep its roots for that process's lifetime; the existing marked-root sweep can consider them afterward.
+  if (!isMainThread) return root;
   if (ownedRoots.size === 0) process.once("exit", removeOwnedRoots);
   ownedRoots.add(root);
   return root;
