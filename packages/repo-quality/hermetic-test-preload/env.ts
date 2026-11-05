@@ -264,9 +264,9 @@ function removeOwnedRoots(): void {
 }
 
 /**
- * Mark `root` as owned by this process and remove it when the process exits (code#13858); returns `root`. The root's
- * lifetime is the creating process's: a worker thread's roots live until the whole process exits, and nothing may use
- * one after that. A killed process skips `exit`; its marker names a dead pid and `sweepDeadHermeticRoots` reclaims it.
+ * Mark `root` as owned by this process (code#13858); returns `root`. Main-thread roots are removed on process exit.
+ * Worker roots remain for the whole process's lifetime and are left marked for the later dead-owner sweep.
+ * Nothing may use a root after its creating process exits. A killed process also leaves its marked roots for the sweep.
  */
 export function disposeHermeticRootOnExit(root: string): string {
   const owner: HermeticOwner = { pid: process.pid, host: hostname(), boot: bootIdentity(), createdAt: Date.now() };
