@@ -10,6 +10,7 @@
 import { mkdirSync, mkdtempSync, opendirSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { hostname, tmpdir, uptime } from "node:os";
 import path from "node:path";
+import { isMainThread } from "node:worker_threads";
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
     "FLEET_CENTRAL_DB_PATH",
@@ -225,13 +226,17 @@ function removeOwnedRoots() {
     ownedRoots.clear();
 }
 /**
- * Mark `root` as owned by this process and remove it when the process exits (code#13858); returns `root`. The root's
- * lifetime is the creating process's: a worker thread's roots live until the whole process exits, and nothing may use
- * one after that. A killed process skips `exit`; its marker names a dead pid and `sweepDeadHermeticRoots` reclaims it.
+ * Mark `root` as owned by this process (code#13858); returns `root`. Main-thread roots are removed on process exit.
+ * Worker roots remain for the whole process's lifetime and are left marked for the later dead-owner sweep.
+ * Nothing may use a root after its creating process exits. A killed process also leaves its marked roots for the sweep.
  */
 export function disposeHermeticRootOnExit(root) {
     const owner = { pid: process.pid, host: hostname(), boot: bootIdentity(), createdAt: Date.now() };
     writeFileSync(path.join(root, HERMETIC_OWNER_MARKER), JSON.stringify(owner), "utf8");
+    // A Worker's process "exit" event ends that thread, not the process named by the marker.
+    // Keep its roots for that process's lifetime; the existing marked-root sweep can consider them afterward.
+    if (!isMainThread)
+        return root;
     if (ownedRoots.size === 0)
         process.once("exit", removeOwnedRoots);
     ownedRoots.add(root);
