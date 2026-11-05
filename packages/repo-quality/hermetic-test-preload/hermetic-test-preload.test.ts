@@ -1,10 +1,12 @@
 // @hermetic-boundary reason="creates the sentinel repo with the ambient env on purpose, to prove the hermetic env leaves it unchanged"
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { once } from "node:events";
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { Worker } from "node:worker_threads";
 import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, isHermeticStripKey, sweepDeadHermeticRoots } from "./env.ts";
 
 const agentStorageKeys = ["FLEET_AGENTS_ROOT", "FLEET_AGENTS_TEMP", "AO_WORKTREES_ROOT", "ORCH_WORKTREE_ROOT",
@@ -273,6 +275,40 @@ void test("redirects TEMP/TMP/TMPDIR into the disposable root and strips harness
     rmSync(parent, { recursive: true, force: true });
   }
 });
+
+for (const workerEnd of ["exit", "terminate"] as const) {
+  void test(`code#13858: a worker-created root survives worker ${workerEnd} while its process remains live`, { timeout: 10_000 }, async () => {
+    const parent = mkdtempSync(path.join(tmpdir(), "rq-worker-dispose-"));
+    let worker: Worker | undefined;
+    try {
+      worker = new Worker(`
+        const { parentPort, workerData } = require("node:worker_threads");
+        import(workerData.envModule).then(({ buildHermeticTestEnvironment }) => {
+          const { root } = buildHermeticTestEnvironment({ tempParent: workerData.parent, prefix: "owned-" });
+          parentPort.postMessage({ root, pid: process.pid });
+          if (workerData.workerEnd === "terminate") setInterval(() => {}, 1_000);
+        });
+      `, { eval: true, execArgv: ["--experimental-strip-types"],
+        workerData: { envModule: new URL("./env.ts", import.meta.url).href, parent, workerEnd } });
+      const exited = once(worker, "exit");
+      const [message] = await once(worker, "message") as [{ root: string; pid: number }];
+      if (workerEnd === "terminate") await worker.terminate();
+      const [status] = await exited;
+      assert.equal(status, workerEnd === "exit" ? 0 : 1);
+      assert.equal(message.pid, process.pid, "worker and main share the process whose lifetime owns the root");
+      assert.ok(existsSync(message.root), "thread exit must not remove the live process's root");
+      const marker: unknown = JSON.parse(readFileSync(path.join(message.root, HERMETIC_OWNER_MARKER), "utf8"));
+      assert.ok(isHermeticOwner(marker));
+      assert.equal(marker.pid, process.pid);
+      const sentinel = path.join(message.root, "main-thread-still-uses-root.txt");
+      writeFileSync(sentinel, "useful after worker exit");
+      assert.equal(readFileSync(sentinel, "utf8"), "useful after worker exit");
+    } finally {
+      if (worker) await worker.terminate();
+      rmSync(parent, { recursive: true, force: true });
+    }
+  });
+}
 
 void test("code#13858: a disposable root is removed at exit, and a killed owner's root by the next sweep", () => {
   const parent = mkdtempSync(path.join(tmpdir(), "rq-dispose-"));
