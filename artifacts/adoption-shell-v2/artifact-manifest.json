@@ -1333,8 +1333,8 @@
       "path": "docs/QUALITY-LINT.md",
       "kind": "file",
       "mode": "100644",
-      "sha256": "5a6498f19eb575e4ab0423723cfa7c901d9621a517861ec282cb6dfc3c976803",
-      "bytes": 21839
+      "sha256": "b402ca36e3bbaff5642ba009b44ff1e1e3cf7dc366b5243d3342ed687dd3b795",
+      "bytes": 22954
     },
     {
       "path": "eslint.config.ts",
@@ -1556,5 +1556,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "8dbe7e1807944af7677f79b2a4bc31871df8664f3e1da68e741994f638e74196"
+  "manifestDigest": "4ed61fc520e6be05cba1315e40b5f1903d63ae168266a74db252d6f4c8c4c13c"
 }

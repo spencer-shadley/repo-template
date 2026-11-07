@@ -342,6 +342,22 @@ package does not implement a native classifier. A boolean or marker JSON is not 
 substitute. Classify BEFORE injecting negative evidence views in fixture controls.
 Throw/UNKNOWN is sticky, blocks subsequent launches and has no reset-to-green API.
 
+For a concurrent native writer, use runWithHermeticRootCommandAsync(root, run,
+classify) instead. It uses the same creator map and pending fence; run returns the
+actual completion promise. Select the starter and canonical classifier from ONE
+normal public CLI owner module before launch. For its public startOwnedCommand,
+return handle.result directly and classify that exact original SpawnResult before
+business projections. A readiness file, cancel request, worker exit DTO or PID
+absence is not completion evidence. The synchronous port still refuses Promises.
+
+The concrete consumer is Code's concurrent install-generation file-holder test:
+keep its Windows FileShare.Read denial and overlap with refresh, but release via
+a private nonce file within the original deadline. The worker's stdin is not an
+interactive release channel. Join actual completion in finally and let UNKNOWN
+retain the root. This package's async units are accounting controls, not native
+proof; Code's normal declared CLI graph must separately qualify the genuine
+holder, cancellation/UNKNOWN/throw and cleanup behavior before adoption.
+
 Use removeOwnedHermeticRoot instead of independent recursive removal. It refuses
 pending, retained, unreadable or replaced roots, and boundedly checks direct child
 entries at the declared root, root/tmp and root/agents-temp/tmp boundaries without

@@ -141,6 +141,31 @@ function finishSettledUse(root, owned, pending) {
     owned.marker.pending = owned.marker.pending.filter(value => value !== pending);
     persist(owned);
 }
+/** Persist the same creator's pending operation before either launch port runs. */
+function beginCommandUse(root) {
+    const owned = current(root);
+    if (owned.marker.retained)
+        throw new Error("hermetic root retains an unresolved writer");
+    const pending = randomUUID();
+    owned.marker.pending.push(pending);
+    try {
+        persist(owned);
+    }
+    catch (error) {
+        latch(owned);
+        throw error;
+    }
+    return { owned, pending };
+}
+function finishCommandProof(root, owned, pending, proof) {
+    if (!record(proof) || proof["status"] !== "settled"
+        || (proof["mechanism"] !== "linux-subreaper" && proof["mechanism"] !== "windows-job")) {
+        latch(owned);
+        return;
+    }
+    // Recheck current generation/state; a sibling UNKNOWN is never reset.
+    finishSettledUse(root, owned, pending);
+}
 /**
  * Synchronous cooperating-caller port, not a kernel classifier implementation.
  * The caller supplies its canonical native classifier; it receives the EXACT
@@ -148,24 +173,30 @@ function finishSettledUse(root, owned, pending) {
  * No boolean/marker/path can complete a pending operation through this API.
  */
 export function runWithHermeticRootCommand(root, run, classify) {
-    const owned = current(root);
-    if (owned.marker.retained)
-        throw new Error("hermetic root retains an unresolved writer");
-    const pending = randomUUID();
-    owned.marker.pending.push(pending);
+    const { owned, pending } = beginCommandUse(root);
     try {
-        persist(owned); // Durable BEFORE native launch, including abnormal process exit.
         const original = run();
         if (record(original) && typeof original["then"] === "function")
             throw new TypeError("hermetic writer port is synchronous");
-        const proof = classify(original);
-        if (!record(proof) || proof["status"] !== "settled"
-            || (proof["mechanism"] !== "linux-subreaper" && proof["mechanism"] !== "windows-job")) {
-            latch(owned);
-            return original;
-        }
-        // A sibling/nested UNKNOWN cannot be undone by this operation's settlement.
-        finishSettledUse(root, owned, pending);
+        finishCommandProof(root, owned, pending, classify(original));
+        return original;
+    }
+    catch (error) {
+        latch(owned);
+        throw error;
+    }
+}
+/**
+ * Concurrent native-writer port over the SAME creator map and sticky fence.
+ * The callback returns the actual native completion promise, not a readiness,
+ * cancellation-request or projected result. Select starter and canonical
+ * classifier from the same normal public owner before invoking this port.
+ */
+export async function runWithHermeticRootCommandAsync(root, run, classify) {
+    const { owned, pending } = beginCommandUse(root);
+    try {
+        const original = await run();
+        finishCommandProof(root, owned, pending, classify(original));
         return original;
     }
     catch (error) {

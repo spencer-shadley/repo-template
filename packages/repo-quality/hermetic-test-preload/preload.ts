@@ -21,6 +21,7 @@ export {
   removeOwnedHermeticRoot,
   retainHermeticRoot,
   runWithHermeticRootCommand,
+  runWithHermeticRootCommandAsync,
   captureHermeticPnpmStore,
   restoreHermeticPnpmStore,
   type HermeticPnpmCacheBinding,

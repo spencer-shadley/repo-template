@@ -14,4 +14,4 @@ const PREFIX = "fleet-hermetic-preload-";
 for (const prefix of [PREFIX, "fleet-hermetic-test-"])
     sweepDeadHermeticRoots(tmpdir(), prefix);
 export const HERMETIC_TEST_ROOT = applyHermeticTestEnvironment({ prefix: PREFIX });
-export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, sweepDeadHermeticRoots, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, captureHermeticPnpmStore, restoreHermeticPnpmStore, applyHermeticTestEnvironment, buildHermeticTestEnvironment, hermeticEnvironmentSummary, isHermeticStripKey, } from "./env.mjs";
+export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, sweepDeadHermeticRoots, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, runWithHermeticRootCommandAsync, captureHermeticPnpmStore, restoreHermeticPnpmStore, applyHermeticTestEnvironment, buildHermeticTestEnvironment, hermeticEnvironmentSummary, isHermeticStripKey, } from "./env.mjs";
