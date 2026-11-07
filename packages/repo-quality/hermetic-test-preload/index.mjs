@@ -6,4 +6,4 @@
  * Shared hermetic test environment for every fleet repository.
  * Import the preload entry for --import side effects, or call the builders directly.
  */
-export { HERMETIC_STRIP_EXACT, applyHermeticTestEnvironment, buildHermeticTestEnvironment, hermeticEnvironmentSummary, isHermeticStripKey, } from "./env.mjs";
+export { HERMETIC_STRIP_EXACT, HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, sweepDeadHermeticRoots, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, captureHermeticPnpmStore, restoreHermeticPnpmStore, applyHermeticTestEnvironment, buildHermeticTestEnvironment, hermeticEnvironmentSummary, isHermeticStripKey, } from "./env.mjs";

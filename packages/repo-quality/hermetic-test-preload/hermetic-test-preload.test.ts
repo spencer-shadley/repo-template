@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { once } from "node:events";
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
@@ -310,54 +310,29 @@ for (const workerEnd of ["exit", "terminate"] as const) {
   });
 }
 
-void test("code#13858: a disposable root is removed at exit, and a killed owner's root by the next sweep", () => {
+void test("code#13858: own normal exit cleans up; killed and foreign roots require actual recovery", () => {
   const parent = mkdtempSync(path.join(tmpdir(), "rq-dispose-"));
   try {
-    const envModule = JSON.stringify(new URL("./env.ts", import.meta.url).href);
+    const environment = JSON.stringify(new URL("./env.ts", import.meta.url).href);
     const child = (tail: string) => spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e",
-      `import { buildHermeticTestEnvironment } from ${envModule};
-       const { root } = buildHermeticTestEnvironment({ tempParent: ${JSON.stringify(parent)}, prefix: "owned-" });
-       process.stdout.write(root); ${tail}`], { encoding: "utf8" });
-
+      "import { buildHermeticTestEnvironment } from " + environment + ";" +
+      "const { root } = buildHermeticTestEnvironment({ tempParent: " + JSON.stringify(parent) + ", prefix: 'owned-' });" +
+      "process.stdout.write(root);" + tail], { encoding: "utf8" });
     const clean = child("");
     assert.equal(clean.status, 0, clean.stderr);
-    assert.equal(existsSync(clean.stdout), false, "a normal exit removes its root");
-
+    assert.equal(existsSync(clean.stdout), false, "the actual creator removes its unchanged idle root");
     const killed = child("process.kill(process.pid, 'SIGKILL');");
-    assert.ok(killed.stdout && existsSync(killed.stdout), "a killed process skips its exit hook");
+    assert.ok(killed.stdout && existsSync(killed.stdout));
     const marker: unknown = JSON.parse(readFileSync(path.join(killed.stdout, HERMETIC_OWNER_MARKER), "utf8"));
-    assert.ok(isHermeticOwner(marker), "the marker names its owner");
+    assert.ok(isHermeticOwner(marker));
     const later = marker.createdAt + HERMETIC_SWEEP_MIN_AGE_MS + 1;
-    const plant = (name: string, owner: Record<string, unknown>) => {
-      const dir = path.join(parent, name);
-      mkdirSync(dir);
-      writeFileSync(path.join(dir, HERMETIC_OWNER_MARKER), JSON.stringify({ ...marker, ...owner }));
-      return dir;
-    };
-    const live = plant("owned-live", { pid: process.pid });
-    const otherHost = plant("owned-other-host", { host: `${marker.host}-elsewhere` });
-    const otherBoot = plant("owned-other-boot", { boot: `${marker.boot}-earlier` });
-    const unmarked = path.join(parent, "owned-unmarked");
-    mkdirSync(unmarked);
-
-    assert.equal(sweepDeadHermeticRoots(parent, "owned-", marker.createdAt + 1_000), 0, "a young root may be another pid namespace's");
-    assert.ok(existsSync(killed.stdout));
-    writeFileSync(path.join(parent, "owned.sweep-stamp"), "0");
-    utimesSync(path.join(parent, "owned.sweep-stamp"), new Date(later + 3_600_000), new Date(later + 3_600_000));
-    assert.equal(sweepDeadHermeticRoots(parent, "owned-", later), 1, "a future-dated stamp is expired");
-    assert.equal(existsSync(killed.stdout), false, "a dead owner's root is reclaimed");
-    for (const kept of [live, otherHost, otherBoot, unmarked]) assert.ok(existsSync(kept), `${kept} is kept`);
-    assert.equal(sweepDeadHermeticRoots(parent, "owned-", later + 1_000), 0, "the sweep is throttled");
-
-    // Budgeted: each sweep examines a bounded slice and the next resumes after it.
-    rmSync(path.join(parent, "owned.sweep-stamp"));
-    const dead = ["owned-z1", "owned-z2", "owned-z3"].map((name) => plant(name, { pid: 999_999_999 }));
-    let total = 0;
-    for (let sweep = 0; sweep < 10 && dead.some((dir) => existsSync(dir)); sweep++) {
-      total += sweepDeadHermeticRoots(parent, "owned-", later + (sweep + 1) * 3_600_000, 2);
+    const foreign = path.join(parent, "owned-forged"); mkdirSync(foreign);
+    writeFileSync(path.join(foreign, HERMETIC_OWNER_MARKER),
+      JSON.stringify({ ...marker, pid: 999_999_999, pending: [], retained: false }));
+    for (const now of [marker.createdAt + 1000, later, later + 86_400_000]) {
+      assert.equal(sweepDeadHermeticRoots(parent, "owned-", now, 2), 0);
+      assert.ok(existsSync(killed.stdout), "creator death cannot be promoted to scope-empty evidence");
+      assert.ok(existsSync(foreign), "forged green JSON cannot grant cleanup");
     }
-    assert.equal(total, 3, "every dead root is reached across budgeted sweeps");
-  } finally {
-    rmSync(parent, { recursive: true, force: true });
-  }
+  } finally { rmSync(parent, { recursive: true, force: true }); }
 });

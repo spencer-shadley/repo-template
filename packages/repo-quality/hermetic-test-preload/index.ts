@@ -6,6 +6,17 @@
  */
 export {
   HERMETIC_STRIP_EXACT,
+  HERMETIC_OWNER_MARKER,
+  HERMETIC_SWEEP_MIN_AGE_MS,
+  isHermeticOwner,
+  sweepDeadHermeticRoots,
+  removeOwnedHermeticRoot,
+  retainHermeticRoot,
+  runWithHermeticRootCommand,
+  captureHermeticPnpmStore,
+  restoreHermeticPnpmStore,
+  type HermeticPnpmCacheBinding,
+  type HermeticPnpmCacheSnapshot,
   applyHermeticTestEnvironment,
   buildHermeticTestEnvironment,
   hermeticEnvironmentSummary,
