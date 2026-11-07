@@ -276,6 +276,12 @@ void test("redirects TEMP/TMP/TMPDIR into the disposable root and strips harness
   }
 });
 
+function firstEventArgument(event: unknown): unknown {
+  assert.ok(Array.isArray(event));
+  const value: unknown = event[0];
+  return value;
+}
+
 for (const workerEnd of ["exit", "terminate"] as const) {
   void test(`code#13858: a worker-created root survives worker ${workerEnd} while its process remains live`, { timeout: 10_000 }, async () => {
     const parent = mkdtempSync(path.join(tmpdir(), "rq-worker-dispose-"));
@@ -291,9 +297,12 @@ for (const workerEnd of ["exit", "terminate"] as const) {
       `, { eval: true, execArgv: ["--experimental-strip-types"],
         workerData: { envModule: new URL("./env.ts", import.meta.url).href, parent, workerEnd } });
       const exited = once(worker, "exit");
-      const [message] = await once(worker, "message") as [{ root: string; pid: number }];
+      const message = firstEventArgument(await once(worker, "message"));
+      assert.ok(message !== null && typeof message === "object"
+        && "root" in message && typeof message.root === "string"
+        && "pid" in message && typeof message.pid === "number");
       if (workerEnd === "terminate") await worker.terminate();
-      const [status] = await exited;
+      const status = firstEventArgument(await exited);
       assert.equal(status, workerEnd === "exit" ? 0 : 1);
       assert.equal(message.pid, process.pid, "worker and main share the process whose lifetime owns the root");
       assert.ok(existsSync(message.root), "thread exit must not remove the live process's root");

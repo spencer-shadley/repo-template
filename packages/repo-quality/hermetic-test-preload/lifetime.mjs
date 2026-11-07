@@ -47,11 +47,19 @@ function persist(owned) {
     writeFileSync(temporary, JSON.stringify(owned.marker), { mode: 0o600, flag: "wx" });
     renameSync(temporary, path.join(owned.root, HERMETIC_OWNER_MARKER));
 }
+function readOpenFlags(noFollow) {
+    return constants.O_RDONLY | (noFollow ?? 0);
+}
+function markerReadIsStable(before, after, currentPath, observed) {
+    return after.dev === before.dev && after.ino === before.ino && after.size === before.size
+        && BigInt(observed) === after.size && !currentPath.isSymbolicLink()
+        && currentPath.dev === after.dev && currentPath.ino === after.ino && currentPath.size === after.size;
+}
 function readMarker(root) {
     const file = path.join(root, HERMETIC_OWNER_MARKER), before = lstatSync(file, { bigint: true });
     if (!before.isFile() || before.isSymbolicLink())
         throw new Error("hermetic marker is not ordinary data");
-    const fd = openSync(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
+    const fd = openSync(file, readOpenFlags(constants.O_NOFOLLOW));
     try {
         const stat = fstatSync(fd, { bigint: true });
         if (!stat.isFile() || stat.dev !== before.dev || stat.ino !== before.ino || stat.size > 64n * 1024n)
@@ -67,9 +75,7 @@ function readMarker(root) {
                 throw new Error("hermetic owner marker grew beyond its bound");
         }
         const after = fstatSync(fd, { bigint: true }), currentPath = lstatSync(file, { bigint: true });
-        if (after.dev !== before.dev || after.ino !== before.ino || after.size !== before.size
-            || BigInt(observed) !== after.size || currentPath.isSymbolicLink()
-            || currentPath.dev !== after.dev || currentPath.ino !== after.ino || currentPath.size !== after.size) {
+        if (!markerReadIsStable(before, after, currentPath, observed)) {
             throw new Error("hermetic owner marker changed while it was read");
         }
         const value = JSON.parse(buffer.subarray(0, observed).toString("utf8"));
@@ -132,6 +138,14 @@ export function disposeHermeticRootOnExit(root) {
 }
 /** Sticky conservative refusal. It grants no native authority and has no reset API. */
 export function retainHermeticRoot(root) { latch(current(root)); }
+/** Read current mutable state across the callback boundary; never erase a sibling UNKNOWN. */
+function finishSettledUse(root, owned, pending) {
+    if (owned.marker.retained)
+        return;
+    current(root);
+    owned.marker.pending = owned.marker.pending.filter(value => value !== pending);
+    persist(owned);
+}
 /**
  * Synchronous cooperating-caller port, not a kernel classifier implementation.
  * The caller supplies its canonical native classifier; it receives the EXACT
@@ -156,11 +170,7 @@ export function runWithHermeticRootCommand(root, run, classify) {
             return original;
         }
         // A sibling/nested UNKNOWN cannot be undone by this operation's settlement.
-        if (!owned.marker.retained) {
-            current(root);
-            owned.marker.pending = owned.marker.pending.filter(value => value !== pending);
-            persist(owned);
-        }
+        finishSettledUse(root, owned, pending);
         return original;
     }
     catch (error) {
@@ -186,44 +196,52 @@ function ordinaryDeclaredParent(root, components) {
     }
     return directory;
 }
-function survivingHermeticChild(root) {
+function sameProcessDescendant(root) {
     for (const child of ownedRoots.keys()) {
         const relative = path.relative(root, child);
         if (relative && relative !== ".." && !relative.startsWith(".." + path.sep) && !path.isAbsolute(relative))
             return true;
     }
-    let inspected = 0;
-    // These are the builder and normal child-storage temp boundaries, not an
-    // unbounded recursive crawl. Other descendants require the parent's native fence.
+    return false;
+}
+function childEntryVeto(directory, entry) {
+    if (entry.name === HERMETIC_OWNER_MARKER)
+        return false;
+    if (entry.name.startsWith("fleet-hermetic-preload-") || entry.name.startsWith("fleet-hermetic-test-"))
+        return true;
+    if (!entry.isDirectory() || entry.isSymbolicLink())
+        return false;
+    try {
+        // ANY child marker is a veto, never a positive cleanup assertion.
+        lstatSync(path.join(directory, entry.name, HERMETIC_OWNER_MARKER));
+        return true;
+    }
+    catch (error) {
+        return !(error instanceof Error && "code" in error && error.code === "ENOENT");
+    }
+}
+function scanDeclaredParent(directory, budget) {
+    const handle = opendirSync(directory);
+    try {
+        for (let entry = handle.readSync(); entry; entry = handle.readSync()) {
+            if (--budget.remaining < 0 || childEntryVeto(directory, entry))
+                return true;
+        }
+        return false;
+    }
+    finally {
+        handle.closeSync();
+    }
+}
+function survivingHermeticChild(root) {
+    if (sameProcessDescendant(root))
+        return true;
+    const budget = { remaining: 256 };
+    // Only declared temp boundaries; arbitrary deeper launches need the parent fence.
     for (const components of [[], ["tmp"], ["agents-temp", "tmp"]]) {
         const directory = ordinaryDeclaredParent(root, components);
-        if (!directory)
-            continue;
-        const handle = opendirSync(directory);
-        try {
-            for (let entry = handle.readSync(); entry; entry = handle.readSync()) {
-                if (++inspected > 256)
-                    return true;
-                if (entry.name === HERMETIC_OWNER_MARKER)
-                    continue;
-                if (entry.name.startsWith("fleet-hermetic-preload-") || entry.name.startsWith("fleet-hermetic-test-"))
-                    return true;
-                if (!entry.isDirectory() || entry.isSymbolicLink())
-                    continue;
-                try {
-                    // ANY child marker is a veto, never a positive cleanup assertion.
-                    lstatSync(path.join(directory, entry.name, HERMETIC_OWNER_MARKER));
-                    return true;
-                }
-                catch (error) {
-                    if (!(error instanceof Error && "code" in error && error.code === "ENOENT"))
-                        return true;
-                }
-            }
-        }
-        finally {
-            handle.closeSync();
-        }
+        if (directory && scanDeclaredParent(directory, budget))
+            return true;
     }
     return false;
 }
@@ -248,7 +266,7 @@ export function removeOwnedHermeticRoot(root) {
     }
 }
 function removeOwnedRoots() {
-    for (const root of [...ownedRoots.keys()].sort((left, right) => right.length - left.length)) {
+    for (const root of [...ownedRoots.keys()].toSorted((left, right) => right.length - left.length)) {
         try {
             removeOwnedHermeticRoot(root);
         }

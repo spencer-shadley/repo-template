@@ -21,56 +21,64 @@ function generation(directory) {
     return { dev: String(stat.dev), ino: String(stat.ino), birthtimeNs: String(stat.birthtimeNs) };
 }
 function equal(left, right) { return JSON.stringify(left) === JSON.stringify(right); }
+function cacheEntryNames(current) {
+    const entries = [], handle = opendirSync(current);
+    try {
+        for (let entry = handle.readSync(); entry; entry = handle.readSync())
+            entries.push(entry.name);
+    }
+    finally {
+        handle.closeSync();
+    }
+    return entries.toSorted((left, right) => left.localeCompare(right) || (left < right ? -1 : left > right ? 1 : 0));
+}
+function readOpenFlags(noFollow) {
+    return constants.O_RDONLY | (noFollow ?? 0);
+}
+function hashFileContents(file, stat, hash, buffer) {
+    const fd = openSync(file, readOpenFlags(constants.O_NOFOLLOW));
+    try {
+        let observed = 0n;
+        for (;;) {
+            const remaining = stat.size - observed;
+            const length = Number(remaining < BigInt(buffer.length) ? remaining + 1n : BigInt(buffer.length));
+            const bytes = readSync(fd, buffer, 0, length, null);
+            if (!bytes)
+                break;
+            observed += BigInt(bytes);
+            if (observed > stat.size)
+                throw new Error("PNPM cache file grew beyond its framed size");
+            hash.update(buffer.subarray(0, bytes));
+        }
+        const after = fstatSync(fd, { bigint: true });
+        if (observed !== stat.size || after.dev !== stat.dev || after.ino !== stat.ino || after.size !== stat.size) {
+            throw new Error("PNPM cache file changed while it was inventoried");
+        }
+    }
+    finally {
+        closeSync(fd);
+    }
+    hash.update("\0");
+}
+function frameCacheEntry(directory, file, stat, hash) {
+    if (stat.size < 0n || stat.size > BigInt(Number.MAX_SAFE_INTEGER))
+        throw new Error("PNPM cache entry size is not lossless");
+    hash.update(JSON.stringify([path.relative(directory, file), Number(stat.mode & 4095n),
+        stat.isDirectory() ? "directory" : "file", stat.isFile() ? Number(stat.size) : 0]) + "\0");
+    if (stat.isSymbolicLink() || (!stat.isDirectory() && !stat.isFile())) {
+        throw new Error("PNPM cache contains a link or special entry");
+    }
+}
 function inventory(directory) {
     const hash = createHash("sha256"), buffer = Buffer.alloc(1024 * 1024);
     function visit(current) {
-        const entries = [];
-        const handle = opendirSync(current);
-        try {
-            for (let entry = handle.readSync(); entry; entry = handle.readSync())
-                entries.push(entry.name);
-        }
-        finally {
-            handle.closeSync();
-        }
-        entries.sort((left, right) => left.localeCompare(right) || (left < right ? -1 : left > right ? 1 : 0));
-        for (const name of entries) {
+        for (const name of cacheEntryNames(current)) {
             const file = path.join(current, name), stat = lstatSync(file, { bigint: true });
-            if (stat.size < 0n || stat.size > BigInt(Number.MAX_SAFE_INTEGER))
-                throw new Error("PNPM cache entry size is not lossless");
-            hash.update(JSON.stringify([path.relative(directory, file), Number(stat.mode & 4095n),
-                stat.isDirectory() ? "directory" : "file", stat.isFile() ? Number(stat.size) : 0]) + "\0");
-            if (stat.isSymbolicLink() || (!stat.isDirectory() && !stat.isFile())) {
-                throw new Error("PNPM cache contains a link or special entry");
-            }
-            if (stat.isDirectory()) {
+            frameCacheEntry(directory, file, stat, hash);
+            if (stat.isDirectory())
                 visit(file);
-            }
-            else {
-                const fd = openSync(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
-                try {
-                    let observed = 0n;
-                    for (;;) {
-                        const remaining = stat.size - observed;
-                        const length = Number(remaining < BigInt(buffer.length) ? remaining + 1n : BigInt(buffer.length));
-                        const bytes = readSync(fd, buffer, 0, length, null);
-                        if (!bytes)
-                            break;
-                        observed += BigInt(bytes);
-                        if (observed > stat.size)
-                            throw new Error("PNPM cache file grew beyond its framed size");
-                        hash.update(buffer.subarray(0, bytes));
-                    }
-                    const after = fstatSync(fd, { bigint: true });
-                    if (observed !== stat.size || after.dev !== stat.dev || after.ino !== stat.ino || after.size !== stat.size) {
-                        throw new Error("PNPM cache file changed while it was inventoried");
-                    }
-                }
-                finally {
-                    closeSync(fd);
-                }
-                hash.update("\0");
-            }
+            else
+                hashFileContents(file, stat, hash, buffer);
         }
     }
     visit(directory);

@@ -60,7 +60,7 @@ for (const outcome of ["unknown", "throws", "classifier-throws"] as const) {
       assert.equal(marker(root)["retained"], true);
       assert.equal(pendingCount(root), 1);
       let launched = false;
-      assert.throws(() => runWithHermeticRootCommand(root, () => { launched = true; }, noProcessUnitClassifier), /unresolved writer/);
+      assert.throws(() => { runWithHermeticRootCommand(root, () => { launched = true; }, noProcessUnitClassifier); }, /unresolved writer/);
       assert.equal(launched, false);
       assert.equal(removeOwnedHermeticRoot(root), false);
     } finally { rmSync(fixture, { recursive: true, force: true }); }

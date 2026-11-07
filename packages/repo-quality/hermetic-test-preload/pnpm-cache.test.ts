@@ -44,7 +44,7 @@ for (const failure of ["changed-source", "wrong-inputs", "nonempty-target", "sou
         const external = path.join(parent, "external"); mkdirSync(external);
         symlinkSync(external, path.join(store(source.root), "link"), process.platform === "win32" ? "junction" : "dir");
       }
-      assert.throws(() => restoreHermeticPnpmStore(target.root, snapshot, expected));
+      assert.throws(() => { restoreHermeticPnpmStore(target.root, snapshot, expected); });
       const marker: unknown = JSON.parse(readFileSync(path.join(target.root, HERMETIC_OWNER_MARKER), "utf8"));
       assert.ok(marker && typeof marker === "object" && "retained" in marker && marker.retained === true);
       assert.equal(removeOwnedHermeticRoot(target.root), false);
