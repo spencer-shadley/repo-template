@@ -12,7 +12,7 @@ audit, the autonomous loop) rely on these paths.
 | `CLAUDE.md` | thin pointer at AGENTS.md (single source of truth) |
 | `docs/adr/` | Architecture Decision Records — decide-once, audit-forever |
 | `docs/QUALITY-LINT.md` | required repo-quality bootstrap, including install/check of the versioned default-branch commit guard |
-| packages/repo-quality/hermetic-test-preload/ | private test roots, generation-bound writer retention and declared genuine cache-byte restore; see the hermetic lifetime contract in docs/QUALITY-LINT.md |
+| packages/repo-quality/hermetic-test-preload/ | private test roots, shared sync/async writer fences and declared genuine cache-byte restore; see the hermetic lifetime contract in docs/QUALITY-LINT.md |
 | `packages/repo-quality/default-branch-guard/` | portable guard implementation used by the package export; adoption installs it into Git hooks |
 | `docs/QUEUE-ENROLLMENT.md` | how this repo joins the autonomous flywheel — enrollment is the default, opt-out needs an ADR |
 | `docs/INCIDENTS.md` | curated post-mortems (majors only) |

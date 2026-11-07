@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { buildHermeticTestEnvironment } from "./env.ts";
-import { retainHermeticRoot, HERMETIC_OWNER_MARKER, removeOwnedHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots } from "./lifetime.ts";
+import { retainHermeticRoot, HERMETIC_OWNER_MARKER, removeOwnedHermeticRoot, runWithHermeticRootCommand, runWithHermeticRootCommandAsync, sweepDeadHermeticRoots } from "./lifetime.ts";
 
 function parent(): string { return mkdtempSync(path.join(tmpdir(), "rq-lifetime-control-")); }
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -166,5 +166,133 @@ void test("a real foreign pending child under the declared TMPDIR vetoes recursi
     assert.equal(pendingCount(result.stdout), 1);
     assert.equal(removeOwnedHermeticRoot(built.root), false);
     assert.ok(existsSync(result.stdout), "parent must not recursively erase the foreign writer target");
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+});
+
+
+/** Async bookkeeping units below launch NO external writer and claim no kernel proof. */
+function deferredUnit<T>(): { completion: Promise<T>; resolve: (value: T) => void } {
+  const { promise, resolve } = Promise.withResolvers<T>();
+  return { completion: promise, resolve };
+}
+
+void test("async unit port persists before callback, awaits exact value and preserves primary result", async () => {
+  const fixture = parent(), { root } = buildHermeticTestEnvironment({ tempParent: fixture });
+  const unit = deferredUnit<{ primaryStatus: number }>(), original = { primaryStatus: 7 };
+  let classified = false;
+  try {
+    const pending = runWithHermeticRootCommandAsync(root, () => {
+      assert.equal(pendingCount(root), 1, "pending is durable before any cooperating launch");
+      assert.equal(removeOwnedHermeticRoot(root), false);
+      return unit.completion;
+    }, value => {
+      classified = true;
+      assert.equal(value, original, "awaited original, never its promise or a projection");
+      return noProcessUnitClassifier();
+    });
+    await Promise.resolve();
+    assert.equal(classified, false);
+    assert.equal(pendingCount(root), 1);
+    unit.resolve(original);
+    assert.equal(await pending, original);
+    assert.equal(classified, true);
+    assert.equal(pendingCount(root), 0);
+    assert.equal(removeOwnedHermeticRoot(root), true);
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+});
+
+for (const outcome of ["unknown", "throws", "rejects", "classifier-throws"] as const) {
+  void test("async unit " + outcome + " remains sticky across both launch ports", async () => {
+    const fixture = parent(), { root } = buildHermeticTestEnvironment({ tempParent: fixture });
+    const error = new Error("async unit boundary"), original = { primaryStatus: 7 };
+    try {
+      const pending = runWithHermeticRootCommandAsync(root, () => {
+        if (outcome === "throws") throw error;
+        return outcome === "rejects" ? Promise.reject(error) : Promise.resolve(original);
+      }, value => {
+        assert.equal(value, original);
+        if (outcome === "classifier-throws") throw error;
+        return { status: "unknown" };
+      });
+      if (outcome === "unknown") assert.equal(await pending, original);
+      else await assert.rejects(pending, value => value === error);
+      assert.equal(marker(root)["retained"], true);
+      assert.equal(pendingCount(root), 1);
+      let launched = false;
+      await assert.rejects(runWithHermeticRootCommandAsync(root, () => {
+        launched = true; return Promise.resolve("unreachable");
+      }, noProcessUnitClassifier), /unresolved writer/u);
+      assert.throws(() => { runWithHermeticRootCommand(root, () => { launched = true; }, noProcessUnitClassifier); });
+      assert.equal(launched, false);
+      assert.equal(removeOwnedHermeticRoot(root), false);
+    } finally { rmSync(fixture, { recursive: true, force: true }); }
+  });
+}
+
+for (const firstUnknown of [false, true]) {
+  void test("async sibling unit completion preserves " + (firstUnknown ? "sticky UNKNOWN" : "the other's pending fence"), async () => {
+    const fixture = parent(), { root } = buildHermeticTestEnvironment({ tempParent: fixture });
+    const first = deferredUnit<string>(), second = deferredUnit<string>();
+    try {
+      const a = runWithHermeticRootCommandAsync(root, () => first.completion,
+        () => firstUnknown ? { status: "unknown" } : noProcessUnitClassifier());
+      const b = runWithHermeticRootCommandAsync(root, () => second.completion, noProcessUnitClassifier);
+      assert.equal(pendingCount(root), 2);
+      first.resolve("a"); assert.equal(await a, "a");
+      assert.equal(pendingCount(root), firstUnknown ? 2 : 1);
+      assert.equal(removeOwnedHermeticRoot(root), false);
+      second.resolve("b"); assert.equal(await b, "b");
+      assert.equal(pendingCount(root), firstUnknown ? 2 : 0);
+      assert.equal(removeOwnedHermeticRoot(root), !firstUnknown);
+    } finally { rmSync(fixture, { recursive: true, force: true }); }
+  });
+}
+
+void test("async unit rechecks directory generation after awaiting before clearing pending", async () => {
+  const fixture = parent(), { root } = buildHermeticTestEnvironment({ tempParent: fixture });
+  const original = root + "-original", unit = deferredUnit<string>();
+  try {
+    const pending = runWithHermeticRootCommandAsync(root, () => unit.completion, noProcessUnitClassifier);
+    renameSync(root, original); mkdirSync(root);
+    writeFileSync(path.join(root, HERMETIC_OWNER_MARKER), readFileSync(path.join(original, HERMETIC_OWNER_MARKER)));
+    unit.resolve("unit result");
+    await assert.rejects(pending, /identity or writer state changed/u);
+    assert.ok(existsSync(root)); assert.ok(existsSync(original));
+    assert.equal(pendingCount(original), 1);
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+});
+
+void test("sync unit port still refuses Promise rather than clearing an async operation", () => {
+  const fixture = parent(), { root } = buildHermeticTestEnvironment({ tempParent: fixture });
+  let classified = false;
+  try {
+    assert.throws(() => runWithHermeticRootCommand(root, () => Promise.resolve("unit"), () => {
+      classified = true; return noProcessUnitClassifier();
+    }), /port is synchronous/u);
+    assert.equal(classified, false);
+    assert.equal(marker(root)["retained"], true);
+    assert.equal(removeOwnedHermeticRoot(root), false);
+  } finally { rmSync(fixture, { recursive: true, force: true }); }
+});
+
+void test("actual async creator loss leaves its pending child root as a parent-cleanup veto", () => {
+  const fixture = parent(), built = buildHermeticTestEnvironment({ tempParent: fixture });
+  try {
+    const environment = JSON.stringify(new URL("./env.ts", import.meta.url).href);
+    const lifetime = JSON.stringify(new URL("./lifetime.ts", import.meta.url).href);
+    const result = spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e",
+      "import { buildHermeticTestEnvironment } from " + environment + ";" +
+      "import { runWithHermeticRootCommandAsync } from " + lifetime + ";" +
+      "const { root } = buildHermeticTestEnvironment({ tempParent: " + JSON.stringify(built.env["TMPDIR"]) + " });" +
+      "process.stdout.write(root);" +
+      "await runWithHermeticRootCommandAsync(root, () => { process.kill(process.pid, 'SIGKILL'); return Promise.resolve(); }, () => { throw Error('unreachable'); });",
+    ], { encoding: "utf8", timeout: 5_000 });
+    assert.equal(result.error, undefined);
+    assert.ok(result.signal === "SIGKILL" || result.status !== 0);
+    assert.ok(result.stdout && existsSync(result.stdout));
+    assert.equal(pendingCount(result.stdout), 1);
+    assert.equal(removeOwnedHermeticRoot(built.root), false);
+    // Foreign JSON/creator death is a veto, never native scope evidence.
+    assert.ok(existsSync(result.stdout));
   } finally { rmSync(fixture, { recursive: true, force: true }); }
 });
