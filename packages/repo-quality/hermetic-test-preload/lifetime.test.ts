@@ -89,7 +89,7 @@ void test("replacement and unreadable markers cannot turn a path into cleanup au
     assert.ok(existsSync(root)); assert.ok(existsSync(original));
     const other = path.join(fixture, "foreign"); mkdirSync(other);
     writeFileSync(path.join(other, HERMETIC_OWNER_MARKER), JSON.stringify({ ...marker(original), pending: [], retained: false }));
-    assert.throws(() => retainHermeticRoot(other), /not created by this owner/);
+    assert.throws(() => { retainHermeticRoot(other); }, /not created by this owner/);
     assert.throws(() => removeOwnedHermeticRoot(other), /not created by this owner/);
     assert.equal(sweepDeadHermeticRoots(fixture, "foreign", Date.now() + 86_400_000), 0);
     assert.ok(existsSync(other));
