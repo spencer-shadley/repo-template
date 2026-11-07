@@ -326,3 +326,56 @@ Policy: non-empty changed paths, Markdown-only, readable/non-empty files, and th
 `AGENTS.md` charter headings (Mission / Responsibilities / Non-responsibilities) when
 that file is in the changed set.
 
+
+## Hermetic root lifetime and cache data
+
+The CLI #2961 normal-factory control exposed a real boundary: a test can exit after
+its actual native owner returned UNKNOWN, while an external writer still targets
+the disposable root. Creator PID death does not prove that writer scope closed.
+
+buildHermeticTestEnvironment now records the actual created directory generation.
+Use runWithHermeticRootCommand(root, run, classify) around synchronous external
+writer launches. It persists pending state BEFORE calling run, passes the exact
+original returned object to the consumer canonical native classifier, and clears
+only that operation on real settled Linux-subreaper/Windows-job evidence. This
+package does not implement a native classifier. A boolean or marker JSON is not a
+substitute. Classify BEFORE injecting negative evidence views in fixture controls.
+Throw/UNKNOWN is sticky, blocks subsequent launches and has no reset-to-green API.
+
+Use removeOwnedHermeticRoot instead of independent recursive removal. It refuses
+pending, retained, unreadable or replaced roots, and boundedly checks direct child
+entries at the declared root, root/tmp and root/agents-temp/tmp boundaries without
+following links. Other descendant launches require the parent native fence. ANY
+surviving hermetic child marker is a veto;
+its JSON cannot authorize parent removal. Register a parent test-run root through
+the same builder, and let this owner perform both explicit and exit cleanup.
+Normal settled children remove themselves before the parent cleanup proceeds.
+
+The old dead-PID sweep entry remains compatible but returns zero: foreign/legacy
+marker data cannot reconstruct native closure after creator loss. This change
+does not recover retained disk artifacts. Recovery needs independent actual owner
+evidence; there is no new collector or generic authority registry.
+
+The cache API checks byte identity and placement; it does not itself prove that
+caller-supplied snapshot data contains no credentials or installed dependency
+graph. The actual normal acquisition callback/provenance must establish that.
+
+For a fixture that genuinely needs locked private Git packages, its normal runner
+may acquire them once BEFORE applying credential-denied preloads, using the actual
+normal frozen package manager and a fresh owned store. Bind source dependency
+inputs, exact manager/Node/platform/host and full ordinary cache-byte inventory via
+captureHermeticPnpmStore. Then restoreHermeticPnpmStore copies only that genuine
+cache data into a newly created, observed-empty hermetic store, verifies both
+source and target seals, and retains partial/unknown targets. A failed restore
+does not adopt or mutate the source owner: the normal runner that actually created
+the acquisition root must retain it on consumer failure/UNKNOWN. This is data
+provenance, never native proof. Normal PNPM still installs the actual locked graph
+and runs its real scripts. Do not copy installed node_modules, handwrite packages,
+restore host HOME/credentials, or select an external store behind the owner.
+Cache target contents may later gain legitimate PNPM metadata; capture the actual
+post-install state rather than claiming its initial whole-store seal persisted.
+
+Consumer adoption is explicit: refresh the ordinary Git package dependency and
+normal lock, import the lifecycle API through the public hermetic helper/preload
+entry, and update each independent remover. Template generation does not silently
+rewrite or activate consumer repositories.

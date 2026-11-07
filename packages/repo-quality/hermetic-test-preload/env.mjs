@@ -7,10 +7,11 @@
  * temp root, and ceilings discovery so cwd-based git cannot climb into a real checkout.
  * Pure helpers — call \`applyHermeticTestEnvironment()\` from the preload or tests.
  */
-import { mkdirSync, mkdtempSync, opendirSync, readdirSync, readFileSync, rmdirSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { hostname, tmpdir, uptime } from "node:os";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { isMainThread } from "node:worker_threads";
+import { createHermeticRoot } from "./lifetime.mjs";
+export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots, captureHermeticPnpmStore, restoreHermeticPnpmStore } from "./lifetime.mjs";
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
     "FLEET_CENTRAL_DB_PATH",
@@ -122,7 +123,7 @@ export function buildHermeticTestEnvironment(options = {}) {
     const parent = options.tempParent ?? tmpdir();
     const prefix = options.prefix ?? "fleet-hermetic-test-";
     mkdirSync(parent, { recursive: true });
-    const root = disposeHermeticRootOnExit(mkdtempSync(path.join(parent, prefix)));
+    const root = createHermeticRoot(parent, prefix);
     const home = path.join(root, "home");
     const xdgConfig = path.join(root, "xdg-config");
     const gitConfigGlobal = path.join(root, "gitconfig.global");
@@ -184,164 +185,6 @@ export function applyHermeticTestEnvironment(options = {}, target = process.env)
     }
     Object.assign(target, built.env);
     return built.root;
-}
-/** Owner marker inside every disposable root, so a later sweep can prove its owner is gone. */
-export const HERMETIC_OWNER_MARKER = ".fleet-hermetic-owner";
-/** No test process lives this long; a younger root may belong to a process in another pid namespace. */
-export const HERMETIC_SWEEP_MIN_AGE_MS = 6 * 60 * 60_000;
-const SWEEP_INTERVAL_MS = 10 * 60_000;
-/** Directory entries one sweep examines; the next sweep resumes after them, so a crowded temp dir costs one bounded slice. */
-export const HERMETIC_SWEEP_ENTRY_BUDGET = 500;
-const ownedRoots = new Set();
-/** This boot's identity: the kernel boot id where there is one, otherwise the boot minute. */
-function bootIdentity() {
-    try {
-        return readFileSync("/proc/sys/kernel/random/boot_id", "utf8").trim();
-    }
-    catch {
-        return `boot-minute-${String(Math.round((Date.now() / 1000 - uptime()) / 60))}`;
-    }
-}
-/**
- * Remove a root's contents, then its owner marker, then the root. An interrupted removal leaves the marker in place,
- * so the dead-owner sweep can still prove ownership and finish it. Throws when any step fails.
- */
-function removeHermeticRoot(root) {
-    for (const name of readdirSync(root)) {
-        if (name !== HERMETIC_OWNER_MARKER)
-            rmSync(path.join(root, name), { recursive: true, force: true });
-    }
-    rmSync(path.join(root, HERMETIC_OWNER_MARKER), { force: true });
-    rmdirSync(root);
-}
-function removeOwnedRoots() {
-    for (const root of ownedRoots) {
-        try {
-            removeHermeticRoot(root);
-        }
-        catch {
-            // A held handle (win32) leaves it, still marked, for the dead-owner sweep.
-        }
-    }
-    ownedRoots.clear();
-}
-/**
- * Mark `root` as owned by this process (code#13858); returns `root`. Main-thread roots are removed on process exit.
- * Worker roots remain for the whole process's lifetime and are left marked for the later dead-owner sweep.
- * Nothing may use a root after its creating process exits. A killed process also leaves its marked roots for the sweep.
- */
-export function disposeHermeticRootOnExit(root) {
-    const owner = { pid: process.pid, host: hostname(), boot: bootIdentity(), createdAt: Date.now() };
-    writeFileSync(path.join(root, HERMETIC_OWNER_MARKER), JSON.stringify(owner), "utf8");
-    // A Worker's process "exit" event ends that thread, not the process named by the marker.
-    // Keep its roots for that process's lifetime; the existing marked-root sweep can consider them afterward.
-    if (!isMainThread)
-        return root;
-    if (ownedRoots.size === 0)
-        process.once("exit", removeOwnedRoots);
-    ownedRoots.add(root);
-    return root;
-}
-function pidAlive(pid) {
-    try {
-        process.kill(pid, 0);
-        return true;
-    }
-    catch (error) {
-        return error instanceof Error && "code" in error && error.code === "EPERM";
-    }
-}
-/** True when `value` is a complete owner marker. */
-export function isHermeticOwner(value) {
-    return isRecord(value) && typeof value["pid"] === "number" && Number.isSafeInteger(value["pid"]) && value["pid"] > 0
-        && typeof value["host"] === "string" && typeof value["boot"] === "string" && typeof value["createdAt"] === "number";
-}
-function readOwner(root) {
-    try {
-        const parsed = JSON.parse(readFileSync(path.join(root, HERMETIC_OWNER_MARKER), "utf8"));
-        return isHermeticOwner(parsed) ? parsed : null;
-    }
-    catch {
-        return null;
-    }
-}
-/** Made on this host in this boot, older than any test process, and its pid is dead. */
-function ownerGone(owner, here) {
-    if (owner.host !== here.host || owner.boot !== here.boot)
-        return false;
-    if (here.now - owner.createdAt < HERMETIC_SWEEP_MIN_AGE_MS)
-        return false;
-    return owner.pid !== process.pid && !pidAlive(owner.pid);
-}
-/** The cursor to resume from, or null while the last sweep is younger than the interval (a future stamp is expired). */
-function sweepCursor(stamp, now) {
-    try {
-        const age = now - statSync(stamp).mtimeMs;
-        if (age >= 0 && age < SWEEP_INTERVAL_MS)
-            return null;
-        const cursor = Number(readFileSync(stamp, "utf8").trim());
-        return Number.isSafeInteger(cursor) && cursor > 0 ? cursor : 0;
-    }
-    catch {
-        return 0;
-    }
-}
-/**
- * Visit at most `budget` `prefix*` directories after the first `skip`, in directory order. Returns how many matching
- * entries it passed and whether it reached the end.
- */
-function visitSlice(parent, prefix, skip, budget, visit) {
-    const dir = opendirSync(parent);
-    let passed = 0;
-    try {
-        for (let entry = dir.readSync(); entry !== null; entry = dir.readSync()) {
-            if (!entry.name.startsWith(prefix) || !entry.isDirectory())
-                continue;
-            if (passed >= skip + budget)
-                return { passed, finished: false };
-            passed += 1;
-            if (passed > skip)
-                visit(path.join(parent, entry.name));
-        }
-        return { passed, finished: true };
-    }
-    finally {
-        dir.closeSync();
-    }
-}
-/**
- * Remove `parent/<prefix>*` roots whose owner is provably gone: the marker was written on this host in this boot,
- * more than six hours ago, and names a dead pid. Unmarked directories and links are never touched (the
- * workspace-lifecycle temp janitor owns that backlog). At most one sweep per parent and prefix every ten minutes, and
- * each examines at most `budget` entries, resuming after them next time. Returns the number removed.
- */
-export function sweepDeadHermeticRoots(parent, prefix, now = Date.now(), budget = HERMETIC_SWEEP_ENTRY_BUDGET) {
-    const stamp = path.join(parent, `${prefix.endsWith("-") ? prefix.slice(0, -1) : prefix}.sweep-stamp`);
-    const cursor = sweepCursor(stamp, now);
-    if (cursor === null)
-        return 0;
-    const here = { host: hostname(), boot: bootIdentity(), now };
-    let removed = 0;
-    try {
-        writeFileSync(stamp, String(cursor), "utf8");
-        const slice = visitSlice(parent, prefix, cursor, budget, (root) => {
-            const owner = readOwner(root);
-            if (!owner || !ownerGone(owner, here))
-                return;
-            try {
-                removeHermeticRoot(root);
-                removed += 1;
-            }
-            catch {
-                // Held or racing: a later sweep retries.
-            }
-        });
-        writeFileSync(stamp, String(slice.finished ? 0 : slice.passed - removed), "utf8");
-    }
-    catch {
-        // An unreadable temp directory never blocks a test run.
-    }
-    return removed;
 }
 /** Serialize a built environment for subprocess receipts / diagnostics. */
 export function hermeticEnvironmentSummary(built) {
