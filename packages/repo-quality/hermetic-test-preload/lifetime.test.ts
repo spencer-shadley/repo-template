@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { buildHermeticTestEnvironment } from "./env.ts";
-import { disposeHermeticRootOnExit, HERMETIC_OWNER_MARKER, removeOwnedHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots } from "./lifetime.ts";
+import { retainHermeticRoot, HERMETIC_OWNER_MARKER, removeOwnedHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots } from "./lifetime.ts";
 
 function parent(): string { return mkdtempSync(path.join(tmpdir(), "rq-lifetime-control-")); }
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -89,7 +89,7 @@ void test("replacement and unreadable markers cannot turn a path into cleanup au
     assert.ok(existsSync(root)); assert.ok(existsSync(original));
     const other = path.join(fixture, "foreign"); mkdirSync(other);
     writeFileSync(path.join(other, HERMETIC_OWNER_MARKER), JSON.stringify({ ...marker(original), pending: [], retained: false }));
-    assert.throws(() => disposeHermeticRootOnExit(other), /not created by this owner/);
+    assert.throws(() => retainHermeticRoot(other), /not created by this owner/);
     assert.throws(() => removeOwnedHermeticRoot(other), /not created by this owner/);
     assert.equal(sweepDeadHermeticRoots(fixture, "foreign", Date.now() + 86_400_000), 0);
     assert.ok(existsSync(other));

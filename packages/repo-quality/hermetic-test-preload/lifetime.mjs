@@ -14,7 +14,7 @@ import { capturePnpmCacheBytes, restorePnpmCacheBytes } from "./pnpm-cache.mjs";
 export const HERMETIC_OWNER_MARKER = ".fleet-hermetic-owner";
 /** Retained for compatibility; age no longer grants scope-empty proof. */
 export const HERMETIC_SWEEP_MIN_AGE_MS = 6 * 60 * 60_000;
-export const HERMETIC_SWEEP_ENTRY_BUDGET = 500;
+const HERMETIC_SWEEP_ENTRY_BUDGET = 500;
 const ownedRoots = new Map();
 let exitHookRegistered = false;
 function record(value) {
@@ -28,7 +28,7 @@ function bootIdentity() {
         return "boot-minute-" + String(Math.round((Date.now() / 1000 - uptime()) / 60));
     }
 }
-export function hermeticRootGeneration(root) {
+function hermeticRootGeneration(root) {
     const stat = lstatSync(root, { bigint: true });
     if (!stat.isDirectory() || stat.isSymbolicLink() || stat.ino <= 0n || stat.birthtimeNs <= 0n) {
         throw new Error("hermetic root has no usable ordinary directory generation");
@@ -129,11 +129,6 @@ export function createHermeticRoot(parent, prefix) {
         process.once("exit", removeOwnedRoots);
         exitHookRegistered = true;
     }
-    return root;
-}
-/** Compatibility entry: existing paths cannot be adopted into creator authority. */
-export function disposeHermeticRootOnExit(root) {
-    current(root);
     return root;
 }
 /** Sticky conservative refusal. It grants no native authority and has no reset API. */

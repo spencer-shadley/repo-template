@@ -11,7 +11,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHermeticRoot } from "./lifetime.mjs";
-export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, HERMETIC_SWEEP_ENTRY_BUDGET, disposeHermeticRootOnExit, isHermeticOwner, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots, captureHermeticPnpmStore, restoreHermeticPnpmStore } from "./lifetime.mjs";
+export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots, captureHermeticPnpmStore, restoreHermeticPnpmStore } from "./lifetime.mjs";
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
     "FLEET_CENTRAL_DB_PATH",

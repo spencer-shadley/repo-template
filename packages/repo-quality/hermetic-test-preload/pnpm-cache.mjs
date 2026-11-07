@@ -10,7 +10,7 @@ import { createHash } from "node:crypto";
 import { constants, closeSync, cpSync, fstatSync, lstatSync, opendirSync, openSync, readSync, realpathSync } from "node:fs";
 import { hostname } from "node:os";
 import path from "node:path";
-export function pnpmStoreDirectory(root) {
+function pnpmStoreDirectory(root) {
     return path.join(root, "agents-temp", "cache", "pnpm");
 }
 function generation(directory) {

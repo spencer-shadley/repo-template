@@ -9,7 +9,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHermeticRoot } from "./lifetime.ts";
-export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, HERMETIC_SWEEP_ENTRY_BUDGET, disposeHermeticRootOnExit, isHermeticOwner, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots, captureHermeticPnpmStore, restoreHermeticPnpmStore, type HermeticOwner } from "./lifetime.ts";
+export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, sweepDeadHermeticRoots, captureHermeticPnpmStore, restoreHermeticPnpmStore } from "./lifetime.ts";
 export type { HermeticPnpmCacheBinding, HermeticPnpmCacheSnapshot } from "./pnpm-cache.ts";
 
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */

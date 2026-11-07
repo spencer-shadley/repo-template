@@ -13,9 +13,9 @@ import { capturePnpmCacheBytes, restorePnpmCacheBytes, type HermeticPnpmCacheBin
 export const HERMETIC_OWNER_MARKER = ".fleet-hermetic-owner";
 /** Retained for compatibility; age no longer grants scope-empty proof. */
 export const HERMETIC_SWEEP_MIN_AGE_MS = 6 * 60 * 60_000;
-export const HERMETIC_SWEEP_ENTRY_BUDGET = 500;
-export interface HermeticRootGeneration { dev: string; ino: string; birthtimeNs: string }
-export interface HermeticOwner { pid: number; host: string; boot: string; createdAt: number }
+const HERMETIC_SWEEP_ENTRY_BUDGET = 500;
+interface HermeticRootGeneration { dev: string; ino: string; birthtimeNs: string }
+interface HermeticOwner { pid: number; host: string; boot: string; createdAt: number }
 interface WriterMarker extends HermeticOwner {
   creator: string;
   generation: HermeticRootGeneration;
@@ -33,7 +33,7 @@ function bootIdentity(): string {
   try { return readFileSync("/proc/sys/kernel/random/boot_id", "utf8").trim(); }
   catch { return "boot-minute-" + String(Math.round((Date.now() / 1000 - uptime()) / 60)); }
 }
-export function hermeticRootGeneration(root: string): HermeticRootGeneration {
+function hermeticRootGeneration(root: string): HermeticRootGeneration {
   const stat = lstatSync(root, { bigint: true });
   if (!stat.isDirectory() || stat.isSymbolicLink() || stat.ino <= 0n || stat.birthtimeNs <= 0n) {
     throw new Error("hermetic root has no usable ordinary directory generation");
@@ -114,11 +114,6 @@ export function createHermeticRoot(parent: string, prefix: string): string {
     process.once("exit", removeOwnedRoots);
     exitHookRegistered = true;
   }
-  return root;
-}
-/** Compatibility entry: existing paths cannot be adopted into creator authority. */
-export function disposeHermeticRootOnExit(root: string): string {
-  current(root);
   return root;
 }
 /** Sticky conservative refusal. It grants no native authority and has no reset API. */

@@ -23,7 +23,7 @@ export interface HermeticPnpmCacheSnapshot {
   sha256: string;
   binding: HermeticPnpmCacheBinding;
 }
-export function pnpmStoreDirectory(root: string): string {
+function pnpmStoreDirectory(root: string): string {
   return path.join(root, "agents-temp", "cache", "pnpm");
 }
 function generation(directory: string): HermeticPnpmCacheSnapshot["generation"] {
