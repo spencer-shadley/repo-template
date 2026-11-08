@@ -31,6 +31,7 @@
     "./jscpd.mjs",
     "./knip.json",
     "./knip.mjs",
+    "./package-manager-selection.json",
     "./quality-lint-simple-diff.json",
     "./secret-scan.mjs",
     "./todo-issue-link",

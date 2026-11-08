@@ -41,7 +41,8 @@
     "./default-branch-guard": {
       "types": "./default-branch-guard/index.ts",
       "default": "./default-branch-guard/index.mjs"
-    }
+    },
+    "./package-manager-selection.json": "./package-manager-selection.json"
   },
   "fleetRequirements": {
     "betterleaks": ">=1.8.0"

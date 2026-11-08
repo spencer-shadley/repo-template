@@ -37,7 +37,7 @@ function hasBuildAllowlist(workspace: string): boolean {
 function packageManagerPnpmVersion(pkg: Record<string, unknown>): string | null {
   const pm = pkg["packageManager"];
   if (typeof pm !== "string") return null;
-  return /^pnpm@(.+)$/u.exec(pm)?.[1] ?? null;
+  return /^pnpm@(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)$/u.exec(pm)?.[1] ?? null;
 }
 
 function engines(pkg: Record<string, unknown>): Record<string, unknown> {
@@ -45,6 +45,25 @@ function engines(pkg: Record<string, unknown>): Record<string, unknown> {
   return typeof eng === "object" && eng !== null && !Array.isArray(eng)
     ? eng as Record<string, unknown>
     : {};
+}
+
+const selection = packageData(readFileSync(
+  new URL("../packages/repo-quality/package-manager-selection.json", import.meta.url), "utf8",
+));
+
+function usesEnrolledSelection(pkg: Record<string, unknown>, declaredEngines: Record<string, unknown>): boolean {
+  const manager = selection["manager"];
+  if (selection["schema"] !== "FleetPackageManagerSelectionV1" || selection["dispatcher"] !== "corepack"
+    || selection["channel"] !== "latest" || typeof manager !== "string" || manager === "") {
+    throw new Error("published package-manager selection is invalid");
+  }
+  if (Object.hasOwn(pkg, "packageManager") || Object.hasOwn(declaredEngines, manager)) return false;
+  const devEngines = pkg["devEngines"];
+  if (typeof devEngines !== "object" || devEngines === null || Array.isArray(devEngines)) return false;
+  const declaration: unknown = Reflect.get(devEngines, "packageManager");
+  if (typeof declaration !== "object" || declaration === null || Array.isArray(declaration)) return false;
+  return Reflect.get(declaration, "name") === manager && Reflect.get(declaration, "onFail") === "error"
+    && !Object.hasOwn(declaration, "version");
 }
 
 function isBareExactVersion(value: string): boolean {
@@ -75,10 +94,12 @@ export function checkSupplyChainControls(input: Inputs): SupplyChainViolation[] 
   const pkg = packageData(input.packageJson);
   const expectedPnpm = packageManagerPnpmVersion(pkg);
   const declaredEngines = engines(pkg);
-  if (expectedPnpm === null || declaredEngines["pnpm"] !== expectedPnpm) {
+  const pinned = expectedPnpm !== null && declaredEngines["pnpm"] === expectedPnpm;
+  if (!pinned && !usesEnrolledSelection(pkg, declaredEngines)) {
     violations.push({
       rule: "SC4",
-      message: "SC4 package.json engines.pnpm must exactly equal the pnpm version in packageManager",
+      message: "SC4 use the published name-only devEngines.packageManager selection without a local version/engine pin, "
+        + "or preserve an exact packageManager version with matching engines.pnpm until migration",
     });
   }
 
@@ -106,6 +127,21 @@ function runSelfTest(): void {
     }),
   };
   assert.deepEqual(rules(valid), []);
+  const enrolled = {
+    devEngines: { packageManager: { name: selection["manager"], onFail: "error" } },
+    engines: { node: ">=24.16.0 <25" },
+  };
+  assert.deepEqual(rules({ ...valid, packageJson: JSON.stringify(enrolled) }), []);
+  const rejected = [
+    { ...enrolled, packageManager: "pnpm@latest" },
+    { ...enrolled, packageManager: "pnpm@latest", engines: { ...enrolled.engines, pnpm: "latest" } },
+    { ...enrolled, engines: { ...enrolled.engines, pnpm: "11.17.0" } },
+    { ...enrolled, devEngines: { packageManager: { ...enrolled.devEngines.packageManager, version: "*" } } },
+    { ...enrolled, devEngines: { packageManager: { ...enrolled.devEngines.packageManager, name: "yarn" } } },
+    { ...enrolled, devEngines: { packageManager: { ...enrolled.devEngines.packageManager, onFail: "warn" } } },
+    { engines: enrolled.engines },
+  ];
+  for (const pkg of rejected) assert.deepEqual(rules({ ...valid, packageJson: JSON.stringify(pkg) }), ["SC4"]);
   assert.deepEqual(rules({ ...valid, npmrc: "ignore-scripts=true\n" }), ["SC1"]);
   assert.deepEqual(rules({ ...valid, workspace: valid.workspace.replace("10080", "100") }), ["SC2"]);
   assert.deepEqual(

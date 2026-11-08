@@ -1,0 +1,6 @@
+{
+  "schema": "FleetPackageManagerSelectionV1",
+  "dispatcher": "corepack",
+  "manager": "pnpm",
+  "channel": "latest"
+}
