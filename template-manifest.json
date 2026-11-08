@@ -407,5 +407,8 @@
   "packages/repo-quality/todo-issue-link/extractors.mjs": "self",
   "packages/repo-quality/todo-issue-link/index.mjs": "self",
   "packages/repo-quality/todo-issue-link/registry.mjs": "self",
-  "packages/repo-quality/todo-issue-link/scan.mjs": "self"
+  "packages/repo-quality/todo-issue-link/scan.mjs": "self",
+  "packages/repo-quality/package-manager-selection.json": "self",
+  "packages/adoption-shell/test/package-manager-selection.test.ts": "self",
+  "docs/PACKAGE-MANAGER.md": "copy"
 }
