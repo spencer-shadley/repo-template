@@ -52,7 +52,8 @@ export interface OrderedLocalCiCommandV3 extends LocalCiCommandV3 {
 
 export interface LocalCiEnvironmentV3 {
   readonly runtime: Readonly<{ name: string; versionConstraint: string }>;
-  readonly packageManager: Readonly<{ name: string; version: string }>;
+  /** An omitted version leaves selection with normal repository enrollment. */
+  readonly packageManager: Readonly<{ name: string; version?: string }>;
   readonly supportedPlatforms: readonly string[];
   readonly supportedArchitectures: readonly string[];
   readonly requiredEnvVars: readonly string[];
@@ -304,10 +305,10 @@ function validateEnvironmentV3(envRaw: unknown, diagnostics: Diagnostics): void 
     diagnostics.string(rtRec["versionConstraint"], "/environment/runtime/versionConstraint", { min: 1 });
   }
   const pm = envRec["packageManager"];
-  if (diagnostics.object(pm, "/environment/packageManager", ["name", "version"], ["name", "version"])) {
+  if (diagnostics.object(pm, "/environment/packageManager", ["name", "version"], ["name"])) {
     const pmRec = pm;
     diagnostics.string(pmRec["name"], "/environment/packageManager/name", { min: 1 });
-    diagnostics.string(pmRec["version"], "/environment/packageManager/version", { min: 1 });
+    if (Object.hasOwn(pmRec, "version")) diagnostics.string(pmRec["version"], "/environment/packageManager/version", { min: 1 });
   }
   stringArray(envRec["supportedPlatforms"], "/environment/supportedPlatforms", 1, 32, diagnostics);
   stringArray(envRec["supportedArchitectures"], "/environment/supportedArchitectures", 1, 32, diagnostics);

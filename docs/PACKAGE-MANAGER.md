@@ -76,6 +76,29 @@ particularly its `sources/specUtils.ts`, `sources/Engine.ts`, and
 `sources/commands/InstallGlobal.ts`. That is compatibility evidence, not a fleet pin.
 An older dispatcher must be qualified or converged by its existing owner.
 
+## Local CI environment declaration
+
+`LocalCiContractV3` accepts the enrolled manager name without a repository-selected
+version. In the existing profile's `environment`, declare:
+
+```json
+{
+  "packageManager": { "name": "pnpm" }
+}
+```
+
+The name follows the published selection above. Omit `version` while ordinary enrollment
+owns the current Known Good release; keep `latest` in the owner's publication. Validation
+preserves the omitted field and performs no version resolution, download, or command.
+Record the actual selected version in the existing enrollment/runtime evidence.
+
+Legacy V3 profiles with an explicit nonempty `version` remain valid during their paired
+migration. A supplied empty or non-string version remains invalid, as do a missing manager
+name or additional local selection fields. The frozen V2 contract is unchanged.
+Consumers of a published validator receive the updated schema and generated parser through
+their normal dependency/adoption flow before using the name-only shape. Their commands,
+readiness, source binding and installed selection retain their separate acceptance evidence.
+
 ## Native store boundary and acceptance
 
 Released pnpm 12.18.0 has shared store-use and exclusive prune admission in

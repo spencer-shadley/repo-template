@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { validateLocalCiContractV3 } from "../src/local-ci-contract-v3.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const qualityRequire = createRequire(path.join(root, "packages/repo-quality/package.json"));
@@ -59,8 +60,16 @@ void test("released Corepack applies the versionless consumer contract", async (
   const checkout = path.join(fixture, "checkout");
   mkdirSync(checkout);
   const manifestPath = path.join(checkout, "package.json");
+  const legacyProfile = validateLocalCiContractV3(JSON.parse(
+    readFileSync(path.join(root, "contracts/local-ci/v3/fixtures/valid-local-ci-v3.json"), "utf8"),
+  ));
+  assert.equal(legacyProfile.ok, true);
+  const profile = validateLocalCiContractV3({ ...legacyProfile.value,
+    environment: { ...legacyProfile.value.environment, packageManager: { name: selection.manager } } });
+  assert.equal(profile.ok, true);
+  assert.equal(Object.hasOwn(profile.value.environment.packageManager, "version"), false);
   const versionless = { name: "corepack-selection-fixture", private: true,
-    devEngines: { packageManager: { name: selection.manager, onFail: "error" } } };
+    devEngines: { packageManager: { ...profile.value.environment.packageManager, onFail: "error" } } };
   const writeManifest = (value: unknown) => writeFileSync(manifestPath, `${JSON.stringify(value, null, 2)}\n`);
   const home = path.join(fixture, "corepack-home");
   const alternateHome = path.join(fixture, "other-corepack-home");

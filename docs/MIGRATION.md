@@ -190,6 +190,20 @@ alongside the frozen, unmodified `LocalCiContractV2`. Adopting v3 is opt-in per 
     caught before it starves a drain the way `.ops/work-items/QUEUE.generated.md` and
     `.ops/work-items/work-projection.v1.json` did (repo-template#129).
 
+### Enrolled package-manager metadata (Workspace Lifecycle #47)
+
+V3 now accepts `environment.packageManager: { "name": "pnpm" }` for a consumer of the
+published [fleet package-manager selection](./PACKAGE-MANAGER.md). Version omission stays
+absent after validation; normal enrollment and Corepack own resolution. Existing V3
+profiles with a nonempty version remain accepted, and V2 is unchanged. The public TypeScript
+shape makes `version` optional, so consumers reading it must handle absence rather than
+construct an exact version from `undefined`.
+
+Adopt the corresponding generated validator through the existing consumer dependency flow,
+then update that repository's manifest/readiness path and LocalCi declaration together.
+This producer change does not migrate the template's own pinned profile, another repository,
+or an installed host. Frozen candidate receipts and published tags keep their original bytes.
+
 ## ProductSliProbeV1 contract and local priority binding (issue #110)
 
 `ProductSliProbeV1` (`repo-template/product-sli-probe-v1`) standardizes portable, runtime-neutral

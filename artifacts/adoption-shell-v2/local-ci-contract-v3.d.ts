@@ -41,9 +41,10 @@ export interface LocalCiEnvironmentV3 {
         name: string;
         versionConstraint: string;
     }>;
+    /** An omitted version leaves selection with normal repository enrollment. */
     readonly packageManager: Readonly<{
         name: string;
-        version: string;
+        version?: string;
     }>;
     readonly supportedPlatforms: readonly string[];
     readonly supportedArchitectures: readonly string[];
