@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 
 import type { AnySchema } from "ajv";
 import { Ajv2020 } from "ajv/dist/2020.js";
+import { SCHEMA_DIGESTS } from "../src/contract.ts";
+import { sha256Bytes } from "../src/digest.ts";
 
 import {
   LOCAL_CI_CONTRACT_V3_ID,
@@ -23,9 +25,8 @@ function isJsonSchema(value: unknown): value is AnySchema {
   return typeof value === "boolean" || (value !== null && typeof value === "object" && !Array.isArray(value));
 }
 
-const schemaValue: unknown = JSON.parse(
-  fs.readFileSync(path.join(root, "contracts", "local-ci", "v3", "local-ci-contract-v3.schema.json"), "utf8"),
-);
+const schemaBytes = fs.readFileSync(path.join(root, "contracts", "local-ci", "v3", "local-ci-contract-v3.schema.json"));
+const schemaValue: unknown = JSON.parse(schemaBytes.toString("utf8"));
 if (!isJsonSchema(schemaValue)) throw new TypeError("local-ci v3 schema must be an object or boolean");
 const schema = schemaValue;
 const validateSchema = new Ajv2020({
@@ -41,6 +42,10 @@ function readJsonFixture(dir: string, name: string): unknown {
 function readV3Fixture(name: string): unknown {
   return readJsonFixture(fixturesDir, name);
 }
+
+void test("the published V3 digest identifies the current schema bytes", () => {
+  assert.equal(SCHEMA_DIGESTS.localCiContractV3, sha256Bytes(schemaBytes));
+});
 
 void test("valid LocalCiContractV3 fixture passes validation and carries detectionProof", () => {
   const validFixture = readV3Fixture("valid-local-ci-v3.json");
@@ -64,6 +69,31 @@ void test("valid LocalCiContractV3 fixture passes validation and carries detecti
   );
   assert.equal(result.value.commands["lint"]?.detectionProof.fixture?.path, "tests/fixtures/proof-of-detection/lint-known-bad.ts");
   assert.equal(result.value.commands["typecheck"]?.detectionProof.exempt !== undefined, true);
+});
+
+void test("V3 accepts enrolled name-only managers and preserves legacy version metadata", () => {
+  const exact = validateLocalCiContractV3(readV3Fixture("valid-local-ci-v3.json"));
+  assert.equal(exact.ok, true);
+  assert.equal(exact.value.environment.packageManager.version, "11.17.0");
+  assert.equal(validateSchema(exact.value), true);
+  const withManager = (packageManager: unknown) => ({ ...exact.value,
+    environment: { ...exact.value.environment, packageManager } });
+  const nameOnly = withManager({ name: exact.value.environment.packageManager.name });
+  assert.equal(validateSchema(nameOnly), true);
+  const enrolled = validateLocalCiContractV3(nameOnly);
+  assert.equal(enrolled.ok, true);
+  assert.deepEqual(enrolled.value.environment.packageManager, { name: "pnpm" });
+  assert.equal(Object.hasOwn(enrolled.value.environment.packageManager, "version"), false);
+  assert.equal(classifyAndMigrateLocalCiV2ToV3(nameOnly).disposition, "valid-v3");
+
+  for (const packageManager of [
+    {}, { name: "" }, { name: "pnpm", version: "" }, { name: "pnpm", version: null },
+    { name: "pnpm", version: 12 }, { name: "pnpm", channel: "latest" },
+  ]) {
+    const candidate = withManager(packageManager);
+    assert.equal(validateSchema(candidate), false, JSON.stringify(packageManager));
+    assert.equal(validateLocalCiContractV3(candidate).ok, false, JSON.stringify(packageManager));
+  }
 });
 
 void test("all negative V3 contract fixtures fail validation with stable reason codes", () => {

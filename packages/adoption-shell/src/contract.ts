@@ -51,7 +51,7 @@ export const SCHEMA_DIGESTS = {
   templateReleaseReceipt: "56640de35655e7eb92953cbb27a2c247f6dbf775584671d6cd052458791b7da7",
   verificationReceipt: "8a282bca596130df44f33cb00241d7874a23a2b78c3d23c7c4bd0026103ad256",
   localCiContractV2: "a8f34f07e1598f80e4294a2250c4bb34a5dcc22ec57a017ef42b82a19815d63f",
-  localCiContractV3: "8bae75ca0d7911f42a78ef05efcc02b4e765b46c1f1b258ad7ed59e4d52691b4",
+  localCiContractV3: "dfb1170b98bd5327f445f60f88c24a6893841490243b0490e2bd471c20531540",
   localCiOutcomeV1: "0ae86bc068fbd4e1cc2ff58409d3909204573f0ac0b09cdbc7dab974bb4ea429",
 } as const;
 

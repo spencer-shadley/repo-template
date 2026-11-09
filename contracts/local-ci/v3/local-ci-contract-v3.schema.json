@@ -318,10 +318,10 @@
         },
         "packageManager": {
           "type": "object",
+          "description": "Omitting version leaves selection with normal repository enrollment; this contract does not resolve or update a manager version.",
           "additionalProperties": false,
           "required": [
-            "name",
-            "version"
+            "name"
           ],
           "properties": {
             "name": {

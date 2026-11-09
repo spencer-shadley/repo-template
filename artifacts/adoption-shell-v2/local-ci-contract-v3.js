@@ -141,10 +141,11 @@ function validateEnvironmentV3(envRaw, diagnostics) {
         diagnostics.string(rtRec["versionConstraint"], "/environment/runtime/versionConstraint", { min: 1 });
     }
     const pm = envRec["packageManager"];
-    if (diagnostics.object(pm, "/environment/packageManager", ["name", "version"], ["name", "version"])) {
+    if (diagnostics.object(pm, "/environment/packageManager", ["name", "version"], ["name"])) {
         const pmRec = pm;
         diagnostics.string(pmRec["name"], "/environment/packageManager/name", { min: 1 });
-        diagnostics.string(pmRec["version"], "/environment/packageManager/version", { min: 1 });
+        if (Object.hasOwn(pmRec, "version"))
+            diagnostics.string(pmRec["version"], "/environment/packageManager/version", { min: 1 });
     }
     stringArray(envRec["supportedPlatforms"], "/environment/supportedPlatforms", 1, 32, diagnostics);
     stringArray(envRec["supportedArchitectures"], "/environment/supportedArchitectures", 1, 32, diagnostics);
