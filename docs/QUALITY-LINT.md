@@ -58,6 +58,37 @@ hook exactly matches a previously generated guard body; a composed hook containi
 is treated as foreign and is never overwritten. `check` reports each hook as `current`, `outdated`,
 `missing` or `foreign`. Pin `@spencer-shadley/repo-quality` at or after 1.12.0.
 
+## Affected tests (`pnpm test` runs what a diff affects; repo-template#549)
+
+Spencer, 6:12:41 PM PT, Nov 9 2026: "it's critical we make it near-blocked to blanket run things
+like npm test instead of the affected version". The kit's `fleet-test-affected` bin makes the
+affected run the default: point `scripts.test` at it with the repository's full-suite test globs
+as the universe, and keep the whole suite under `test:all` for the gate.
+
+```json
+"test": "fleet-test-affected \"tests/**/*.test.ts\" \"src/**/*.test.ts\"",
+"test:affected": "pnpm test",
+"test:all": "node --test \"tests/**/*.test.ts\" \"src/**/*.test.ts\"",
+"test:edit": "fleet-test-affected --files"
+```
+
+- Changed paths: `git diff` from the merge base of `origin/HEAD` (fallback `origin/master`,
+  `origin/main`, `master`, `main`; `--base <ref>` overrides) plus staged, unstaged and untracked files.
+- Selection: the shared selector (`@spencer-shadley/repo-quality/affected-tests/select`, moved from
+  Code): changed tests, tests that import a changed file through any chain of relative imports,
+  tests that name it, fixtures, changed `package.json` scripts and directory references. Only files
+  the globs match can run; each runs as its own `node --test <file>`, at most min(4, CPUs) at once.
+- Nothing affected prints `fleet-test-affected: no affected tests for <n> changed path(s)` and exits 0.
+- `--list` prints the selection and why; `--all` runs every file the globs match; `--files <file>...`
+  runs exactly those files (`pnpm test:edit <file>`).
+- `--node-arg <flag>` (repeatable) reaches every child, for example
+  `--node-arg --import=@spencer-shadley/repo-quality/hermetic-test-preload.mjs`.
+- `--run-map <src>=<out>` runs compiled output: with `--run-map tests/=dist/tests/` and the
+  universe `"dist/tests/**/*.test.js"`, a change selecting `tests/a.test.ts` runs `dist/tests/a.test.js`.
+- Selection only picks `*.test.*` and `*.selfcheck.*` files; `--all` runs everything the globs match.
+
+The merge gate (`verify`) must call `test:all`, never `test`, so it still runs the full suite.
+
 ## Knip (required for TypeScript/JavaScript repos)
 
 The kit owns `knip.json`, whose policy sets `rules.cycles` to `"error"`. Consumers must invoke the

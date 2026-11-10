@@ -83,8 +83,9 @@ destination's actual commands and repository identity during adoption.
 
 The exhaustive test inventory is `packages/adoption-shell/test/*.test.ts` and
 `tests/env-dot-access-lint.test.ts`, plus the
-repo-quality TODO-link, hermetic-preload, and default-branch-guard selfchecks selected by `pnpm test`.
-`pnpm verify` also runs the build, lint, typecheck, artifact, secret, duplication, unused-code and
+repo-quality TODO-link, hermetic-preload, default-branch-guard and affected-tests selfchecks run by
+`pnpm test:all`, which `pnpm verify` calls. `pnpm test` runs only the part of that inventory the
+current diff affects (`fleet-test-affected`, docs/QUALITY-LINT.md). `pnpm verify` also runs the build, lint, typecheck, artifact, secret, duplication, unused-code and
 template-integrity checks listed in `package.json`. That package manifest is the executable source
 of truth for the current command composition. There are no additional local receipt fields beyond the
 profile's candidate/base/integration bindings; generic evidence semantics remain Code-owned.

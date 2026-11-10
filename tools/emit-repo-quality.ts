@@ -16,7 +16,7 @@ const pkg = path.join(root, "packages", "repo-quality");
  * refuses to strip types under node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so a
  * git consumer cannot load the `.ts` sources directly (repo-template#491).
  */
-const subpathDirs = ["default-branch-guard", "docs-only-gate", "hermetic-test-preload", "todo-issue-link"] as const;
+const subpathDirs = ["affected-tests", "default-branch-guard", "docs-only-gate", "hermetic-test-preload", "todo-issue-link"] as const;
 
 function subpathSources(): string[] {
   return subpathDirs.flatMap((dir) =>

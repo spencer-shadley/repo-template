@@ -80,7 +80,7 @@ function testInstall(url: string, artifactCommit: string, isRemote: boolean) {
     );
   }
   const exports = readRecord(installedPackage["exports"], `${packageName} exports`);
-  for (const requiredExport of [".", "./knip.mjs", "./jscpd.mjs", "./secret-scan.mjs", "./todo-issue-link.mjs", "./docs-only-gate.mjs", "./hermetic-test-preload.mjs", "./default-branch-guard.mjs"]) {
+  for (const requiredExport of [".", "./knip.mjs", "./jscpd.mjs", "./secret-scan.mjs", "./todo-issue-link.mjs", "./docs-only-gate.mjs", "./hermetic-test-preload.mjs", "./default-branch-guard.mjs", "./affected-tests.mjs"]) {
     if (!(requiredExport in exports)) throw new TypeError(`${packageName} is missing export ${requiredExport}`);
   }
 
@@ -89,7 +89,7 @@ function testInstall(url: string, artifactCommit: string, isRemote: boolean) {
     `const kit = await import(${JSON.stringify(packageName)});\n`
       + `if (!kit.qualityRules) throw new TypeError("qualityRules export missing");\n`
       // Library subpaths must resolve to JavaScript: Node will not strip types under node_modules (repo-template#491).
-      + ["todo-issue-link", "docs-only-gate", "hermetic-test-preload", "hermetic-test-preload/lint", "default-branch-guard"]
+      + ["todo-issue-link", "docs-only-gate", "hermetic-test-preload", "hermetic-test-preload/lint", "default-branch-guard", "affected-tests", "affected-tests/select"]
         .map((subpath) => `await import(${JSON.stringify(`${packageName}/${subpath}`)});\n`)
         .join(""),
   );
