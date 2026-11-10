@@ -27,7 +27,7 @@ function subpathSources(): string[] {
   );
 }
 
-export const sources: readonly string[] = ["index.ts", "jscpd.ts", "knip.ts", "secret-scan.ts", ...subpathSources()];
+export const sources: readonly string[] = ["index.ts", "jscpd.ts", "knip.ts", "secret-scan.ts", "affected-tests.ts", ...subpathSources()];
 
 function portable(filePath: string): string {
   return path.relative(root, filePath).split(path.sep).join("/");
