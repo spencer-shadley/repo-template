@@ -1,12 +1,24 @@
 #!/usr/bin/env node
-// @stack-waiver id=repo-quality-affected-tests-mjs reason="Published npm bin launcher must stay JavaScript so Node can import the emitted cli without a compile step (same pattern as default-branch-guard.mjs)."
+// @generated from affected-tests.ts. DO NOT EDIT.
+// @stack-waiver id=repo-quality-generated-js reason="Published npm entrypoint is generated JavaScript consumed directly by Node."
+var __rewriteRelativeImportExtension = (this && this.__rewriteRelativeImportExtension) || function (path, preserveJsx) {
+    if (typeof path === "string" && /^\.\.?\//.test(path)) {
+        return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
+            return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
+        });
+    }
+    return path;
+};
 /**
- * `fleet-test-affected` bin: run only the test files a change affects (repo-template#549).
- * Prefer: node --experimental-strip-types packages/repo-quality/affected-tests/cli.ts
+ * `fleet-test-affected` executable for the published repo-quality package.
+ * The installed package cannot load TypeScript from node_modules, so the
+ * TypeScript-authored launcher is emitted as an ESM `.mjs` artifact.
  */
 try {
-  await import("./affected-tests/cli.mjs");
-} catch (error) {
-  console.error(error);
-  process.exit(1);
+    await import(__rewriteRelativeImportExtension(new URL("./affected-tests/cli.mjs", import.meta.url).href));
 }
+catch (error) {
+    console.error(error);
+    process.exit(1);
+}
+export {};
