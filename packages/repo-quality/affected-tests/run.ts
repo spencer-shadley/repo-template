@@ -6,8 +6,8 @@
  * universe and keeps the whole suite one flag away (`--all`, or its own `test:all`). Selection is the shared pure
  * selector (select.ts); each selected file runs as its own `node --test <file>` child.
  */
-import { spawn } from "node:child_process";
-import { existsSync, globSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { globSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { availableParallelism } from "node:os";
 import path from "node:path";
 import { FLEET_TEST_AFFECTED_USAGE, parseAffectedArgs, toRunPath, UsageError, type AffectedRunOptions, type RunMap } from "./args.ts";
@@ -71,19 +71,47 @@ function childEnv(): NodeJS.ProcessEnv {
   return env;
 }
 
+/** Children still running, so an interrupt takes their process trees down with the runner. */
+const liveChildren = new Set<ChildProcess>();
+
+/**
+ * Kills a child and everything it spawned. `node --test <file>` runs the file in a process of its own, so killing only
+ * the direct child would leave a hung test running after its timeout. On POSIX each child leads its own process group.
+ */
+function killTree(child: ChildProcess): void {
+  const pid = child.pid;
+  if (pid === undefined) return;
+  if (process.platform === "win32") {
+    spawnSync("taskkill", ["/pid", String(pid), "/T", "/F"], { windowsHide: true, stdio: "ignore" });
+    return;
+  }
+  try {
+    process.kill(-pid, "SIGKILL");
+  } catch {
+    child.kill("SIGKILL");
+  }
+}
+
 function runOne(file: string, options: AffectedRunOptions, cwd: string): Promise<FileResult> {
   return new Promise((resolve) => {
     const started = Date.now();
-    const child = spawn(process.execPath, [...options.nodeArgs, "--test", file], { cwd, env: childEnv(), stdio: ["ignore", "pipe", "pipe"], windowsHide: true });
+    const child = spawn(process.execPath, [...options.nodeArgs, "--test", file], {
+      cwd, env: childEnv(), stdio: ["ignore", "pipe", "pipe"], windowsHide: true, detached: process.platform !== "win32",
+    });
+    liveChildren.add(child);
     const output: Buffer[] = [];
     child.stdout.on("data", (chunk: Buffer) => output.push(chunk));
     child.stderr.on("data", (chunk: Buffer) => output.push(chunk));
     let note = "";
+    let settled = false;
     const timer = setTimeout(() => {
       note = ` timed out after ${String(options.timeoutSeconds)}s`;
-      child.kill("SIGKILL");
+      killTree(child);
     }, options.timeoutSeconds * 1000);
     const finish = (code: number | null, error?: Error): void => {
+      if (settled) return;
+      settled = true;
+      liveChildren.delete(child);
       clearTimeout(timer);
       const passed = code === 0 && note === "" && error === undefined;
       const seconds = ((Date.now() - started) / 1000).toFixed(1);
@@ -111,8 +139,20 @@ export async function runTestFiles(files: readonly string[], options: AffectedRu
     results.push(await runOne(file, options, cwd));
     await worker();
   };
-  const width = Math.max(1, Math.min(4, availableParallelism(), files.length));
-  await Promise.all(Array.from({ length: width }, worker));
+  // Detached children miss the terminal's Ctrl-C, so an interrupt kills their trees, then re-raises to end the runner.
+  const signals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGHUP"];
+  const interrupt = (signal: NodeJS.Signals): void => {
+    for (const child of liveChildren) killTree(child);
+    for (const other of signals) process.off(other, interrupt);
+    process.kill(process.pid, signal);
+  };
+  for (const signal of signals) process.once(signal, interrupt);
+  try {
+    const width = Math.max(1, Math.min(4, availableParallelism(), files.length));
+    await Promise.all(Array.from({ length: width }, worker));
+  } finally {
+    for (const signal of signals) process.off(signal, interrupt);
+  }
   return results.toSorted((left, right) => compareStrings(left.file, right.file));
 }
 
@@ -143,9 +183,10 @@ function affectedPlan(options: AffectedRunOptions, universe: readonly string[], 
 }
 
 function filesPlan(files: readonly string[], cwd: string): PlannedFile[] {
-  const missing = files.filter((file) => !existsSync(path.resolve(cwd, file)));
-  if (missing.length > 0) throw new UsageError(`--files names missing file(s): ${missing.join(", ")}`);
   if (files.length === 0) throw new UsageError("--files needs at least one test file");
+  // A directory would reach `node --test` as a pattern; only regular files run.
+  const notFiles = files.filter((file) => statSync(path.resolve(cwd, file), { throwIfNoEntry: false })?.isFile() !== true);
+  if (notFiles.length > 0) throw new UsageError(`--files names missing file(s) or non-file(s): ${notFiles.join(", ")}`);
   return files.map((file) => ({ file, reason: "--files" }));
 }
 

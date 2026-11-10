@@ -2,7 +2,7 @@
 // repo-template#549: fleet-test-affected argument parsing, universe filtering and the CLI against temp repositories.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -175,6 +175,48 @@ void test("cli: a failing affected file fails the run; --all and --files run wha
     assert.match(files.out, /1 passed, 0 failed \(1 file\(s\)\)/);
     assert.equal(existsSync(path.join(root, "marker.txt")), true, "--node-arg reaches the child");
     assert.equal(cli(clone, env, ["--files", "src/missing.test.ts"]).status, 2);
+    assert.equal(cli(clone, env, ["--files", "src"]).status, 2, "a directory never reaches node --test");
+  });
+});
+
+/** Blocks this thread for `ms` without a busy loop. */
+function pause(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+void test("cli: a timed-out file is killed with the test process node --test started for it", () => {
+  withRepo(({ root, env, clone }) => {
+    // The test file runs in a grandchild of the runner; a heartbeat that keeps changing after the run means it leaked.
+    const beat = path.join(root, "heartbeat.txt");
+    write(clone, "src/hang.test.ts", [
+      'import { writeFileSync } from "node:fs";',
+      'import test from "node:test";',
+      `const beat = ${JSON.stringify(beat)};`,
+      'void test("hangs", async () => {',
+      '  setInterval(() => { writeFileSync(beat, [process.pid, Date.now()].join(" ")); }, 50);',
+      "  await new Promise(() => {});",
+      "});",
+      "",
+    ].join("\n"));
+    try {
+      const result = cli(clone, env, ["--files", "src/hang.test.ts", "--timeout-seconds", "3"]);
+      assert.equal(result.status, 1, result.out);
+      assert.match(result.out, /FAIL src\/hang\.test\.ts \([\d.]+s\) timed out after 3s/);
+      assert.equal(existsSync(beat), true, "the hung test started");
+      pause(300);
+      const before = readFileSync(beat, "utf8");
+      pause(500);
+      assert.equal(readFileSync(beat, "utf8"), before, "the hung test process stopped with its runner");
+    } finally {
+      const pid = existsSync(beat) ? Number(readFileSync(beat, "utf8").split(" ", 1)[0]) : 0;
+      if (pid > 0) {
+        try {
+          process.kill(pid, "SIGKILL");
+        } catch {
+          // Already gone: the expected case.
+        }
+      }
+    }
   });
 });
 
