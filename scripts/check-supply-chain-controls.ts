@@ -51,12 +51,17 @@ const selection = packageData(readFileSync(
   new URL("../packages/repo-quality/package-manager-selection.json", import.meta.url), "utf8",
 ));
 
-function usesEnrolledSelection(pkg: Record<string, unknown>, declaredEngines: Record<string, unknown>): boolean {
+function selectedManager(): string {
   const manager = selection["manager"];
   if (selection["schema"] !== "FleetPackageManagerSelectionV1" || selection["dispatcher"] !== "corepack"
     || selection["channel"] !== "latest" || typeof manager !== "string" || manager === "") {
     throw new Error("published package-manager selection is invalid");
   }
+  return manager;
+}
+
+function usesEnrolledSelection(pkg: Record<string, unknown>, declaredEngines: Record<string, unknown>): boolean {
+  const manager = selectedManager();
   if (Object.hasOwn(pkg, "packageManager") || Object.hasOwn(declaredEngines, manager)) return false;
   const devEngines = pkg["devEngines"];
   if (typeof devEngines !== "object" || devEngines === null || Array.isArray(devEngines)) return false;

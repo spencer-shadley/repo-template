@@ -51,6 +51,7 @@ void test("released Corepack applies the versionless consumer contract", async (
     t.skip("Corepack is unavailable; set REPO_TEMPLATE_COREPACK_CLI to the installed dispatcher JS entrypoint");
     return;
   }
+  const cliPath: string = cli;
   const fixture = mkdtempSync(path.join(tmpdir(), "template-corepack-selection-"));
   let settled = true;
   t.after(() => {
@@ -70,7 +71,9 @@ void test("released Corepack applies the versionless consumer contract", async (
   assert.equal(Object.hasOwn(profile.value.environment.packageManager, "version"), false);
   const versionless = { name: "corepack-selection-fixture", private: true,
     devEngines: { packageManager: { ...profile.value.environment.packageManager, onFail: "error" } } };
-  const writeManifest = (value: unknown) => writeFileSync(manifestPath, `${JSON.stringify(value, null, 2)}\n`);
+  const writeManifest = (value: unknown): void => {
+    writeFileSync(manifestPath, `${JSON.stringify(value, null, 2)}\n`);
+  };
   const home = path.join(fixture, "corepack-home");
   const alternateHome = path.join(fixture, "other-corepack-home");
   const fakeVersions = ["99.0.0", "99.1.0"] as const;
@@ -92,7 +95,7 @@ void test("released Corepack applies the versionless consumer contract", async (
   const env = Object.fromEntries(Object.entries(process.env)
     .filter(([key]) => !/^(?:COREPACK_|npm_config_|pnpm_config_|NODE_OPTIONS$|NODE_PATH$)/iu.test(key)));
   function run(args: string[], cache = home) {
-    const result = spawnSync(process.execPath, [cli!, ...args], {
+    const result = spawnSync(process.execPath, [cliPath, ...args], {
       cwd: checkout, encoding: "utf8", timeout: 10_000, maxBuffer: 64 * 1024,
       env: { ...env, HOME: fixture, USERPROFILE: fixture, COREPACK_HOME: cache,
         COREPACK_ENABLE_NETWORK: "0", COREPACK_ENABLE_DOWNLOAD_PROMPT: "0", COREPACK_ENV_FILE: "0",
