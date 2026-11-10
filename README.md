@@ -15,6 +15,7 @@ audit, the autonomous loop) rely on these paths.
 | `docs/PACKAGE-MANAGER.md` | central latest-tracking selection, Corepack enrollment and versionless consumer acceptance |
 | packages/repo-quality/hermetic-test-preload/ | private test roots, shared sync/async writer fences and declared genuine cache-byte restore; see the hermetic lifetime contract in docs/QUALITY-LINT.md |
 | `packages/repo-quality/default-branch-guard/` | portable guard implementation used by the package export; adoption installs it into Git hooks |
+| `packages/repo-quality/affected-tests/` | shared affected-test selector and the `fleet-test-affected` bin; `pnpm test` runs only the tests a diff affects, `pnpm test:all` the whole suite (see docs/QUALITY-LINT.md) |
 | `docs/QUEUE-ENROLLMENT.md` | how this repo joins the autonomous flywheel — enrollment is the default, opt-out needs an ADR |
 | `docs/INCIDENTS.md` | curated post-mortems (majors only) |
 | `docs/RUNBOOK.md` | recovery recipes specific to this repo |

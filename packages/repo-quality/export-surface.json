@@ -19,6 +19,9 @@
   ],
   "subpathExports": [
     ".",
+    "./affected-tests",
+    "./affected-tests.mjs",
+    "./affected-tests/select",
     "./default-branch-guard",
     "./default-branch-guard.mjs",
     "./docs-only-gate",

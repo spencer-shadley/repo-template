@@ -42,7 +42,19 @@
       "types": "./default-branch-guard/index.ts",
       "default": "./default-branch-guard/index.mjs"
     },
+    "./affected-tests.mjs": "./affected-tests.mjs",
+    "./affected-tests": {
+      "types": "./affected-tests/index.ts",
+      "default": "./affected-tests/index.mjs"
+    },
+    "./affected-tests/select": {
+      "types": "./affected-tests/select.ts",
+      "default": "./affected-tests/select.mjs"
+    },
     "./package-manager-selection.json": "./package-manager-selection.json"
+  },
+  "bin": {
+    "fleet-test-affected": "./affected-tests.mjs"
   },
   "fleetRequirements": {
     "betterleaks": ">=1.8.0"
