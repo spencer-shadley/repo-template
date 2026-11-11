@@ -397,6 +397,7 @@
   "packages/repo-quality/default-branch-guard/cli.mjs": "self",
   "packages/repo-quality/default-branch-guard/index.mjs": "self",
   "packages/repo-quality/affected-tests.mjs": "self",
+  "packages/repo-quality/affected-tests.ts": "self",
   "packages/repo-quality/affected-tests/args.ts": "self",
   "packages/repo-quality/affected-tests/args.mjs": "self",
   "packages/repo-quality/affected-tests/cli.ts": "self",
