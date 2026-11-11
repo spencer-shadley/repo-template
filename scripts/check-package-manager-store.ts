@@ -21,11 +21,11 @@ function canonicalizePath(path: string): string {
   let current = absolute;
   for (;;) {
     try {
-      return join(realpathSync(current), ...tail.reverse());
+      return join(realpathSync(current), ...tail);
     } catch {
       const parent = dirname(current);
       if (parent === current) return absolute;
-      tail.push(basename(current));
+      tail.unshift(basename(current));
       current = parent;
     }
   }

@@ -72,7 +72,7 @@ void test("isPathInside sees a not-yet-existing in-repo store under a symlinked 
     const realRepo = path.join(realpathSync(temp), "real-repo");
     mkdirSync(realRepo, { recursive: true });
     const linkRepo = path.join(temp, "link-repo");
-    symlinkSync(realRepo, linkRepo, "dir");
+    symlinkSync(realRepo, linkRepo, process.platform === "win32" ? "junction" : "dir");
     const external = path.join(temp, "external-store");
     mkdirSync(external);
 
