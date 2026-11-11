@@ -6,4 +6,4 @@
 3. **Where does a human look first** when something's wrong?
 
 Standard surfaces every repo already has: `.ops/incidents.jsonl` (operational incidents),
-`plans/archive/` (what the loop did), PR history. Never log secrets; redact tokens.
+issue and PR history (what the loop did). Never log secrets; redact tokens.
