@@ -42,13 +42,13 @@ audit, the autonomous loop) rely on these paths.
 | `plans/archive/` | archived completed plan specs/results/logs |
 | `TODO.md` | one-shot setup survey (deleted once setup completes) |
 | `docs/ARCHITECTURE.md` | the system map agents load when entering cold |
-| `SECURITY.md` | secrets doctrine + leak playbook |
 | `CHANGELOG.md` | Keep-a-Changelog + the *Unchanged (intentional)* frozen-namespace section |
 | `GEMINI.md` | thin pointer (every agent tool gets one; all point at AGENTS.md) |
 | `.gitignore` | secret/transient ignore baseline, including incident-log tracking exceptions |
 | `.github/workflows/ci.yml` | advisory clean-room CI skeleton |
 | `.github/pull_request_template.md` | review prompts for side effects and obligations |
 | account `.github/ISSUE_TEMPLATE/` | inherited account-wide issue intake from `spencer-shadley/.github`; local overrides are forbidden |
+| account `SECURITY.md` | inherited account-wide security policy from `spencer-shadley/.github`, pointing at the root [code SECURITY.md](https://github.com/spencer-shadley/code/blob/master/SECURITY.md); add a repo `SECURITY.md` only for repo-specific rules |
 
 **Start here**
 1. `AGENTS.md`
