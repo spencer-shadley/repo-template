@@ -17,7 +17,6 @@
   "GEMINI.md": "copy",
   "PRIORITIES.md": "copy",
   "README.md": "merge",
-  "SECURITY.md": "copy",
   "TEMPLATE_VERSION": "self",
   "TODO.md": "copy",
   "VERSION": "self",

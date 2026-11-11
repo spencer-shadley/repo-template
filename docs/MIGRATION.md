@@ -123,6 +123,10 @@ repo-local decision at the next free ADR number. Rollback is reverting the consu
 commit. The canary stays `gmail-markdown`: it carries the pin, and this change touches only the pin
 and docs, so its verify surface is still the smallest.
 
+The template no longer ships `SECURITY.md` (repo-template#556). Delete a byte-identical template
+copy; the public `spencer-shadley/.github` account default applies instead and points at the root
+code `SECURITY.md`. Keep a repo `SECURITY.md` only for repo-specific rules.
+
 ## PlanRecordV1 retired (repo-template#526)
 
 The `plan-record/v1` contract, its classifier and the `work-migration-manifest/v1` receipt are
