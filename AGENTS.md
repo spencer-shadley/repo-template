@@ -45,10 +45,10 @@ This repo IS the workspace standard. Everything below the `/TEMPLATE-SELF` marke
 into new repos — `{{PLACEHOLDERS}}` and `TODO(setup):` markers there are INTENTIONAL; never "fix"
 them when working on this repo.
 
-- **Queue project, auto-tier** (docs/config only): changes flow issue → triage → plan → loop →
-  auto-merge. Enrollment is `projects.json` membership. **Claim Pending SoT** is the issue/plan
-  DAG (`WorkProjectionV1`). Do **not** recreate `plans/QUEUE.md` — that path is a forbidden
-  tombstone. Instantiation must not ship a QUEUE file.
+- **Queue project, auto-tier** (docs/config only): changes flow issue → triage → implement →
+  verify → review → PR → auto-merge. Enrollment is `projects.json` membership. **Claim Pending
+  SoT** is the issue/plan DAG (`WorkProjectionV1`). Do **not** recreate `plans/QUEUE.md` — that
+  path is a forbidden tombstone. Instantiation must not ship a QUEUE file.
 - **Verify gate for THIS repo:**
   ```
   corepack_bin=corepack
@@ -105,8 +105,9 @@ responsibility is not a claim that implementation is complete. -->
 > summary-sized; when one outgrows roughly a screen, move the detail to its own file under `docs/`
 > and leave a two-line summary + link here.
 
-This repo is queue-enrolled (see docs/QUEUE-ENROLLMENT.md). Effectful, shared-authority, and
-non-trivial changes use the governed lane; qualifying direct-L0 work uses the fast path below.
+This repo is enrolled in the autonomous flywheel (see docs/QUEUE-ENROLLMENT.md). Effectful,
+shared-authority, and non-trivial changes use the governed lane; qualifying direct-L0 work uses the
+fast path below.
 <!-- TODO(setup): confirm enrollment happened (agent-orchestrator/projects.json, Windmill drain
 schedule, watchlist.tsv) — see docs/QUEUE-ENROLLMENT.md. -->
 

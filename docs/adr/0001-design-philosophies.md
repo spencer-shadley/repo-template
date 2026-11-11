@@ -20,7 +20,7 @@ fine — record WHY here.
         multi-attribute identity verification gates before acting (never single-key matching),
         fail-closed on any uncertainty, and write a JSONL audit ledger row for every action. -->
 3. **Testing depth** — what layers, and what does the verify gate run?
-   <!-- TODO(setup!): the loop's verify gate is the REAL quality bar (merge-blocking, runs locally).
+   <!-- TODO(setup!): the verify gate is the REAL quality bar (merge-blocking, runs locally).
         It must cover every artifact type in the repo and be environment-honest: browser/docker/
         display-dependent steps must probe availability and skip-with-notice rather than hang
         (a 30-min hang burns ~5 codex turns; see workspace INCIDENTS 2026-07-02). -->
@@ -32,14 +32,14 @@ fine — record WHY here.
    migrations+backups+restore recipe day one.
    <!-- TODO(setup): storage rung and migration/backup posture -->
 6. **Dependency posture** — workspace default: dependency upgrades are AUTOMATIC, majors included,
-   via the discovery → triage → plan → loop pipeline. A deterministic finder files outdated-dep
-   issues (self-deduplicating via fingerprints), triage authors upgrade plans, the verify gate +
-   reviewer are the safety, and revert is the fallback. No direct-merge bots. Upgrade plans for
-   majors must cite the changelog/breaking-notes in the plan body.
+   as issue-native work: a deterministic finder files outdated-dep issues (self-deduplicating via
+   fingerprints), the GitHub issue is the spec and gh-issue-plan-execute plans just in time, the
+   verify gate + reviewer are the safety, and revert is the fallback. No direct-merge bots. Major
+   upgrades cite the changelog/breaking-notes in the issue or PR.
    <!-- TODO(setup): override only with repo-specific reasons. -->
-7. **Hooks policy** — pre-commit hooks allowed, but they must never block the loop's
-   WIP-preservation commits (which use --no-verify BY DESIGN — a lint hook once wedged a whole
-   repo's queue for hours). <!-- TODO(setup): list hooks + what each enforces -->
+7. **Hooks policy** — pre-commit hooks allowed, but they must never block WIP-preservation
+   commits (which use --no-verify BY DESIGN — a lint hook once wedged a whole repo's retired plan
+   queue for hours). <!-- TODO(setup): list hooks + what each enforces -->
 8. **Post-merge obligations** — anything that must happen after a merge to be truly "done"?
    <!-- TODO(setup): e.g. container redeploy so localhost serves the new code; design-system sync;
         docs/tutorial refresh when user-facing behavior changes. -->

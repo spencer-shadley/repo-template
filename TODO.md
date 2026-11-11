@@ -4,8 +4,8 @@ This file is only for out-of-tree or one-shot adoption work. In-tree setup marke
 directly by the README command; do not mirror them here. If the project has its own `docs/todo.md`,
 that is a product backlog, not this adoption checklist.
 
-- [ ] Enroll in the queue system per docs/QUEUE-ENROLLMENT.md (NEAR-MANDATORY — opt-out requires
-      an accepted ADR).
+- [ ] Enroll in the autonomous flywheel per docs/QUEUE-ENROLLMENT.md (NEAR-MANDATORY — opt-out
+      requires an accepted ADR).
 - [ ] From the workspace root, add this repo to agy `watchlist.tsv` with a focus prompt.
 - [ ] Install and verify the default-branch commit guard from `@spencer-shadley/repo-quality`:
       run `default-branch-guard.mjs install` then `check`; resolve any foreign/composed hooks
