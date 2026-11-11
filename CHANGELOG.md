@@ -6,6 +6,9 @@ one entry per user-visible or structural change.
 
 ## [Unreleased]
 
+### Fixed
+- **check-package-manager-store compares canonical paths (repo-template#565):** `isPathInside` realpath'd only existing paths, so a not-yet-existing in-repo store reached through a symlinked checkout (such as `/agents-temp` with a governed `TMPDIR`) was missed and `--self-test` failed. Both sides now resolve the nearest existing ancestor and re-append the missing tail. The script is `self` mode in `template-manifest.json`, so consumers carry no copies. PATCH.
+
 ### Changed
 - **Stop seeding plan-loop wording in ADR-0001, TODO and AGENTS (repo-template#534, registry `code-9710-plan-queue`):** the copied ADR-0001 no longer routes dependency upgrades through a discovery → triage → plan → loop pipeline with triage-authored upgrade plans; upgrades are issue-native work (the GitHub issue is the spec; gh-issue-plan-execute plans just in time) and majors cite breaking notes in the issue or PR. Its testing and hooks bullets drop "the loop's". `TODO.md` and the shipped `AGENTS.md` say "autonomous flywheel" instead of "queue system"/"queue-enrolled", and the template-self flow reads issue → triage → implement → verify → review → PR → auto-merge. This is the same wording unraid-ops#627 landed in its copy. PATCH (wording only).
 - **Stop seeding retired plan-queue steers in enrollment and observability docs (repo-template#534, registry `code-9710-plan-queue`):** `docs/QUEUE-ENROLLMENT.md` no longer says humans and agents enqueue plans behind a PreToolUse guard with a `plans/` exemption, and lists the flow as issue → triage → implement → verify → review → PR → merge. `docs/OBSERVABILITY.md` names issue and PR history, not `plans/archive/`, as the record of what the loop did. Adopted repositories get a `plans/`-free copy; existing copies keep their own text (environment-selector#8 fixed its copy). PATCH (wording only).

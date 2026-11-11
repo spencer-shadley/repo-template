@@ -10,28 +10,30 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, normalize, relative, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, normalize, relative, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-function isPathInside(parentDir: string, targetPath: string): boolean {
-  let resolvedParent = normalize(resolve(parentDir));
-  let resolvedTarget = normalize(resolve(targetPath));
+/** realpath of the nearest existing ancestor, with the not-yet-existing tail re-appended. */
+function canonicalizePath(path: string): string {
+  const absolute = normalize(resolve(path));
+  const tail: string[] = [];
+  let current = absolute;
+  for (;;) {
+    try {
+      return join(realpathSync(current), ...tail.reverse());
+    } catch {
+      const parent = dirname(current);
+      if (parent === current) return absolute;
+      tail.push(basename(current));
+      current = parent;
+    }
+  }
+}
 
-  if (existsSync(resolvedParent)) {
-    try {
-      resolvedParent = realpathSync(resolvedParent);
-    } catch {
-      // fallback to resolvedParent
-    }
-  }
-  if (existsSync(resolvedTarget)) {
-    try {
-      resolvedTarget = realpathSync(resolvedTarget);
-    } catch {
-      // fallback to resolvedTarget
-    }
-  }
+export function isPathInside(parentDir: string, targetPath: string): boolean {
+  let resolvedParent = canonicalizePath(parentDir);
+  let resolvedTarget = canonicalizePath(targetPath);
 
   if (process.platform === "win32") {
     resolvedParent = resolvedParent.toLowerCase();

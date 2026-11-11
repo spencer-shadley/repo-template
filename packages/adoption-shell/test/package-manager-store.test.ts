@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+
+import { isPathInside } from "../../../scripts/check-package-manager-store.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const scriptPath = path.join(root, "scripts", "check-package-manager-store.ts");
@@ -61,5 +63,26 @@ void test("check-package-manager-store rejects directory containing .pnpm-store"
     assert.match(result.stderr, /Package manager cache directory '.pnpm-store' was found inside the repository checkout/);
   } finally {
     rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+void test("isPathInside sees a not-yet-existing in-repo store under a symlinked checkout", () => {
+  const temp = mkdtempSync(path.join(tmpdir(), "pm-store-symlink-"));
+  try {
+    const realRepo = path.join(realpathSync(temp), "real-repo");
+    mkdirSync(realRepo, { recursive: true });
+    const linkRepo = path.join(temp, "link-repo");
+    symlinkSync(realRepo, linkRepo, "dir");
+    const external = path.join(temp, "external-store");
+    mkdirSync(external);
+
+    // Missing store reached through the symlink vs. the real root, and the reverse.
+    assert.equal(isPathInside(realRepo, path.join(linkRepo, ".pnpm-store")), true);
+    assert.equal(isPathInside(linkRepo, path.join(realRepo, ".pnpm-store", "v3")), true);
+    assert.equal(isPathInside(linkRepo, linkRepo), true);
+    assert.equal(isPathInside(linkRepo, external), false);
+    assert.equal(isPathInside(linkRepo, path.join(external, "missing", "deeper")), false);
+  } finally {
+    rmSync(temp, { recursive: true, force: true });
   }
 });
