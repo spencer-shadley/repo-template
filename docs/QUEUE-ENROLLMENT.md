@@ -19,11 +19,9 @@ consumed protocol identity, reproducibility, availability and rollback evidence 
 
 ## What enrollment means
 
-All source changes flow **issue → triage → plan → loop (implement/verify/review) → PR → merge**.
-Humans and agent sessions enqueue plans instead of hand-editing source — a
-PreToolUse guard enforces this in the workspace. Docs, config, and the `plans/`
-directory itself remain direct-editable (see each repo's `AGENTS.md` for the
-exact risk tier and exemptions).
+All source changes flow **issue → triage → implement → verify → review → PR → merge**. The
+GitHub issue is the spec; gh-issue-plan-execute plans just in time. See each repo's `AGENTS.md`
+for the exact risk tier and exemptions.
 
 The producer-verified `FleetRegistryReleaseV1` is the canonical executable fleet census for
 repository identity/membership used by fleet-wide automation. Do not create another handwritten
