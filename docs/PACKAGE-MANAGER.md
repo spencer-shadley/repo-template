@@ -101,13 +101,13 @@ readiness, source binding and installed selection retain their separate acceptan
 
 ## Native store boundary and acceptance
 
-Released pnpm 12.18.0 has shared store-use and exclusive prune admission in
+Released `pnpm 12.18.0` has shared store-use and exclusive prune admission in
 [`store_lock.rs`](https://github.com/pnpm/pnpm/blob/0470052291b2ba369be93a9b696e0a0097722ba5/pnpm/crates/store-dir/src/store_lock.rs).
 Installs, fetch, configuration dependencies, engine setup, and store additions join that
 native admission; pruning holds the exclusive side before its census and deletions.
 The version is evidence of the upstream capability, not the selection in this contract.
 
-Native pnpm 11.17.0 and 12.18.0 both use the `v11` store namespace. Remaining pnpm 11
+Native `pnpm 11.17.0` and `12.18.0` both use the `v11` store namespace. Remaining `pnpm 11`
 consumers do not acquire the newer operation lock, so a manager update alone does not
 establish safe mixed-consumer pruning. The Windows lock directory comes from the actual
 user token's Local App Data; changing environment variables or sharing `COREPACK_HOME`
