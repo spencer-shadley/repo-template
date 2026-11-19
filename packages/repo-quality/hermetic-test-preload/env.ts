@@ -147,7 +147,7 @@ function copyInheritedEnvironment(source: NodeJS.ProcessEnv): NodeJS.ProcessEnv 
  * even with GIT_TERMINAL_PROMPT=0. credential.interactive=false makes a credential miss fail
  * instead, and BatchMode ssh never asks about host keys (code#8482, windows-maintenance#1758).
  */
-export const HERMETIC_GLOBAL_GIT_CONFIG = "# fleet hermetic test global\n[credential]\n\tinteractive = false\n[core]\n\tsshCommand = ssh -o BatchMode=yes\n";
+const HERMETIC_GLOBAL_GIT_CONFIG = "# fleet hermetic test global\n[credential]\n\tinteractive = false\n[core]\n\tsshCommand = ssh -o BatchMode=yes\n";
 
 /**
  * Build a scrubbed env pointing HOME / XDG / GIT_CONFIG_* at a fresh temp root.

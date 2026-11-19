@@ -346,7 +346,14 @@ void test("code#13858: own normal exit cleans up; killed and foreign roots requi
   } finally { rmSync(parent, { recursive: true, force: true }); }
 });
 
-void test("hermetic git never asks askpass for a missing credential (code#8482, windows-maintenance#1758)", () => {
+// credential.interactive is a recent git key; an older git cannot honor it, so it cannot be held to it.
+const gitKnowsCredentialInteractive = /^credential\.interactive$/m.test(
+  spawnSync("git", ["help", "--config"], { encoding: "utf8" }).stdout ?? "",
+);
+
+void test("hermetic git never asks askpass for a missing credential (code#8482, windows-maintenance#1758)", {
+  skip: gitKnowsCredentialInteractive ? false : "installed git does not know credential.interactive",
+}, () => {
   const parent = mkdtempSync(path.join(tmpdir(), "rq-askpass-"));
   try {
     const marker = path.join(parent, "askpass-invoked");
