@@ -345,3 +345,21 @@ void test("code#13858: own normal exit cleans up; killed and foreign roots requi
     }
   } finally { rmSync(parent, { recursive: true, force: true }); }
 });
+
+void test("hermetic git never asks askpass for a missing credential (code#8482, windows-maintenance#1758)", () => {
+  const parent = mkdtempSync(path.join(tmpdir(), "rq-askpass-"));
+  try {
+    const marker = path.join(parent, "askpass-invoked");
+    const askpass = path.join(parent, "askpass.sh");
+    writeFileSync(askpass, `#!/bin/sh\necho invoked > '${marker.replaceAll("\\", "/")}'\nexit 1\n`, { mode: 0o755 });
+    const built = buildHermeticTestEnvironment({ env: { ...process.env, SSH_ASKPASS: askpass, GIT_ASKPASS: askpass }, tempParent: parent });
+    assert.equal(readFileSync(built.env["GIT_CONFIG_GLOBAL"]!, "utf8").includes("interactive = false"), true);
+    const fill = spawnSync("git", ["credential", "fill"], {
+      env: built.env, input: "protocol=https\nhost=hermetic.invalid\n\n", encoding: "utf8", timeout: 30_000,
+    });
+    assert.notEqual(fill.status, 0);
+    assert.equal(existsSync(marker), false, `askpass ran: ${fill.stderr}`);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
