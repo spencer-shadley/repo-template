@@ -115,6 +115,14 @@ function copyInheritedEnvironment(source) {
     return env;
 }
 /**
+ * Disposable global gitconfig. A hermetic HOME hides the operator credential helper, and
+ * windowless Git for Windows then asks git-askpass.exe (a headed "Git for Windows" dialog)
+ * even with GIT_TERMINAL_PROMPT=0. credential.interactive=false makes a credential miss fail
+ * instead, and BatchMode ssh never asks about host keys (code#8482, windows-maintenance#1758).
+ */
+const HERMETIC_GLOBAL_GIT_CONFIG = "# fleet hermetic test global\n[credential]\n\tinteractive = false\n[core]\n\tsshCommand = ssh -o BatchMode=yes\n";
+
+/**
  * Build a scrubbed env pointing HOME / XDG / GIT_CONFIG_* at a fresh temp root.
  * Does not mutate the input env object; returns a new one.
  */
@@ -131,7 +139,7 @@ export function buildHermeticTestEnvironment(options = {}) {
     const tempDir = path.join(root, "tmp");
     for (const dir of [home, xdgConfig, tempDir])
         mkdirSync(dir, { recursive: true });
-    writeFileSync(gitConfigGlobal, "# fleet hermetic test global\n", "utf8");
+    writeFileSync(gitConfigGlobal, HERMETIC_GLOBAL_GIT_CONFIG, "utf8");
     writeFileSync(gitConfigSystem, "# fleet hermetic test system\n", "utf8");
     const env = copyInheritedEnvironment(source);
     env["FLEET_CENTRAL_DB_PATH"] = path.join(root, "fleet-central.sqlite");
@@ -161,11 +169,16 @@ export function buildHermeticTestEnvironment(options = {}) {
     env["GIT_COMMITTER_NAME"] = env["GIT_AUTHOR_NAME"];
     env["GIT_COMMITTER_EMAIL"] = env["GIT_AUTHOR_EMAIL"];
     // Disable signing for disposable fixtures (cli-wrappers test harness class).
-    env["GIT_CONFIG_COUNT"] = "2";
+    env["GIT_CONFIG_COUNT"] = "3";
     env["GIT_CONFIG_KEY_0"] = "commit.gpgsign";
     env["GIT_CONFIG_VALUE_0"] = "false";
     env["GIT_CONFIG_KEY_1"] = "tag.gpgsign";
     env["GIT_CONFIG_VALUE_1"] = "false";
+    // Highest-precedence copy: survives a test that repoints GIT_CONFIG_GLOBAL.
+    env["GIT_CONFIG_KEY_2"] = "credential.interactive";
+    env["GIT_CONFIG_VALUE_2"] = "false";
+    env["GIT_TERMINAL_PROMPT"] = "0";
+    env["GCM_INTERACTIVE"] = "Never";
     return { root, env };
 }
 /**
