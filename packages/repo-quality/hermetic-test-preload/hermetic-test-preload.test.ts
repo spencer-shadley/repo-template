@@ -7,7 +7,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { Worker } from "node:worker_threads";
-import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, isHermeticStripKey, sweepDeadHermeticRoots } from "./env.ts";
+import { applyHermeticTestEnvironment, buildHermeticTestEnvironment, HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, hermeticGlobalGitConfigText, isHermeticOwner, isHermeticStripKey, sweepDeadHermeticRoots } from "./env.ts";
 
 const agentStorageKeys = ["FLEET_AGENTS_ROOT", "FLEET_AGENTS_TEMP", "AO_WORKTREES_ROOT", "ORCH_WORKTREE_ROOT",
   "npm_config_store_dir", "pnpm_config_store_dir", "npm_config_cache", "npm_config_cache_dir", "pnpm_config_cache_dir"] as const;
@@ -348,7 +348,7 @@ void test("code#13858: own normal exit cleans up; killed and foreign roots requi
 
 // credential.interactive is a recent git key; an older git cannot honor it, so it cannot be held to it.
 const gitKnowsCredentialInteractive = /^credential\.interactive$/m.test(
-  spawnSync("git", ["help", "--config"], { encoding: "utf8" }).stdout ?? "",
+  spawnSync("git", ["help", "--config"], { encoding: "utf8" }).stdout,
 );
 
 void test("hermetic git never asks askpass for a missing credential (code#8482, windows-maintenance#1758)", {
@@ -360,12 +360,88 @@ void test("hermetic git never asks askpass for a missing credential (code#8482, 
     const askpass = path.join(parent, "askpass.sh");
     writeFileSync(askpass, `#!/bin/sh\necho invoked > '${marker.replaceAll("\\", "/")}'\nexit 1\n`, { mode: 0o755 });
     const built = buildHermeticTestEnvironment({ env: { ...process.env, SSH_ASKPASS: askpass, GIT_ASKPASS: askpass }, tempParent: parent });
-    assert.equal(readFileSync(built.env["GIT_CONFIG_GLOBAL"]!, "utf8").includes("interactive = false"), true);
+    const gitConfigGlobal = built.env["GIT_CONFIG_GLOBAL"];
+    assert.ok(gitConfigGlobal);
+    assert.equal(readFileSync(gitConfigGlobal, "utf8").includes("interactive = false"), true);
     const fill = spawnSync("git", ["credential", "fill"], {
       env: built.env, input: "protocol=https\nhost=hermetic.invalid\n\n", encoding: "utf8", timeout: 30_000,
     });
     assert.notEqual(fill.status, 0);
     assert.equal(existsSync(marker), false, `askpass ran: ${fill.stderr}`);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+void test("hermetic global gitconfig rewrites GitHub SSH and uses StrictHostKeyChecking=yes (code#15651)", () => {
+  const text = hermeticGlobalGitConfigText();
+  assert.match(text, /interactive = false/);
+  assert.match(text, /insteadOf = git@github\.com:/);
+  assert.match(text, /insteadOf = ssh:\/\/git@github\.com\//);
+  assert.match(text, /insteadOf = ssh:\/\/git@github\.com:22\//);
+  assert.match(text, /insteadOf = git\+ssh:\/\/git@github\.com\//);
+  assert.match(text, /insteadOf = git\+ssh:\/\/git@github\.com:22\//);
+  assert.match(text, /sshCommand = ssh -o BatchMode=yes -o StrictHostKeyChecking=yes/);
+  const parent = mkdtempSync(path.join(tmpdir(), "rq-gitconfig-"));
+  try {
+    const built = buildHermeticTestEnvironment({ tempParent: parent });
+    const written = readFileSync(path.join(built.root, "gitconfig.global"), "utf8");
+    assert.match(written, /insteadOf = git@github\.com:/);
+    assert.equal(built.env["GIT_TERMINAL_PROMPT"], "0");
+    assert.equal(built.env["GCM_INTERACTIVE"], "Never");
+    assert.equal(built.env["GIT_CONFIG_NOSYSTEM"], "1");
+    const shown = spawnSync(
+      "git",
+      ["config", "--get-regexp", "insteadof|credential.interactive|core.sshcommand"],
+      { env: built.env, encoding: "utf8" },
+    );
+    assert.equal(shown.status, 0, shown.stderr);
+    assert.match(shown.stdout, /git@github\.com:/);
+    assert.match(shown.stdout, /credential\.interactive false/);
+    assert.match(shown.stdout, /BatchMode=yes/);
+    assert.match(shown.stdout, /StrictHostKeyChecking=yes/);
+  } finally {
+    rmSync(parent, { recursive: true, force: true });
+  }
+});
+
+void test("isHermeticStripKey covers FLEET_SEAT/SESSION and additional harness session keys (code#7230, code#15651)", () => {
+  for (const key of [
+    "FLEET_SESSION_KIND",
+    "FLEET_SEAT_STAGE",
+    "FLEET_SEAT_ID",
+    "FLEET_SESSION_ID",
+    "FLEET_COMMISSION_ID",
+    "FLEET_WORKSTREAM_ID",
+    "FLEET_PARENT_SESSION_ID",
+    "CLAUDE_SESSION_ID",
+    "GROK_SESSION_ID",
+    "ANTIGRAVITY_CONVERSATION_ID",
+  ]) {
+    assert.equal(isHermeticStripKey(key), true, key);
+  }
+  assert.equal(isHermeticStripKey("FLEET_SEAT_JOB_ID_SUFFIX"), false);
+});
+
+void test("caller-owned cleanup retains marked root after process exit while default settles (code#15651)", () => {
+  const parent = mkdtempSync(path.join(tmpdir(), "rq-caller-dispose-"));
+  try {
+    const environment = JSON.stringify(new URL("./env.ts", import.meta.url).href);
+    for (const cleanup of ["process-exit", "caller"] as const) {
+      const child = spawnSync(process.execPath, ["--experimental-strip-types", "--input-type=module", "-e", `
+        import { buildHermeticTestEnvironment } from ${environment};
+        const { root } = buildHermeticTestEnvironment({ env: {}, tempParent: ${JSON.stringify(parent)}, cleanup: ${JSON.stringify(cleanup)} });
+        process.stdout.write(root);
+      `], { env: { PATH: process.env["PATH"], SystemRoot: process.env["SystemRoot"] }, encoding: "utf8", timeout: 10_000, windowsHide: true });
+      assert.equal(child.error, undefined);
+      assert.equal(child.status, 0, child.stderr);
+      assert.equal(path.dirname(child.stdout), parent);
+      assert.equal(existsSync(child.stdout), cleanup === "caller");
+      if (cleanup === "caller") {
+        const marker: unknown = JSON.parse(readFileSync(path.join(child.stdout, HERMETIC_OWNER_MARKER), "utf8"));
+        assert.ok(isHermeticOwner(marker));
+      }
+    }
   } finally {
     rmSync(parent, { recursive: true, force: true });
   }

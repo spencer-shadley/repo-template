@@ -29,5 +29,6 @@ export {
   applyHermeticTestEnvironment,
   buildHermeticTestEnvironment,
   hermeticEnvironmentSummary,
+  hermeticGlobalGitConfigText,
   isHermeticStripKey,
 } from "./env.ts";

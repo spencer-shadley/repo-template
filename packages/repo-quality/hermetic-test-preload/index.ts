@@ -21,6 +21,7 @@ export {
   applyHermeticTestEnvironment,
   buildHermeticTestEnvironment,
   hermeticEnvironmentSummary,
+  hermeticGlobalGitConfigText,
   isHermeticStripKey,
   type HermeticTestEnvironment,
   type HermeticTestEnvironmentOptions,

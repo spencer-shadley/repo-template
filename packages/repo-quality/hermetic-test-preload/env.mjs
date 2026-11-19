@@ -7,10 +7,10 @@
  * temp root, and ceilings discovery so cwd-based git cannot climb into a real checkout.
  * Pure helpers — call \`applyHermeticTestEnvironment()\` from the preload or tests.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { createHermeticRoot } from "./lifetime.mjs";
+import { createHermeticRoot, retainHermeticRoot } from "./lifetime.mjs";
 export { HERMETIC_OWNER_MARKER, HERMETIC_SWEEP_MIN_AGE_MS, isHermeticOwner, removeOwnedHermeticRoot, retainHermeticRoot, runWithHermeticRootCommand, runWithHermeticRootCommandAsync, sweepDeadHermeticRoots, captureHermeticPnpmStore, restoreHermeticPnpmStore } from "./lifetime.mjs";
 /** Exact routing / custody / config keys that must never leak a real repository into a test. */
 export const HERMETIC_STRIP_EXACT = Object.freeze([
@@ -20,6 +20,10 @@ export const HERMETIC_STRIP_EXACT = Object.freeze([
     "CLI_WRAPPERS_STATE_DIR",
     "FLEET_SEAT_WORKTREE",
     "FLEET_SEAT_JOB_ID",
+    "FLEET_SEAT_STAGE",
+    "FLEET_SEAT_ID",
+    "FLEET_SESSION_KIND",
+    "FLEET_SESSION_ID",
     "GIT_DIR",
     "GIT_WORK_TREE",
     "GIT_INDEX_FILE",
@@ -46,6 +50,7 @@ const HERMETIC_HARNESS_STRIP_EXACT = Object.freeze([
     "CLAUDE_HOOK_EVENT",
     "CLAUDE_CODE_ENTRYPOINT",
     "CLAUDE_CODE_SESSION_ID",
+    "CLAUDE_SESSION_ID",
     "COPILOT_HOOK_EVENT",
     "COPILOT_AGENT_SESSION_ID",
     "COPILOT_PROJECT_DIR",
@@ -53,13 +58,17 @@ const HERMETIC_HARNESS_STRIP_EXACT = Object.freeze([
     "COPILOT_MODEL",
     "COPILOT_ALLOW_ALL",
     "GROK_HOOK_EVENT",
+    "GROK_SESSION_ID",
     "ANTIGRAVITY_AGENT",
+    "ANTIGRAVITY_CONVERSATION_ID",
     "CURSOR_AGENT",
     "CURSOR_CONVERSATION_ID",
     "CODEX_THREAD_ID",
     "CODEX_SESSION_ID",
 ]);
 const HARNESS_PREFIXES = ["CURSOR_HOOK"];
+// code#11940: commission topology (depth, tier, workstream, parent) describes the running agent, not a fixture.
+const FLEET_SESSION_KEY = /^FLEET_(?:SESSION|COMMISSION|MOCHA|WORKSTREAM|PARENT_SESSION)(?:_.*)?$/i;
 /** Temp-dir variables redirected into the disposable root so tests never share os.tmpdir() state. */
 const TEMP_KEYS = ["TEMP", "TMP", "TMPDIR"];
 /** Legacy state discovery must see private homes even when no explicit state override is set. */
@@ -101,6 +110,8 @@ export function isHermeticStripKey(key) {
         return true;
     if (HARNESS_PREFIXES.some((prefix) => upper.startsWith(prefix)))
         return true;
+    if (FLEET_SESSION_KEY.test(upper))
+        return true;
     return false;
 }
 /** Copy `source`, dropping undefined values, stripped keys, and the identity/temp keys this module redirects. */
@@ -114,14 +125,45 @@ function copyInheritedEnvironment(source) {
     }
     return env;
 }
+const HERMETIC_GITHUB_SSH_PREFIXES = [
+    "git@github.com:",
+    "ssh://git@github.com/",
+    "ssh://git@github.com:22/",
+    "git+ssh://git@github.com/",
+    "git+ssh://git@github.com:22/",
+];
+const WINDOWS_GH_CREDENTIAL_HELPER = String.raw `!'C:\\Program Files\\GitHub CLI\\gh.exe' auth git-credential`;
 /**
  * Disposable global gitconfig. A hermetic HOME hides the operator credential helper, and
  * windowless Git for Windows then asks git-askpass.exe (a headed "Git for Windows" dialog)
  * even with GIT_TERMINAL_PROMPT=0. credential.interactive=false makes a credential miss fail
- * instead, and BatchMode ssh never asks about host keys (code#8482, windows-maintenance#1758).
+ * instead, HTTPS insteadOf rewrites avoid SSH key prompts, and BatchMode ssh with
+ * StrictHostKeyChecking=yes never asks about host keys (code#8482, windows-maintenance#1758).
  */
-const HERMETIC_GLOBAL_GIT_CONFIG = "# fleet hermetic test global\n[credential]\n\tinteractive = false\n[core]\n\tsshCommand = ssh -o BatchMode=yes\n";
-
+export function hermeticGlobalGitConfigText() {
+    const lines = [
+        "# fleet hermetic test global",
+        "# Non-interactive GitHub transport. This file replaces the operator gitconfig.",
+        "[credential]",
+        "\tinteractive = false",
+    ];
+    if (process.platform === "win32" && existsSync(String.raw `C:\Program Files\GitHub CLI\gh.exe`)) {
+        lines.push('[credential "https://github.com"]', "\thelper =", `\thelper = ${WINDOWS_GH_CREDENTIAL_HELPER}`);
+    }
+    lines.push('[url "https://github.com/"]');
+    for (const prefix of HERMETIC_GITHUB_SSH_PREFIXES) {
+        lines.push(`\tinsteadOf = ${prefix}`);
+    }
+    lines.push("[core]", "\tsshCommand = ssh -o BatchMode=yes -o StrictHostKeyChecking=yes", "");
+    return lines.join("\n");
+}
+function populatePrivateDirectories(root, env) {
+    for (const [key, relative] of Object.entries({ ...PRIVATE_AGENT_STORAGE_PATHS, ...PRIVATE_STATE_HOME_PATHS })) {
+        const directory = path.join(root, ...relative);
+        mkdirSync(directory, { recursive: true });
+        env[key] = directory;
+    }
+}
 /**
  * Build a scrubbed env pointing HOME / XDG / GIT_CONFIG_* at a fresh temp root.
  * Does not mutate the input env object; returns a new one.
@@ -132,6 +174,8 @@ export function buildHermeticTestEnvironment(options = {}) {
     const prefix = options.prefix ?? "fleet-hermetic-test-";
     mkdirSync(parent, { recursive: true });
     const root = createHermeticRoot(parent, prefix);
+    if (options.cleanup === "caller")
+        retainHermeticRoot(root);
     const home = path.join(root, "home");
     const xdgConfig = path.join(root, "xdg-config");
     const gitConfigGlobal = path.join(root, "gitconfig.global");
@@ -139,15 +183,11 @@ export function buildHermeticTestEnvironment(options = {}) {
     const tempDir = path.join(root, "tmp");
     for (const dir of [home, xdgConfig, tempDir])
         mkdirSync(dir, { recursive: true });
-    writeFileSync(gitConfigGlobal, HERMETIC_GLOBAL_GIT_CONFIG, "utf8");
+    writeFileSync(gitConfigGlobal, hermeticGlobalGitConfigText(), "utf8");
     writeFileSync(gitConfigSystem, "# fleet hermetic test system\n", "utf8");
     const env = copyInheritedEnvironment(source);
     env["FLEET_CENTRAL_DB_PATH"] = path.join(root, "fleet-central.sqlite");
-    for (const [key, relative] of Object.entries({ ...PRIVATE_AGENT_STORAGE_PATHS, ...PRIVATE_STATE_HOME_PATHS })) {
-        const directory = path.join(root, ...relative);
-        mkdirSync(directory, { recursive: true });
-        env[key] = directory;
-    }
+    populatePrivateDirectories(root, env);
     const ceilings = (options.ceilingDirectories ?? [root])
         .map((entry) => path.resolve(entry))
         .filter((entry, index, all) => all.indexOf(entry) === index);
