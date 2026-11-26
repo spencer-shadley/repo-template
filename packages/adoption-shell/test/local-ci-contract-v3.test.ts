@@ -276,6 +276,8 @@ void test("fleet overlay: repository local-ci.json validates strictly", () => {
   const localCi: unknown = JSON.parse(fs.readFileSync(path.join(root, "local-ci.json"), "utf8"));
   const result = validateLocalCiContractV3(localCi);
   assert.equal(result.ok, true, result.ok ? "" : JSON.stringify(result.diagnostics));
+  assert.deepEqual(result.value.environment.runtime, { name: "node", versionConstraint: ">=24.16.0" });
+  assert.deepEqual(result.value.environment.packageManager, { name: "pnpm" });
 });
 
 void test("fleet overlay: arbitrary unknown top-level properties are still rejected", () => {

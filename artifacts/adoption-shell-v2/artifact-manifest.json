@@ -1347,8 +1347,8 @@
       "path": "local-ci.json",
       "kind": "file",
       "mode": "100644",
-      "sha256": "9f8a3a94cc692f68a3b8762b72e357a0c6f94a66c32e25585f5502c75ebf7e0f",
-      "bytes": 2381
+      "sha256": "cc082b9e9c9d46d7815a6cc3d7f2547253842d0b80af4f376d152d86c81ed8c3",
+      "bytes": 2349
     },
     {
       "path": "scripts/check-runtime-artifact-registry.ts",
@@ -1556,5 +1556,5 @@
       "bytes": 431
     }
   ],
-  "manifestDigest": "7a8b2128f00800d1cb7136ef898eb802ccdb4e52d27f0696ead1a59529a5a458"
+  "manifestDigest": "b228474630d1b6caf8780e63a880af87722a4bb121b45025f06f58421d4e6838"
 }
