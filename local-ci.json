@@ -24,11 +24,10 @@
   "environment": {
     "runtime": {
       "name": "node",
-      "versionConstraint": ">=24.16.0 <25"
+      "versionConstraint": ">=24.16.0"
     },
     "packageManager": {
-      "name": "pnpm",
-      "version": "11.17.0"
+      "name": "pnpm"
     },
     "supportedPlatforms": [
       "win32",

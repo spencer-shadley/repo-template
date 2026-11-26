@@ -62,13 +62,19 @@ function selectedManager(): string {
 
 function usesEnrolledSelection(pkg: Record<string, unknown>, declaredEngines: Record<string, unknown>): boolean {
   const manager = selectedManager();
-  if (Object.hasOwn(pkg, "packageManager") || Object.hasOwn(declaredEngines, manager)) return false;
+  if (Object.hasOwn(pkg, "packageManager")) return false;
+  const floor = declaredEngines[manager];
+  if (floor !== undefined && !isOpenEngineFloor(floor)) return false;
   const devEngines = pkg["devEngines"];
   if (typeof devEngines !== "object" || devEngines === null || Array.isArray(devEngines)) return false;
   const declaration: unknown = Reflect.get(devEngines, "packageManager");
   if (typeof declaration !== "object" || declaration === null || Array.isArray(declaration)) return false;
   return Reflect.get(declaration, "name") === manager && Reflect.get(declaration, "onFail") === "error"
     && !Object.hasOwn(declaration, "version");
+}
+
+function isOpenEngineFloor(value: unknown): boolean {
+  return typeof value === "string" && /^>=\s*\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/u.test(value.trim());
 }
 
 function isBareExactVersion(value: string): boolean {
@@ -103,7 +109,7 @@ export function checkSupplyChainControls(input: Inputs): SupplyChainViolation[] 
   if (!pinned && !usesEnrolledSelection(pkg, declaredEngines)) {
     violations.push({
       rule: "SC4",
-      message: "SC4 use the published name-only devEngines.packageManager selection without a local version/engine pin, "
+      message: "SC4 use the published name-only devEngines.packageManager selection without a local version pin (an open >= engines.pnpm floor is allowed), "
         + "or preserve an exact packageManager version with matching engines.pnpm until migration",
     });
   }
@@ -128,19 +134,22 @@ function runSelfTest(): void {
     workspace: 'packages:\n  - "packages/*"\nminimumReleaseAge: 10080\nonlyBuiltDependencies: []\n',
     packageJson: JSON.stringify({
       packageManager: "pnpm@11.17.0",
-      engines: { node: ">=24.16.0 <25", pnpm: "11.17.0" },
+      engines: { node: ">=24.16.0", pnpm: "11.17.0" },
     }),
   };
   assert.deepEqual(rules(valid), []);
   const enrolled = {
     devEngines: { packageManager: { name: selection["manager"], onFail: "error" } },
-    engines: { node: ">=24.16.0 <25" },
+    engines: { node: ">=24.16.0" },
   };
   assert.deepEqual(rules({ ...valid, packageJson: JSON.stringify(enrolled) }), []);
+  const floored = { ...enrolled, engines: { ...enrolled.engines, pnpm: ">=11.17.0" } };
+  assert.deepEqual(rules({ ...valid, packageJson: JSON.stringify(floored) }), []);
   const rejected = [
     { ...enrolled, packageManager: "pnpm@latest" },
     { ...enrolled, packageManager: "pnpm@latest", engines: { ...enrolled.engines, pnpm: "latest" } },
     { ...enrolled, engines: { ...enrolled.engines, pnpm: "11.17.0" } },
+    { ...enrolled, engines: { ...enrolled.engines, pnpm: ">=11.17.0 <12" } },
     { ...enrolled, devEngines: { packageManager: { ...enrolled.devEngines.packageManager, version: "*" } } },
     { ...enrolled, devEngines: { packageManager: { ...enrolled.devEngines.packageManager, name: "yarn" } } },
     { ...enrolled, devEngines: { packageManager: { ...enrolled.devEngines.packageManager, onFail: "warn" } } },
@@ -158,7 +167,7 @@ function runSelfTest(): void {
     ["SC4"],
   );
   assert.deepEqual(
-    rules({ ...valid, packageJson: valid.packageJson.replace('">=24.16.0 <25"', '"24.16.0"') }),
+    rules({ ...valid, packageJson: valid.packageJson.replace('">=24.16.0"', '"24.16.0"') }),
     ["SC5"],
   );
   process.stdout.write("check-supply-chain-controls self-test: ok\n");

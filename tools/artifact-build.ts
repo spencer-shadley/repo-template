@@ -581,8 +581,10 @@ function verifyPackage(): void {
   if (
     packageJson["private"] !== true ||
     packageJson["type"] !== "module" ||
-    packageJson["packageManager"] !== "pnpm@11.17.0" ||
-    (isRecord(engines) ? engines["node"] : undefined) !== ">=24.16.0 <25" ||
+    packageJson["packageManager"] !== undefined ||
+    !isRecord(engines) ||
+    engines["node"] !== ">=24.16.0" ||
+    engines["pnpm"] !== ">=11.17.0" ||
     packageJson["dependencies"] !== undefined ||
     JSON.stringify(packageJson["devDependencies"]) !== JSON.stringify(expectedDev)
   ) {
